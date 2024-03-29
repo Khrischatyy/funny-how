@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "fonts";
+
+html {
+	@apply text-black;
+}
+
+* {
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	-webkit-tap-highlight-color: transparent;
+}
+
+.only-desktop {
+	display: block;
+}
+.only-mobile {
+	display: none;
+}
+@media (max-width: 639px) {
+	.only-desktop {
+		display: none !important;
+	}
+	.only-mobile {
+		display: block !important;
+	}
+}

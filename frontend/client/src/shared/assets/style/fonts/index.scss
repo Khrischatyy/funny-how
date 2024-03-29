@@ -1,0 +1,51 @@
+@mixin use-font($font_name, $file_path_without_ext, $weight: normal, $style: normal) {
+	@font-face {
+		font-family: quote($font_name);
+		src: url($file_path_without_ext + '.woff') format('woff'),
+		url($file_path_without_ext + '.woff2') format('woff2'),
+		url($file_path_without_ext + '.ttf')  format('truetype');
+		font-weight: $weight;
+		font-style: $style;
+		font-display: swap;
+	}
+}
+
+$font-path: 'shared/assets/fonts/Roboto/';
+$font-path-mazzard: 'shared/assets/fonts/Mazzard/';
+
+$bold-path: 			$font-path + 'Bold/Roboto-Bold';
+$bold-italic-path:		$font-path + 'BoldItalic/Roboto-BoldItalic';
+$italic-path: 			$font-path + 'Italic/Roboto-Italic';
+$medium-path: 			$font-path + 'Medium/Roboto-Medium';
+$medium-italic-path: 	$font-path + 'MediumItalic/Roboto-MediumItalic';
+$regular-path: 			$font-path + 'Regular/Roboto-Regular';
+
+$black-path-mazzard: 				$font-path-mazzard + 'Black/MazzardH-Black';
+$black-italic-path-mazzard: 		$font-path-mazzard + 'BlackItalic/MazzardH-BlackItalic';
+$bold-path-mazzard: 				$font-path-mazzard + 'Bold/MazzardH-Bold';
+$bold-italic-path-mazzard:			$font-path-mazzard + 'BoldItalic/MazzardH-BoldItalic';
+$extra-bold-path-mazzard:			$font-path-mazzard + 'ExtraBold/MazzardH-ExtraBold';
+$extra-bold-italic-path-mazzard:	$font-path-mazzard + 'ExtraBoldItalic/MazzardH-ExtraBoldItalic';
+$extra-light-path-mazzard:			$font-path-mazzard + 'ExtraLight/MazzardH-ExtraLight';
+$regular-path-mazzard:				$font-path-mazzard + 'Regular/MazzardH-Regular';
+$medium-path-mazzard:				$font-path-mazzard + 'Medium/MazzardH-Medium';
+
+
+@include use-font(Roboto, $bold-path, 700, normal);
+@include use-font(Roboto, $bold-italic-path, 700, italic);
+@include use-font(Roboto, $medium-path, 500, normal);
+@include use-font(Roboto, $medium-italic-path, 500, italic);
+@include use-font(Roboto, $italic-path, 400, italic);
+@include use-font(Roboto, $regular-path, 400, normal);
+
+@include use-font(Mazzard, $black-path-mazzard, 700, normal);
+@include use-font(Mazzard, $black-italic-path-mazzard, 700, italic);
+
+@include use-font(Mazzard, $bold-path-mazzard, 600, normal);
+@include use-font(Mazzard, $bold-italic-path-mazzard, 600, italic);
+
+@include use-font(Mazzard, $medium-path-mazzard, 500, normal);
+
+@include use-font(Mazzard, $regular-path-mazzard, 400, normal);
+
+@include use-font(Mazzard, $extra-light-path-mazzard, 100, normal);
