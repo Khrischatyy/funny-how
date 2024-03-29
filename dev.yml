@@ -19,35 +19,35 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
-#  frontend:
-#    container_name: frontend
-#    build:
-#      context: ./frontend/client
-#      dockerfile: Dockerfile
-#      args:
-#        - AXIOS_BASEURL=http://127.0.0.1/api
-#        - AXIOS_BROWSER_BASEURL=/api
-#    expose:
-#      - "3000"
-#    ports:
-#      - "3000:3000"
-#    command: "npm run dev"
-#    environment:
-#      - AXIOS_BASEURL=http://127.0.0.1/api
-#      - AXIOS_BROWSER_BASEURL=/api
-#    volumes:
-#      - ./frontend/client:/usr/src/app
-#      - /usr/src/app/node_modules
-#
-#  adminer:
-#    image: adminer
-#    container_name: adminer
-#    ports:
-#      - 8080:8080
-#    networks:
-#      - laravel
-#    environment:
-#      ADMINER_DEFAULT_SERVER: 'pgsql'
-#      ADMINER_DEFAULT_TYPE: 'postgresql'
-#    depends_on:
-#      - pgsql
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend/client
+      dockerfile: Dockerfile
+      args:
+        - AXIOS_BASEURL=http://127.0.0.1/api
+        - AXIOS_BROWSER_BASEURL=/api
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    command: "npm run dev"
+    environment:
+      - AXIOS_BASEURL=http://127.0.0.1/api
+      - AXIOS_BROWSER_BASEURL=/api
+    volumes:
+      - ./frontend/client:/usr/src/app
+      - /usr/src/app/node_modules
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - funny
+    environment:
+      ADMINER_DEFAULT_SERVER: 'pgsql'
+      ADMINER_DEFAULT_TYPE: 'postgresql'
+    depends_on:
+      - db
