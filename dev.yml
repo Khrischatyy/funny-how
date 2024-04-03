@@ -38,6 +38,8 @@ services:
     volumes:
       - ./frontend/client:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - funny
 
   adminer:
     image: adminer
