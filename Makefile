@@ -4,7 +4,7 @@ build:
 	@docker-compose -f docker-compose.yml -f dev.yml build
 
 start:
-	@docker-compose -f docker-compose.yml -f dev.yml up
+	@docker-compose -f docker-compose.yml -f dev.yml up -d
 
 stop:
 	@docker-compose -f docker-compose.yml -f dev.yml stop
