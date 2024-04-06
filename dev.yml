@@ -9,7 +9,6 @@ services:
     container_name: php
     volumes:
       - './backend:/app/'
-
     depends_on:
       - db
     networks:
@@ -20,6 +19,7 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+
   frontend:
     container_name: frontend
     build:

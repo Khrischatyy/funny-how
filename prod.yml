@@ -1,25 +1,24 @@
 version: "3.9"
 services:
   backend:
-    container_name: backend
     build:
       context: ./backend/php/
-      dockerfile: Dockerfile
-    restart: always
-    expose:
-      - "9000"
-    ports:
-      - "9000:9000"
+      args:
+        WWWUSER: 'laravel'
+        WWWUID: '1000'
+    container_name: php
+    volumes:
+      - './backend:/app/'
+    depends_on:
+      - db
+    networks:
+      - funny
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - db
-    networks:
-      - funny
 
   frontend:
     container_name: frontend
