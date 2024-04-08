@@ -1,10 +1,13 @@
 # DEV
 
+status:
+	@docker-compose -f docker-compose.yml -f dev.yml ps
+
 build:
 	@docker-compose -f docker-compose.yml -f dev.yml build
 
 start:
-	@docker-compose -f docker-compose.yml -f dev.yml up -d
+	@docker-compose -f docker-compose.yml -f dev.yml up
 
 stop:
 	@docker-compose -f docker-compose.yml -f dev.yml stop
@@ -23,6 +26,9 @@ seeds:
 
 
 # PROD
+
+status-prod:
+	@docker-compose -f docker-compose.yml -f prod.yml ps
 
 build-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml build

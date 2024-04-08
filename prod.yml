@@ -1,5 +1,24 @@
 version: "3.9"
 services:
+  nginx:
+    container_name: nginx
+    build:
+      context: ./proxy/
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - './backend:/app/'
+      - './proxy/nginx-prod.conf:/etc/nginx/nginx.conf'
+#      - '/etc/letsencrypt/ssl/fullchain.pem:/etc/nginx/ssl/fullchain.pem'
+#      - '/etc/letsencrypt/ssl/privkey.pem:/etc/nginx/ssl/privkey.pem'
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - funny
+
   backend:
     build:
       context: ./backend/php/
