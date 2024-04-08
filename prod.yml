@@ -38,11 +38,11 @@ services:
       - AXIOS_BASEURL=https://funny-how.com/api
       - AXIOS_BROWSER_BASEURL=/api
 
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
+#  certbot:
+#    image: certbot/certbot:latest
+#    volumes:
+#      - ./certbot/www/:/var/www/certbot/:rw
+#      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   postgres-data:
