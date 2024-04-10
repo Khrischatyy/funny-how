@@ -6,7 +6,6 @@ services:
       context: ./proxy/
       dockerfile: Dockerfile
     ports:
-      - '80:80'
       - '443:443'
     volumes:
       - './backend:/app/'
@@ -56,6 +55,8 @@ services:
     environment:
       - AXIOS_BASEURL=https://funny-how.com/api
       - AXIOS_BROWSER_BASEURL=/api
+    networks:
+      - funny
 
 volumes:
   postgres-data:
