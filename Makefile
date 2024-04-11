@@ -43,4 +43,4 @@ npm-install-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm frontend sh -c "npm i"
 
 certificate:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ --dry-run -d funny-how.com
+	@docker-compose -f prod.yml -f docker-compose.yml run --rm certbot certonly --webroot --webroot-path /app --dry-run -d funny-how.com
