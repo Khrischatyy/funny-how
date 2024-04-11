@@ -12,9 +12,7 @@ services:
       - './backend:/app/'
       - './proxy/nginx-prod.conf:/etc/nginx/nginx.conf'
       - './certbot/www/:/var/www/certbot/'
-      - './certbot/conf/:/etc/nginx/'
-#      - '/etc/letsencrypt/ssl/fullchain.pem:/etc/nginx/ssl/fullchain.pem'
-#      - '/etc/letsencrypt/ssl/privkey.pem:/etc/nginx/ssl/privkey.pem'
+      - './certbot/conf/:/etc/nginx/ssl'
     depends_on:
       - backend
       - frontend
