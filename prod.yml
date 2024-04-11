@@ -11,8 +11,8 @@ services:
     volumes:
       - './backend:/app/'
       - './proxy/nginx-prod.conf:/etc/nginx/nginx.conf'
-      - './certbot/www/:/var/www/certbot/:ro'
-      - './certbot/conf/:/etc/nginx/:ro'
+      - './certbot/www/:/var/www/certbot/'
+      - './certbot/conf/:/etc/nginx/'
 #      - '/etc/letsencrypt/ssl/fullchain.pem:/etc/nginx/ssl/fullchain.pem'
 #      - '/etc/letsencrypt/ssl/privkey.pem:/etc/nginx/ssl/privkey.pem'
     depends_on:
