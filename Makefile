@@ -3,6 +3,9 @@
 add:
 	@git add .
 
+commit:
+	@git commit -m "${m}"
+
 pull:
 	@git pull
 
