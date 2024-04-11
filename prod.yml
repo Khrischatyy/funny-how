@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - '443:443'
-      - '80:80'
+        # - '80:80'
     volumes:
       - './backend:/app/'
       - './proxy/nginx-prod.conf:/etc/nginx/nginx.conf'
