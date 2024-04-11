@@ -1,3 +1,14 @@
+# DEPLOY
+
+add:
+	@git add .
+
+pull:
+	@git pull
+
+push:
+	@git push
+
 # DEV
 
 status:
@@ -36,11 +47,17 @@ build-prod:
 start-prod:
 	docker-compose -f docker-compose.yml -f prod.yml up
 
+stop-prod:
+	@docker-compose -f docker-compose.yml -f prod.yml stop
+
 clean-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml down
 
 npm-install-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm frontend sh -c "npm i"
 
-certificate:
+certificate-test:
 	@docker-compose -f prod.yml -f docker-compose.yml run --rm certbot certonly --webroot --webroot-path /app --dry-run -d funny-how.com
+
+certificate:
+	@docker-compose -f prod.yml -f docker-compose.yml run --rm certbot certonly --webroot --webroot-path /app -d funny-how.com
