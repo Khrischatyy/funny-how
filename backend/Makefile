@@ -1,8 +1,4 @@
-build:
-	docker-compose build
 
-build-dev:
-	docker-compose -f docker-compose-dev.yml build
 
 composer-install:
 	docker-compose exec php composer install --optimize-autoloader --no-suggest --no-dev
@@ -19,18 +15,6 @@ database-migrate:
 database-seed:
 	docker-compose run --rm php php artisan migrate:fresh --seed
 
-down:
-	docker-compose exec php php artisan down --refresh=15
-
-ide-helper:
-	docker-compose run --rm php php artisan ide-helper:eloquent
-	docker-compose run --rm php php artisan ide-helper:generate
-	docker-compose run --rm php php artisan ide-helper:meta
-	docker-compose run --rm php php artisan ide-helper:models --nowrite
-
-git-pull:
-	git reset --hard
-	git pull origin main
 
 install: build composer-install laravel-storage
 
@@ -46,11 +30,7 @@ laravel-cache:
 laravel-storage:
 	docker-compose run --rm php php artisan storage:link
 
-pull:
-	docker-compose pull
 
-pull-dev:
-	docker-compose -f docker-compose-dev.yml pull
 
 restart: stop start
 

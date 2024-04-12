@@ -1,3 +1,8 @@
+#MANIPULATE CONTAINER
+
+exec:
+	@docker exec -it ${c} /bin/sh
+
 # DEPLOY
 
 add:
@@ -26,6 +31,8 @@ start:
 stop:
 	@docker-compose -f docker-compose.yml -f dev.yml stop
 
+restart: stop start
+
 clean:
 	@docker-compose -f docker-compose.yml -f dev.yml down
 
@@ -53,6 +60,8 @@ start-prod:
 stop-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml stop
 
+restart-prod: stop-prod start-prod
+
 clean-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml down
 
@@ -64,3 +73,8 @@ certificate-test:
 
 certificate:
 	@docker-compose -f prod.yml -f docker-compose.yml run --rm certbot certonly --webroot --webroot-path /app -d funny-how.com
+
+# BACKEND LOCAL
+
+backend-exec:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan ${c}"
