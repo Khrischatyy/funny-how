@@ -87,7 +87,7 @@ return [
     |
     */
 
-    'prefix' => '',
+    'prefix' => 'v1',
 
     'domain' => null,
 
@@ -118,6 +118,7 @@ return [
     'limiters' => [
         'login' => 'login',
         'two-factor' => 'two-factor',
+
     ],
 
     /*
@@ -131,7 +132,7 @@ return [
     |
     */
 
-    'views' => true,
+    'views' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -147,7 +148,7 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        // Features::emailVerification(),
+        Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
 //        Features::twoFactorAuthentication([

@@ -1,5 +1,7 @@
 #MANIPULATE CONTAINER
 
+update-dev-container: stop clean build start migrate seeds
+
 exec:
 	@docker exec -it ${c} /bin/sh
 

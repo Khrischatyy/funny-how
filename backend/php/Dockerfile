@@ -25,6 +25,7 @@ RUN apt-get -y update \
     unzip \
     curl \
     git \
+    vim \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -45,5 +46,6 @@ RUN mkdir -p /home/$WWWUSER/.composer && \
     chown -R $WWWUSER:$WWWUSER /home/$WWWUSER
 
 COPY php.ini /usr/local/etc/php/conf.d/zz-custom.ini
+RUN chown -R www-data:www-data /app/
 
 USER $WWWUSER
