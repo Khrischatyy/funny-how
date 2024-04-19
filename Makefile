@@ -47,6 +47,12 @@ migrate:
 seeds:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan db:seed"
 
+db: migrate seeds
+
+composer:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "composer install"
+
+
 
 # PROD
 
@@ -80,3 +86,6 @@ certificate:
 
 backend-exec:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan ${c}"
+
+optimize:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan optimize"

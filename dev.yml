@@ -6,7 +6,7 @@ services:
       context: ./proxy/
       dockerfile: Dockerfile
     ports:
-      - '80:80'
+      - "80:80"
     volumes:
       - './backend:/app/'
       - './proxy/nginx.conf:/etc/nginx/nginx.conf'
@@ -62,7 +62,7 @@ services:
     image: adminer
     container_name: adminer
     ports:
-      - 8080:8080
+      - "8080:8080"
     networks:
       - funny
     environment:
