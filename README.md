@@ -15,7 +15,7 @@ Vue.js        | 3.4.19
 ---
 Create env file
 ```bash
-$ cp .env.sample .env
+$ cp .env.example .env
 ```
 
 Build containers

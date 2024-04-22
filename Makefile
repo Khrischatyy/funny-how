@@ -6,20 +6,6 @@ update-prod-container: stop-prod clean-prod build-prod start-prod
 exec:
 	@docker exec -it ${c} /bin/sh
 
-# DEPLOY
-
-add:
-	@git add .
-
-commit:
-	@git commit -m "${m}"
-
-pull:
-	@git pull
-
-push:
-	@git push
-
 # DEV
 
 status:
@@ -53,7 +39,7 @@ db: migrate seeds
 composer:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "composer install"
 
-backend-exec:
+artisan:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan ${c}"
 
 optimize:

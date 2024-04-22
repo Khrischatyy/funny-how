@@ -1,22 +1,9 @@
-
-
 composer-install:
 	docker-compose exec php composer install --optimize-autoloader --no-suggest --no-dev
-
-composer-install-dev:
-	docker-compose run --rm php composer install
-
-composer-update:
-	docker-compose run --rm php composer update
 
 database-migrate:
 	docker-compose run --rm php php artisan migrate --force
 
-database-seed:
-	docker-compose run --rm php php artisan migrate:fresh --seed
-
-
-install: build composer-install laravel-storage
 
 install-dev: build-dev composer-install-dev laravel-storage
 
@@ -30,17 +17,10 @@ laravel-cache:
 laravel-storage:
 	docker-compose run --rm php php artisan storage:link
 
-
-
 restart: stop start
 
 restart-dev: stop-dev start-dev
 
-start:
-	docker-compose up -d
-
-start-dev:
-	docker-compose -f docker-compose-dev.yml up -d
 
 stop:
 	docker-compose down --remove-orphans
@@ -48,22 +28,11 @@ stop:
 stop-dev:
 	docker-compose -f docker-compose-dev.yml down --remove-orphans
 
-tinker:
-	docker-compose exec php php artisan tinker
-
-test:
-	docker-compose exec php php artisan config:clear
-	docker-compose exec php php artisan test
 
 test-create:
 	docker-compose run --rm php php artisan make:test $(name)
 
-up:
-	docker-compose exec php php artisan up
 
-update: down git-pull composer-install laravel-cache database-migrate up
-
-update-dev: down git-pull-dev composer-install-dev database-migrate up
 
 upgrade: stop git-pull pull build composer-install laravel-cache database-migrate start
 
