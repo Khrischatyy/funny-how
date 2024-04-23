@@ -45,6 +45,9 @@ artisan:
 optimize:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan optimize"
 
+route:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan route:list"
+
 
 
 # PROD
