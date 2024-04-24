@@ -24,7 +24,8 @@ const forms = ref([
     formValuesStorage: {
       email: '',
       password: ''
-    }
+    },
+    errors: [],
   },
   {
     name: 'create_account', title: 'Sign Up',
@@ -35,6 +36,7 @@ const forms = ref([
       password_confirmation: '',
       role: ''
     },
+    errors: [],
     inputFields: [
       {name: 'name', title: 'Name', type: 'text'},
       {name: 'email', title: 'Email', type: 'email'},
@@ -43,6 +45,7 @@ const forms = ref([
   },
   {
     name: 'forgot', title: 'Forgot Password',
+    errors: [],
     formValuesStorage: {
       email: ''
     }
@@ -65,6 +68,16 @@ function chooseRole(role: string) {
 
 function getFormValues(name: string) {
   return forms.value.find((form: Form) => form.name === name)?.formValuesStorage
+}
+
+function getFormErrors(name: string) {
+  return forms.value.find((form: Form) => form.name === name)?.errors
+}
+
+function isError(form:string , field: string){
+  let formErrors = getFormErrors(form);
+  console.log('formErrors.hasOwnProperty(field)', formErrors.hasOwnProperty(field))
+  return formErrors.hasOwnProperty(field) ? formErrors[field][0] : false;
 }
 
 function getFormFields(name: string) {
@@ -139,7 +152,8 @@ function authForm() {
         session.value.setAuthorized(true)
       })
       .catch((error) => {
-        console.log(error);
+        let errors = getFormErrors('auth');
+        Object.assign(errors, error.response.data.errors)
       });
 
 }
@@ -194,7 +208,6 @@ function getForm() {
           <BrandingLogo/>
           <div class="description mt-10 font-bold text-xl leading-8">
             Empowering Artists Everywhere —<br/>Book, Record, and Create with Ease
-            {{session?.isAuthorized}}
           </div>
           <div class="points mt-10">
             <div class="w-full flex-col justify-start items-start gap-7 inline-flex">
@@ -269,19 +282,21 @@ function getForm() {
               <div class="flex-col justify-start items-start gap-1.5 flex">
                 <div class="w-96 justify-between items-start inline-flex">
                   <div class="text-white text-sm font-normal tracking-wide">E-mail</div>
-                  <div class="hidden text-right text-red-500 text-sm font-normal tracking-wide">Error message</div>
+                  <div :class="isError('auth', 'email') ? '' : 'hidden'" class="text-right text-red-500 text-sm font-normal tracking-wide">
+                    {{ isError('auth', 'email') }}
+                  </div>
                 </div>
                 <div class="justify-start items-center gap-2.5 inline-flex">
-                  <input name="email" type="email" v-model="getFormValues('auth')['email']" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
+                  <input name="email" type="email" v-model="getFormValues('auth')['email']" :class="{'border-red': isError('auth', 'email')}" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
                 </div>
               </div>
               <div class="flex-col justify-start items-start gap-1.5 flex">
                 <div class="w-96 justify-between items-start inline-flex">
                   <div class="text-white text-sm font-normal tracking-wide">Password</div>
-                  <div class="hidden text-right text-red-500 text-sm font-normal tracking-wide">Error message</div>
+                  <div :class="isError('auth', 'email') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{ isError('auth', 'email') }}</div>
                 </div>
                 <div class="justify-start items-center gap-2.5 inline-flex">
-                  <input name="password" type="password" v-model="getFormValues('auth')['password']" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
+                  <input name="password" type="password" v-model="getFormValues('auth')['password']" :class="{'border-red': isError('auth', 'email') || isError('auth', 'password')}" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
                 </div>
               </div>
               <div class="w-96 h-7 rounded-lg justify-start items-center gap-2.5 inline-flex">
@@ -358,6 +373,7 @@ function getForm() {
             </div>
 
             <div v-if="session?.isAuthorized" ref="authorized" :class="session?.isAuthorized ? 'translate-x-[0px] duration-[700ms]' : 'opacity-0 -translate-x-96 duration-700'" class="relative w-full flex-col justify-start items-center gap-2.5 flex">
+              <BrandingLogo class="mb-10"/>
               <div class="flex-col justify-start items-start gap-1.5 flex">
                 <div class="w-96 justify-between items-start inline-flex">
                   <div class="text-white text-sm font-normal tracking-wide">Hey, {{session?.accessToken}}</div>
