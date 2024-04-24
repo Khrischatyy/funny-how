@@ -29,6 +29,7 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
+            'role' => ['required', 'string', 'max:15']
         ])->validate();
 
         $user = User::create([
@@ -37,10 +38,7 @@ class CreateNewUser implements CreatesNewUsers
             'password' => Hash::make($input['password']),
         ]);
 
-        $user->assignRole('user');
-
-
-
+        $user->assignRole($input['role']);
 
         return $user;
     }
