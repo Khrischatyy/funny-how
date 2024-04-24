@@ -28,6 +28,9 @@ clean:
 npm-install:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm frontend sh -c "npm i"
 
+npm-install-save-dev:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm frontend sh -c "npm install --save-dev"
+
 migrate:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan migrate"
 

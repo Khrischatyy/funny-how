@@ -1,17 +1,15 @@
 import { defineStore } from 'pinia'
-import { ACCESS_TOKEN_KEY } from 'shared/lib/api/config'
-import { UserRoleEnum } from 'entities/@abstract/User'
-import { navigateTo } from 'nuxt/app'
 
 type State = {
 	userInfo: string | null,
 	accessToken: string | null,
 	isAuthorized: boolean,
-	role: UserRoleEnum | null
 };
 
 export const USER_INFO_KEY = 'user-info-key'
 export const ROLE_INFO_KEY = 'role-info-key'
+
+export const ACCESS_TOKEN_KEY = 'access_token_key'
 
 export const useSessionStore = defineStore({
 	id: 'session-store',
@@ -19,7 +17,6 @@ export const useSessionStore = defineStore({
 		userInfo: null,
 		accessToken: process.client ? localStorage.getItem(ACCESS_TOKEN_KEY) : null,
 		isAuthorized: false,
-		role: null,
 	}),
 	actions: {
 		setAccessToken(token: string | null) {
@@ -46,11 +43,9 @@ export const useSessionStore = defineStore({
 			if (!isAuthorized) {
 				this.userInfo = null
 				this.accessToken = null
-				this.role = null
 				localStorage.removeItem(USER_INFO_KEY)
 				localStorage.removeItem(ACCESS_TOKEN_KEY)
 				localStorage.removeItem(ROLE_INFO_KEY)
-				navigateTo('/')
 			}
 			this.isAuthorized = isAuthorized
 		},

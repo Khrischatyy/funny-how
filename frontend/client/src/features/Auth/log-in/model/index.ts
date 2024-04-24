@@ -29,7 +29,6 @@ export const useAuthorization = () => {
 
             sessionStore.setAccessToken(response.value.data.token)
             sessionStore.setUserInfo(userInfo)
-            sessionStore.setRole(response.value.data.role)
             sessionStore.setAuthorized(true)
         }
 

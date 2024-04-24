@@ -1,2 +1,7 @@
 export { default as IconCheck } from './IconCheck.vue'
 export { default as IconCopyright } from './IconCopyright.vue'
+export { default as IconElipse } from './IconElipse.vue'
+export { default as IconLeft } from './IconLeft.vue'
+export { default as IconLine } from './IconLine.vue'
+export { default as IconMic } from './IconMic.vue'
+export { default as IconUser } from './IconUser.vue'

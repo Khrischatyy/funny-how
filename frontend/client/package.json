@@ -12,6 +12,7 @@
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@nuxtjs/tailwindcss": "^6.8.0",
+    "dotenv": "^16.4.5",
     "happy-dom": "^12.10.3",
     "nuxt": "^3.10.2",
     "nuxt-particles": "^0.1.5",
@@ -22,6 +23,7 @@
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
     "@tsparticles/all": "^3.2.2",
+    "@types/dotenv": "^8.2.0",
     "@types/three": "^0.162.0",
     "@vueuse/nuxt": "^10.5.0",
     "axios": "^1.5.1",

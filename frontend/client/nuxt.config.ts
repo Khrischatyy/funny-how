@@ -1,6 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath, URL } from 'url'
-
 export default defineNuxtConfig({
   app: {
     head: {
@@ -42,7 +41,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE
+      apiBase: process.env.AXIOS_BASEURL,
     }
   },
   tailwindcss: {
