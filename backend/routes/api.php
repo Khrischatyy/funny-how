@@ -35,7 +35,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             // Route for user login
             Route::post('/login', [AuthenticatedSessionController::class, 'store'])
                 ->middleware(array_filter([
-                    'guest:' . config('fortify.guard'),  // Only guests (non-authenticated users) are allowed
+                    'guest:api',  // Only guests (non-authenticated users) are allowed
                     $limiter ? 'throttle:' . $limiter : null,  // Throttle login attempts if limiter is configured
                 ]));
 
