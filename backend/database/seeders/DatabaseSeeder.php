@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             EquipmentTypeSeeder::class,
             EquipmentSeeder::class,
             AddressEquipmentSeeder::class,
+            RoleSeeder::class,
         ]);
 
         // \App\Models\User::factory(10)->create();

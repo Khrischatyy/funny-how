@@ -46,8 +46,10 @@ class FortifyServiceProvider extends ServiceProvider
                 $user = User::where('email', $request->email)->first();
                 return $request->wantsJson()
                     ? response()->json([
-                        'message' => 'Registration successful, verify your email address',
+                        "message" => 'Registration successful, verify your email address',
                         "token" => $user->createToken($request->email)->plainTextToken,
+                        "role" => $user->getRoleNames()->first(),
+
                     ], 200)
                     : redirect()->intended(Fortify::redirects('register'));
             }

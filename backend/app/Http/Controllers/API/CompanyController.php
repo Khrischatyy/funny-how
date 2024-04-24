@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\CompanyRequest;
 use App\Models\Company;
 use App\Repositories\CompanyRepository;
 use App\Services\CompanyService;
@@ -30,6 +31,13 @@ class CompanyController extends BaseController
     }
 
     public function getCompanyAddressesInCity(int $cityId, int $companyId)
+    {
+        return Company::where('id', $companyId)->with(['addresses' => function($q){
+            $q->where('city_id', 1)->with('badges');
+        }])->get();
+    }
+
+    public function createNewCompany(CompanyRequest $companyRequest)
     {
         return Company::where('id', $companyId)->with(['addresses' => function($q){
             $q->where('city_id', 1)->with('badges');

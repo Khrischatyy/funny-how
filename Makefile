@@ -43,7 +43,7 @@ artisan:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan ${c}"
 
 optimize:
-	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan optimize"
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan optimize:clear"
 
 route:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan route:list"
@@ -82,7 +82,7 @@ seeds-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan db:seed"
 
 optimize-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan optimize"
+	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan optimize:clear"
 
 
 

@@ -23,6 +23,8 @@ use Laravel\Fortify\Http\Controllers\{RegisteredUserController, PasswordResetLin
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
+    Route::get('/cities/{countryId}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
+
     Route::prefix('auth')->group(function () {
 
         // Retrieve the verification limiter configuration for verification attempts
@@ -35,7 +37,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             // Route for user login
             Route::post('/login', [AuthenticatedSessionController::class, 'store'])
                 ->middleware(array_filter([
-                    'guest:api',  // Only guests (non-authenticated users) are allowed
                     $limiter ? 'throttle:' . $limiter : null,  // Throttle login attempts if limiter is configured
                 ]));
 
@@ -66,7 +67,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
 Route::get('/countries', [CountryController::class, 'getCountries']);
-Route::get('/cities/{countryId}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
+//Route::get('/cities/{countryId}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 Route::get('/companies/{cityId}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
 Route::get('/address/{addressId}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
 Route::get('/addresses/{cityId}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');
