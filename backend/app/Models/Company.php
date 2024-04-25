@@ -9,6 +9,8 @@ class Company extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['name'];
+
     public function cities(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(City::class,'company_city');

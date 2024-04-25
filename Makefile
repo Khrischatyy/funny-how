@@ -3,9 +3,6 @@
 update-dev-container: stop clean build start
 update-prod-container: stop-prod clean-prod build-prod start-prod
 
-exec:
-	@docker exec -it ${c} /bin/sh
-
 # DEV
 
 status:

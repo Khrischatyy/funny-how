@@ -69,6 +69,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::get('/countries', [CountryController::class, 'getCountries']);
 //Route::get('/cities/{countryId}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 Route::get('/companies/{cityId}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
+Route::post('/company', [CompanyController::class, 'createNewCompany']);
 Route::get('/address/{addressId}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
 Route::get('/addresses/{cityId}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');
 Route::get('/equipment/{addressId}', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('addressId', '[0-9]+');

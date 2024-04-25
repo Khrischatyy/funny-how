@@ -39,8 +39,8 @@ class CompanyController extends BaseController
 
     public function createNewCompany(CompanyRequest $companyRequest)
     {
-        return Company::where('id', $companyId)->with(['addresses' => function($q){
-            $q->where('city_id', 1)->with('badges');
-        }])->get();
+        $company = Company::create(['name' => $companyRequest->name]);
+
+        return $this->sendResponse($company, 'Company successfully created');
     }
 }
