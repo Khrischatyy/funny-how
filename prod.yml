@@ -32,22 +32,19 @@ services:
       - db
     networks:
       - funny
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
 
-  certbot:
-    container_name: certbot
-    image: certbot/certbot:latest
-    volumes:
-      - ./proxy/certbot/www/:/var/www/certbot/:rw
-      - ./proxy/certbot/conf/:/etc/letsencrypt/:rw
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    networks:
-      - funny
+    env_file:
+      - .env
+
+#  certbot:
+#    container_name: certbot
+#    image: certbot/certbot:latest
+#    volumes:
+#      - ./proxy/certbot/www/:/var/www/certbot/:rw
+#      - ./proxy/certbot/conf/:/etc/letsencrypt/:rw
+#    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+#    networks:
+#      - funny
 
   frontend:
     container_name: frontend
