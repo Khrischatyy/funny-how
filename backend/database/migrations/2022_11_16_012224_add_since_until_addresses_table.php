@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreign('city_id')->references('id')->on('cities')
                 ->onDelete('cascade');
 
-            $table->time('works_till')->after('entrance');;
-            $table->time('works_since')->after('entrance');
+            $table->time('works_till')->after('street')->nullable();
+            $table->time('works_since')->after('works_till')->nullable();
         });
     }
 

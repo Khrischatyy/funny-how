@@ -36,17 +36,4 @@ class CompanyController extends BaseController
             $q->where('city_id', 1)->with('badges');
         }])->get();
     }
-
-    public function createNewCompany(CompanyRequest $companyRequest)
-    {
-        if($companyRequest->hasFile('logo')) {
-            $path = $companyRequest->file('logo')->store('public/images');
-        } else {
-            $path = null;
-        }
-
-        $company = Company::create(['name' => $companyRequest->name, 'logo' => $path]);
-
-        return $this->sendResponse($company, 'Company successfully created');
-    }
 }

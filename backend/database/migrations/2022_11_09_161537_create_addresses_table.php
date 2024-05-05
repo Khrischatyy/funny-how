@@ -18,8 +18,6 @@ return new class extends Migration
             $table->float('latitude', 8, 6);
             $table->float('longitude', 8,6);
             $table->string('street');
-            $table->string('house_number');
-            $table->integer('entrance');
             $table->timestamps();
         });
     }

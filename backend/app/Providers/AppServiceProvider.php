@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\CityService;
+use App\Services\CountryService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +15,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(CountryService::class, function ($app) {
+            return new CountryService();
+        });
+
+        $this->app->singleton(CityService::class, function ($app) {
+            return new CityService($app->make(CountryService::class));
+        });
     }
 
     /**
