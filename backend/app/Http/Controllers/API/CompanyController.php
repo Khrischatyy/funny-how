@@ -39,7 +39,13 @@ class CompanyController extends BaseController
 
     public function createNewCompany(CompanyRequest $companyRequest)
     {
-        $company = Company::create(['name' => $companyRequest->name]);
+        if($companyRequest->hasFile('logo')) {
+            $path = $companyRequest->file('logo')->store('public/images');
+        } else {
+            $path = null;
+        }
+
+        $company = Company::create(['name' => $companyRequest->name, 'logo' => $path]);
 
         return $this->sendResponse($company, 'Company successfully created');
     }

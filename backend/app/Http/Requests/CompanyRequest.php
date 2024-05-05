@@ -24,6 +24,7 @@ class CompanyRequest extends FormRequest
     public function rules()
     {
         return [
+            'logo' => 'sometimes|file',
             'name' => 'required|string',
         ];
     }

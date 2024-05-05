@@ -25,6 +25,9 @@ clean:
 npm-install:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm frontend sh -c "npm i"
 
+npm-install-package:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm frontend sh -c "npm i ${p}"
+
 npm-install-save-dev:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm frontend sh -c "npm install --save-dev"
 
