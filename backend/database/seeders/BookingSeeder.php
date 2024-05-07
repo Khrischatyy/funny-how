@@ -24,6 +24,7 @@ class BookingSeeder extends Seeder
                     'to' => Carbon::createFromTime(15),
                     'address_id' => 1,
                     'user_id' => 1,
+                    'total_cost' => 10.7,
                 ],
             );
 
@@ -35,6 +36,7 @@ class BookingSeeder extends Seeder
                     'to' => Carbon::createFromTime(17),
                     'address_id' => 1,
                     'user_id' => 2,
+                    'total_cost' => 102.7,
                 ],
             );
     }
