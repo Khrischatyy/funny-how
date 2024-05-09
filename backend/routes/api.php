@@ -6,6 +6,7 @@ use App\Http\Controllers\API\CityController;
 use App\Http\Controllers\API\CompanyController;
 use App\Http\Controllers\API\CountryController;
 use App\Http\Controllers\API\EquipmentController;
+use App\Http\Controllers\API\OperatingHourController;
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\{RegisteredUserController, PasswordResetLinkController, EmailVerificationNotificationController, AuthenticatedSessionController};
@@ -67,6 +68,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/company', [CompanyController::class, 'createNewCompany']);
     Route::post('/brand', [AddressController::class, 'createBrand']);
+
+
+    Route::post('/operating-hours', [OperatingHourController::class, 'setOperatingHours']);
 
 });
 

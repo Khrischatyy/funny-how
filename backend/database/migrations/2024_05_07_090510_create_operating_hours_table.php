@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('mode_id');
             $table->foreign('mode_id')->references('id')->on('operating_modes');
 
-            $table->integer('day_of_week');
+            $table->integer('day_of_week')->nullable();
             $table->time('open_time');
             $table->time('close_time');
             $table->boolean('is_closed')->default(false);

@@ -40,36 +40,10 @@ class OperatingModeSeeder extends Seeder
             ->updateOrInsert(
                 [
                     'id' => 3,
-                    'mode' => 'holidays',
-                    'description' => 'Holidays - (суббота и воскресение) выставляются часы в выходные дни,
-                     при выборе holidays и weekdays 24/7 и everyday - недоступны',
-
+                    'mode' => 'regular',
+                    'description' => 'Weekdays + Weekends - (пн, вт, ср, чт, пт, сб, вс) выставляются часы во все дни,
+                     при выборе regular, 24/7 и everyday - недоступны',
                 ],
             );
-
-        DB::table('operating_modes')
-            ->updateOrInsert(
-                [
-                    'id' => 4,
-                    'mode' => 'weekdays',
-                    'description' => 'Weekdays - (пн, вт, ср, чт, пт) выставляются часы в будние дни
-                     при выборе holidays и weekdays 24/7 и everyday - недоступны',
-                ],
-            );
-
-        DB::table('operating_modes')
-            ->updateOrInsert(
-                [
-                    'id' => 5,
-                    'mode' => 'closed',
-                    'description' => 'День закрыт',
-                ],
-            );
-
-
-
-
-
-
     }
 }

@@ -24,8 +24,6 @@ class AddressSeeder extends Seeder
                 'longitude' => 55.758972,
                 'city_id' => 2,
                 'company_id' => 1,
-                'works_since' => '10:00:00',
-                'works_till' => '18:00:00',
             ],
             [
                 'id' => 2,
@@ -34,8 +32,6 @@ class AddressSeeder extends Seeder
                 'company_id' => 1,
                 'longitude' => 44.792424,
                 'city_id' => 1,
-                'works_since' => '9:00:00',
-                'works_till' => '22:00:00',
             ],
             [
                 'id' => 3,
@@ -44,8 +40,6 @@ class AddressSeeder extends Seeder
                 'longitude' => 44.8018983,
                 'company_id' => 2,
                 'city_id' => 3,
-                'works_since' => '8:00:00',
-                'works_till' => '22:00:00',
             ],
         ],
             ['id']);

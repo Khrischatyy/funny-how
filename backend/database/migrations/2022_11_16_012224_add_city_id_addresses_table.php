@@ -17,9 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('city_id')->after('entrance');
             $table->foreign('city_id')->references('id')->on('cities')
                 ->onDelete('cascade');
-
-            $table->time('works_till')->after('street')->nullable();
-            $table->time('works_since')->after('works_till')->nullable();
         });
     }
 
@@ -33,9 +30,6 @@ return new class extends Migration
         Schema::table('addresses', function (Blueprint $table) {
             $table->dropForeign('addresses_city_id_foreign');
             $table->dropColumn('city_id');
-
-            $table->dropColumn('works_since');
-            $table->dropColumn('works_till');
         });
     }
 };
