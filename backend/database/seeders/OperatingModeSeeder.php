@@ -41,8 +41,17 @@ class OperatingModeSeeder extends Seeder
                 [
                     'id' => 3,
                     'mode' => 'regular',
-                    'description' => 'Weekdays + Weekends - (пн, вт, ср, чт, пт, сб, вс) выставляются часы во все дни,
+                    'description' => 'Weekdays + Weekends - выставляются часы во все сразу будние (5 дней) выходные (2 дня),
                      при выборе regular, 24/7 и everyday - недоступны',
+                ],
+            );
+
+        DB::table('operating_modes')
+            ->updateOrInsert(
+                [
+                    'id' => 4,
+                    'mode' => 'ondays',
+                    'description' => 'On Days - выставляются дни отдельно, когда выбран ondays, то regular, 24/7 и everyday - недоступны',
                 ],
             );
     }
