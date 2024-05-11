@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\OperatingHourException;
 use App\Models\OperatingHour;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -67,7 +68,7 @@ class OperatingHourService
         $isHoursAdded = OperatingHour::insert($inserts);
 
         if (!$isHoursAdded) {
-            throw new Exception("Failed to add weekDAYS hours.");
+            throw new OperatingHourException("Failed to add weekDAYS hours.");
         }
 
         return $inserts;
@@ -80,14 +81,14 @@ class OperatingHourService
             [
                 'address_id' => $address_id,
                 'mode_id' => 3,
-                'day_of_week' => 0,
+                'day_of_week' => 6,
                 'open_time' => $open_time,
                 'close_time' => $close_time
             ],
             [
                 'address_id' => $address_id,
                 'mode_id' => 3,
-                'day_of_week' => 6,
+                'day_of_week' => 7,
                 'open_time' => $open_time,
                 'close_time' => $close_time
             ],
@@ -96,7 +97,7 @@ class OperatingHourService
         $isHoursAdded = OperatingHour::insert($inserts);
 
         if (!$isHoursAdded) {
-            throw new Exception("Failed to add weekENDS hours.");
+            throw new OperatingHourException("Failed to add weekENDS hours.");
         }
 
         return $inserts;

@@ -32,6 +32,7 @@ class FortifyServiceProvider extends ServiceProvider
                     return response()->json([
                         "message" => "You are successfully logged in",
                         "token" => $user->createToken($request->email)->plainTextToken,
+                        "role" => $user->getRoleNames()->first(),
                     ], 200);
                 }
                 return redirect()->intended(Fortify::redirects('login'));

@@ -22,6 +22,8 @@ use Laravel\Fortify\Http\Controllers\{RegisteredUserController, PasswordResetLin
 |
 */
 
+// TODO переделать роуты в соответствии REST спецификацией
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/cities/{countryId}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
@@ -72,6 +74,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/operating-hours', [OperatingHourController::class, 'setOperatingHours']);
 
+    Route::post('/book', [BookingController::class, 'bookStudio']);
+
+//    Route::get('/reservations', [BookingController::class, 'getAllReservations']);
 });
 
 
@@ -83,7 +88,7 @@ Route::get('/addresses/{cityId}', [AddressController::class, 'getAddressByCityId
 Route::get('/equipment/{addressId}', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('addressId', '[0-9]+');
 Route::get('/city/{cityId}/company/{companyId}', [CompanyController::class, 'getCompanyAddressesInCity'])->where('cityId', '[0-9]+');
 
-//Route::post('/booking', [BookingController::class, 'getBookingByAddressId']);
-Route::post('/book', [BookingController::class, 'book']);
+
+
 
 Route::get('/{slug}', [CompanyController::class, 'getCompany']);

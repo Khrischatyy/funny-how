@@ -16,28 +16,28 @@ class BookingSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('bookings')
-            ->updateOrInsert(
-                [
-                    'id' => 1,
-                    'from' => Carbon::createFromTime(12),
-                    'to' => Carbon::createFromTime(15),
-                    'address_id' => 1,
-                    'user_id' => 1,
-                    'total_cost' => 10.7,
-                ],
-            );
-
-        DB::table('bookings')
-            ->updateOrInsert(
-                [
-                    'id' => 2,
-                    'from' => Carbon::createFromTime(16),
-                    'to' => Carbon::createFromTime(17),
-                    'address_id' => 1,
-                    'user_id' => 2,
-                    'total_cost' => 102.7,
-                ],
-            );
+//        DB::table('bookings')
+//            ->updateOrInsert(
+//                [
+//                    'id' => 1,
+//                    'from' => Carbon::createFromTime(12),
+//                    'to' => Carbon::createFromTime(15),
+//                    'address_id' => 1,
+//                    'user_id' => 1,
+//                    'total_cost' => 10.7,
+//                ],
+//            );
+//
+//        DB::table('bookings')
+//            ->updateOrInsert(
+//                [
+//                    'id' => 2,
+//                    'from' => Carbon::createFromTime(16),
+//                    'to' => Carbon::createFromTime(17),
+//                    'address_id' => 1,
+//                    'user_id' => 2,
+//                    'total_cost' => 102.7,
+//                ],
+//            );
     }
 }

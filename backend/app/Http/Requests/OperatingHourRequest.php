@@ -27,8 +27,6 @@ class OperatingHourRequest extends FormRequest
         return [
             'mode_id' => 'required|integer',
             'address_id' => 'required|integer|exists:addresses,id',
-            'open_time' => 'sometimes|date_format:H:i',
-            'close_time' => 'sometimes|date_format:H:i',
             'is_closed' => 'sometimes|boolean',
             'day_of_week' => 'sometimes|integer|between:0,6',
 
@@ -43,7 +41,32 @@ class OperatingHourRequest extends FormRequest
                 Rule::requiredIf(function () {
                     return (int) $this->input('mode_id') == 3;
                 }),
-                'date_format:H:i'
+                'date_format:H:i',
+
+            ],
+
+            'open_time' => [
+                Rule::requiredIf(function () {
+                    return (int) $this->input('mode_id') == 2;
+                }),
+                'date_format:H:i',
+
+                Rule::requiredIf(function () {
+                    return (int) $this->input('mode_id') == 3;
+                }),
+                'date_format:H:i',
+            ],
+            'close_time' => [
+                Rule::requiredIf(function () {
+                    return (int) $this->input('mode_id') == 2;
+                }),
+                'date_format:H:i',
+
+                Rule::requiredIf(function () {
+                    return (int) $this->input('mode_id') == 3;
+                }),
+                'date_format:H:i',
+
             ],
         ];
     }
