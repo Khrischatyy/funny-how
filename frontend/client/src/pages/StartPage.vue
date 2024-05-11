@@ -1,9 +1,9 @@
 <template>
-  <div></div>
+  <div>123</div>
 </template>
 
 <script setup lang="ts">
-import { MainLayout } from 'app/layouts'
+import { MainLayout } from '~/src/app/layouts'
 </script>
 
 <style scoped lang="scss">

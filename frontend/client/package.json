@@ -21,11 +21,14 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@fawmi/vue-google-maps": "^0.9.79",
+    "@googlemaps/js-api-loader": "^1.16.6",
     "@pinia/nuxt": "^0.5.1",
     "@tsparticles/all": "^3.2.2",
     "@types/dotenv": "^8.2.0",
     "@types/three": "^0.162.0",
     "@vueuse/nuxt": "^10.5.0",
+    "animate.css": "^4.1.1",
     "axios": "^1.5.1",
     "pinia": "^2.1.7",
     "three": "^0.161.0"

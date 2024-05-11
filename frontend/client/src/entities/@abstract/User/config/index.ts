@@ -1,6 +1,6 @@
 export enum UserRoleEnum {
-	Patient = 'patient',
-	Doctor = 'doctor'
+	User = 'user',
+	Owner = 'studio_owner'
 }
 
 export enum UserGenderEnum {

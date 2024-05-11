@@ -5,7 +5,7 @@
 
 html {
 	@apply text-black;
-	background: #000;
+	background-color: #000;
 }
 
 * {
@@ -26,4 +26,25 @@ html {
 	.only-mobile {
 		display: block !important;
 	}
+}
+::-webkit-scrollbar {
+	width: 12px;
+}
+
+/* This is the background that sits behind the scrollbar */
+::-webkit-scrollbar-track {
+	border-radius: 10px;
+	background-color: rgba(15, 14, 14, 0.5);  /* You can change color according to your preference */
+}
+
+/* This is the actual scroll 'bar' */
+::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background-color: rgb(38, 37, 37);    /* You can change color according to your preference */
+}
+
+/* Changes the scrollbar when it's clicked or being hovered upon */
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+	background-color: #424040;   /* You can change color according to your preference */
 }
