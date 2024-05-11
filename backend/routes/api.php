@@ -76,7 +76,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/book', [BookingController::class, 'bookStudio']);
 
-//    Route::get('/reservations', [BookingController::class, 'getAllReservations']);
+    Route::get('/reservations', [BookingController::class, 'getAllReservations']);
 });
 
 
