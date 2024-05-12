@@ -12,6 +12,7 @@ import {
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
 import {IconElipse, IconLine} from "~/src/shared/ui/common";
+import {Loader} from "@googlemaps/js-api-loader";
 definePageMeta({
   middleware: ["auth"],
 })
@@ -37,14 +38,75 @@ onMounted(async () => {
   if(!session.value.isAuthorized){
     navigateTo('/login')
   }
-  //setup if not set
-  if(session.value.userRole == 'studio_owner'){
-    navigateTo('/setup')
-  }
+
+  const loader = new Loader({
+    apiKey: config.public.googlePlacesApi,
+    version: "weekly",
+
+  });
+
+  console.log('loader', loader);
+
+  const Places = await loader.importLibrary('places')
+
+  // the center, defaultbounds are not necessary but are best practices to limit/focus search results
+  const center = { lat: 34.082298, lng: -82.284777 };
+  // Create a bounding box with sides ~10km away from the center point
+  const defaultBounds = {
+    north: center.lat + 0.1,
+    south: center.lat - 0.1,
+    east: center.lng + 0.1,
+    west: center.lng - 0.1,
+  };
+
+  //this const will be the first arg for the new instance of the Places API
+
+  const input = document.getElementById("place"); //binds to our input element
+
+  console.log('input', input); //optional logging
+
+  //this object will be our second arg for the new instance of the Places API
+  const options = {
+    componentRestrictions: { country: ["us", "ca"] },
+    fields: ["address_components", "geometry"],
+    types: ["address"],
+  };
+
+  // per the Google docs create the new instance of the import above. I named it Places.
+  const autocomplete = new Places.Autocomplete(input, options);
+
+  console.log('autocomplete', autocomplete); //optional log but will show you the available methods and properties of the new instance of Places.
+
+  //add the place_changed listener to display results when inputs change
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+
+    getFormValues().address = input?.value;
+    getFormValues().country = place.address_components.find(item => item.types.includes('country'))?.short_name;
+    getFormValues().city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
+    getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
+    getFormValues().longitude = place.geometry.viewport?.Gh?.hi;
+    getFormValues().latitude = place.geometry.viewport?.Wh?.hi;
+
+    console.log('place', place);
+  });
 })
 
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
+}
+
+function changeLogo() {
+  const input = document.getElementById('studio_logo') as HTMLInputElement;
+  const file = input.files?.[0];
+  if (file) {
+    getFormValues().logo = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      getFormValues().logo_preview = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
 }
 
 function setupStudio() {
@@ -64,17 +126,11 @@ function signOut() {
           <BrandingLogo class="mb-20"/>
         <div class="animate__animated animate__fadeInRight">
         <div class="breadcrumbs mb-10 text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
-          <icon-elipse :class="'opacity-20'" class="h-4"/>
-          <button :class="'opacity-20'">Your Role</button>
-          <icon-line :class="'opacity-20'" class="h-2 only-desktop"/>
-          <icon-elipse :class="'opacity-20'" class="h-4"/>
-          <button :class="'opacity-20'"> Personal Info </button>
-          <icon-line :class="'opacity-100'" class="h-2 only-desktop"/>
           <icon-elipse :class="'opacity-100'" class="h-4"/>
-          <button :class="'opacity-100'"> Price Plans</button>
+          <button :class="'opacity-100'"> Add Studio</button>
           <icon-line :class="'opacity-100'" class="h-2 only-desktop"/>
-          <icon-elipse :class="'opacity-100'" class="h-4"/>
-          <button :class="'opacity-100'" > Add Studio </button>
+          <icon-elipse :class="'opacity-20'" class="h-4"/>
+          <button :class="'opacity-20'" > Price Plans </button>
         </div>
         </div>
 
@@ -91,13 +147,16 @@ function signOut() {
             </div>
             <div class="justify-start items-center w-full gap-2.5 inline-flex">
               <div class="justify-center w-96 items-center gap-2.5 inline-flex">
-                <label for="studio_logo" class="flex-col justify-center items-center h-[58px] px-3.5 py-3.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
-                  <BrandingLogoSample/>
-                  upload...
-                </label>
-                <input class="hidden" id="studio_logo" @change="getFormValues().studio_logo" type="file" placeholder="Enter Your Studio Name" />
+                <label for="studio_logo" :style="`background: url(${getFormValues().logo_preview}) no-repeat center; background-size: cover`" class="flex-col justify-center items-center h-[58px] px-3.5 py-3.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
 
-                <input v-model="getFormValues().studio_name" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
+                  <div class="flex flex-col justify-end h-full">
+                    <BrandingLogoSample v-if="!getFormValues().logo"/>
+                    <span class="font-bold shadow-text text-white">upload...</span>
+                  </div>
+                </label>
+                <input class="hidden" id="studio_logo" @change="changeLogo()" type="file" placeholder="Enter Your Studio Name" />
+
+                <input v-model="getFormValues().company" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
               </div>
             </div>
           </div>
@@ -110,7 +169,7 @@ function signOut() {
                 }}</div>
             </div>
             <div class="justify-start items-center gap-2.5 inline-flex">
-              <input id="place" v-model="getFormValues().address" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
+              <input id="place" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
             </div>
 
           </div>
@@ -137,6 +196,9 @@ function signOut() {
 </template>
 
 <style scoped lang="scss">
+.shadow-text{
+  text-shadow: 2px 3px 1px rgba(0, 0, 0, 0.8), 12px 14px 1px rgba(0, 0, 0, 0.8);
+}
 .checkbox-wrapper {
   display: flex;
   gap: 5px;

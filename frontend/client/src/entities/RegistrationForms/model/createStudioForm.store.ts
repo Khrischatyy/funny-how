@@ -9,10 +9,16 @@ type inputField = {
     type: string;
 }
 export type StudioFormValues = {
-    studio_logo: File | null;
-    studio_name: string;
+    logo: File | null;
+    company: string;
     address: string;
+    country: string;
+    city: string;
+    street: string;
     about: string;
+    longitude: string;
+    latitude: string;
+    logo_preview: string | null
 };
 type formValues = {
     inputValues: StudioFormValues
@@ -20,14 +26,22 @@ type formValues = {
     inputFields: inputField[];
 }
 
+
+
 export const useCreateStudioFormStore = defineStore({
     id: 'create-studio-store',
     state: (): formValues => ({
             inputValues: {
-                studio_name: '',
+                company: '',
+                logo: null,
+                logo_preview: null,
+                about: '',
                 address:'',
-                studio_logo: null,
-                about: ''
+                country: '',
+                city: '',
+                street: '',
+                longitude: '',
+                latitude: '',
             },
             errors: [],
             inputFields: [
@@ -40,25 +54,31 @@ export const useCreateStudioFormStore = defineStore({
         submit(){
             const config = useRuntimeConfig()
 
+            const formData = new FormData();
+            formData.append('logo', this.inputValues.logo as File);
+            formData.append('company', this.inputValues.company);
+            formData.append('address', this.inputValues.address);
+            formData.append('country', this.inputValues.country);
+            formData.append('city', this.inputValues.city);
+            formData.append('street', this.inputValues.street);
+            formData.append('about', this.inputValues.about);
+            formData.append('longitude', this.inputValues.longitude);
+            formData.append('latitude', this.inputValues.latitude);
+
             let requestConfig = {
                 method: 'post',
                 credentials: true,
                 url: `${config.public.apiBase}/v1/brand`,
-                data: this.inputValues,
+                data: formData,
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'multipart/form-data'
                 }
             };
             axios.defaults.headers.common['X-Api-Client'] = `web`
             axios.request(requestConfig)
                 .then((response) => {
-                    if(response.data.token){
-                        let session = useSessionStore()
-                        session.setAccessToken(response.data.token)
-                        session.setAuthorized(true)
-                        isLoading.value = false;
-                        emit('stepUpdate', 'account')
-                    }
+                    console.log('response', response)
                 })
                 .catch((error) => {
                     console.log(error);
