@@ -1,14 +1,9 @@
 <?php
 
-use App\Http\Controllers\API\AddressController;
-use App\Http\Controllers\API\BookingController;
-use App\Http\Controllers\API\CityController;
-use App\Http\Controllers\API\CompanyController;
-use App\Http\Controllers\API\CountryController;
-use App\Http\Controllers\API\EquipmentController;
-use App\Http\Controllers\API\OperatingHourController;
+
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\{AddressController, BookingController, CityController, CompanyController, CountryController, EquipmentController, OperatingHourController};
 use Laravel\Fortify\Http\Controllers\{RegisteredUserController, PasswordResetLinkController, EmailVerificationNotificationController, AuthenticatedSessionController};
 
 /*
@@ -66,29 +61,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
 //        Route::post('/logout', [LogoutController::class, 'destroy']);
     });
 
-
-
     Route::post('/company', [CompanyController::class, 'createNewCompany']);
+    Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
     Route::post('/brand', [AddressController::class, 'createBrand']);
 
-
     Route::post('/operating-hours', [OperatingHourController::class, 'setOperatingHours']);
-
     Route::post('/book', [BookingController::class, 'bookStudio']);
-
     Route::get('/reservations', [BookingController::class, 'getAllReservations']);
 });
 
 
 Route::get('/countries', [CountryController::class, 'getCountries']);
-//Route::get('/cities/{countryId}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 Route::get('/companies/{cityId}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
 Route::get('/address/{addressId}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
 Route::get('/addresses/{cityId}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');
 Route::get('/equipment/{addressId}', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('addressId', '[0-9]+');
 Route::get('/city/{cityId}/company/{companyId}', [CompanyController::class, 'getCompanyAddressesInCity'])->where('cityId', '[0-9]+');
-
-
-
-
-Route::get('/{slug}', [CompanyController::class, 'getCompany']);
