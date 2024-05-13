@@ -6,7 +6,7 @@ pull:
 #MANIPULATE CONTAINER
 
 update-dev-container: stop clean build start
-update-prod-container: stop-prod clean-prod pull build-prod npm-install-prod npm-build-prod migrate-prod start-prod
+update-prod-container: stop-prod clean-prod pull build-prod npm-build-prod migrate-prod start-prod
 
 # DEV
 
