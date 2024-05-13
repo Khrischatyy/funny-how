@@ -52,16 +52,3 @@ services:
       - /usr/src/app/node_modules
     networks:
       - funny
-
-  adminer:
-    image: adminer
-    container_name: adminer
-    ports:
-      - "8080:8080"
-    networks:
-      - funny
-    environment:
-      ADMINER_DEFAULT_SERVER: 'pgsql'
-      ADMINER_DEFAULT_TYPE: 'postgresql'
-    depends_on:
-      - db
