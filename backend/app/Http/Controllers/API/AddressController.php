@@ -34,6 +34,8 @@ class AddressController extends BaseController
 
     public function createBrand(AddressRequest $addressRequest): JsonResponse
     {
+
+        dd('s0');
         $city = $this->cityService->findOrCreateCity($addressRequest->city, $addressRequest->country);
 
         $company = $this->companyService->createNewCompany($addressRequest);
