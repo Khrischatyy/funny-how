@@ -6,7 +6,7 @@ pull:
 #MANIPULATE CONTAINER
 
 update-dev-container: stop clean build start
-update-prod-container: stop-prod clean-prod pull build-prod npm-build-prod migrate-prod start-prod
+update-prod-container: stop-prod clean-prod pull build-prod migrate-prod start-prod
 
 # DEV
 
@@ -79,9 +79,6 @@ clean-prod:
 
 npm-install-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm frontend sh -c "npm i"
-
-npm-build-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm frontend sh -c "npm run build"
 
 composer-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "composer install"
