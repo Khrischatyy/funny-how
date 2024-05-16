@@ -6,6 +6,7 @@ use App\Http\Requests\AddressRequest;
 use App\Http\Requests\CompanyRequest;
 use App\Models\Company;
 use App\Repositories\CompanyRepository;
+use Illuminate\Support\Str;
 
 class CompanyService
 {
@@ -14,10 +15,6 @@ class CompanyService
 
     public function getCompany(string $slug)
     {
-        $slug = mb_strtolower($slug);
-
-        //TODO сделать исключение и обработать ошибку если компания не найдена
-
         return $this->companyRepository->getCompanyBySlug($slug);
     }
 
@@ -30,6 +27,11 @@ class CompanyService
             $path = null;
         }
 
-        return Company::create(['name' => $companyRequest->company, 'logo' => $path]);
+        $company = Company::create([
+            'name' => $companyRequest->company,
+            'logo' => $path,
+            'slug' => Str::slug($companyRequest->company)]);
+
+        return $company;
     }
 }

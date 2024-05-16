@@ -16,7 +16,7 @@ class VerifyEmailController extends BaseController
         $user = User::find($user_id);
 
         if (is_null($user) || (! hash_equals(sha1($user->getEmailForVerification()), $routeHash))) {
-            return $this->sendError('There is no user with this ID');
+            return $this->sendError('There is no user with this ID', 404);
         }
 
         if($user->markEmailAsVerified())

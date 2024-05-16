@@ -9,7 +9,7 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'logo'];
+    protected $fillable = ['name', 'logo', 'slug'];
 
     public function cities(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {

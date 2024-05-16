@@ -7,6 +7,7 @@ use App\Http\Requests\CompanyRequest;
 use App\Models\Company;
 use App\Repositories\CompanyRepository;
 use App\Services\CompanyService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CompanyController extends BaseController
 {
@@ -23,11 +24,15 @@ class CompanyController extends BaseController
         return $this->sendResponse($companies, 'Companies received');
     }
 
-    public function getCompany(string $slug): \Illuminate\Http\JsonResponse
+    public function getCompany(string $slug)
     {
-        $company = $this->companyService->getCompany($slug);
+        try {
+            $company = $this->companyService->getCompany($slug);
 
-        return $this->sendResponse($company, 'Company received');
+            return $this->sendResponse($company, 'Company received successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 404);
+        }
     }
 
     public function getCompanyAddressesInCity(int $cityId, int $companyId)

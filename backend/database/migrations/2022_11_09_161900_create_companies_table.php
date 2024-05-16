@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('logo')->nullable();
-            $table->string('slug')->nullable();
+            $table->string('slug')->unique();
             $table->date('founding_date')->nullable();
             $table->float('rating')->nullable();
             $table->timestamps();

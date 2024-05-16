@@ -61,7 +61,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 //        Route::post('/logout', [LogoutController::class, 'destroy']);
     });
 
-    Route::post('/company', [CompanyController::class, 'createNewCompany']);
+//    Route::post('/company', [CompanyController::class, 'createNewCompany']);
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
     Route::post('/brand', [AddressController::class, 'createBrand']);
 

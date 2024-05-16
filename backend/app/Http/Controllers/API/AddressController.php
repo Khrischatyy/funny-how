@@ -40,7 +40,7 @@ class AddressController extends BaseController
 
         $address = $this->createAddress($addressRequest, $city, $company);
 
-        return $this->sendResponse($address, 'Brand added');
+        return $this->sendResponse($company, 'Brand added');
     }
 
     public function createAddress(AddressRequest $addressRequest, $city, $company)
