@@ -9,6 +9,7 @@ type State = {
 	isAuthorized: boolean,
 	userRole: UserRole | null,
 	isLoading: boolean,
+	brand: string | null,
 };
 
 export const USER_INFO_KEY = 'user-info-key'
@@ -17,6 +18,7 @@ export const USER_ROLE_KEY = 'user-role-key'
 export const ROLE_INFO_KEY = 'role-info-key'
 
 export const ACCESS_TOKEN_KEY = 'access_token_key'
+export const BRAND_KEY = 'brand-key'
 
 export const useSessionStore = defineStore({
 	id: 'session-store',
@@ -26,6 +28,7 @@ export const useSessionStore = defineStore({
 		accessToken: process.client ? localStorage.getItem(ACCESS_TOKEN_KEY) : null,
 		isAuthorized: false,
 		isLoading: false,
+		brand: '',
 	}),
 	actions: {
 		setAccessToken(token: string | null) {
@@ -65,6 +68,16 @@ export const useSessionStore = defineStore({
 					localStorage.setItem(ROLE_INFO_KEY, role)
 				} else {
 					localStorage.removeItem(ROLE_INFO_KEY)
+				}
+			}
+		},
+		setBrand(slug: string) {
+			this.brand = slug
+			if (process.client) {
+				if (slug) {
+					localStorage.setItem(BRAND_KEY, slug)
+				} else {
+					localStorage.removeItem(BRAND_KEY)
 				}
 			}
 		},

@@ -26,6 +26,7 @@ import {useRuntimeConfig} from "#imports";
 import axios from "axios";
 import {ref} from "vue";
 import {useSessionStore} from "~/src/entities/Session";
+import {navigateTo} from "nuxt/app";
 
 const store = useCreateAccountFormStore();
 const isLoading = ref(false)
@@ -49,9 +50,15 @@ function createAccount(){
           let session = useSessionStore()
           session.setAccessToken(response.data.token)
           session.setAuthorized(true)
-          isLoading.value = false;
-          emit('stepUpdate', 'account')
+          session.setUserRole(response.data.role)
+          if(session.userRole == 'studio_owner'){
+            navigateTo('/setup')
+            session.setIsLoading(false)
+          } else {
+            window.location.reload();
+          }
         }
+
       })
       .catch((error) => {
         console.log(error);

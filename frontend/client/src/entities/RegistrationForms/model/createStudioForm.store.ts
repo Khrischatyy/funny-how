@@ -2,6 +2,9 @@ import { defineStore } from 'pinia';
 import {useRuntimeConfig} from "#imports";
 import axios from "axios";
 import {useSessionStore} from "~/src/entities/Session";
+import { useRouter } from 'vue-router'
+import {navigateTo} from "nuxt/app";
+const router = useRouter()
 
 type inputField = {
     name: string;
@@ -72,12 +75,16 @@ export const useCreateStudioFormStore = defineStore({
                 data: formData,
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': 'Bearer ' + useSessionStore().accessToken
                 }
             };
             axios.defaults.headers.common['X-Api-Client'] = `web`
             axios.request(requestConfig)
                 .then((response) => {
+                    //function that redirect to route /@[slug]
+                    useSessionStore().setBrand(response.data?.data?.slug)
+                    navigateTo('/@' + response.data?.data?.slug)
                     console.log('response', response)
                 })
                 .catch((error) => {
