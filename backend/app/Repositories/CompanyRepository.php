@@ -16,7 +16,6 @@ class CompanyRepository implements CompanyRepositoryInterface
 
     public function getCompanyBySlug(string $slug)
     {
-        throw new OperatingHourException('fuck up');
         return Company::where('slug', $slug)->with(['addresses' => function($q) {
             $q->with('badges');
         }])->firstOrFail();
