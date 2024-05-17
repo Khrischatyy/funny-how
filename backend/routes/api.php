@@ -3,7 +3,14 @@
 
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\{AddressController, BookingController, CityController, CompanyController, CountryController, EquipmentController, OperatingHourController};
+use App\Http\Controllers\API\{AddressController,
+    BadgeController,
+    BookingController,
+    CityController,
+    CompanyController,
+    CountryController,
+    EquipmentController,
+    OperatingHourController};
 use Laravel\Fortify\Http\Controllers\{RegisteredUserController, PasswordResetLinkController, EmailVerificationNotificationController, AuthenticatedSessionController};
 
 /*
@@ -64,6 +71,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 //    Route::post('/company', [CompanyController::class, 'createNewCompany']);
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
     Route::post('/brand', [AddressController::class, 'createBrand']);
+    Route::get('/operation-modes', [OperatingHourController::class, 'getOperationModes']);
+
+    Route::get('/badges/' ,[BadgeController::class, 'getAddressBadges']);
+    Route::post('/badges/', [BadgeController::class], 'setAddressBadges');
 
     Route::post('/operating-hours', [OperatingHourController::class, 'setOperatingHours']);
     Route::post('/book', [BookingController::class, 'bookStudio']);

@@ -5,14 +5,22 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\OperatingHourRequest;
 use App\Services\OperatingHourService;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class OperatingHourController extends BaseController
 {
     public function __construct(public OperatingHourService $operatingHourService)
     {}
 
-    public function setOperatingHours(OperatingHourRequest $operatingHourRequest)
+    public function getOperationModes(): JsonResponse
+    {
+        $operationModes = DB::table('operating_modes')->get();
+
+        return $this->sendResponse($operationModes, 'Operation modes received');
+    }
+
+    public function setOperatingHours(OperatingHourRequest $operatingHourRequest): JsonResponse
     {
         $address_id = $operatingHourRequest->input('address_id');
         $mode = (int) $operatingHourRequest->input('mode_id');

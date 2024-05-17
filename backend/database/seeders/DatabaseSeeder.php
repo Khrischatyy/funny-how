@@ -19,17 +19,17 @@ class DatabaseSeeder extends Seeder
 //            CountrySeeder::class,
 //            CitySeeder::class,
 //            CompanySeeder::class,
-            UserSeeder::class,
+//            UserSeeder::class,
 //            AddressSeeder::class,
 //            BookingSeeder::class,
 //            CompanyCitySeeder::class,
-//            BadgeSeeder::class,
+            BadgeSeeder::class,
 //            AddressBadgeSeeder::class,
 //            EquipmentTypeSeeder::class,
 //            EquipmentSeeder::class,
 //            AddressEquipmentSeeder::class,
             RoleSeeder::class,
-//            OperatingModeSeeder::class,
+            OperatingModeSeeder::class,
         ]);
 
         // \App\Models\User::factory(10)->create();
