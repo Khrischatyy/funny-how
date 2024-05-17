@@ -27,9 +27,6 @@ use Laravel\Fortify\Http\Controllers\{RegisteredUserController, PasswordResetLin
 // TODO переделать роуты в соответствии REST спецификацией
 
 Route::middleware(['auth:sanctum'])->group(function () {
-
-    Route::get('/cities/{country_id}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
-
     Route::prefix('auth')->group(function () {
 
         // Retrieve the verification limiter configuration for verification attempts
@@ -77,6 +74,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('{address_id}/badge', [BadgeController::class, 'setAddressBadge']);
         Route::delete('{address_id}/badge', [BadgeController::class, 'removeAddressBadge']);
 
+        //equipments
+        Route::get('/{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
 
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
@@ -88,11 +87,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
+
+
     Route::get('/operation-modes', [OperatingHourController::class, 'getOperationModes']);
 });
 
+Route::prefix('countries')->group(function () {
+    Route::get('/countries/{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
+    Route::get('/countries', [CountryController::class, 'getCountries']);
+});
 
-Route::get('/countries', [CountryController::class, 'getCountries']);
 Route::get('/companies/{city_id}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
-Route::get('/equipment/{address_id}', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('addressId', '[0-9]+');
 Route::get('/city/{city_id}/company/{company_id}', [CompanyController::class, 'getCompanyAddressesInCity'])->where('cityId', '[0-9]+');
