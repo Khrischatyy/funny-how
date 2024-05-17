@@ -7,5 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Badge extends Model
 {
-    use HasFactory;
+    protected $fillable = ['name', 'icon'];
+
+    public function addresses()
+    {
+        return $this->belongsToMany(Address::class, 'address_badge');
+    }
 }

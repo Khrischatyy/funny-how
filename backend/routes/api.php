@@ -28,7 +28,7 @@ use Laravel\Fortify\Http\Controllers\{RegisteredUserController, PasswordResetLin
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::get('/cities/{countryId}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
+    Route::get('/cities/{country_id}', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 
     Route::prefix('auth')->group(function () {
 
@@ -68,23 +68,31 @@ Route::middleware(['auth:sanctum'])->group(function () {
 //        Route::post('/logout', [LogoutController::class, 'destroy']);
     });
 
-//    Route::post('/company', [CompanyController::class, 'createNewCompany']);
+    Route::post('/brand', [AddressController::class, 'createBrand']); // company + address created
+
+    Route::prefix('address')->group(function () {
+
+        //badges routes
+        Route::get('{address}/badges', [BadgeController::class, 'getAddressBadges']);
+        Route::put('{address_id}/badge', [BadgeController::class, 'setAddressBadge']);
+        Route::delete('{address_id}/badge', [BadgeController::class, 'removeAddressBadge']);
+
+
+        //booking routes
+        Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
+        Route::post('reservation', [BookingController::class, 'bookStudio']);
+        Route::get('reservations', [BookingController::class, 'getAllReservations']);
+
+//        Route::get('{address_id}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
+//        Route::get('{city_id}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');
+    });
+
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
-    Route::post('/brand', [AddressController::class, 'createBrand']);
     Route::get('/operation-modes', [OperatingHourController::class, 'getOperationModes']);
-
-    Route::get('/badges/' ,[BadgeController::class, 'getAddressBadges']);
-    Route::post('/badges/', [BadgeController::class], 'setAddressBadges');
-
-    Route::post('/operating-hours', [OperatingHourController::class, 'setOperatingHours']);
-    Route::post('/book', [BookingController::class, 'bookStudio']);
-    Route::get('/reservations', [BookingController::class, 'getAllReservations']);
 });
 
 
 Route::get('/countries', [CountryController::class, 'getCountries']);
-Route::get('/companies/{cityId}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
-Route::get('/address/{addressId}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
-Route::get('/addresses/{cityId}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');
-Route::get('/equipment/{addressId}', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('addressId', '[0-9]+');
-Route::get('/city/{cityId}/company/{companyId}', [CompanyController::class, 'getCompanyAddressesInCity'])->where('cityId', '[0-9]+');
+Route::get('/companies/{city_id}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
+Route::get('/equipment/{address_id}', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('addressId', '[0-9]+');
+Route::get('/city/{city_id}/company/{company_id}', [CompanyController::class, 'getCompanyAddressesInCity'])->where('cityId', '[0-9]+');
