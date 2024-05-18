@@ -53,6 +53,8 @@ class CompanyRepository implements CompanyRepositoryInterface
             });
         });
 
+        $company->logo_url = Storage::disk('s3')->url($company->logo);
+
         return $company;
     }
 }
