@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('address_id')->constrained()->onDelete('cascade');
             $table->integer('hours');
+            $table->boolean('is_enabled')->default(false);
             $table->decimal('total_price', 8, 2);
             $table->decimal('price_per_hour', 8, 2);
         });

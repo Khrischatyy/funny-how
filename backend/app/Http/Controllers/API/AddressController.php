@@ -173,11 +173,13 @@ class AddressController extends BaseController
         $address_id = $request->input('address_id');
         $address_price_id = $request->input('address_prices_id');
 
+
         try {
             $price = AddressPrice::where('address_id', $address_id)->where('id', $address_price_id)->firstOrFail();
             $price->delete();
 
-            $prices = Address::with('prices');
+            // Fetch the updated list of prices for the address
+            $prices = Address::with('prices')->findOrFail($address_id)->prices;
 
             return $this->sendResponse($prices, 'Studio price deleted successfully.', 200);
         } catch (ModelNotFoundException $e) {
