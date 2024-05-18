@@ -70,7 +70,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('address')->group(function () {
 
         //badges routes
-        Route::get('{address}/badges', [BadgeController::class, 'getAddressBadges']);
+        Route::get('{address_id}/badges', [BadgeController::class, 'getAddressBadges']);
         Route::post('{address_id}/badge', [BadgeController::class, 'setAddressBadge']);
 //        Route::delete('{address_id}/badge', [BadgeController::class, 'removeAddressBadge']);
 
