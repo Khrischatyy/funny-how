@@ -178,7 +178,7 @@ class AddressController extends BaseController
             $price = AddressPrice::where('address_id', $address_id)->where('id', $address_price_id)->firstOrFail();
             $price->delete();
 
-            return $this->sendResponse($address, 'Studio price deleted successfully.', 200);
+            return $this->sendResponse($address->prices, 'Studio price deleted successfully.', 200);
         } catch (ModelNotFoundException $e) {
             return $this->sendError('Price not found for the given address.', 404);
         } catch (Exception $e) {
