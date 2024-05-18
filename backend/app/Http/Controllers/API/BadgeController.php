@@ -67,7 +67,7 @@ class BadgeController extends BaseController
             $address = Address::with('badges')->findOrFail($address_id);
 
             if ($address->badges->contains($badge_id)) {
-                return $this->sendError('Badge is already set for this address.', 400);
+                return $this->removeAddressBadge($request, $address_id);
             }
 
             $address->badges()->attach($badge_id);
