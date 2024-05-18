@@ -74,13 +74,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('{address_id}/badge', [BadgeController::class, 'setAddressBadge']);
 //        Route::delete('{address_id}/badge', [BadgeController::class, 'removeAddressBadge']);
 
+        //prices
+        Route::post('/prices', [AddressController::class, 'updateAddressStudioPrices']);
+
         //equipments
         Route::get('/{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
 
+        Route::get('/{address_id}/prices', [AddressController::class, 'getAddressPrices'])->where('address_id', '[0-9]+');
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
         Route::post('reservation', [BookingController::class, 'bookStudio']);
         Route::get('reservations', [BookingController::class, 'getAllReservations']);
+
 
 //        Route::get('{address_id}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
 //        Route::get('{city_id}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');

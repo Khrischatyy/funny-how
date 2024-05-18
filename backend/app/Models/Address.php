@@ -30,4 +30,9 @@ class Address extends Model
     {
         return $this->belongsToMany(Badge::class, 'address_badge');
     }
+
+    public function prices()
+    {
+        return $this->hasMany(AddressPrice::class);
+    }
 }

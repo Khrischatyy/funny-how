@@ -39,6 +39,9 @@ npm-install-save-dev:
 migrate:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan migrate"
 
+rollback:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan migrate:rollback"
+
 seeds:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan db:seed"
 

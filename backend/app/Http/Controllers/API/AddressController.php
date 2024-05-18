@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
 use App\Models\Address;
+use App\Models\AddressPrice;
 use App\Models\Country;
 use App\Repositories\AddressRepository;
 use App\Services\CityService;
 use App\Services\CompanyService;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 
@@ -68,11 +72,64 @@ class AddressController extends BaseController
                 return $badge;
             });
 
-            
+
 
             return $this->sendResponse($badges, 'Badges retrieved successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to retrieve badges.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+
+    /**
+     * Get studio prices for a specific address.
+     *
+     * @param int $address_id
+     * @return JsonResponse
+     */
+    public function getAddressPrices($address_id): JsonResponse
+    {
+        try {
+            $address = Address::with('prices')->findOrFail($address_id);
+            return $this->sendResponse($address->prices, 'Studio prices retrieved successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve studio prices.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Update studio prices for a specific address.
+     *
+     * @param AddressPricesRequest $request
+     * @return JsonResponse
+     */
+    public function updateAddressStudioPrices(AddressPricesRequest $request): JsonResponse
+    {
+        $address_id = $request->input('address_id');
+        $hours = $request->input('hours');
+        $total_price = $request->input('total_price');
+
+        try {
+            $address = Address::findOrFail($address_id);
+
+            // Calculate price per hour
+            $price_per_hour = $total_price / $hours;
+
+            // Create the price entry with the calculated price_per_hour
+            $address->prices()->create([
+                'address_id' => $address_id,
+                'hours' => $hours,
+                'total_price' => $total_price,
+                'price_per_hour' => $price_per_hour
+            ]);
+
+            return $this->sendResponse($address->prices, 'Studio prices updated successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to update studio prices.', 500, ['error' => $e->getMessage()]);
         }
     }
 }
