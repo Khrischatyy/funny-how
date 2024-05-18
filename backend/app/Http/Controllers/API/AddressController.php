@@ -46,6 +46,8 @@ class AddressController extends BaseController
 
         $address = $this->createAddress($addressRequest, $city, $company);
 
+        $this->addDefaultHours($address->id);
+
         return $this->sendResponse($company, 'Brand added');
     }
 
@@ -58,6 +60,33 @@ class AddressController extends BaseController
             'city_id' => $city->id,
             'company_id' => $company->id,
         ]);
+    }
+
+    /**
+     * Add a default price/hours (1hour/60$) to address
+     *
+     * @param int $address_id
+     * @return Address
+     */
+    public function addDefaultHours($address_id): Address
+    {
+        try {
+            $address = Address::findOrFail($address_id);
+
+            // Set price for 1 hour at $60
+            $address->prices()->create([
+                'address_id' => $address_id,
+                'hours' => 1,
+                'total_price' => 60.00,
+                'price_per_hour' => 60.00
+            ]);
+
+            return $address;
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to add price.', 500, ['error' => $e->getMessage()]);
+        }
     }
 
     public function getAddressBadges($address_id): JsonResponse
