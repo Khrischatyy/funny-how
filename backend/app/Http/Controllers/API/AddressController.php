@@ -12,6 +12,7 @@ use App\Repositories\AddressRepository;
 use App\Services\CityService;
 use App\Services\CompanyService;
 use Exception;
+use http\Env\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -130,6 +131,30 @@ class AddressController extends BaseController
             return $this->sendError('Address not found.', 404);
         } catch (Exception $e) {
             return $this->sendError('Failed to update studio prices.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Remove studio prices for a specific address.
+     *
+     * @param int $address_id
+     * @param int $price_id
+     * @return JsonResponse
+     */
+    public function deleteAddressStudioPrices(Request $request): JsonResponse
+    {
+        $address_id = $request->input('address_id');
+        $address_price_id = $request->input('address_prices');
+        try {
+            $address = Address::findOrFail($address_id);
+            $price = AddressPrice::where('address_id', $address_id)->where('id', $price_id)->firstOrFail();
+            $price->delete();
+
+            return $this->sendResponse(null, 'Studio price deleted successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Price not found for the given address.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to delete studio price.', 500, ['error' => $e->getMessage()]);
         }
     }
 }

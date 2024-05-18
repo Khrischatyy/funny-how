@@ -75,7 +75,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 //        Route::delete('{address_id}/badge', [BadgeController::class, 'removeAddressBadge']);
 
         //prices
+        Route::get('{address_id}/prices', [AddressController::class, 'getAddressPrices']);
         Route::post('/prices', [AddressController::class, 'updateAddressStudioPrices']);
+        Route::delete('/prices', [AddressController::class, 'deleteAddressStudioPrices']);
 
         //equipments
         Route::get('/{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
