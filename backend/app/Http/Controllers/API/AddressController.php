@@ -66,9 +66,9 @@ class AddressController extends BaseController
      * Add a default price/hours (1hour/60$) to address
      *
      * @param int $address_id
-     * @return Address
+     * @return Address | JsonResponse
      */
-    public function addDefaultHours($address_id): Address
+    private function addDefaultHours(int $address_id): Address | JsonResponse
     {
         try {
             $address = Address::findOrFail($address_id);
@@ -108,7 +108,6 @@ class AddressController extends BaseController
             return $this->sendError('Failed to retrieve badges.', 500, ['error' => $e->getMessage()]);
         }
     }
-
 
     /**
      * Get studio prices for a specific address.
