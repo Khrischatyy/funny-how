@@ -20,7 +20,7 @@ class BadgeSeeder extends Seeder
                 [
                     'id' => 1,
                     'name' => 'mixing',
-                    'image' => '/images/badges/mixing.svg'
+                    'image' => 'public/badges/mixing.svg',
                 ],
             );
 
@@ -29,7 +29,7 @@ class BadgeSeeder extends Seeder
                 [
                     'id' => 2,
                     'name' => 'record',
-                    'image' => '/images/badges/record.svg'
+                    'image' => 'public/badges/record.svg'
                 ],
             );
 
@@ -38,7 +38,7 @@ class BadgeSeeder extends Seeder
                 [
                     'id' => 3,
                     'name' => 'rent',
-                    'image' => '/images/badges/rent.svg'
+                    'image' => 'public/badges/rent.svg'
                 ],
             );
     }

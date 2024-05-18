@@ -5,8 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\SetAddressBadgesRequest;
 use App\Models\Address;
+use App\Models\Badge;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class BadgeController extends BaseController
 {
@@ -18,9 +21,34 @@ class BadgeController extends BaseController
      */
     public function getAddressBadges($address_id): JsonResponse
     {
-        $address = Address::with('badges')->findOrFail($address_id);
+        try {
+            // Try to find the address
+            $address = Address::with('badges')->findOrFail($address_id);
 
-        return $this->sendResponse($address->badges, 'Badges retrieved successfully.');
+            // Generate the S3 URLs for the badges
+            $takenBadges = $address->badges->map(function ($badge) {
+                $badge->image_url = Storage::disk('s3')->url($badge->image);
+                return $badge;
+            });
+
+            $allBadges = Badge::all()->map(function ($badge) {
+                $badge->image_url = Storage::disk('s3')->url($badge->image);
+                return $badge;
+            });
+
+            $badges = [
+                'all_badges' => $allBadges,
+                'taken_badges' => $takenBadges,
+            ];
+
+            return $this->sendResponse($badges, 'Badges retrieved successfully.');
+        } catch (ModelNotFoundException $e) {
+            // Handle the case where the address was not found
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            // Handle any other exceptions
+            return $this->sendError('Failed to retrieve badges.', 500, ['error' => $e->getMessage()]);
+        }
     }
 
 

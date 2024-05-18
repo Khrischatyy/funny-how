@@ -10,6 +10,7 @@ use App\Repositories\AddressRepository;
 use App\Services\CityService;
 use App\Services\CompanyService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class AddressController extends BaseController
 {
@@ -53,5 +54,25 @@ class AddressController extends BaseController
             'city_id' => $city->id,
             'company_id' => $company->id,
         ]);
+    }
+
+    public function getAddressBadges($address_id): JsonResponse
+    {
+        try {
+            // Find the address
+            $address = Address::with('badges')->findOrFail($address_id);
+
+            // Generate the S3 URLs for the badges
+            $badges = $address->badges->map(function ($badge) {
+                $badge->image_url = Storage::disk('s3')->url($badge->image);
+                return $badge;
+            });
+
+            
+
+            return $this->sendResponse($badges, 'Badges retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve badges.', 500, ['error' => $e->getMessage()]);
+        }
     }
 }
