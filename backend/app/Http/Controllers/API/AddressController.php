@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\AddressPriceDeleteRequest;
 use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
 use App\Models\Address;
@@ -15,6 +16,7 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 
 class AddressController extends BaseController
 {
@@ -166,7 +168,7 @@ class AddressController extends BaseController
      * @param int $price_id
      * @return JsonResponse
      */
-    public function deleteAddressPrices(Request $request): JsonResponse
+    public function deleteAddressPrices(AddressPriceDeleteRequest $request): JsonResponse
     {
         $address_id = $request->input('address_id');
         $address_price_id = $request->input('address_prices');
