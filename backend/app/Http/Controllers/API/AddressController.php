@@ -151,8 +151,11 @@ class AddressController extends BaseController
                 'address_id' => $address_id,
                 'hours' => $hours,
                 'total_price' => $total_price,
-                'price_per_hour' => $price_per_hour
+                'price_per_hour' => $price_per_hour,
+                'is_enabled' => true
             ]);
+
+            dd($address->prices);
 
             return $this->sendResponse($address->prices, 'Studio prices updated successfully.');
         } catch (ModelNotFoundException $e) {
