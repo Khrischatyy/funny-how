@@ -22,7 +22,7 @@ class CompanyService
     public function createNewCompany(AddressRequest $companyRequest)
     {
         if($companyRequest->hasFile('logo')) {
-            $path = $companyRequest->file('logo')->store('public/images');
+            $path = $companyRequest->file('logo')->store('public/images', 's3');
         } else {
             $path = null;
         }
