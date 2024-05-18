@@ -24,7 +24,6 @@ class AddressPricesRequest extends FormRequest
     public function rules()
     {
         return [
-            'address_id' => 'required|exists:addresses,id',
             'hours' => 'required|integer|in:1,4,8,12,24',
             'total_price' => 'required|numeric|min:0',
         ];

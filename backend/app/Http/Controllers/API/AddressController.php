@@ -12,7 +12,6 @@ use App\Repositories\AddressRepository;
 use App\Services\CityService;
 use App\Services\CompanyService;
 use Exception;
-use http\Env\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -106,9 +105,8 @@ class AddressController extends BaseController
      * @param AddressPricesRequest $request
      * @return JsonResponse
      */
-    public function updateAddressStudioPrices(AddressPricesRequest $request): JsonResponse
+    public function updateAddressStudioPrices(AddressPricesRequest $request, int $address_id): JsonResponse
     {
-        $address_id = $request->input('address_id');
         $hours = $request->input('hours');
         $total_price = $request->input('total_price');
 
@@ -137,17 +135,17 @@ class AddressController extends BaseController
     /**
      * Remove studio prices for a specific address.
      *
-     * @param int $address_id
      * @param int $price_id
      * @return JsonResponse
      */
-    public function deleteAddressStudioPrices(Request $request): JsonResponse
+    public function deleteAddressPrices(Request $request): JsonResponse
     {
         $address_id = $request->input('address_id');
         $address_price_id = $request->input('address_prices');
+
         try {
             $address = Address::findOrFail($address_id);
-            $price = AddressPrice::where('address_id', $address_id)->where('id', $price_id)->firstOrFail();
+            $price = AddressPrice::where('address_id', $address_id)->where('id', $address_price_id)->firstOrFail();
             $price->delete();
 
             return $this->sendResponse(null, 'Studio price deleted successfully.');
