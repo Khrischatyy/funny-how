@@ -25,7 +25,7 @@ class AddressPriceDeleteRequest extends FormRequest
     {
         return [
             'address_id' => 'required|int|exists:addresses,id',
-            'address_prices' => 'required|int|exists:address_prices,id',
+            'address_prices_id' => 'required|int|exists:address_prices,id',
         ];
     }
 }
