@@ -4,11 +4,15 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
-        'default-src': ["'self'", "'unsafe-inline'"],
-        'script-src': ["'self'", "'unsafe-inline'", "https://funny-how.com"],
-        'style-src': ["'self'", "'unsafe-inline'", "https://funny-how.com"],
-        'img-src': ["'self'", "data:", "https://funny-how.com"],
-        'font-src': ["'self'", "https://funny-how.com", "data:"],
+        'default-src': ["'self'", "data:"],
+        'script-src': [
+          "'self'",
+          "'unsafe-inline'",
+          "https://maps.googleapis.com"
+        ],
+        'style-src': ["'self'", "'unsafe-inline'", "https://trusted-styles.com"],
+        'img-src': ["'self'", "data:"],
+        'font-src': ["'self'", "https://trusted-fonts.com", "data:"],
         'object-src': ["'none'"],
         'form-action': ["'self'"],
         'frame-ancestors': ["'self'"],
