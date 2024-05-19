@@ -4,17 +4,7 @@ export default defineNuxtConfig({
   security: {
     headers: {
       contentSecurityPolicy: {
-        'default-src': ["'self'", "data:"],
-        'script-src': [
-          "'self'",
-          "'unsafe-inline'",
-          "https://maps.googleapis.com"
-        ],
-        'img-src': ["'self'", "data:"],
-        'object-src': ["'none'"],
-        'form-action': ["'self'"],
-        'frame-ancestors': ["'self'"],
-        'upgrade-insecure-requests': true,
+        'default-src': ["'self'", "'unsafe-inline'", "data:", "https://maps.googleapis.com"]
       }
     }
   },
@@ -22,12 +12,6 @@ export default defineNuxtConfig({
     head: {
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
-      meta: [
-        {
-          'http-equiv': 'Content-Security-Policy',
-          content: "script-src 'self' 'unsafe-inline' https://maps.googleapis.com; img-src 'self' data:"
-        },
-      ],
     },
     pageTransition: { name: 'page', mode: 'out-in'}
   },
