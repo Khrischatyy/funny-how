@@ -139,6 +139,7 @@ class AddressController extends BaseController
     {
         $hours = $request->input('hours');
         $total_price = $request->input('total_price');
+        $is_enabled = $request->input('is_enabled');
 
         try {
             $address = Address::findOrFail($address_id);
@@ -152,10 +153,8 @@ class AddressController extends BaseController
                 'hours' => $hours,
                 'total_price' => $total_price,
                 'price_per_hour' => $price_per_hour,
-                'is_enabled' => true
+                'is_enabled' => $is_enabled,
             ]);
-
-            dd($address->prices);
 
             return $this->sendResponse($address->prices, 'Studio prices updated successfully.');
         } catch (ModelNotFoundException $e) {
