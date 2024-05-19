@@ -10,9 +10,7 @@ export default defineNuxtConfig({
           "'unsafe-inline'",
           "https://maps.googleapis.com"
         ],
-        'style-src': ["'self'", "'unsafe-inline'", "https://trusted-styles.com"],
         'img-src': ["'self'", "data:"],
-        'font-src': ["'self'", "https://trusted-fonts.com", "data:"],
         'object-src': ["'none'"],
         'form-action': ["'self'"],
         'frame-ancestors': ["'self'"],
@@ -25,7 +23,10 @@ export default defineNuxtConfig({
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
       meta: [
-        { 'http-equiv': 'Content-Security-Policy', content: "script-src 'self' 'unsafe-inline' https://maps.googleapis.com" },
+        {
+          'http-equiv': 'Content-Security-Policy',
+          content: "script-src 'self' 'unsafe-inline' https://maps.googleapis.com; img-src 'self' data:"
+        },
       ],
     },
     pageTransition: { name: 'page', mode: 'out-in'}
