@@ -1,6 +1,21 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath, URL } from 'url'
 export default defineNuxtConfig({
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'default-src': ["'self'", "'unsafe-inline'"],
+        'script-src': ["'self'", "'unsafe-inline'", "https://funny-how.com"],
+        'style-src': ["'self'", "'unsafe-inline'", "https://funny-how.com"],
+        'img-src': ["'self'", "data:", "https://funny-how.com"],
+        'font-src': ["'self'", "https://funny-how.com", "data:"],
+        'object-src': ["'none'"],
+        'form-action': ["'self'"],
+        'frame-ancestors': ["'self'"],
+        'upgrade-insecure-requests': true,
+      }
+    }
+  },
   app: {
     head: {
       charset: 'utf-8',
