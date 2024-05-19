@@ -76,7 +76,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         //prices
         Route::get('{address_id}/prices', [AddressController::class, 'getAddressPrices']);
-        Route::post('{address_id}/prices', [AddressController::class, 'updateAddressStudioPrices']);
+        Route::post('{address_id}/prices', [AddressController::class, 'createOrUpdateAddressPrice']);
         Route::delete('/prices', [AddressController::class, 'deleteAddressPrices']);
 
         //equipments

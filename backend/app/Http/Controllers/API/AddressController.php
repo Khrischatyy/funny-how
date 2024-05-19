@@ -135,11 +135,13 @@ class AddressController extends BaseController
      * @param AddressPricesRequest $request
      * @return JsonResponse
      */
-    public function updateAddressStudioPrices(AddressPricesRequest $request, int $address_id): JsonResponse
+    public function createOrUpdateAddressPrice(AddressPricesRequest $request, int $address_id): JsonResponse
     {
         $hours = $request->input('hours');
         $total_price = $request->input('total_price');
         $is_enabled = $request->input('is_enabled');
+
+        $address_price_id = $request->input('address_price_id');
 
         try {
             $address = Address::findOrFail($address_id);
@@ -147,18 +149,31 @@ class AddressController extends BaseController
             // Calculate price per hour
             $price_per_hour = $total_price / $hours;
 
-            // Create the price entry with the calculated price_per_hour
-            $address->prices()->create([
-                'address_id' => $address_id,
-                'hours' => $hours,
-                'total_price' => $total_price,
-                'price_per_hour' => $price_per_hour,
-                'is_enabled' => $is_enabled,
-            ]);
+            if ($address_price_id) {
+                // Find the existing price entry
+                $price_entry = $address->prices()->findOrFail($address_price_id);
+
+                // Update the existing price entry
+                $price_entry->update([
+                    'hours' => $hours,
+                    'total_price' => $total_price,
+                    'price_per_hour' => $price_per_hour,
+                    'is_enabled' => $is_enabled,
+                ]);
+            } else {
+                // Create the new price entry
+                $address->prices()->create([
+                    'address_id' => $address_id,
+                    'hours' => $hours,
+                    'total_price' => $total_price,
+                    'price_per_hour' => $price_per_hour,
+                    'is_enabled' => $is_enabled,
+                ]);
+            }
 
             return $this->sendResponse($address->prices, 'Studio prices updated successfully.');
         } catch (ModelNotFoundException $e) {
-            return $this->sendError('Address not found.', 404);
+            return $this->sendError('Address or price entry not found.', 404);
         } catch (Exception $e) {
             return $this->sendError('Failed to update studio prices.', 500, ['error' => $e->getMessage()]);
         }
