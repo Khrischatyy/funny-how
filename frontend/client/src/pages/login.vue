@@ -198,7 +198,7 @@ function authForm() {
           session.value.setAuthorized(true)
           session.value.setUserRole(response.data.role)
           if(session.value.userRole == 'studio_owner'){
-            navigateTo('/setup')
+            navigateTo('/create')
             session.value.setIsLoading(false)
           } else {
             window.location.reload();

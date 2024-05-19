@@ -52,7 +52,7 @@ function createAccount(){
           session.setAuthorized(true)
           session.setUserRole(response.data.role)
           if(session.userRole == 'studio_owner'){
-            navigateTo('/setup')
+            navigateTo('/create')
             session.setIsLoading(false)
           } else {
             window.location.reload();

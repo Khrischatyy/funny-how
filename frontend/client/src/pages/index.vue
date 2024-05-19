@@ -29,7 +29,7 @@ onMounted(async () => {
   }
   //setup if not set
   if(session.value.userRole == 'studio_owner'){
-    navigateTo('/setup')
+    navigateTo('/create')
   }
 })
 

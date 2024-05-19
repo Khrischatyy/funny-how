@@ -12,6 +12,7 @@ export default defineNuxtRouteMiddleware(() => {
 
     onBeforeMount(() => {
         watch(() => sessionStore.isAuthorized, (isAuthorized) => {
+
             if (!isAuthorized) {
                 navigateTo(router.resolve({ name: 'login' }).href)
             }

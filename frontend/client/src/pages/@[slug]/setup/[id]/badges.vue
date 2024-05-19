@@ -11,19 +11,37 @@ import {
   type StudioFormValues,
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
-import {IconElipse, IconLine} from "~/src/shared/ui/common";
+import {IconDown, IconElipse, IconLeft, IconLine, IconRight} from "~/src/shared/ui/common";
 import {Loader} from "@googlemaps/js-api-loader";
+import axios from "axios";
+import {isBadgeTaken} from "~/src/shared/utils/checkBadge";
+import {useRouter} from "vue-router";
+definePageMeta({
+  middleware: ["auth"],
+})
 
 useHead({
-  title: 'Dashboard | Slug',
+  title: 'Dashboard | Setup',
   meta: [
     { name: 'Funny How', content: 'Dashboard' }
   ],
 })
 
 const isLoading = ref(false)
+const workHours = ref({
+  mode_id: 1,
+  open_time: '',
+  close_time: '',
+  open_time_weekend: '',
+  close_time_weekend: '',
+  address_id: '',
+})
+
+const badges = ref([])
 
 const route = useRoute();
+
+const router = useRouter();
 
 function isError(form: string, field: string): boolean {
   let formErrors: Record<string, any> = useCreateStudioFormStore().errors;
@@ -34,6 +52,8 @@ const session = ref()
 onMounted(async () => {
   const config = useRuntimeConfig()
   session.value = useSessionStore()
+  getBadges()
+  getAddressId()
   if(!session.value.isAuthorized){
     navigateTo('/login')
   }
@@ -89,27 +109,104 @@ onMounted(async () => {
 
     console.log('place', place);
   });
+
+
 })
 
+function filterUnassigned(obj) {
+  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== ''));
+}
+
+function toogleBadge(badge_id){
+  const config = useRuntimeConfig()
+
+  let data = {
+    "badge_id": badge_id
+  }
+
+  let requestConfig = {
+    method: 'post',
+    credentials: true,
+    url: `${config.public.apiBase}/v1/address/${route.params.id}/badge`,
+    data: data,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'multipart/form-data',
+      'Authorization': 'Bearer ' + useSessionStore().accessToken
+    }
+  };
+  axios.defaults.headers.common['X-Api-Client'] = `web`
+  axios.request(requestConfig)
+      .then((response) => {
+        console.log('response', response.data.data)
+        badges.value.taken_badges = response.data.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+}
+function getBadges(){
+  const config = useRuntimeConfig()
+
+  let requestConfig = {
+    method: 'get',
+    credentials: true,
+    url: `${config.public.apiBase}/v1/address/${route.params.id}/badges`,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'multipart/form-data',
+      'Authorization': 'Bearer ' + useSessionStore().accessToken
+    }
+  };
+  axios.defaults.headers.common['X-Api-Client'] = `web`
+  axios.request(requestConfig)
+      .then((response) => {
+        console.log('response', response.data.data)
+        badges.value = response.data.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+}
+
+function getAddressId(){
+  const config = useRuntimeConfig()
+
+  let requestConfig = {
+    method: 'get',
+    credentials: true,
+    url: `${config.public.apiBase}/v1/company/${route.params.slug}`,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'multipart/form-data',
+      'Authorization': 'Bearer ' + useSessionStore().accessToken
+    }
+  };
+  axios.defaults.headers.common['X-Api-Client'] = `web`
+  axios.request(requestConfig)
+      .then((response) => {
+        console.log('response', response.data.data)
+        workHours.value.address_id = response?.data?.data.addresses.find(addr => addr.id == route.params.id)?.id
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+}
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
 }
 
-function changeLogo() {
-  const input = document.getElementById('studio_logo') as HTMLInputElement;
-  const file = input.files?.[0];
-  if (file) {
-    getFormValues().logo = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      getFormValues().logo_preview = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
+function isBadge(badgeId: number, badges): boolean {
+  if(badges.length > 0)
+  return isBadgeTaken(badgeId, badges);
 }
 
-function setupStudio() {
-  useCreateStudioFormStore().submit()
+function routeBack(){
+  navigateTo(`/@${route.params.slug}/setup/${route.params.id}/hours`)
+}
+
+function routeNext(){
+  navigateTo(`/@${route.params.slug}/setup/${route.params.id}/prices`)
 }
 
 function signOut() {
@@ -134,61 +231,47 @@ function signOut() {
         </div>
 
         <div class="w-96 justify-center items-center inline-flex mb-10 text-center">
-          <div class="text-white text-xl font-bold text-center tracking-wide">Setup Your Studio {{route.params.slug}} - hours</div>
+          <div class="text-white text-xl font-bold text-center tracking-wide">Set Up Badges </div>
         </div>
 
         <div class="flex-col justify-start items-start gap-1.5 flex">
           <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">Studio name and logo</div>
+            <div class="text-white text-sm font-normal tracking-wide">Studio Information</div>
             <div :class="isError('setup', 'studio_name') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
                 isError('setup', 'studio_name')
               }}</div>
           </div>
-          <div class="justify-start items-center w-full gap-2.5 inline-flex">
-            <div class="justify-center w-96 items-center gap-2.5 inline-flex">
-              <label for="studio_logo" :style="`background: url(${getFormValues().logo_preview}) no-repeat center; background-size: cover`" class="flex-col justify-center items-center h-[58px] px-3.5 py-3.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
 
-                <div class="flex flex-col justify-end h-full">
-                  <BrandingLogoSample v-if="!getFormValues().logo"/>
-                  <span class="font-bold shadow-text text-white">upload...</span>
-                </div>
-              </label>
-              <input class="hidden" id="studio_logo" @change="changeLogo()" type="file" placeholder="Enter Your Studio Name" />
 
-              <input v-model="getFormValues().company" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
+        </div>
+
+        <div class="flex-col justify-center items-center gap-1.5 flex">
+          <div class="w-96 justify-center items-center gap-2.5 inline-flex">
+            <div class="w-96 max-w-96 flex gap-2.5">
+              <div v-for="badge in badges?.all_badges" :class="isBadge(badge.id, badges?.taken_badges) ? 'border-opacity-100' : 'border-opacity-20'" @click="toogleBadge(badge.id)" class="w-full flex gap-2.5 justify-center items-center cursor-pointer h-11 outline-none rounded-[10px] focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide">
+                <img :src="badge.image_url" />
+                <span>{{badge.name}}</span>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">Address</div>
-            <div :class="isError('setup','address') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-                isError('setup', 'address')
-              }}</div>
-          </div>
-          <div class="justify-start items-center gap-2.5 inline-flex">
-            <input id="place" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
-          </div>
 
         </div>
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">About</div>
-            <div :class="isError('setup','about') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-                isError('setup', 'about')
-              }}</div>
+        <div class="w-96 h-11 p-3.5 mb-5 mt-5 justify-center items-center gap-2.5 inline-flex">
+          <button @click="routeBack()" class="w-full flex justify-start items-center gap-2 h-11 hover:opacity-70 rounded-[10px] text-white text-sm font-medium tracking-wide">
+            <IconLeft/>
+            <span class="font-light">Back</span>
+          </button>
+          <button @click="routeNext()" class="w-full flex justify-end items-center gap-2 h-11 hover:opacity-70 rounded-[10px] text-white text-sm font-medium tracking-wide">
+            <span class="font-light">Next</span>
+            <IconRight/>
+          </button>
+        </div>
+        <div class="flex-col mb-14 justify-center items-center gap-1.5 flex">
+          <div class="justify-center items-center gap-2.5 inline-flex">
+            <button @click="skip()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-transparent border border-white text-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Skip for later</button>
           </div>
-          <div class="justify-start items-center gap-2.5 inline-flex">
-            <textarea name="about" type="text" v-model="getFormValues().about" :class="{'border-red': isError('setup','about') || isError('setup','about')}" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
-          </div>
         </div>
-        <div class="justify-center items-center gap-2.5 inline-flex">
-          <button @click="setupStudio()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Save And Continue</button>
-        </div>
-        <div class="justify-center items-center gap-2.5 inline-flex">
-          <button @click="signOut()" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">Sign Out</button>
-        </div>
+
       </div>
     </div>
   </div>
@@ -236,6 +319,13 @@ function signOut() {
       }
     }
   }
+}
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-indent: 1px;
+  text-overflow: '';
+  cursor: pointer;
 }
 
 </style>

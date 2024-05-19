@@ -11,42 +11,38 @@ type inputField = {
     title: string;
     type: string;
 }
+
 export type StudioFormValues = {
-    logo: File | null;
-    company: string;
-    address: string;
-    country: string;
-    city: string;
-    street: string;
-    about: string;
-    longitude: string;
-    latitude: string;
-    logo_preview: string | null
-};
+    dayoffs: dayOff[];
+}
+
 type formValues = {
     inputValues: StudioFormValues
     errors: string[];
     inputFields: inputField[];
+    hoursMods: string[];
+}
+
+type dayOff = {
+    day: string;
+    start: string;
+    end: string;
 }
 
 
 
 export const useCreateStudioFormStore = defineStore({
-    id: 'create-studio-store',
+    id: 'create-studio-hours-store',
     state: (): formValues => ({
             inputValues: {
-                company: '',
-                logo: null,
-                logo_preview: null,
-                about: '',
-                address:'',
-                country: '',
-                city: '',
-                street: '',
-                longitude: '',
-                latitude: '',
+                dayoffs: [{
+                    day: '',
+                    start: '',
+                    end: ''
+                }],
             },
             errors: [],
+            hoursMods: [],
             inputFields: [
                 {name: 'name', title: 'Name', type: 'text'},
                 {name: 'email', title: 'Email', type: 'email'},
@@ -83,10 +79,9 @@ export const useCreateStudioFormStore = defineStore({
             axios.request(requestConfig)
                 .then((response) => {
                     //function that redirect to route /@[slug]
-                    console.log('response123', response)
                     useSessionStore().setBrand(response.data?.data?.slug)
-                    navigateTo(`/@${response.data?.data?.slug}/setup/${response.data?.data?.id}/hours`)
-
+                    navigateTo('/@' + response.data?.data?.slug)
+                    console.log('response', response)
                 })
                 .catch((error) => {
                     console.log(error);

@@ -13,12 +13,9 @@ import {
 } from "~/src/entities/RegistrationForms";
 import {IconElipse, IconLine} from "~/src/shared/ui/common";
 import {Loader} from "@googlemaps/js-api-loader";
-definePageMeta({
-  middleware: ["auth"],
-})
 
 useHead({
-  title: 'Dashboard | Setup',
+  title: 'Dashboard | Slug',
   meta: [
     { name: 'Funny How', content: 'Dashboard' }
   ],
@@ -137,7 +134,7 @@ function signOut() {
         </div>
 
         <div class="w-96 justify-center items-center inline-flex mb-10 text-center">
-          <div class="text-white text-xl font-bold text-center tracking-wide">Setup Your Studio {{route.params.id}}</div>
+          <div class="text-white text-xl font-bold text-center tracking-wide">Setup Your Studio {{route.params.slug}}</div>
         </div>
 
         <div class="flex-col justify-start items-start gap-1.5 flex">

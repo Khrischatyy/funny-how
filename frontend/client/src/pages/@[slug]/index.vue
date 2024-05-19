@@ -2,7 +2,7 @@
 import {useHead} from "@unhead/vue";
 import {definePageMeta, useRuntimeConfig} from '#imports'
 import { useSessionStore } from "~/src/entities/Session";
-import {onMounted, ref, type UnwrapRef} from "vue";
+import {onMounted, type Ref, ref, type UnwrapRef} from "vue";
 import {BrandingLogo, BrandingLogoSample, BrandingLogoSmall} from "~/src/shared/ui/branding";
 import {navigateTo, useRoute} from "nuxt/app";
 import {
@@ -11,11 +11,16 @@ import {
   type StudioFormValues,
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
-import {IconElipse, IconLine} from "~/src/shared/ui/common";
+import {IconDown, IconElipse, IconLeft, IconLine, IconRight} from "~/src/shared/ui/common";
 import {Loader} from "@googlemaps/js-api-loader";
+import axios from "axios";
+definePageMeta({
+  middleware: ["auth"],
+})
+const route = useRoute();
 
 useHead({
-  title: 'Dashboard | Slug',
+  title: 'Dashboard | '+ route.params.slug,
   meta: [
     { name: 'Funny How', content: 'Dashboard' }
   ],
@@ -23,93 +28,75 @@ useHead({
 
 const isLoading = ref(false)
 
-const route = useRoute();
-
-function isError(form: string, field: string): boolean {
-  let formErrors: Record<string, any> = useCreateStudioFormStore().errors;
-  return formErrors.hasOwnProperty(field) ? formErrors[field][0] : false;
-}
 
 const session = ref()
+const brand = ref()
+
+const dateInput = ref<HTMLInputElement | null>(null);
+const end_time = ref<HTMLInputElement | null>(null);
+const start_time = ref<HTMLInputElement | null>(null);
+
+const rentingForm = ref({
+  user_id: '',
+  address_id: '',
+  date: '',
+  anotherDate: '',
+  start_time: '',
+  end_time: '',
+})
+const today = new Date();
+const tomorrow = new Date();
+tomorrow.setDate(today.getDate() + 1);
+
+const rentingList = [{name: 'today', date: ''}, {name: 'tomorrow', date: ''}, {name: 'another-day', date: 'another-day'}];
+rentingList[0].date = today.toISOString().split('T')[0];
+rentingList[1].date = tomorrow.toISOString().split('T')[0];
+
 onMounted(async () => {
   const config = useRuntimeConfig()
+  getAddressId()
   session.value = useSessionStore()
-  if(!session.value.isAuthorized){
-    navigateTo('/login')
-  }
+  rentingForm.value.date = rentingList[0].date
 
-  const loader = new Loader({
-    apiKey: config.public.googlePlacesApi,
-    version: "weekly",
-
-  });
-
-  console.log('loader', loader);
-
-  const Places = await loader.importLibrary('places')
-
-  // the center, defaultbounds are not necessary but are best practices to limit/focus search results
-  const center = { lat: 34.082298, lng: -82.284777 };
-  // Create a bounding box with sides ~10km away from the center point
-  const defaultBounds = {
-    north: center.lat + 0.1,
-    south: center.lat - 0.1,
-    east: center.lng + 0.1,
-    west: center.lng - 0.1,
-  };
-
-  //this const will be the first arg for the new instance of the Places API
-
-  const input = document.getElementById("place"); //binds to our input element
-
-  console.log('input', input); //optional logging
-
-  //this object will be our second arg for the new instance of the Places API
-  const options = {
-    componentRestrictions: { country: ["us", "ca"] },
-    fields: ["address_components", "geometry"],
-    types: ["address"],
-  };
-
-  // per the Google docs create the new instance of the import above. I named it Places.
-  const autocomplete = new Places.Autocomplete(input, options);
-
-  console.log('autocomplete', autocomplete); //optional log but will show you the available methods and properties of the new instance of Places.
-
-  //add the place_changed listener to display results when inputs change
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-
-    getFormValues().address = input?.value;
-    getFormValues().country = place.address_components.find(item => item.types.includes('country'))?.short_name;
-    getFormValues().city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
-    getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
-    getFormValues().longitude = place.geometry.viewport?.Gh?.hi;
-    getFormValues().latitude = place.geometry.viewport?.Wh?.hi;
-
-    console.log('place', place);
-  });
 })
 
+
+function getAddressId(){
+  const config = useRuntimeConfig()
+
+  let requestConfig = {
+    method: 'get',
+    credentials: true,
+    url: `${config.public.apiBase}/v1/company/${route.params.slug}`,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'multipart/form-data',
+      'Authorization': 'Bearer ' + useSessionStore().accessToken
+    }
+  };
+  axios.defaults.headers.common['X-Api-Client'] = `web`
+  axios.request(requestConfig)
+      .then((response) => {
+        console.log('response', response.data.data)
+        brand.value = response.data.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+}
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
 }
 
-function changeLogo() {
-  const input = document.getElementById('studio_logo') as HTMLInputElement;
-  const file = input.files?.[0];
-  if (file) {
-    getFormValues().logo = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      getFormValues().logo_preview = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+function openDatePicker(input) {
+  if(input == 'date')
+    dateInput.value[0].showPicker();
+  else if(input == 'start_time'){
+    start_time.value[0].showPicker();
   }
-}
-
-function setupStudio() {
-  useCreateStudioFormStore().submit()
+  else if(input == 'end_time'){
+    end_time.value[0].showPicker();
+  }
 }
 
 function signOut() {
@@ -121,74 +108,123 @@ function signOut() {
 <template>
   <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
     <div class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex">
-      <div class="relative w-full flex-col justify-start items-center gap-2.5 flex">
+      <div v-if="brand" class="relative w-full flex-col justify-start items-center gap-2.5 flex">
         <BrandingLogo class="mb-20"/>
-        <div class="animate__animated animate__fadeInRight">
-          <div class="breadcrumbs mb-10 text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
-            <icon-elipse :class="'opacity-100'" class="h-4"/>
-            <button :class="'opacity-100'"> Add Studio</button>
-            <icon-line :class="'opacity-100'" class="h-2 only-desktop"/>
-            <icon-elipse :class="'opacity-20'" class="h-4"/>
-            <button :class="'opacity-20'" > Price Plans </button>
+        <div class="w-96 justify-start gap-1.5 items-center inline-flex mb-10 text-center">
+
+          <div class="text-white text-xl font-bold text-center tracking-wide">
+            <img class="w-full w-100" :src="brand.logo_url" alt="">
+          </div>
+          <div class="text-white text-xxl font-bold text-center tracking-wide">
+            {{brand.description}}
+          </div>
+          <div class="text-white text-xxl font-bold text-center tracking-wide">
+            {{brand.name}}
           </div>
         </div>
+        <div class="w-96 justify-between gap-1.5 items-center inline-flex mb-10 text-center">
+          <h2 class="text-white text-xxl font-bold text-center tracking-wide">
+           Addresses
+          </h2>
 
-        <div class="w-96 justify-center items-center inline-flex mb-10 text-center">
-          <div class="text-white text-xl font-bold text-center tracking-wide">Setup Your Studio {{route.params.slug}}</div>
         </div>
+        <div v-for="address in brand.addresses" class="w-96 justify-between gap-1.5 items-center flex-col mb-10 text-center">
+          <div class="text-white mb-10 text-xl font-light text-left tracking-wide">
 
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">Studio name and logo</div>
-            <div :class="isError('setup', 'studio_name') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-                isError('setup', 'studio_name')
-              }}</div>
+            Lat: {{address.latitude}}<br/>
+            Lon: {{address.longitude}}<br/>
+            Street: {{address.street}}<br/>
           </div>
-          <div class="justify-start items-center w-full gap-2.5 inline-flex">
-            <div class="justify-center w-96 items-center gap-2.5 inline-flex">
-              <label for="studio_logo" :style="`background: url(${getFormValues().logo_preview}) no-repeat center; background-size: cover`" class="flex-col justify-center items-center h-[58px] px-3.5 py-3.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
+          <div class="w-96 justify-between gap-1.5 items-center inline-flex mb-10 text-center">
+            <h2 class="text-white text-xxl font-bold text-center tracking-wide">
+              Badges
+            </h2>
 
-                <div class="flex flex-col justify-end h-full">
-                  <BrandingLogoSample v-if="!getFormValues().logo"/>
-                  <span class="font-bold shadow-text text-white">upload...</span>
-                </div>
-              </label>
-              <input class="hidden" id="studio_logo" @change="changeLogo()" type="file" placeholder="Enter Your Studio Name" />
-
-              <input v-model="getFormValues().company" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
+          </div>
+          <div  class="w-96 justify-start gap-2.5 items-center inline-flex mb-10 text-center">
+            <div v-for="badge in address.badges" class="text-white text-xl font-light text-left tracking-wide">
+              <div  :class="'border-opacity-100'" class="w-full flex px-3 gap-2.5 justify-center items-center cursor-pointer h-11 outline-none rounded-[10px] focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide">
+                <img :src="badge.image_url" />
+                <span>{{badge.name}}</span>
+              </div>
             </div>
           </div>
+          <div class="w-96 justify-between gap-1.5 items-center inline-flex mb-10 text-center">
+            <h2 class="text-white text-xxl font-bold text-center tracking-wide">
+              Booking
+            </h2>
+
+          </div>
+          <div class="relative w-full flex items-center">
+            <div class="flex items-center">
+              <select v-model="rentingForm.date" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
+                <option v-for="day in rentingList" :value="day.date">
+                  {{day.name}}
+                </option>
+              </select>
+            </div>
+            <div class="relative w-full flex items-center pointer-events-none">
+              <input disabled :value="rentingForm.date" placeholder="Day" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
+              <span class="absolute right-5 text-neutral-700 cursor-pointer">Day</span>
+              <span class="absolute right-0 cursor-pointer">
+            <IconDown/>
+          </span>
+            </div>
+          </div>
+
+          <div v-if="rentingForm.date == 'another-day'" class="relative w-full flex items-center mt-3">
+            <div class="flex items-center">
+              <input v-model="rentingForm.anotherDate" name="date" type="date" ref="dateInput" class="w-full px-3 h-11 outline-none rounded-[10px] opacity-0 absolute focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"  />
+            </div>
+            <div @click="openDatePicker('date')" class="relative w-full flex items-center">
+              <input :value="rentingForm.anotherDate" placeholder="Choose Another Day" class="pointer-events-none w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
+              <span class="absolute right-5 text-neutral-700 cursor-pointer">Day</span>
+              <span class="absolute right-0 cursor-pointer">
+                <IconDown/>
+              </span>
+            </div>
+          </div>
+
+          <div class="w-96 justify-between gap-1.5 items-center inline-flex mt-10 mb-10 text-center">
+            <h2 class="text-white text-xxl font-bold text-center tracking-wide">
+              Choose Hours
+            </h2>
+
+          </div>
+          <div class="relative w-full flex items-center mb-5">
+            <div class="flex items-center">
+              <input type="time" v-model="rentingForm.start_time" placeholder="Start Time" ref="start_time" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide">
+            </div>
+            <div @click="openDatePicker('start_time')" class="relative w-full flex items-center ">
+              <input :value="rentingForm.start_time" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="start_time"/>
+              <span class="absolute right-5 text-neutral-700 cursor-pointer">Start From</span>
+              <span class="absolute right-0 cursor-pointer">
+                <IconDown/>
+              </span>
+            </div>
+          </div>
+
+          <div class="relative w-full flex items-center">
+            <div class="flex items-center">
+              <input type="time" v-model="rentingForm.end_time" placeholder="Finish Time" ref="end_time" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide">
+            </div>
+            <div @click="openDatePicker('end_time')" class="relative w-full flex items-center ">
+              <input :value="rentingForm.end_time" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="end_time"/>
+              <span class="absolute right-5 text-neutral-700 cursor-pointer"> To</span>
+              <span class="absolute right-0 cursor-pointer">
+                <IconDown/>
+              </span>
+            </div>
+          </div>
+
         </div>
 
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">Address</div>
-            <div :class="isError('setup','address') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-                isError('setup', 'address')
-              }}</div>
+        <div class="flex-col mb-14 justify-center items-center gap-1.5 flex">
+          <div class="justify-center items-center gap-2.5 inline-flex">
+            <button @click="book()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Book Time</button>
           </div>
-          <div class="justify-start items-center gap-2.5 inline-flex">
-            <input id="place" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
-          </div>
+        </div>
 
-        </div>
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">About</div>
-            <div :class="isError('setup','about') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-                isError('setup', 'about')
-              }}</div>
-          </div>
-          <div class="justify-start items-center gap-2.5 inline-flex">
-            <textarea name="about" type="text" v-model="getFormValues().about" :class="{'border-red': isError('setup','about') || isError('setup','about')}" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
-          </div>
-        </div>
-        <div class="justify-center items-center gap-2.5 inline-flex">
-          <button @click="setupStudio()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Save And Continue</button>
-        </div>
-        <div class="justify-center items-center gap-2.5 inline-flex">
-          <button @click="signOut()" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">Sign Out</button>
-        </div>
       </div>
     </div>
   </div>
@@ -236,6 +272,13 @@ function signOut() {
       }
     }
   }
+}
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-indent: 1px;
+  text-overflow: '';
+  cursor: pointer;
 }
 
 </style>
