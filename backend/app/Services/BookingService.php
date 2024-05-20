@@ -10,6 +10,8 @@ use App\Models\OperatingHour;
 use App\Models\StudioClosure;
 use App\Models\User;
 use Carbon\Carbon;
+use Doctrine\DBAL\Exception;
+use Illuminate\Support\Facades\DB;
 
 class BookingService
 {
@@ -60,6 +62,35 @@ class BookingService
         return $availableSlots;
     }
 
+
+    public function getTotalCost($startTime, $endTime, $addressId)
+    {
+        // Расчет количества часов между start_time и end_time
+        $start = Carbon::createFromFormat('H:i', $startTime);
+        $end = Carbon::createFromFormat('H:i', $endTime);
+        $hours = $end->diffInHours($start);
+
+        $addressPrices = DB::table('address_prices')
+            ->where('address_id', $addressId)
+            ->where('is_enabled', true)
+            ->orderBy('hours', 'asc')
+            ->get();
+
+        if ($addressPrices->isEmpty()) {
+            throw new \Exception('Сlock packages were not installed');
+        }
+
+        // Поиск подходящего пакета часов и расчет цены
+        $totalPrice = 0;
+
+        foreach ($addressPrices as $price) {
+            if ($hours >= $price->hours) {
+                $totalPrice = $hours * $price->price_per_hour;
+            }
+        }
+
+        return $totalPrice;
+    }
     public function bookStudio(BookingRequest $request): Booking
     {
         $addressId = $request->input('address_id');
@@ -75,7 +106,7 @@ class BookingService
             'start_time' => $startTime,
             'end_time' => $endTime,
             'user_id' => $userWhoBooks->id,
-            'total_cost' => 30, // This should be calculated based on business logic
+            'total_cost' => $this->getTotalCost($startTime, $endTime, $addressId),
             'date' => $bookingDate->format('Y-m-d'),
         ]);
     }
@@ -131,5 +162,7 @@ class BookingService
     {
         return $operatingHours->where('day_of_week', $dayOfWeek);
     }
+
+
 
 }

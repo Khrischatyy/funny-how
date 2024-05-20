@@ -88,6 +88,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('reservation', [BookingController::class, 'bookStudio']);
         Route::get('reservations', [BookingController::class, 'getAllReservations']);
 
+        Route::post('/calculate-price', [BookingController::class, 'calculatePrice']);
+
 
 //        Route::get('{address_id}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
 //        Route::get('{city_id}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');
