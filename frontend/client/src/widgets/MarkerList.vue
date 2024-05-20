@@ -6,7 +6,11 @@ const props = defineProps({
   marker: {
     type: Object,
     required: true,
-  }
+  },
+  logo: {
+    type: String,
+    required: true,
+  },
 });
 
 const openGoogle = (lat, lng) => {
@@ -19,6 +23,6 @@ const openGoogle = (lat, lng) => {
 <template>
   <CustomMarker
       :options="{ position: { lat: marker.lat, lng:  marker.lng }, anchorPoint: 'CENTER' }">
-    <BrandingLogoSmall @click="openGoogle(marker.lat, marker.lng)" />
+    <img @click="openGoogle(marker.lat, marker.lng)" :src="props.logo" alt="logo" class="w-10 h-10 rounded-full border-2 border-white bg-white shadow-lg -mt-5 -ml-5" />
   </CustomMarker>
 </template>

@@ -166,9 +166,12 @@ function signOut() {
 
 <template>
   <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
-    <div class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex">
+    <div class="w-full h-full flex-col justify-between items-start gap-7 inline-flex">
+      <div class="absolute top-0 left-0 w-full p-5">
+        <BrandingLogoSmall class="opacity-50" />
+      </div>
       <div v-if="brand" class="relative w-full flex-col justify-start items-center gap-2.5 flex">
-        <BrandingLogo class="mb-20"/>
+
         <div class="w-96 justify-start gap-1.5 items-center inline-flex mb-10 text-center">
 
           <div class="text-white text-xl font-bold text-center tracking-wide">
@@ -206,7 +209,7 @@ function signOut() {
 
             Street: {{address.street}}<br/>
           </div>
-          <GoogleMap :lat="address.latitude" :lng="address.longitude"/>
+          <GoogleMap :logo="brand.logo_url" :lat="address.latitude" :lng="address.longitude"/>
           <div class="w-96 justify-between gap-1.5 mt-10 items-center inline-flex mb-10 text-center">
             <h2 class="text-white text-xxl font-bold text-center tracking-wide">
               Badges

@@ -1,52 +1,57 @@
 <script setup>
-import { GoogleMap, MarkerCluster, InfoWindow } from 'vue3-google-map';
-import {ref, watch} from "vue";
+import {GoogleMap, MarkerCluster} from 'vue3-google-map';
+import {ref, computed, onMounted} from 'vue';
 import MarkerList from "~/src/widgets/MarkerList.vue";
+import { useRuntimeConfig } from '#imports'; // Ensure correct import
+import { useNuxtApp } from '#app'; // Ensure correct import
 
-const zoom = ref(15);
+const { $googleMapKey } = useNuxtApp(); // Correctly access the injected key
+
+const config = useRuntimeConfig(); // Ensure correct usage
+
+
 const props = defineProps({
   lat: {
     type: String
   },
   lng: {
     type: String
+  },
+  logo: {
+    type: String
+  },
+  title: {
+    type: String
   }
 });
-const infoWindow = {
-  id: 'FCB',
-  headline: 'FC Bayern München',
-  text: 'Bayern München is the most successful soccer club in Germany. In the german Bundesliga their current rank is #1. Add some more text for this item to make it look bigger',
-  lat: props.lat ? parseFloat(props.lat) : 48.21888549557031,
-  lng: props.lng ? parseFloat(props.lng) : 11.625109549171704
+
+const defaultLat = 48.21888549557031;
+const defaultLng = 11.625109549171704;
+
+const center = computed(() => ({
+  lat: props.lat ? parseFloat(props.lat) : defaultLat,
+  lng: props.lng ? parseFloat(props.lng) : defaultLng
+}));
+
+const zoom = ref(15);
+
+const studios = {
+  studio1: {
+    id: 'studio1',
+    name: 'FC Bayern Studio',
+    description: 'A top-notch studio used by FC Bayern München. Perfect for high-quality recordings and events.',
+    lat: center.value.lat,
+    lng: center.value.lng
+  }
 };
 
-const locations = {
-  FCB: {
-    id: 'FCB',
-    headline: 'FC Bayern München',
-    text: 'Bayern München is the most successful soccer club in Germany. In the german Bundesliga their current rank is #1. Add some more text for this item to make it look bigger',
-    lat: props.lat ? parseFloat(props.lat) : 48.21888549557031,
-    lng: props.lng ? parseFloat(props.lng) : 11.625109549171704
-  },
-};
-
-const center = {
-  lat: props.lat ? parseFloat(props.lat) : 48.21888549557031,
-  lng: props.lng ? parseFloat(props.lng) : 11.625109549171704
-};
-function zoomEvent(item) {
-  center.value = { lat: item.lat, lng: item.lng };
-  zoom.value = 25;
-}
 </script>
+
 <template>
   <ClientOnly>
-    <GoogleMap  api-key="AIzaSyBQyFCU8EovilnLJEi2vTs623u8ftgMigY" class="map w-full" :center="center" :zoom="zoom">
-
+    <GoogleMap :api-key="config.public.googleMapKey" class="map" :center="center" :zoom="zoom">
       <MarkerCluster :options="{ position: center }">
-        <div v-for="marker in locations">
-          <MarkerList :marker="marker" />
-        </div>
+        <MarkerList v-for="studio in studios" :key="studio.id" :logo="props.logo" :marker="studio"/>
       </MarkerCluster>
     </GoogleMap>
   </ClientOnly>
@@ -54,7 +59,6 @@ function zoomEvent(item) {
 
 <style scoped>
 .map {
-  position: relative;
   width: 100%;
   height: 300px;
 }

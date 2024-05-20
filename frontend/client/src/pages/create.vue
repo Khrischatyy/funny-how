@@ -84,8 +84,8 @@ onMounted(async () => {
     getFormValues().country = place.address_components.find(item => item.types.includes('country'))?.short_name;
     getFormValues().city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
     getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
-    getFormValues().longitude = place.geometry.viewport?.Gh?.hi;
-    getFormValues().latitude = place.geometry.viewport?.Wh?.hi;
+    getFormValues().longitude = place.geometry.location.lng();
+    getFormValues().latitude = place.geometry.location.lat();
 
     console.log('place', place);
   });
