@@ -10,6 +10,7 @@ type State = {
 	userRole: UserRole | null,
 	isLoading: boolean,
 	brand: string | null,
+	reservations: string | null
 };
 
 export const USER_INFO_KEY = 'user-info-key'
@@ -20,6 +21,7 @@ export const ROLE_INFO_KEY = 'role-info-key'
 export const ACCESS_TOKEN_KEY = 'access_token_key'
 export const BRAND_KEY = 'brand-key'
 
+export const RESERVES_KEY = 'reserves-key'
 export const useSessionStore = defineStore({
 	id: 'session-store',
 	state: (): State => ({
@@ -28,6 +30,7 @@ export const useSessionStore = defineStore({
 		accessToken: process.client ? localStorage.getItem(ACCESS_TOKEN_KEY) : null,
 		isAuthorized: false,
 		isLoading: false,
+		reservations: process.client ? localStorage.getItem(RESERVES_KEY) : null,
 		brand: '',
 	}),
 	actions: {
@@ -38,6 +41,16 @@ export const useSessionStore = defineStore({
 					localStorage.setItem(ACCESS_TOKEN_KEY, token)
 				} else {
 					localStorage.removeItem(ACCESS_TOKEN_KEY)
+				}
+			}
+		},
+		setReservations(reservations: string | null) {
+			this.reservations = reservations
+			if (process.client) {
+				if (reservations) {
+					localStorage.setItem(RESERVES_KEY, JSON.stringify(reservations))
+				} else {
+					localStorage.removeItem(RESERVES_KEY)
 				}
 			}
 		},

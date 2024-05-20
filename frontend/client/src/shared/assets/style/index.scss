@@ -2,7 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 @import "fonts";
-
+:root {
+	--color-primary: #FFA500;       /* Orange */
+	--color-accent: #FFD700;        /* Yellow */
+	--color-black: #000000;         /* Black */
+	--color-dark-orange: #FF8C00;   /* Dark Orange */
+	--color-gold: #FFD700;          /* Gold */
+	--color-dark-gray: #333333;     /* Dark Gray */
+	--color-background: #121212;    /* Dark Background */
+	--color-surface: #1E1E1E;       /* Dark Surface */
+	--color-text-primary: #FFFFFF;  /* Primary Text */
+	--color-text-secondary: #B0B0B0; /* Secondary Text */
+}
 html {
 	@apply text-black;
 	background-color: #000;

@@ -11,9 +11,10 @@ import {
   type StudioFormValues,
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
-import {IconDown, IconElipse, IconLeft, IconLine, IconRight} from "~/src/shared/ui/common";
+import {IconDown, IconElipse, IconLeft, IconLine, IconMic, IconRight} from "~/src/shared/ui/common";
 import {Loader} from "@googlemaps/js-api-loader";
 import axios from "axios";
+import GoogleMap from "~/src/widgets/GoogleMap.vue";
 definePageMeta({
   middleware: ["auth"],
 })
@@ -61,6 +62,54 @@ onMounted(async () => {
 })
 
 
+
+const responseQuote = ref({})
+
+function book(){
+  const config = useRuntimeConfig()
+  let requestConfig = {
+    method: 'post',
+    credentials: true,
+    url: `${config.public.apiBase}/v1/address/reservation`,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + useSessionStore().accessToken
+    },
+    data: {
+      user_id: 1,
+      address_id: brand.value.addresses[0].id,
+      date: rentingForm.value.date,
+      start_time: rentingForm.value.start_time,
+      end_time: rentingForm.value.end_time,
+    }
+  };
+  axios.defaults.headers.common['X-Api-Client'] = `web`
+  axios.request(requestConfig)
+      .then((response) => {
+        //responseQuote
+// "address_id": 2,
+//     "start_time": "2024-05-20T08:18:00.000000Z",
+//     "end_time": "2024-05-20T17:18:00.000000Z",
+//     "user_id": 1,
+//     "total_cost": 30,
+//     "date": "2024-05-20",
+//     "updated_at": "2024-05-20T08:18:49.000000Z",
+//     "created_at": "2024-05-20T08:18:49.000000Z",
+//     "id": 2
+//
+        responseQuote.value = response.data.data;
+
+        session.value.setReservations(response.data.data)
+
+        console.log('response', response.data.data)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+}
+
 function getAddressId(){
   const config = useRuntimeConfig()
 
@@ -99,6 +148,16 @@ function openDatePicker(input) {
   }
 }
 
+function formatTime(time: string) {
+  const date = new Date(time);
+  return date.toLocaleTimeString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true});
+}
+
+function formatDate(date: string) {
+  const dateObj = new Date(date);
+  return dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 function signOut() {
   session.value.logout()
 }
@@ -122,6 +181,17 @@ function signOut() {
             {{brand.name}}
           </div>
         </div>
+        <div class="justify-start gap-1.5 items-start border-neutral-700 border p-3 rounded-[10px] inline-flex mb-10 text-center">
+          <IconMic class="text-white h-6 w-6"/>
+          <div class="text-white text-sm text-left font-bold tracking-wide">
+            <!--             {{session.reservations}}: { "address_id": 2, "start_time": "2024-05-20T18:58:00.000000Z", "end_time": "2024-05-20T18:59:00.000000Z", "user_id": 1, "total_cost": 30, "date": "2024-05-20", "updated_at": "2024-05-20T08:58:30.000000Z", "created_at": "2024-05-20T08:58:30.000000Z", "id": 5 }-->
+            You have a reservation at <br>
+            <a :href="`/@${brand.name}`"> {{brand.name}}</a> on {{brand.addresses[0].street}} <br>
+            <br/>
+            {{formatDate(session?.reservations?.date)}} from <br>
+            {{formatTime(session?.reservations?.start_time)}} to {{formatTime(session?.reservations?.end_time)}} <br>
+          </div>
+        </div>
         <div class="w-96 justify-between gap-1.5 items-center inline-flex mb-10 text-center">
           <h2 class="text-white text-xxl font-bold text-center tracking-wide">
            Addresses
@@ -131,11 +201,11 @@ function signOut() {
         <div v-for="address in brand.addresses" class="w-96 justify-between gap-1.5 items-center flex-col mb-10 text-center">
           <div class="text-white mb-10 text-xl font-light text-left tracking-wide">
 
-            Lat: {{address.latitude}}<br/>
-            Lon: {{address.longitude}}<br/>
+
             Street: {{address.street}}<br/>
           </div>
-          <div class="w-96 justify-between gap-1.5 items-center inline-flex mb-10 text-center">
+          <GoogleMap :lat="address.latitude" :lng="address.longitude"/>
+          <div class="w-96 justify-between gap-1.5 mt-10 items-center inline-flex mb-10 text-center">
             <h2 class="text-white text-xxl font-bold text-center tracking-wide">
               Badges
             </h2>
@@ -196,7 +266,7 @@ function signOut() {
               <input type="time" v-model="rentingForm.start_time" placeholder="Start Time" ref="start_time" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide">
             </div>
             <div @click="openDatePicker('start_time')" class="relative w-full flex items-center ">
-              <input :value="rentingForm.start_time" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="start_time"/>
+              <input :value="rentingForm.start_time" class="pointer-events-none cursor-pointer w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="start_time"/>
               <span class="absolute right-5 text-neutral-700 cursor-pointer">Start From</span>
               <span class="absolute right-0 cursor-pointer">
                 <IconDown/>
@@ -209,7 +279,7 @@ function signOut() {
               <input type="time" v-model="rentingForm.end_time" placeholder="Finish Time" ref="end_time" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide">
             </div>
             <div @click="openDatePicker('end_time')" class="relative w-full flex items-center ">
-              <input :value="rentingForm.end_time" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="end_time"/>
+              <input :value="rentingForm.end_time" class="w-full pointer-events-none cursor-pointer px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="end_time"/>
               <span class="absolute right-5 text-neutral-700 cursor-pointer"> To</span>
               <span class="absolute right-0 cursor-pointer">
                 <IconDown/>
@@ -231,6 +301,12 @@ function signOut() {
 </template>
 
 <style scoped lang="scss">
+a {
+  //make cool text decoration and maybe not white but some other color
+  text-decoration: underline;
+  color: var(--color-gold);
+  text-shadow: 2px 2px 4px var(--color-dark-orange); /* Shadow effect */
+}
 .shadow-text{
   text-shadow: 2px 3px 1px rgba(0, 0, 0, 0.8), 12px 14px 1px rgba(0, 0, 0, 0.8);
 }
