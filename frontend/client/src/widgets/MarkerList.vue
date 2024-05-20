@@ -9,11 +9,16 @@ const props = defineProps({
   }
 });
 
+const openGoogle = (lat, lng) => {
+  const url = `https://www.google.com/maps?q=${lat},${lng}`;
+  window.open(url, '_blank');
+}
+
 </script>
 
 <template>
   <CustomMarker
       :options="{ position: { lat: marker.lat, lng:  marker.lng }, anchorPoint: 'CENTER' }">
-    <BrandingLogoSmall />
+    <BrandingLogoSmall @click="openGoogle(marker.lat, marker.lng)" />
   </CustomMarker>
 </template>

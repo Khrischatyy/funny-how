@@ -190,6 +190,8 @@ function signOut() {
             <br/>
             {{formatDate(session?.reservations?.date)}} from <br>
             {{formatTime(session?.reservations?.start_time)}} to {{formatTime(session?.reservations?.end_time)}} <br>
+
+            {{session?.reservations?.start_time}} - {{session?.reservations?.end_time}} <br>
           </div>
         </div>
         <div class="w-96 justify-between gap-1.5 items-center inline-flex mb-10 text-center">
