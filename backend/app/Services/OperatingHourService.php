@@ -81,14 +81,14 @@ class OperatingHourService
             [
                 'address_id' => $address_id,
                 'mode_id' => 3,
-                'day_of_week' => 6,
+                'day_of_week' => 0,
                 'open_time' => $open_time,
                 'close_time' => $close_time
             ],
             [
                 'address_id' => $address_id,
                 'mode_id' => 3,
-                'day_of_week' => 7,
+                'day_of_week' => 6,
                 'open_time' => $open_time,
                 'close_time' => $close_time
             ],

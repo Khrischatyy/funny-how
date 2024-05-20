@@ -86,7 +86,7 @@ class BookingService
             throw new BookingException('Studio is closed on this date', 422);
         }
 
-        $operatingHours = $this->getOperatingHours($addressId, $bookingDate->dayOfWeek);
+        $operatingHours = $this->getOperatingHours($addressId, $bookingDate);
 
         if (!$operatingHours || $operatingHours->is_closed) {
             throw new BookingException('Booking times are outside of business hours.', 422);
@@ -109,8 +109,27 @@ class BookingService
             ->exists();
     }
 
-    private function getOperatingHours($addressId, $dayOfWeek)
+    private function getOperatingHours($addressId,$bookingDate, $modeId = null)
     {
-        return OperatingHour::where('address_id', $addressId)->where('day_of_week', $dayOfWeek)->first();
+
+        $operatingHours = OperatingHour::where('address_id', $addressId)->get();
+
+        $firstLineOperatingHours = $operatingHours->first();
+
+        //1,2 mode - имеют только одну запись в базе об operating hours
+        //3,4 это моды weekdays и weekends
+        //надо будет переделать, че то тут хуйня какая-то
+
+        return match ($firstLineOperatingHours->mode_id) {
+            1, 2 => $operatingHours->first(),
+            3, 4 => $this->regular($operatingHours, $bookingDate->dayOfWeek)->first(),
+        };
+
     }
+
+    private function regular($operatingHours, $dayOfWeek)
+    {
+        return $operatingHours->where('day_of_week', $dayOfWeek);
+    }
+
 }
