@@ -1,56 +1,49 @@
 <script setup lang="ts">
-import {useHead} from "@unhead/vue";
-import {definePageMeta, useRuntimeConfig} from '#imports'
+import { useHead } from "@unhead/vue";
+import { definePageMeta, useRuntimeConfig } from '#imports';
 import { useSessionStore } from "~/src/entities/Session";
-import {onMounted, ref, type UnwrapRef} from "vue";
-import {BrandingLogo, BrandingLogoSample, BrandingLogoSmall} from "~/src/shared/ui/branding";
-import {navigateTo, useRoute} from "nuxt/app";
+import { onMounted, ref, computed } from "vue";
+import { BrandingLogo, BrandingLogoSample } from "~/src/shared/ui/branding";
+import { navigateTo, useRoute } from "nuxt/app";
 import {
-  type formValues,
-  type inputValues,
   type StudioFormValues,
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
-import {IconElipse, IconLine} from "~/src/shared/ui/common";
-import {Loader} from "@googlemaps/js-api-loader";
+import {IconElipse, IconLine, IconUpload} from "~/src/shared/ui/common";
+import { Loader } from "@googlemaps/js-api-loader";
 
 useHead({
   title: 'Dashboard | Slug',
   meta: [
     { name: 'Funny How', content: 'Dashboard' }
   ],
-})
+});
 
-const isLoading = ref(false)
-
+const isLoading = ref(false);
 const route = useRoute();
 
-function isError(form: string, field: string): boolean {
-  let formErrors: Record<string, any> = useCreateStudioFormStore().errors;
-  return formErrors.hasOwnProperty(field) ? formErrors[field][0] : false;
+const formStore = useCreateStudioFormStore();
+const formErrors = computed(() => formStore.errors);
+
+function isError(field: string): boolean {
+  return formErrors.value.hasOwnProperty(field) ? formErrors.value[field][0] : false;
 }
 
-const session = ref()
+const session = ref();
 onMounted(async () => {
-  const config = useRuntimeConfig()
-  session.value = useSessionStore()
-  if(!session.value.isAuthorized){
-    navigateTo('/login')
+  const config = useRuntimeConfig();
+  session.value = useSessionStore();
+  if (!session.value.isAuthorized) {
+    navigateTo('/login');
   }
 
   const loader = new Loader({
     apiKey: config.public.googlePlacesApi,
     version: "weekly",
-
   });
 
-  console.log('loader', loader);
-
-  const Places = await loader.importLibrary('places')
-
-  // the center, defaultbounds are not necessary but are best practices to limit/focus search results
+  const Places = await loader.importLibrary('places');
   const center = { lat: 34.082298, lng: -82.284777 };
-  // Create a bounding box with sides ~10km away from the center point
   const defaultBounds = {
     north: center.lat + 0.1,
     south: center.lat - 0.1,
@@ -58,25 +51,16 @@ onMounted(async () => {
     west: center.lng - 0.1,
   };
 
-  //this const will be the first arg for the new instance of the Places API
+  const input = document.getElementById("place");
 
-  const input = document.getElementById("place"); //binds to our input element
-
-  console.log('input', input); //optional logging
-
-  //this object will be our second arg for the new instance of the Places API
   const options = {
     componentRestrictions: { country: ["us", "ca"] },
     fields: ["address_components", "geometry"],
     types: ["address"],
   };
 
-  // per the Google docs create the new instance of the import above. I named it Places.
   const autocomplete = new Places.Autocomplete(input, options);
 
-  console.log('autocomplete', autocomplete); //optional log but will show you the available methods and properties of the new instance of Places.
-
-  //add the place_changed listener to display results when inputs change
   autocomplete.addListener('place_changed', () => {
     const place = autocomplete.getPlace();
 
@@ -86,13 +70,11 @@ onMounted(async () => {
     getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
     getFormValues().longitude = place.geometry.location.lng();
     getFormValues().latitude = place.geometry.location.lat();
-
-    console.log('place', place);
   });
-})
+});
 
 function getFormValues(): StudioFormValues {
-  return useCreateStudioFormStore().inputValues;
+  return formStore.inputValues;
 }
 
 function changeLogo() {
@@ -108,54 +90,59 @@ function changeLogo() {
   }
 }
 
-function setupStudio() {
-  useCreateStudioFormStore().submit()
+async function setupStudio() {
+  isLoading.value = true;
+  try {
+    await formStore.submit();
+  } catch (errors) {
+    // Handle errors
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 function signOut() {
-  session.value.logout()
+  session.value.logout();
 }
-
 </script>
+
 
 <template>
   <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
     <div class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex">
       <div class="relative w-full flex-col justify-start items-center gap-2.5 flex">
-        <BrandingLogo class="mb-20"/>
+        <BrandingLogo class="mb-20" />
         <div class="animate__animated animate__fadeInRight">
           <div class="breadcrumbs mb-10 text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
-            <icon-elipse :class="'opacity-100'" class="h-4"/>
+            <icon-elipse :class="'opacity-100'" class="h-4" />
             <button :class="'opacity-100'"> Add Studio</button>
-            <icon-line :class="'opacity-100'" class="h-2 only-desktop"/>
-            <icon-elipse :class="'opacity-20'" class="h-4"/>
-            <button :class="'opacity-20'" > Price Plans </button>
+            <icon-line :class="'opacity-100'" class="h-2 only-desktop" />
+            <icon-elipse :class="'opacity-20'" class="h-4" />
+            <button :class="'opacity-20'"> Price Plans </button>
           </div>
         </div>
 
         <div class="w-96 justify-center items-center inline-flex mb-10 text-center">
-          <div class="text-white text-xl font-bold text-center tracking-wide">Setup Your Studio {{route.params.slug}}</div>
+          <div class="text-white text-xl font-bold text-center tracking-wide">Setup Your Studio {{ route.params.slug }}</div>
         </div>
 
         <div class="flex-col justify-start items-start gap-1.5 flex">
           <div class="w-96 justify-between items-start inline-flex">
             <div class="text-white text-sm font-normal tracking-wide">Studio name and logo</div>
-            <div :class="isError('setup', 'studio_name') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-                isError('setup', 'studio_name')
-              }}</div>
+            <div v-if="formErrors.hasOwnProperty('company')&& !getFormValues().company" class="text-right text-red-500 text-sm font-normal tracking-wide">
+              {{ isError('company') }}
+            </div>
           </div>
-          <div class="justify-start items-center w-full gap-2.5 inline-flex">
-            <div class="justify-center w-96 items-center gap-2.5 inline-flex">
-              <label for="studio_logo" :style="`background: url(${getFormValues().logo_preview}) no-repeat center; background-size: cover`" class="flex-col justify-center items-center h-[58px] px-3.5 py-3.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
-
+          <div class="flex justify-start items-center w-full gap-2.5">
+            <div class="flex justify-center w-96 items-center gap-2.5">
+              <label for="studio_logo" class="w-[58px] h-[58px] flex flex-col justify-center items-center px-1.5 py-1.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
                 <div class="flex flex-col justify-end h-full">
-                  <BrandingLogoSample v-if="!getFormValues().logo"/>
-                  <span class="font-bold shadow-text text-white">upload...</span>
+                  <IconUpload class="mx-1.5 my-1.5 opacity-50 hover:opacity-100" v-if="!getFormValues().logo" />
+                  <img :src="`${getFormValues().logo_preview}`" v-if="getFormValues().logo_preview" class="w-[58px] h-[58px] object-contain">
                 </div>
               </label>
-              <input class="hidden" id="studio_logo" @change="changeLogo()" type="file" placeholder="Enter Your Studio Name" />
-
-              <input v-model="getFormValues().company" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
+              <input class="hidden" id="studio_logo" @change="changeLogo()" type="file" />
+              <input v-model="getFormValues().company" :class="formErrors.hasOwnProperty('company') && !getFormValues().company ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
             </div>
           </div>
         </div>
@@ -163,24 +150,24 @@ function signOut() {
         <div class="flex-col justify-start items-start gap-1.5 flex">
           <div class="w-96 justify-between items-start inline-flex">
             <div class="text-white text-sm font-normal tracking-wide">Address</div>
-            <div :class="isError('setup','address') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-                isError('setup', 'address')
-              }}</div>
+            <div v-if="formErrors.hasOwnProperty('street') && !getFormValues().street" class="text-right text-red-500 text-sm font-normal tracking-wide">
+              {{ isError('street') }}
+            </div>
           </div>
           <div class="justify-start items-center gap-2.5 inline-flex">
-            <input id="place" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
+            <input id="place" :class="formErrors.hasOwnProperty('street') && !getFormValues().street ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
           </div>
-
         </div>
+
         <div class="flex-col justify-start items-start gap-1.5 flex">
           <div class="w-96 justify-between items-start inline-flex">
             <div class="text-white text-sm font-normal tracking-wide">About</div>
-            <div :class="isError('setup','about') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-                isError('setup', 'about')
-              }}</div>
+            <div v-if="isError('about')" class="text-right text-red-500 text-sm font-normal tracking-wide">
+              {{ isError('about') }}
+            </div>
           </div>
           <div class="justify-start items-center gap-2.5 inline-flex">
-            <textarea name="about" type="text" v-model="getFormValues().about" :class="{'border-red': isError('setup','about') || isError('setup','about')}" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
+            <textarea name="about" v-model="getFormValues().about" :class="{ 'border-red': isError('about') }" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"></textarea>
           </div>
         </div>
         <div class="justify-center items-center gap-2.5 inline-flex">
@@ -193,6 +180,7 @@ function signOut() {
     </div>
   </div>
 </template>
+
 
 <style scoped lang="scss">
 .shadow-text{

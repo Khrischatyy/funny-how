@@ -54,7 +54,7 @@ export const useCreateStudioFormStore = defineStore({
                 {name: 'password_confirmation', title: 'Confirm Password', type: 'password'}]
     }),
     actions: {
-        submit(){
+        async submit(){
             const config = useRuntimeConfig()
 
             const formData = new FormData();
@@ -90,6 +90,7 @@ export const useCreateStudioFormStore = defineStore({
                 })
                 .catch((error) => {
                     console.log(error);
+                    this.errors = error?.response?.data?.errors;
                 });
         }
     }

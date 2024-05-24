@@ -10,7 +10,8 @@ type State = {
 	userRole: UserRole | null,
 	isLoading: boolean,
 	brand: string | null,
-	reservations: string | null
+	reservations: string | null,
+	payment_session: string | null
 };
 
 export const USER_INFO_KEY = 'user-info-key'
@@ -22,6 +23,7 @@ export const ACCESS_TOKEN_KEY = 'access_token_key'
 export const BRAND_KEY = 'brand-key'
 
 export const RESERVES_KEY = 'reserves-key'
+export const PAYMENT_SESSION = 'payment-session-key'
 export const useSessionStore = defineStore({
 	id: 'session-store',
 	state: (): State => ({
@@ -31,6 +33,7 @@ export const useSessionStore = defineStore({
 		isAuthorized: false,
 		isLoading: false,
 		reservations: process.client ? localStorage.getItem(RESERVES_KEY) : null,
+		payment_session: process.client ? localStorage.getItem(PAYMENT_SESSION) : null,
 		brand: '',
 	}),
 	actions: {
@@ -51,6 +54,16 @@ export const useSessionStore = defineStore({
 					localStorage.setItem(RESERVES_KEY, JSON.stringify(reservations))
 				} else {
 					localStorage.removeItem(RESERVES_KEY)
+				}
+			}
+		},
+		setPaymentSession(session: string | null) {
+			this.payment_session = session
+			if (process.client) {
+				if (session) {
+					localStorage.setItem(PAYMENT_SESSION, JSON.stringify(session))
+				} else {
+					localStorage.removeItem(PAYMENT_SESSION)
 				}
 			}
 		},

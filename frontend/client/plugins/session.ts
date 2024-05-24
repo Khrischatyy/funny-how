@@ -1,7 +1,7 @@
 import { defineNuxtPlugin } from 'nuxt/app'
 import {
     useSessionStore, USER_INFO_KEY,
-    ROLE_INFO_KEY, ACCESS_TOKEN_KEY, RESERVES_KEY
+    ROLE_INFO_KEY, ACCESS_TOKEN_KEY, RESERVES_KEY, PAYMENT_SESSION
 } from '~/src/entities/Session/model'
 import {UserRoleEnum} from "~/src/entities/@abstract/User";
 
@@ -13,9 +13,14 @@ export default defineNuxtPlugin((nuxtApp) => {
             const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY)
             const userRole = localStorage.getItem(ROLE_INFO_KEY) as UserRoleEnum
             const reserves = localStorage.getItem(RESERVES_KEY)
+            const paymentSession = localStorage.getItem(PAYMENT_SESSION)
 
             if(reserves) {
                 sessionStore.setReservations(JSON.parse(reserves))
+            }
+
+            if(paymentSession) {
+                sessionStore.setPaymentSession(JSON.parse(paymentSession))
             }
 
             if (accessToken) {
