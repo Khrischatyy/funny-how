@@ -7,6 +7,7 @@ use App\Http\Requests\BookingRequest;
 use App\Http\Requests\CalculatePriceRequest;
 use App\Http\Requests\ReservationRequest;
 use App\Services\BookingService;
+use App\Services\SubscriptionService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class BookingController extends BaseController
 {
-    public function __construct(private BookingService $bookingService)
+    public function __construct(private BookingService $bookingService, private SubscriptionService $subscriptionService)
     {}
 
     public function getAllReservations(ReservationRequest $reservationRequest): JsonResponse
@@ -24,11 +25,17 @@ class BookingController extends BaseController
         return $this->sendResponse($data, 'Available slots received');
     }
 
-    public function bookStudio(BookingRequest $bookingRequest): JsonResponse
+    public function bookAddress(BookingRequest $bookingRequest): JsonResponse
     {
-        $booking = $this->bookingService->bookStudio($bookingRequest);
+        $booking = $this->bookingService->bookAddress($bookingRequest);
+        $totalCost = $this->bookingService->getTotalCost(
+            $bookingRequest->input('start_time'),
+            $bookingRequest->input('end_time'),
+            $bookingRequest->input('address_id')
+        );
+        $session = $this->subscriptionService->makePayment($totalCost);
 
-        return $this->sendResponse($booking, 'Studio booked successfully');
+        return $this->sendResponse(['booking' => $booking, 'payment_session' => $session], 'Studio booked successfully');
     }
 
     public function calculatePrice(CalculatePriceRequest $request)

@@ -11,6 +11,7 @@ use App\Models\StudioClosure;
 use App\Models\User;
 use Carbon\Carbon;
 use Doctrine\DBAL\Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class BookingService
@@ -63,12 +64,15 @@ class BookingService
     }
 
 
-    public function getTotalCost($startTime, $endTime, $addressId)
+    public function getTotalCost(string $startTime, string $endTime, int $addressId)
     {
+
         // Расчет количества часов между start_time и end_time
-        $start = Carbon::createFromFormat('H:i', $startTime);
-        $end = Carbon::createFromFormat('H:i', $endTime);
+
+        $start = Carbon::parse($startTime);
+        $end = Carbon::parse($endTime);
         $hours = $end->diffInHours($start);
+
 
         $addressPrices = DB::table('address_prices')
             ->where('address_id', $addressId)
@@ -82,7 +86,6 @@ class BookingService
 
         // Поиск подходящего пакета часов и расчет цены
         $totalPrice = 0;
-
         foreach ($addressPrices as $price) {
             if ($hours >= $price->hours) {
                 $totalPrice = $hours * $price->price_per_hour;
@@ -91,13 +94,14 @@ class BookingService
 
         return $totalPrice;
     }
-    public function bookStudio(BookingRequest $request): Booking
+
+    public function bookAddress(BookingRequest $request): Booking
     {
         $addressId = $request->input('address_id');
         $bookingDate = Carbon::parse($request->input('date'));
         $startTime = Carbon::parse($request->input('start_time'));
         $endTime = Carbon::parse($request->input('end_time'));
-        $userWhoBooks = User::find((int) $request->input('user_id'));
+        $userWhoBooks = Auth::user();
 
         $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime);
 

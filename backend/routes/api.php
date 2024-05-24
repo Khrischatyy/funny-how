@@ -1,8 +1,6 @@
 <?php
 
 
-use App\Http\Controllers\VerifyEmailController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\{AddressController,
     BadgeController,
     BookingController,
@@ -10,8 +8,15 @@ use App\Http\Controllers\API\{AddressController,
     CompanyController,
     CountryController,
     EquipmentController,
-    OperatingHourController};
-use Laravel\Fortify\Http\Controllers\{RegisteredUserController, PasswordResetLinkController, EmailVerificationNotificationController, AuthenticatedSessionController};
+    OperatingHourController,
+    SubscriptionController};
+use App\Http\Controllers\VerifyEmailController;
+use App\Services\SubscriptionService;
+use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
+    EmailVerificationNotificationController,
+    PasswordResetLinkController,
+    RegisteredUserController};
 
 /*
 |--------------------------------------------------------------------------
@@ -85,15 +90,30 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/{address_id}/prices', [AddressController::class, 'getAddressPrices'])->where('address_id', '[0-9]+');
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
-        Route::post('reservation', [BookingController::class, 'bookStudio']);
+        Route::post('reservation', [BookingController::class, 'bookAddress']);
         Route::get('reservations', [BookingController::class, 'getAllReservations']);
 
         Route::post('/calculate-price', [BookingController::class, 'calculatePrice']);
 
 
+        //subscription
+
+
+
 //        Route::get('{address_id}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
 //        Route::get('{city_id}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');
     });
+
+
+    Route::get('/checkout/success', function () {
+        return response()->json('everything good');
+    })->name('checkout.success');
+
+    Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
+
+    Route::get('/checkout/cancel', function () {
+        return response()->json('everything canceled');
+    })->name('checkout.cancel');
 
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
 

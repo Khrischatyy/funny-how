@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Exceptions\OperatingHourException;
 use App\Models\OperatingHour;
 use Exception;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 class OperatingHourService
@@ -59,6 +58,7 @@ class OperatingHourService
             $inserts[] = [
                 'address_id' => $address_id,
                 'mode_id' => 4,
+                'is_enabled' => true,
                 'day_of_week' => $day,
                 'open_time' => $open_time,
                 'close_time' => $close_time
@@ -81,6 +81,7 @@ class OperatingHourService
             [
                 'address_id' => $address_id,
                 'mode_id' => 3,
+                'is_enabled' => true,
                 'day_of_week' => 0,
                 'open_time' => $open_time,
                 'close_time' => $close_time
