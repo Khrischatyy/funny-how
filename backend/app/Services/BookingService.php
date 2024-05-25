@@ -131,14 +131,15 @@ class BookingService
             throw new BookingException("Booking times are outside of business hours. Studio opens at {$operatingHours->open_time} and closes at {$operatingHours->close_time}", 422);
         }
 
-        if ($this->isTimeSlotTaken($addressId, $startTime, $endTime)) {
+        if ($this->isTimeSlotTaken($addressId, $startTime, $endTime, $bookingDate->format('Y-m-d'))) {
             throw new BookingException('Studio is already booked for the requested time slot', 400);
         }
     }
 
-    private function isTimeSlotTaken($addressId, $startTime, $endTime): bool
+    private function isTimeSlotTaken($addressId, $startTime, $endTime, $date): bool
     {
         return Booking::where('address_id', $addressId)
+            ->whereDate('date', '=', $date)
             ->where('start_time', '<', $endTime)
             ->where('end_time', '>', $startTime)
             ->exists();

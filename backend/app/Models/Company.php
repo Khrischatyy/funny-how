@@ -20,4 +20,9 @@ class Company extends Model
     {
         return $this->hasMany(Address::class);
     }
+
+    public function adminCompany()
+    {
+        return $this->hasOne(AdminCompany::class, 'company_id');
+    }
 }

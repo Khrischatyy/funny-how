@@ -35,6 +35,20 @@ class CompanyController extends BaseController
         }
     }
 
+    public function getRegisterCompany(string $slug)
+    {
+        try {
+            $company = $this->companyService->getCompany($slug);
+
+            // Проверяем, что пользователь имеет право на просмотр компании
+            $this->authorize('view', $company);
+
+            return $this->sendResponse($company, 'Company received successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 404);
+        }
+    }
+
     public function getCompanyAddressesInCity(int $cityId, int $companyId)
     {
         return Company::where('id', $companyId)->with(['addresses' => function($q){

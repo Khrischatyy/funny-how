@@ -43,4 +43,16 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    // Связь с моделью AdminCompany
+    public function adminCompany()
+    {
+        return $this->hasOne(AdminCompany::class, 'admin_id');
+    }
+
+    // Связь с моделью Booking
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }

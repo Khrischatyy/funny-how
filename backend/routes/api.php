@@ -118,6 +118,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
 
 
+    Route::get('register/company/{slug}', [CompanyController::class, 'getRegisterCompany'])->middleware('role:studio_owner');
+
+
     Route::get('/operation-modes', [OperatingHourController::class, 'getOperationModes']);
 });
 
