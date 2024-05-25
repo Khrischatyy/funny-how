@@ -233,24 +233,6 @@ function verifyUser() {
       });
 
 }
-
-function getForm() {
-  $fetch('/api/user/token/', {
-    method: 'POST',
-    body: {
-      "email": "beilec@yandex.ru",
-      "password": "12345678"
-    },
-    header:{
-
-    }
-  }).then(data => {
-    let token = data.token ?? '';
-    if(token){
-
-    }
-  })
-}
 </script>
 
 <template>
