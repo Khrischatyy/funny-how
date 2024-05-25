@@ -155,7 +155,7 @@ function signOut() {
             </div>
           </div>
           <div class="justify-start items-center gap-2.5 inline-flex">
-            <input id="place" :class="formErrors.hasOwnProperty('street') && !getFormValues().street ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
+            <input id="place" :class="formErrors.hasOwnProperty('street') && !getFormValues().street ? 'border border-red border-opacity-80 placeholder-red' : 'border border-white border-opacity-20'" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
           </div>
         </div>
 
@@ -224,6 +224,10 @@ function signOut() {
       }
     }
   }
+}
+
+.placeholder-red::placeholder {
+  @apply text-red-500;
 }
 
 </style>

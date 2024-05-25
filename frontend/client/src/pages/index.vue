@@ -24,13 +24,10 @@ const session = ref()
 onMounted(async () => {
   const config = useRuntimeConfig()
   session.value = useSessionStore()
-  if(!session.value.isAuthorized){
-    navigateTo('/login')
+  if (session.value.brand) {
+    navigateTo(`/@${session.value.brand}`)
   }
-  //setup if not set
-  if(session.value.userRole == 'studio_owner'){
-    navigateTo('/create')
-  }
+
 })
 
 function signOut() {

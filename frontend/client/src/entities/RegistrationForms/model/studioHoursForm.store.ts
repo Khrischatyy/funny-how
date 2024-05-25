@@ -79,7 +79,7 @@ export const useCreateStudioFormStore = defineStore({
             axios.request(requestConfig)
                 .then((response) => {
                     //function that redirect to route /@[slug]
-                    useSessionStore().setBrand(response.data?.data?.slug)
+
                     navigateTo('/@' + response.data?.data?.slug)
                     console.log('response', response)
                 })

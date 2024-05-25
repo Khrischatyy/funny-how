@@ -20,15 +20,15 @@ $medium-path: 			$font-path + 'Medium/Roboto-Medium';
 $medium-italic-path: 	$font-path + 'MediumItalic/Roboto-MediumItalic';
 $regular-path: 			$font-path + 'Regular/Roboto-Regular';
 
-$black-path-mazzard: 				$font-path-mazzard + 'Black/MazzardH-Black';
-$black-italic-path-mazzard: 		$font-path-mazzard + 'BlackItalic/MazzardH-BlackItalic';
-$bold-path-mazzard: 				$font-path-mazzard + 'Bold/MazzardH-Bold';
-$bold-italic-path-mazzard:			$font-path-mazzard + 'BoldItalic/MazzardH-BoldItalic';
-$extra-bold-path-mazzard:			$font-path-mazzard + 'ExtraBold/MazzardH-ExtraBold';
-$extra-bold-italic-path-mazzard:	$font-path-mazzard + 'ExtraBoldItalic/MazzardH-ExtraBoldItalic';
-$extra-light-path-mazzard:			$font-path-mazzard + 'ExtraLight/MazzardH-ExtraLight';
-$regular-path-mazzard:				$font-path-mazzard + 'Regular/MazzardH-Regular';
-$medium-path-mazzard:				$font-path-mazzard + 'Medium/MazzardH-Medium';
+$black-path-mazzard: 				$font-path-mazzard + 'Black/MazzardM-Black';
+$black-italic-path-mazzard: 		$font-path-mazzard + 'BlackItalic/MazzardM-BlackItalic';
+$bold-path-mazzard: 				$font-path-mazzard + 'Bold/MazzardM-Bold';
+$bold-italic-path-mazzard:			$font-path-mazzard + 'BoldItalic/MazzardM-BoldItalic';
+$extra-bold-path-mazzard:			$font-path-mazzard + 'ExtraBold/MazzardM-ExtraBold';
+$extra-bold-italic-path-mazzard:	$font-path-mazzard + 'ExtraBoldItalic/MazzardM-ExtraBoldItalic';
+$extra-light-path-mazzard:			$font-path-mazzard + 'ExtraLight/MazzardM-ExtraLight';
+$regular-path-mazzard:				$font-path-mazzard + 'Regular/MazzardM-Regular';
+$medium-path-mazzard:				$font-path-mazzard + 'Medium/MazzardM-Medium';
 
 
 @include use-font(Roboto, $bold-path, 700, normal);

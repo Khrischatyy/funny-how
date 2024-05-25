@@ -54,11 +54,7 @@ services:
         - AXIOS_BASEURL=https://funny-how.com/api
         - AXIOS_BROWSER_BASEURL=/api
     restart: always
-    expose:
-      - "3000"
-    ports:
-      - "3000:3000"
-    command: "npm run dev"
+    command: "npm run build"
     environment:
       - AXIOS_BASEURL=https://funny-how.com/api
       - AXIOS_BROWSER_BASEURL=/api

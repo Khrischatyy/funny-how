@@ -9,6 +9,8 @@ import {type StudioFormValues, useCreateStudioFormStore} from "~/src/entities/Re
 import {IconDown, IconMic} from "~/src/shared/ui/common";
 import axios from "axios";
 import GoogleMap from "~/src/widgets/GoogleMap.vue";
+import {DatePicker, TimePicker} from "~/src/features/DatePicker";
+import SelectPicker from "~/src/features/DatePicker/ui/SelectPicker.vue";
 
 definePageMeta({
   middleware: ["auth"],
@@ -32,6 +34,12 @@ const dateInput = ref<HTMLInputElement | null>(null);
 const end_time = ref<HTMLInputElement | null>(null);
 const start_time = ref<HTMLInputElement | null>(null);
 
+type StudioFormValues = {
+  address_id: string,
+  date: string,
+  start_time: string,
+  end_time: string,
+}
 const rentingForm = ref({
   address_id: '',
   date: '',
@@ -164,6 +172,12 @@ function formatDate(date: string) {
   return dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
+function dateChanged(newDate: string, input: keyof StudioFormValues) {
+  console.log('newDate', newDate)
+  rentingForm.value[input] = newDate;
+
+}
+
 function signOut() {
   session.value.logout()
 }
@@ -226,6 +240,17 @@ function signOut() {
           </div>
           <div class="relative w-full flex items-center">
             <div class="flex items-center">
+              <SelectPicker @dateSelected="dateChanged($event, 'date')" />
+            </div>
+          </div>
+          <div class="relative w-full flex items-center">
+            <div class="flex items-center">
+              <DatePicker :date="new Date()" @dateChange="dateChanged($event, 'date')" />
+            </div>
+          </div>
+
+          <div class="relative w-full flex items-center">
+            <div class="flex items-center">
               <select v-model="rentingForm.date" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
                 <option v-for="day in rentingList" :value="day.date">
                   {{day.name}}
@@ -260,6 +285,11 @@ function signOut() {
             </h2>
 
           </div>
+          <div class="relative w-full flex items-center">
+            <div class="flex items-center">
+              <TimePicker :time="rentingForm.start_time" @timeChange="dateChanged($event, 'start_time')" />
+            </div>
+          </div>
           <div class="relative w-full flex items-center mb-5">
             <div class="flex items-center">
               <input type="time" v-model="rentingForm.start_time" placeholder="Start Time" ref="start_time" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide">
@@ -273,6 +303,11 @@ function signOut() {
             </div>
           </div>
 
+          <div class="relative w-full flex items-center">
+            <div class="flex items-center">
+              <TimePicker :time="rentingForm.end_time" @timeChange="dateChanged($event, 'end_time')" />
+            </div>
+          </div>
           <div class="relative w-full flex items-center">
             <div class="flex items-center">
               <input type="time" v-model="rentingForm.end_time" placeholder="Finish Time" ref="end_time" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide">
