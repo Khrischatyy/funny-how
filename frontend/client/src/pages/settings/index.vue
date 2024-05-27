@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  hui
+  <h1 class="text-white">hui</h1>
 <!--пиши код тут-->
 </template>
 
