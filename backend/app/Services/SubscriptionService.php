@@ -58,8 +58,8 @@ class SubscriptionService
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => route('checkout.success', [$user => 'user']),
-            'cancel_url' => route('checkout.cancel'),
+            'success_url' => route('checkout.success'),
+            'cancel_url' => route('checkout.cancel', ['user' => $user]),
         ]);
     }
 }

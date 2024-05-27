@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\BookingException;
+use App\Exceptions\OperatingHourException;
 use App\Http\Requests\BookingRequest;
 use App\Http\Requests\ReservationRequest;
 use App\Models\Booking;
@@ -81,7 +82,7 @@ class BookingService
             ->get();
 
         if ($addressPrices->isEmpty()) {
-            throw new \Exception('Сlock packages were not installed');
+            throw new \Exception('Prices were not set');
         }
 
         // Поиск подходящего пакета часов и расчет цены
@@ -117,6 +118,14 @@ class BookingService
 
     private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime)
     {
+        // Check if booking date and time are in the past
+        $currentDateTime = now();
+        $bookingDateTime = $bookingDate->setTimeFrom($startTime);
+
+        if ($bookingDateTime->lt($currentDateTime)) {
+            throw new BookingException('Cannot book a time in the past', 422);
+        }
+
         if (StudioClosure::where('address_id', $addressId)->where('closure_date', $bookingDate->toDateString())->exists()) {
             throw new BookingException('Studio is closed on this date', 422);
         }
@@ -145,12 +154,16 @@ class BookingService
             ->exists();
     }
 
-    private function getOperatingHours($addressId,$bookingDate, $modeId = null)
+    private function getOperatingHours($addressId, $bookingDate)
     {
 
         $operatingHours = OperatingHour::where('address_id', $addressId)->get();
 
         $firstLineOperatingHours = $operatingHours->first();
+
+        if (!$firstLineOperatingHours) {
+            throw new OperatingHourException("You didn't set hours", 400);
+        }
 
         //1,2 mode - имеют только одну запись в базе об operating hours
         //3,4 это моды weekdays и weekends

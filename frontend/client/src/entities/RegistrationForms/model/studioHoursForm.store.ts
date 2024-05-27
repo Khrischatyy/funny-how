@@ -54,14 +54,23 @@ export const useCreateStudioFormStore = defineStore({
             const config = useRuntimeConfig()
 
             const formData = new FormData();
+            // @ts-ignore
             formData.append('logo', this.inputValues.logo as File);
+            // @ts-ignore
             formData.append('company', this.inputValues.company);
+            // @ts-ignore
             formData.append('address', this.inputValues.address);
+            // @ts-ignore
             formData.append('country', this.inputValues.country);
+            // @ts-ignore
             formData.append('city', this.inputValues.city);
+            // @ts-ignore
             formData.append('street', this.inputValues.street);
+            // @ts-ignore
             formData.append('about', this.inputValues.about);
+            // @ts-ignore
             formData.append('longitude', this.inputValues.longitude);
+            // @ts-ignore
             formData.append('latitude', this.inputValues.latitude);
 
             let requestConfig = {
