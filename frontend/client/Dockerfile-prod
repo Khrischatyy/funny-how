@@ -1,21 +1,23 @@
-#RUN apk update
-#ENV HOST=0.0.0.0
+ENV HOST=0.0.0.0
+RUN apk update
 ARG NODE_VERSION=20.11.0
 ARG AXIOS_BASEURL
 ARG AXIOS_BROWSER_BASEURL
 
 FROM node:${NODE_VERSION}-alpine
 
+# Set the working directory
+WORKDIR /usr/src/app
+
 # Install dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Build the application
+# Copy the rest of the application code
 COPY . .
+
+# Build the application
 RUN npm run build
-#
-WORKDIR /usr/src/app
-COPY /usr/src/app/.output /usr/src/app/.output
 
 # Expose the necessary port and start the server
 EXPOSE 3000
