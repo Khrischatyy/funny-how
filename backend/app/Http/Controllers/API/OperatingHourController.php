@@ -4,13 +4,14 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\OperatingHourRequest;
+use App\Services\CompanyService;
 use App\Services\OperatingHourService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class OperatingHourController extends BaseController
 {
-    public function __construct(public OperatingHourService $operatingHourService)
+    public function __construct(public OperatingHourService $operatingHourService, public CompanyService $companyService)
     {}
 
     public function getOperationModes(): JsonResponse
@@ -26,6 +27,11 @@ class OperatingHourController extends BaseController
         $mode = (int) $operatingHourRequest->input('mode_id');
         $open_time = $operatingHourRequest->input('open_time');
         $close_time = $operatingHourRequest->input('close_time');
+
+        //move here
+
+        $this->authorize('update', $this->companyService->getCompanyByAddressId($address_id));
+
 
         $open_time_weekend = $operatingHourRequest->input('open_time_weekend', null);
         $close_time_weekend = $operatingHourRequest->input('close_time_weekend', null);

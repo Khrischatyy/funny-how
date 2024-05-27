@@ -30,7 +30,7 @@ class SubscriptionService
                 'quantity' => 1,
             ]],
             'mode' => 'subscription',
-            'success_url' => route('checkout.success'),
+            'success_url' => route('checkout.success', [$user => 'user']),
             'cancel_url' => route('checkout.cancel'),
         ]);
     }
@@ -40,6 +40,8 @@ class SubscriptionService
     public function makePayment($totalPrice): Session
     {
         $amountInCents = $totalPrice * 100;
+
+        $user = Auth::user();
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
@@ -56,7 +58,7 @@ class SubscriptionService
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => route('checkout.success', ),
+            'success_url' => route('checkout.success', [$user => 'user']),
             'cancel_url' => route('checkout.cancel'),
         ]);
     }

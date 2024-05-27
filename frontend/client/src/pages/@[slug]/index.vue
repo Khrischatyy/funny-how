@@ -243,11 +243,6 @@ function signOut() {
               <SelectPicker @dateSelected="dateChanged($event, 'date')" />
             </div>
           </div>
-          <div class="relative w-full flex items-center">
-            <div class="flex items-center">
-              <DatePicker :date="new Date()" @dateChange="dateChanged($event, 'date')" />
-            </div>
-          </div>
 
           <div class="relative w-full flex items-center">
             <div class="flex items-center">

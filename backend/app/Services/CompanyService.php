@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Requests\AddressRequest;
 use App\Http\Requests\CompanyRequest;
+use App\Models\Address;
 use App\Models\AdminCompany;
 use App\Models\Company;
 use App\Repositories\CompanyRepository;
@@ -20,6 +21,10 @@ class CompanyService
         return $this->companyRepository->getCompanyBySlug($slug);
     }
 
+    public function getCompanyByAddressId(int $address_id)
+    {
+        return Address::find($address_id)->company;
+    }
 
     public function createNewCompany(AddressRequest $companyRequest)
     {
