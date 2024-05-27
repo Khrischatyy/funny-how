@@ -28,9 +28,10 @@ class OperatingHourController extends BaseController
         $open_time = $operatingHourRequest->input('open_time');
         $close_time = $operatingHourRequest->input('close_time');
 
-        //move here
+        $company = $this->companyService->getCompanyByAddressId($address_id);
 
-        $this->authorize('update', $this->companyService->getCompanyByAddressId($address_id));
+        //проверка может ли studio_owner апдейтить студию
+        $this->authorize('update', $company);
 
 
         $open_time_weekend = $operatingHourRequest->input('open_time_weekend', null);

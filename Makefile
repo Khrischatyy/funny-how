@@ -73,7 +73,7 @@ build-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml build
 
 start-prod:
-	docker-compose -f docker-compose.yml -f prod.yml up -d
+	docker-compose -f docker-compose.yml -f prod.yml up
 
 stop-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml stop

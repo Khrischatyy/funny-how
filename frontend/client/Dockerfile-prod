@@ -1,0 +1,22 @@
+#RUN apk update
+#ENV HOST=0.0.0.0
+ARG NODE_VERSION=20.11.0
+ARG AXIOS_BASEURL
+ARG AXIOS_BROWSER_BASEURL
+
+FROM node:${NODE_VERSION}-alpine
+
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Build the application
+COPY . .
+RUN npm run build
+#
+WORKDIR /usr/src/app
+COPY /usr/src/app/.output /usr/src/app/.output
+
+# Expose the necessary port and start the server
+EXPOSE 3000
+CMD ["node", "/usr/src/app/.output/server/index.mjs"]
