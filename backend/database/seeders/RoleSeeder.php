@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -14,22 +14,20 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
+        Role::updateOrCreate(
+            ['id' => 1],
+            [
+                'name' => 'user',
+                'guard_name' => 'web',
+            ]
+        );
 
-        DB::table('roles')
-            ->updateOrInsert(
-                [
-                    'id' => 1,
-                    'name' => 'user',
-                    'guard_name' => 'web',
-                ],
-            );
-
-        DB::table('roles')
-            ->updateOrInsert(
-                [
-                    'id' => 2,
-                    'name' => 'studio_owner',
-                    'guard_name' => 'web',
-                ]);
+        Role::updateOrCreate(
+            ['id' => 2],
+            [
+                'name' => 'studio_owner',
+                'guard_name' => 'web',
+            ]
+        );
     }
 }

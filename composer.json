@@ -1,0 +1,14 @@
+{
+  "name": "vendor_name/funny-how",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "tony",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+  }
+}
