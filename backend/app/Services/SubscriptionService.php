@@ -45,8 +45,6 @@ class SubscriptionService
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        dd(env('APP_URL'));
-
         return Session::create([
             'payment_method_types' => ['card'],
             'line_items' => [[
@@ -60,8 +58,8 @@ class SubscriptionService
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => route('checkout.success'),
-            'cancel_url' => route('checkout.cancel'),
+            'success_url' => env('APP_URL') . '/bookings',
+            'cancel_url' => env('APP_URL') . '/cancel-booking'
         ]);
     }
 }

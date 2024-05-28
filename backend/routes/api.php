@@ -109,15 +109,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
 
-    Route::get('/checkout/success', function () {
-        return response()->json('everything good');
-    })->name('checkout.success');
+//    Route::get('/checkout/success', function () {
+//        return response()->json('everything good');
+//    })->name('checkout.success');
 
     Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
 
-    Route::get('/checkout/cancel', function () {
-        return response()->json('everything canceled');
-    })->name('checkout.cancel');
+//    Route::get('/checkout/cancel', function () {
+//        return response()->json('everything canceled');
+//    })->name('checkout.cancel');
 
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
 

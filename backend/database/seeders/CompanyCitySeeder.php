@@ -34,23 +34,23 @@ class CompanyCitySeeder extends Seeder
                 ],
             );
 
-        DB::table('company_city')
-            ->updateOrInsert(
-                [
-                    'id' => 3,
-                    'company_id' => 3,
-                    'city_id' => 1,
-                ],
-            );
+//        DB::table('company_city')
+//            ->updateOrInsert(
+//                [
+//                    'id' => 3,
+//                    'company_id' => 3,
+//                    'city_id' => 1,
+//                ],
+//            );
 
-        DB::table('company_city')
-            ->updateOrInsert(
-                [
-                    'id' => 4,
-                    'company_id' => 4,
-                    'city_id' => 1,
-                ],
-            );
+//        DB::table('company_city')
+//            ->updateOrInsert(
+//                [
+//                    'id' => 4,
+//                    'company_id' => 4,
+//                    'city_id' => 1,
+//                ],
+//            );
 
         DB::statement("SELECT setval(pg_get_serial_sequence('company_city', 'id'), coalesce(max(id)+1, 1), false) FROM company_city");
 
