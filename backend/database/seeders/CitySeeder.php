@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\City;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CitySeeder extends Seeder
 {
@@ -32,5 +33,6 @@ class CitySeeder extends Seeder
             ],
             ], ['id']
         );
+        DB::statement("SELECT setval(pg_get_serial_sequence('cities', 'id'), coalesce(max(id)+1, 1), false) FROM cities");
     }
 }

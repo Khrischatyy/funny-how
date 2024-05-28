@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\AdminCompany;
 use App\Models\Equipment;
 use Illuminate\Database\Seeder;
 
@@ -22,13 +23,13 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             AddressSeeder::class,
-            BookingSeeder::class,
             CompanyCitySeeder::class,
             BadgeSeeder::class,
             AddressBadgeSeeder::class,
             EquipmentTypeSeeder::class,
             EquipmentSeeder::class,
             AddressEquipmentSeeder::class,
+            AdminCompanySeeder::class,
             OperatingModeSeeder::class,
         ]);
 

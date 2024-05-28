@@ -41,5 +41,8 @@ class BadgeSeeder extends Seeder
                     'image' => 'public/badges/rent.svg'
                 ],
             );
+
+
+        DB::statement("SELECT setval(pg_get_serial_sequence('badges', 'id'), coalesce(max(id)+1, 1), false) FROM badges");
     }
 }

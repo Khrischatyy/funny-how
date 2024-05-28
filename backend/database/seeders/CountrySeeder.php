@@ -30,5 +30,6 @@ class CountrySeeder extends Seeder
                     'name' => 'Russia'
                 ],
             );
+        DB::statement("SELECT setval(pg_get_serial_sequence('countries', 'id'), coalesce(max(id)+1, 1), false) FROM countries");
     }
 }

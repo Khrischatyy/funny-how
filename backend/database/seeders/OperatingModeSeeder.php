@@ -54,5 +54,7 @@ class OperatingModeSeeder extends Seeder
                     'description' => 'On Days - выставляются дни отдельно, когда выбран ondays, то regular, 24/7 и everyday - недоступны',
                 ],
             );
+
+        DB::statement("SELECT setval(pg_get_serial_sequence('operating_modes', 'id'), coalesce(max(id)+1, 1), false) FROM operating_modes");
     }
 }

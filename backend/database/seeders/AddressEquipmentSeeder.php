@@ -41,5 +41,6 @@ class AddressEquipmentSeeder extends Seeder
                     'equipment_id' => 3,
                 ]
             );
+        DB::statement("SELECT setval(pg_get_serial_sequence('address_equipment', 'id'), coalesce(max(id)+1, 1), false) FROM address_equipment");
     }
 }

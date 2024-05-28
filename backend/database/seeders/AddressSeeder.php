@@ -44,5 +44,7 @@ class AddressSeeder extends Seeder
         ],
             ['id']);
 
+        DB::statement("SELECT setval(pg_get_serial_sequence('addresses', 'id'), coalesce(max(id)+1, 1), false) FROM addresses");
+
     }
 }

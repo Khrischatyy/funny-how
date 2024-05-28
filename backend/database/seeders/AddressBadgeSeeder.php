@@ -40,5 +40,8 @@ class AddressBadgeSeeder extends Seeder
                     'address_id' => 2,
                     'badge_id' => 3
                 ]);
+
+        DB::statement("SELECT setval(pg_get_serial_sequence('address_badge', 'id'), coalesce(max(id)+1, 1), false) FROM address_badge");
+
     }
 }

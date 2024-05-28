@@ -50,5 +50,6 @@ class EquipmentTypeSeeder extends Seeder
                     'icon' => '/images/micro.svg',
                 ]
             );
+        DB::statement("SELECT setval(pg_get_serial_sequence('equipment_type', 'id'), coalesce(max(id)+1, 1), false) FROM equipment_type");
     }
 }

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Equipment;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class EquipmentSeeder extends Seeder
 {
@@ -40,5 +41,6 @@ class EquipmentSeeder extends Seeder
             ],
             ['id'],
         );
+        DB::statement("SELECT setval(pg_get_serial_sequence('roles', 'id'), coalesce(max(id)+1, 1), false) FROM roles");
     }
 }

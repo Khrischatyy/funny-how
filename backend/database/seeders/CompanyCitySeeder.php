@@ -52,6 +52,7 @@ class CompanyCitySeeder extends Seeder
                 ],
             );
 
+        DB::statement("SELECT setval(pg_get_serial_sequence('company_city', 'id'), coalesce(max(id)+1, 1), false) FROM company_city");
 
     }
 }
