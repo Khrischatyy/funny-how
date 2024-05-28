@@ -30,7 +30,7 @@ class SubscriptionService
                 'quantity' => 1,
             ]],
             'mode' => 'subscription',
-            'success_url' => route('checkout.success', [$user => 'user']),
+            'success_url' => route('checkout.success'),
             'cancel_url' => route('checkout.cancel'),
         ]);
     }
@@ -44,6 +44,8 @@ class SubscriptionService
         $user = Auth::user();
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        dd(env('APP_URL'));
 
         return Session::create([
             'payment_method_types' => ['card'],

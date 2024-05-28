@@ -33,6 +33,8 @@ class BookingController extends BaseController
             $bookingRequest->input('end_time'),
             $bookingRequest->input('address_id')
         );
+
+
         $session = $this->subscriptionService->makePayment($totalCost);
 
         return $this->sendResponse(['booking' => $booking, 'payment_session' => $session], 'Studio booked successfully');
