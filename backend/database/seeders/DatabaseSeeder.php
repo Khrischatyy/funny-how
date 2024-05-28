@@ -31,6 +31,8 @@ class DatabaseSeeder extends Seeder
             AddressEquipmentSeeder::class,
             AdminCompanySeeder::class,
             OperatingModeSeeder::class,
+            OperatingHoursSeeder::class,
+            AddressPriceSeeder::class,
         ]);
 
         // \App\Models\User::factory(10)->create();
