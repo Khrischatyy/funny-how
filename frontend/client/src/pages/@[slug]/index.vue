@@ -51,7 +51,8 @@ const rentingForm = ref({
 const today = new Date();
 const tomorrow = new Date();
 tomorrow.setDate(today.getDate() + 1);
-const hoursAvailable = computed(() => processAvailableHours());
+const hoursAvailableStart = computed(() => processAvailableHours());
+const hoursAvailableEnd = computed(() => processAvailableHours());
 const rentingList = [{name: 'today', date: ''}, {name: 'tomorrow', date: ''}, {name: 'another-day', date: 'another-day'}];
 rentingList[0].date = today.toISOString().split('T')[0];
 rentingList[1].date = tomorrow.toISOString().split('T')[0];
@@ -311,12 +312,12 @@ function signOut() {
 
           </div>
           <div class="relative w-full flex items-center">
-            <TimeSelect :available-hours="hoursAvailable" label="Start From" renting-form="rentingForm" @timeChanged="timeChanged($event, 'start_time')" />
+            <TimeSelect :available-hours="hoursAvailableStart" label="Start From" renting-form="rentingForm" @timeChanged="timeChanged($event, 'start_time')" />
           </div>
 
           <div class="relative w-full flex items-center">
             <span class="absolute left-5 top-0 text-neutral-700 cursor-pointer">To</span>
-            <TimeSelect :available-hours="hoursAvailable" label="To" renting-form="rentingForm" @timeChanged="timeChanged($event, 'end_time')" />
+            <TimeSelect :available-hours="hoursAvailableEnd" label="To" renting-form="rentingForm" @timeChanged="timeChanged($event, 'end_time')" />
           </div>
         </div>
 

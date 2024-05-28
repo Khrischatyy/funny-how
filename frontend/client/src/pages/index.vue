@@ -6,9 +6,6 @@ import {  onMounted, ref} from "vue";
 import { BrandingLogoSmall} from "~/src/shared/ui/branding";
 import {navigateTo} from "nuxt/app";
 
-definePageMeta({
-  middleware: ["auth"]
-})
 
 useHead({
   title: 'Funny How – Book a Session Time',
