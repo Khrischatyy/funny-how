@@ -1,35 +1,72 @@
 <template>
-  <div class="time-picker">
-    <CustomWheel type="hour" :data="hours" :selected="selectedHour" @dateChange="hourChanged" />
-    <CustomWheel type="period" :data="periods" :selected="selectedPeriod" @dateChange="periodChanged" />
+  <div :class="open ? 'py-51' : ''" class="time-picker gap-2">
+    <CustomWheel @dragging="dragging" type="hour" :data="hours" :selected="selectedHour" @dateChange="hourChanged" />
+    <CustomWheel @dragging="dragging" type="period" :data="periods" :selected="selectedPeriod" @dateChange="periodChanged" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import {ref, computed, watch, onMounted} from 'vue';
+import {definePageMeta, useRuntimeConfig} from '#imports'
 import {CustomWheel} from '~/src/features/CustomWheel';
+import axios from "axios";
+import {useRoute} from "nuxt/app";
 
 const props = defineProps({
   time: {
     type: String,
-    required: true
+    required: false
+  },
+  open: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  rentingForm: {
+    type: Object,
+    required: false
+  },
+  availableHours: {
+    type: Array,
+    required: false,
+    default: []
   }
 });
 
-const emit = defineEmits(['timeChange']);
+const openTemp = ref(false);
 
-const hours = computed(() => Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0')));
+const emit = defineEmits(['timeChange']);
+const hours = computed(() => props.availableHours);
 const periods = ['AM', 'PM'];
 
-const selectedHour = ref(parseInt(props.time.split(':')[0]) % 12 || 12);
-const selectedPeriod = ref(parseInt(props.time.split(':')[0]) >= 12 ? 'PM' : 'AM');
+
+const selectedHour = ref(parseInt(props.time?.split(':')[0]) % 12 || 12);
+const selectedPeriod = ref(parseInt(props.time?.split(':')[0]) >= 12 ? 'PM' : 'AM');
+const route = useRoute();
+
 
 watch(() => props.time, (newTime) => {
-  const hour = parseInt(newTime.split(':')[0]);
+  const hour = parseInt(newTime?.split(':')[0]);
   selectedHour.value = hour % 12 || 12;
   selectedPeriod.value = hour >= 12 ? 'PM' : 'AM';
 });
 
+function processAvailableHours() {
+  const hoursSet = new Set();
+  props.availableHours.forEach(slot => {
+    const startHour = parseInt(slot.start_time.split(':')[0]);
+    const endHour = parseInt(slot.end_time.split(':')[0]);
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+      hoursSet.add(hour % 12 || 12); // Convert to 12-hour format
+    }
+  });
+  return Array.from(hoursSet).map(hour => hour.toString().padStart(2, '0'));
+}
+
+const dragging = (isDragging) => {
+  emit('dragging', isDragging);
+};
 const hourChanged = (type, changedData) => {
   selectedHour.value = parseInt(changedData);
   emit('timeChange', formatTime(selectedHour.value, selectedPeriod.value));
@@ -54,11 +91,13 @@ const formatTime = (hour, period) => {
 <style scoped>
 .time-picker {
   display: flex;
-  padding: 50px 20px;
+  padding: 0px 20px;
   margin: 30px 0;
   overflow: hidden;
   width: 100%;
-  background: white;
+  color: #fff;
+  background: transparent;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .hour,
@@ -67,8 +106,6 @@ const formatTime = (hour, period) => {
   position: relative;
   height: 50px;
   margin: 0;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
 }
 
 .hour::before,
@@ -79,10 +116,11 @@ const formatTime = (hour, period) => {
   content: '';
   position: absolute;
   left: 0;
-  width: 80px;
+  width: 100%;
   height: 50px;
   background-color: white;
-  opacity: 0.8;
+  opacity: 0;
+  border-radius: 10px;
   pointer-events: none;
   z-index: 1;
 }
@@ -103,8 +141,11 @@ li {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 80px;
-  height: 50px;
+  width: 100%;
+  height: 20px;
   user-select: none;
+}
+.py-51 {
+  padding: 51px 0;
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
 	<div class="flex justify-center">
 		<div class="h-full w-full flex flex-col items-center">
+      <script type="text/javascript" src="html-magnifier.js"></script>
 			<app-header />
 
 			<slot name="banner" />

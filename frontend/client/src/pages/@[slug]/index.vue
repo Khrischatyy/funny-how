@@ -2,7 +2,7 @@
 import {useHead} from "@unhead/vue";
 import {definePageMeta, useRuntimeConfig} from '#imports'
 import {useSessionStore} from "~/src/entities/Session";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {BrandingLogoSmall} from "~/src/shared/ui/branding";
 import {useRoute} from "nuxt/app";
 import {type StudioFormValues, useCreateStudioFormStore} from "~/src/entities/RegistrationForms";
@@ -11,6 +11,7 @@ import axios from "axios";
 import GoogleMap from "~/src/widgets/GoogleMap.vue";
 import {DatePicker, TimePicker} from "~/src/features/DatePicker";
 import SelectPicker from "~/src/features/DatePicker/ui/SelectPicker.vue";
+import {TimeSelect} from "~/src/widgets";
 
 definePageMeta({
   middleware: ["auth"],
@@ -44,24 +45,47 @@ const rentingForm = ref({
   address_id: '',
   date: '',
   anotherDate: '',
-  start_time: '',
-  end_time: '',
+  start_time: '09:00',
+  end_time: '19:00',
 })
 const today = new Date();
 const tomorrow = new Date();
 tomorrow.setDate(today.getDate() + 1);
-
+const hoursAvailable = computed(() => processAvailableHours());
 const rentingList = [{name: 'today', date: ''}, {name: 'tomorrow', date: ''}, {name: 'another-day', date: 'another-day'}];
 rentingList[0].date = today.toISOString().split('T')[0];
 rentingList[1].date = tomorrow.toISOString().split('T')[0];
-
+const availableHours = ref([]); // Store available hours
 onMounted(async () => {
   const config = useRuntimeConfig()
   getAddressId()
   session.value = useSessionStore()
   rentingForm.value.date = rentingList[0].date
 
+  const response = await axios.get(`${config.public.apiBase}/v1/address/reservations?address_id=1&date=2024-05-27`);
+  if (response.data.success) {
+    availableHours.value = response.data.data;
+  }
+  console.log('availableHours', availableHours.value);
 })
+
+function processAvailableHours() {
+  const hoursSet = new Set();
+  availableHours.value.forEach(slot => {
+    const startHour = parseInt(slot.start_time.split(':')[0]);
+    const endHour = parseInt(slot.end_time.split(':')[0]);
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+      hoursSet.add(hour % 12 || 12); // Convert to 12-hour format
+    }
+    for (let hour = endHour; hour <= 12; hour++) {
+      hoursSet.add(hour % 12 || 12); // Convert to 12-hour format
+    }
+  });
+  return Array.from(hoursSet).map(hour => hour.toString().padStart(2, '0'));
+}
+
+
 
 export type reservationResponse = {
   address_id: number,
@@ -171,9 +195,15 @@ function formatDate(date: string) {
   const dateObj = new Date(date);
   return dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
+type DateReponse = {
+  date: string
+}
+function dateChanged(newDate: DateReponse, input: keyof StudioFormValues) {
+  rentingForm.value[input] = newDate?.date;
 
-function dateChanged(newDate: string, input: keyof StudioFormValues) {
-  console.log('newDate', newDate)
+}
+
+function timeChanged(newDate: string, input: keyof StudioFormValues) {
   rentingForm.value[input] = newDate;
 
 }
@@ -239,12 +269,12 @@ function signOut() {
 
           </div>
           <div class="relative w-full flex items-center">
-            <div class="flex items-center">
-              <SelectPicker @dateSelected="dateChanged($event, 'date')" />
+            <div class="flex items-center w-full">
+              <SelectPicker class="w-full" @dateSelected="dateChanged($event, 'date')" />
             </div>
           </div>
 
-          <div class="relative w-full flex items-center">
+          <div class="relative hidden w-full flex items-center">
             <div class="flex items-center">
               <select v-model="rentingForm.date" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
                 <option v-for="day in rentingList" :value="day.date">
@@ -281,41 +311,13 @@ function signOut() {
 
           </div>
           <div class="relative w-full flex items-center">
-            <div class="flex items-center">
-              <TimePicker :time="rentingForm.start_time" @timeChange="dateChanged($event, 'start_time')" />
-            </div>
-          </div>
-          <div class="relative w-full flex items-center mb-5">
-            <div class="flex items-center">
-              <input type="time" v-model="rentingForm.start_time" placeholder="Start Time" ref="start_time" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide">
-            </div>
-            <div @click="openDatePicker('start_time')" class="relative w-full flex items-center ">
-              <input :value="rentingForm.start_time" class="pointer-events-none cursor-pointer w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="start_time"/>
-              <span class="absolute right-5 text-neutral-700 cursor-pointer">Start From</span>
-              <span class="absolute right-0 cursor-pointer">
-                <IconDown/>
-              </span>
-            </div>
+            <TimeSelect :available-hours="hoursAvailable" label="Start From" renting-form="rentingForm" @timeChanged="timeChanged($event, 'start_time')" />
           </div>
 
           <div class="relative w-full flex items-center">
-            <div class="flex items-center">
-              <TimePicker :time="rentingForm.end_time" @timeChange="dateChanged($event, 'end_time')" />
-            </div>
+            <span class="absolute left-5 top-0 text-neutral-700 cursor-pointer">To</span>
+            <TimeSelect :available-hours="hoursAvailable" label="To" renting-form="rentingForm" @timeChanged="timeChanged($event, 'end_time')" />
           </div>
-          <div class="relative w-full flex items-center">
-            <div class="flex items-center">
-              <input type="time" v-model="rentingForm.end_time" placeholder="Finish Time" ref="end_time" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide">
-            </div>
-            <div @click="openDatePicker('end_time')" class="relative w-full flex items-center ">
-              <input :value="rentingForm.end_time" class="w-full pointer-events-none cursor-pointer px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="end_time"/>
-              <span class="absolute right-5 text-neutral-700 cursor-pointer"> To</span>
-              <span class="absolute right-0 cursor-pointer">
-                <IconDown/>
-              </span>
-            </div>
-          </div>
-
         </div>
 
         <div class="flex-col mb-14 justify-center items-center gap-1.5 flex">

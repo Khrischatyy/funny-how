@@ -1,10 +1,19 @@
 <template>
   <div :class="`dragdealer ${type}`" @mousedown="onMouseDown" @touchstart="onMouseDown">
-    <ul class="handle" :style="inlineStyle">
-      <li v-for="(item, index) in data" :key="index">{{ item }}</li>
+    <ul class="handle w-full text-center" :style="inlineStyle">
+      <li
+          class="w-full text-center"
+          v-for="(item, index) in data"
+          :key="index"
+          :class="{'magnified': index === centerIndex}"
+      >
+        {{ item }}
+      </li>
     </ul>
   </div>
 </template>
+
+
 
 <script setup>
 import {computed, ref, watch} from 'vue';
@@ -51,6 +60,7 @@ const onMouseDown = (event) => {
   document.addEventListener('mouseup', onMouseUp);
   document.addEventListener('touchmove', onMouseMove);
   document.addEventListener('touchend', onMouseUp);
+  emit('dragging', true);
 };
 
 const onMouseMove = (event) => {
@@ -59,7 +69,7 @@ const onMouseMove = (event) => {
 
   const maxPosition = -props.data.length * 50;
   position.value = Math.max(maxPosition, Math.min(50, position.value + offset.value));
-
+  console.log('position', position.value);
   previousY = event.touches ? event.touches[0].clientY : event.clientY;
 };
 
@@ -78,6 +88,7 @@ const onMouseUp = () => {
 
   const newSelected = props.type === 'hour' ? (-finalPosition / 50) + 1 : props.data[-finalPosition / 50];
   emit('dateChange', props.type, newSelected);
+  emit('dragging', false);
 };
 
 const inlineStyle = computed(() => ({
@@ -87,11 +98,19 @@ const inlineStyle = computed(() => ({
 }));
 
 setPosition(props.selected);
+
+// Computed property to determine the center index
+const centerIndex = computed(() => {
+  return Math.round(-position.value / 50);
+});
+
 </script>
 
 <style scoped>
 .dragdealer {
   position: relative;
+  width: 100%;
+  cursor: pointer;
 }
 
 .handle {
@@ -104,8 +123,15 @@ li {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 80px;
+  width: 100%;
   height: 50px;
   user-select: none;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), font-size 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.magnified {
+  transform: scale(1.2);
+  font-size: 1.2em;
 }
 </style>
+

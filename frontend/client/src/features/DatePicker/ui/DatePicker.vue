@@ -1,5 +1,5 @@
 <template>
-  <div class="date-picker">
+  <div class="date-picker w-full">
     <CustomWheel type="day" :data="days" :selected="date.getDate()" @dateChange="dateChanged" />
     <CustomWheel type="month" :data="months" :selected="date.getMonth() + 1" @dateChange="dateChanged" />
     <CustomWheel type="year" :data="years" :selected="date.getFullYear() - 1899" @dateChange="dateChanged" />
@@ -27,22 +27,24 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sept',
 
 const years = Array.from({ length: 201 }, (_, i) => 1900 + i);
 
+const currentDate = ref(props.date);
+
 const dateChanged = (type, changedData) => {
   let newDate;
-
   if (type === 'day') {
-    newDate = new Date(props.date.getFullYear(), props.date.getMonth(), changedData);
+    newDate = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), changedData);
   } else if (type === 'month') {
-    const maxDayInSelectedMonth = new Date(props.date.getFullYear(), changedData, 0).getDate();
-    const day = Math.min(props.date.getDate(), maxDayInSelectedMonth);
-    newDate = new Date(props.date.getFullYear(), changedData - 1, day);
+    const maxDayInSelectedMonth = new Date(currentDate.value.getFullYear(), months.indexOf(changedData), 0).getDate();
+    const day = Math.min(currentDate.value.getDate(), maxDayInSelectedMonth);
+    newDate = new Date(currentDate.value.getFullYear(), months.indexOf(changedData), day);
   } else if (type === 'year') {
-    const maxDayInSelectedMonth = new Date(changedData + 1900, props.date.getMonth() + 1, 0).getDate();
-    const day = Math.min(props.date.getDate(), maxDayInSelectedMonth);
-    newDate = new Date(changedData + 1900, props.date.getMonth(), day);
+    const maxDayInSelectedMonth = new Date(changedData, currentDate.value.getMonth(), 0).getDate();
+    const day = Math.min(currentDate.value.getDate(), maxDayInSelectedMonth);
+    newDate = new Date(changedData, currentDate.value.getMonth(), day);
   }
+  currentDate.value = newDate;
 
-  emit('dateChange', newDate);
+  emit('dateChange', type, newDate);
 };
 </script>
 
@@ -59,11 +61,14 @@ const dateChanged = (type, changedData) => {
 
 .date-picker {
   display: flex;
-  padding: 50px 20px;
-  margin: 30px 0;
+  padding: 40px 20px;
+  margin: 0px 0;
   overflow: hidden;
   width: 100%;
-  background: white;
+  background: transparent;
+  color: #fff;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .day,
@@ -72,8 +77,6 @@ const dateChanged = (type, changedData) => {
   position: relative;
   height: 50px;
   margin: 0px;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
   border-radius: 0;
 }
 
@@ -86,10 +89,10 @@ const dateChanged = (type, changedData) => {
   content: '';
   position: absolute;
   left: 0;
-  width: 80px;
+  width: 100%;
   height: 50px;
   background-color: white;
-  opacity: 0.8;
+  opacity: 0;
   pointer-events: none;
   z-index: 1;
 }
