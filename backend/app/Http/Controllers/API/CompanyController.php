@@ -4,10 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\CompanyRequest;
+use App\Models\Address;
 use App\Models\Company;
 use App\Repositories\CompanyRepository;
 use App\Services\CompanyService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 
 class CompanyController extends BaseController
 {
@@ -17,14 +19,7 @@ class CompanyController extends BaseController
     )
     {}
 
-    public function getCompaniesByCityId($cityId): \Illuminate\Http\JsonResponse
-    {
-        $companies = $this->companyRepository->getCompaniesByCityId($cityId);
-
-        return $this->sendResponse($companies, 'Companies received');
-    }
-
-    public function getCompany(string $slug)
+    public function getCompany(string $slug): JsonResponse
     {
         try {
             $company = $this->companyService->getCompany($slug);
@@ -35,7 +30,7 @@ class CompanyController extends BaseController
         }
     }
 
-    public function getRegisterCompany(string $slug)
+    public function getRegisterCompany(string $slug): JsonResponse
     {
         try {
             $company = $this->companyService->getCompany($slug);
@@ -47,12 +42,5 @@ class CompanyController extends BaseController
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), 404);
         }
-    }
-
-    public function getCompanyAddressesInCity(int $cityId, int $companyId)
-    {
-        return Company::where('id', $companyId)->with(['addresses' => function($q){
-            $q->where('city_id', 1)->with('badges');
-        }])->get();
     }
 }

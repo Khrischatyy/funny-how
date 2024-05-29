@@ -25,18 +25,20 @@ class AddressController extends BaseController
                                 public CompanyService $companyService)
     {}
 
-    public function getAddressByCityId(int $cityId): \Illuminate\Http\JsonResponse
+
+    public function getAddressesInCity(int $cityId): JsonResponse
     {
-        $addresses = $this->addressRepository->getAddressByCityId($cityId)->get();
+        try {
+            $addresses = $this->addressRepository->getAddressByCityId($cityId)->get();
 
-        return $this->sendResponse($addresses, 'Cities received');
-    }
+            if ($addresses->isEmpty()) {
+                return $this->sendError('No addresses found in the specified city.', 404);
+            }
 
-    public function getAddressByCompanyId(int $companyId): JsonResponse
-    {
-        $address = $this->addressRepository->getAddressByCompanyId($companyId);
-
-        return $this->sendResponse($address, 'Address received');
+            return $this->sendResponse($addresses, 'Addresses retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve addresses.', 500, ['error' => $e->getMessage()]);
+        }
     }
 
     public function createBrand(AddressRequest $addressRequest): JsonResponse
@@ -91,25 +93,25 @@ class AddressController extends BaseController
         }
     }
 
-    public function getAddressBadges($address_id): JsonResponse
-    {
-        try {
-            // Find the address
-            $address = Address::with('badges')->findOrFail($address_id);
-
-            // Generate the S3 URLs for the badges
-            $badges = $address->badges->map(function ($badge) {
-                $badge->image_url = Storage::disk('s3')->url($badge->image);
-                return $badge;
-            });
-
-
-
-            return $this->sendResponse($badges, 'Badges retrieved successfully.');
-        } catch (Exception $e) {
-            return $this->sendError('Failed to retrieve badges.', 500, ['error' => $e->getMessage()]);
-        }
-    }
+//    public function getAddressBadges($address_id): JsonResponse
+//    {
+//        try {
+//            // Find the address
+//            $address = Address::with('badges')->findOrFail($address_id);
+//
+//            // Generate the S3 URLs for the badges
+//            $badges = $address->badges->map(function ($badge) {
+//                $badge->image_url = Storage::disk('s3')->url($badge->image);
+//                return $badge;
+//            });
+//
+//
+//
+//            return $this->sendResponse($badges, 'Badges retrieved successfully.');
+//        } catch (Exception $e) {
+//            return $this->sendError('Failed to retrieve badges.', 500, ['error' => $e->getMessage()]);
+//        }
+//    }
 
     /**
      * Get studio prices for a specific address.

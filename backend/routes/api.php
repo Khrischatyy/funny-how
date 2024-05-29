@@ -94,27 +94,33 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/calculate-price', [BookingController::class, 'calculatePrice']);
 
 
-        //subscription
-//        Route::get('{address_id}', [AddressController::class, 'getAddressByCompanyId'])->where('addressId', '[0-9]+');
-//        Route::get('{city_id}', [AddressController::class, 'getAddressByCityId'])->where('cityId', '[0-9]+');
 
 
         Route::withoutMiddleware('auth:sanctum')->group(function () {
             Route::get('reservation/start-time', [BookingController::class, 'getReservationAvailableStartTime']);
             Route::get('reservation/end-time', [BookingController::class, 'getReservationAvailableEndTime']);
         });
+
+        Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
+
     });
 
 
+    //subscription
     Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
-    Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
+
     Route::get('register/company/{slug}', [CompanyController::class, 'getRegisterCompany'])->middleware('role:studio_owner');
     Route::get('/operation-modes', [OperatingHourController::class, 'getOperationModes']);
 });
 
 Route::prefix('countries')->group(function () {
-    Route::get('/countries/{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
-    Route::get('/countries', [CountryController::class, 'getCountries']);
+    Route::get('/', [CountryController::class, 'getCountries']);
+    Route::get('/{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 });
+
+
 Route::get('/companies/{city_id}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
-Route::get('/city/{city_id}/company/{company_id}', [CompanyController::class, 'getCompanyAddressesInCity'])->where('cityId', '[0-9]+');
+
+//Route::get('/city/{city_id}/studios', [CompanyController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');
+
+Route::get('/city/{city_id}/studios', [AddressController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');
