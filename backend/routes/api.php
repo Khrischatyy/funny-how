@@ -90,7 +90,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
         Route::post('reservation', [BookingController::class, 'bookAddress']);
-
         Route::post('/calculate-price', [BookingController::class, 'calculatePrice']);
 
 
@@ -118,9 +117,5 @@ Route::prefix('countries')->group(function () {
     Route::get('/{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 });
 
-
 Route::get('/companies/{city_id}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
-
-//Route::get('/city/{city_id}/studios', [CompanyController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');
-
 Route::get('/city/{city_id}/studios', [AddressController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');
