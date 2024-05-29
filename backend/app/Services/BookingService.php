@@ -17,51 +17,108 @@ use Illuminate\Support\Facades\DB;
 
 class BookingService
 {
-    public function getAllReservations(ReservationRequest $request): array
+    public function getAvailableStartTime(string $date, int $addressId): array
     {
-        $date = $request->input('date');
-        $addressId = $request->input('address_id');
+        $date = Carbon::parse($date);
+
+        $operatingHours = $this->getOperatingHours($addressId, $date);
+
+        $openTime = $date->copy()->setTimeFromTimeString($operatingHours->open_time);
+        $closeTime = $date->copy()->setTimeFromTimeString($operatingHours->close_time);
+
         $bookings = Booking::where('address_id', $addressId)
-            ->where('date', $date)
+            ->where('date', $date->toDateString())
             ->orderBy('start_time', 'asc')
             ->get();
 
-        $dayOfWeek = Carbon::parse($date)->dayOfWeek;
-        $operatingHours = $this->getOperatingHours($addressId, $dayOfWeek);
-
-        $openTime = Carbon::parse($date . ' ' . $operatingHours->open_time);
-        $closeTime = Carbon::parse($date . ' ' . $operatingHours->close_time);
-
-
-        return $this->calculateAvailableSlots($bookings, $openTime, $closeTime);
+        return $this->calculateAvailableStartTimes($bookings, $openTime, $closeTime);
     }
 
-    private function calculateAvailableSlots($bookings, $openTime, $closeTime): array
+    private function calculateAvailableStartTimes($bookings, $openTime, $closeTime): array
     {
-        $availableSlots = [];
-        $previousEndTime = $openTime;
+        $availableStartTimes = [];
+        $possibleStartTimes = [];
+        $current = $openTime->copy();
+
+        while ($current->lt($closeTime)) {
+            $possibleStartTimes[] = $current->copy();
+            $current->addHour();
+        }
 
         foreach ($bookings as $booking) {
             $bookingStart = Carbon::parse($booking->start_time);
             $bookingEnd = Carbon::parse($booking->end_time);
 
-            if ($previousEndTime->lt($bookingStart)) {
-                $availableSlots[] = [
-                    'start_time' => $previousEndTime->format('H:i'),
-                    'end_time' => $bookingStart->format('H:i')
-                ];
+            foreach ($possibleStartTimes as $key => $startTime) {
+                if ($startTime->gte($bookingStart) && $startTime->lt($bookingEnd)) {
+                    unset($possibleStartTimes[$key]);
+                }
             }
-            $previousEndTime = $bookingEnd;
         }
 
-        if ($previousEndTime->lt($closeTime)) {
-            $availableSlots[] = [
-                'start_time' => $previousEndTime->format('H:i'),
-                'end_time' => $closeTime->format('H:i')
-            ];
+        foreach ($possibleStartTimes as $startTime) {
+            $availableStartTimes[] = $startTime->format('H:i');
         }
 
-        return $availableSlots;
+        return $availableStartTimes;
+    }
+
+    public function getAvailableEndTime(string $date, int $addressId, string $startTime): array
+    {
+        $date = Carbon::parse($date);
+        $startTime = Carbon::parse($startTime);
+
+        $operatingHours = $this->getOperatingHours($addressId, $date);
+
+        $openTime = $date->copy()->setTimeFromTimeString($operatingHours->open_time);
+        $closeTime = $date->copy()->setTimeFromTimeString($operatingHours->close_time);
+
+        if ($startTime->lt($openTime) || $startTime->gte($closeTime)) {
+            throw new BookingException('Start time is outside of operating hours', 422);
+        }
+
+        $bookings = Booking::where('address_id', $addressId)
+            ->where('date', $date->toDateString())
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        return $this->calculateAvailableEndTimes($bookings, $startTime, $closeTime);
+    }
+
+    private function calculateAvailableEndTimes($bookings, $startTime, $closeTime): array
+    {
+        $availableEndTimes = [];
+        $current = $startTime->copy()->addHour();
+
+        foreach ($bookings as $booking) {
+            $bookingStart = Carbon::parse($booking->start_time);
+            $bookingEnd = Carbon::parse($booking->end_time);
+
+            // If the start time is before the booking start
+            if ($startTime->lt($bookingStart)) {
+                while ($current->lte($bookingStart) && $current->lt($closeTime)) {
+                    $availableEndTimes[] = $current->format('H:i');
+                    if ($current->eq($bookingStart)) {
+                        // Stop adding end times if we reach the booking start time
+                        return $availableEndTimes;
+                    }
+                    $current->addHour();
+                }
+            }
+
+            // Adjust the current time if the start time falls within an existing booking
+            if ($startTime->lt($bookingEnd) && $current->gte($bookingStart) && $current->lt($bookingEnd)) {
+                $current = $bookingEnd->copy()->addHour();
+            }
+        }
+
+        // If no bookings block the remaining time, add the rest of the hours until close time
+        while ($current->lt($closeTime)) {
+            $availableEndTimes[] = $current->format('H:i');
+            $current->addHour();
+        }
+
+        return $availableEndTimes;
     }
 
 
@@ -154,33 +211,29 @@ class BookingService
             ->exists();
     }
 
-    private function getOperatingHours($addressId, $bookingDate)
+    private function getOperatingHours(int $addressId, Carbon $bookingDate): OperatingHour
     {
-
         $operatingHours = OperatingHour::where('address_id', $addressId)->get();
 
-        $firstLineOperatingHours = $operatingHours->first();
-
-        if (!$firstLineOperatingHours) {
+        if ($operatingHours->isEmpty()) {
             throw new OperatingHourException("You didn't set hours", 400);
         }
+
+        $firstLineOperatingHours = $operatingHours->first();
 
         //1,2 mode - имеют только одну запись в базе об operating hours
         //3,4 это моды weekdays и weekends
         //надо будет переделать, че то тут хуйня какая-то
 
         return match ($firstLineOperatingHours->mode_id) {
-            1, 2 => $operatingHours->first(),
-            3, 4 => $this->regular($operatingHours, $bookingDate->dayOfWeek)->first(),
+            1, 2 => $firstLineOperatingHours,
+            3, 4 => $this->regular($operatingHours, $bookingDate->dayOfWeek)->firstOrFail(),
+            default => throw new OperatingHourException("Invalid operating hours mode", 400),
         };
-
     }
 
     private function regular($operatingHours, $dayOfWeek)
     {
         return $operatingHours->where('day_of_week', $dayOfWeek);
     }
-
-
-
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\AvailableEndTimeRequest;
+use App\Http\Requests\AvailableStartTimeRequest;
 use App\Http\Requests\BookingRequest;
 use App\Http\Requests\CalculatePriceRequest;
 use App\Http\Requests\ReservationRequest;
@@ -18,11 +20,24 @@ class BookingController extends BaseController
     public function __construct(private BookingService $bookingService, private SubscriptionService $subscriptionService)
     {}
 
-    public function getAllReservations(ReservationRequest $reservationRequest): JsonResponse
+    public function getReservationAvailableStartTime(AvailableStartTimeRequest $request): JsonResponse
     {
-        $data = $this->bookingService->getAllReservations($reservationRequest);
+        $date = $request->query('date');
+        $addressId = $request->query('address_id');
+        $availableStartTime = $this->bookingService->getAvailableStartTime($date, $addressId);
 
-        return $this->sendResponse($data, 'Available slots received');
+        return $this->sendResponse($availableStartTime, 'Available start time retrieved successfully.');
+    }
+
+    public function getReservationAvailableEndTime(AvailableEndTimeRequest $request): JsonResponse
+    {
+        $date = $request->query('date');
+        $addressId = $request->query('address_id');
+        $startTime = $request->query('start_time');
+
+        $availableEndTime = $this->bookingService->getAvailableEndTime($date, $addressId, $startTime);
+
+        return $this->sendResponse($availableEndTime, 'Available end time retrieved successfully.');
     }
 
     public function bookAddress(BookingRequest $bookingRequest): JsonResponse
