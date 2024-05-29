@@ -41,21 +41,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
             // Retrieve the limiter configuration for login attempts
             $limiter = config('fortify.limiters.login');
 
-            // Route for user login
             Route::post('/login', [AuthenticatedSessionController::class, 'store'])
                 ->middleware(array_filter([
                     $limiter ? 'throttle:' . $limiter : null,  // Throttle login attempts if limiter is configured
                 ]));
 
-            // Route for user registration
             Route::post('/register', [RegisteredUserController::class, 'store'])
                 ->middleware('guest:' . config('fortify.guard'));  // Only guests (non-authenticated users) are allowed
 
-            // Route for user registration
             Route::post('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify']);
 //                ->middleware('guest:' . config('fortify.guard'));  // Only guests (non-authenticated users) are allowed
 
-            // Route for initiating password reset
             Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
 //                ->middleware('guest:'.config('fortify.guard'));  // Only guests (non-authenticated users) are allowed
 //                ->name('password.email');
@@ -69,14 +65,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 //        Route::post('/logout', [LogoutController::class, 'destroy']);
     });
-
-    Route::post('/brand', [AddressController::class, 'createBrand']); // company + address created
-
     Route::prefix('address')->group(function () {
         //badges routes
         Route::get('{address_id}/badges', [BadgeController::class, 'getAddressBadges']);
         Route::post('{address_id}/badge', [BadgeController::class, 'setAddressBadge']);
-//        Route::delete('{address_id}/badge', [BadgeController::class, 'removeAddressBadge']);
 
         //prices
         Route::get('{address_id}/prices', [AddressController::class, 'getAddressPrices']);
@@ -92,26 +84,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('reservation', [BookingController::class, 'bookAddress']);
         Route::post('/calculate-price', [BookingController::class, 'calculatePrice']);
 
-
-
-
+        //reservation start, end time
         Route::withoutMiddleware('auth:sanctum')->group(function () {
             Route::get('reservation/start-time', [BookingController::class, 'getReservationAvailableStartTime']);
             Route::get('reservation/end-time', [BookingController::class, 'getReservationAvailableEndTime']);
         });
-
-        Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
-
     });
 
+    //settings
+//    Route::get('history', [BookingController::class, 'getBookingHistory']);
+//    Route::get('studios', [BookingController::class, 'getMyStudios'])->middleware('role:studio_owner');
+//    Route::get('booking-management', [BookingController::class, ''])->middleware('role:studio_owner');
+//    Route::get('settings/profile', [RegisteredUserController::class, 'updateProfile']);
 
-    //subscription
-    Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
-
-    Route::get('register/company/{slug}', [CompanyController::class, 'getRegisterCompany'])->middleware('role:studio_owner');
+    Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
     Route::get('/operation-modes', [OperatingHourController::class, 'getOperationModes']);
+    Route::post('/brand', [AddressController::class, 'createBrand']); // company + address created
 });
 
+//book address page
 Route::prefix('countries')->group(function () {
     Route::get('/', [CountryController::class, 'getCountries']);
     Route::get('/{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
@@ -119,3 +110,8 @@ Route::prefix('countries')->group(function () {
 
 Route::get('/companies/{city_id}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
 Route::get('/city/{city_id}/studios', [AddressController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');
+
+
+//subscription
+//    Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
+//    Route::get('register/company/{slug}', [CompanyController::class, 'getRegisterCompany'])->middleware('role:studio_owner');

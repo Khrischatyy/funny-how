@@ -80,32 +80,4 @@ class BadgeController extends BaseController
             return $this->sendError('Failed to add badge.', 500, ['error' => $e->getMessage()]);
         }
     }
-
-    /**
-     * Remove a specific badge from an address.
-     *
-     * @param SetAddressBadgesRequest $request
-     * @param int $address_id
-     * @return JsonResponse
-     */
-    public function removeAddressBadge(SetAddressBadgesRequest $request, int $address_id): JsonResponse
-    {
-        $badge_id = $request->input('badge_id');
-
-        try {
-            $address = Address::with('badges')->findOrFail($address_id);
-
-            if (!$address->badges->contains($badge_id)) {
-                return $this->sendError('Badge not found for this address.', 404);
-            }
-
-            $address->badges()->detach($badge_id);
-
-            $address->load('badges');
-
-            return $this->sendResponse($address->badges, 'Badge removed successfully.');
-        } catch (Exception $e) {
-            return $this->sendError('Failed to remove badge.', 500, ['error' => $e->getMessage()]);
-        }
-    }
 }

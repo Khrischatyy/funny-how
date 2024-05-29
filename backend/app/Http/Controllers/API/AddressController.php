@@ -194,7 +194,7 @@ class AddressController extends BaseController
 
 
         try {
-            $price = AddressPrice::where('address_id', $address_id)->where('id', $address_price_id)->firstOrFail();
+            $price = AddressPrice::with(['company'])->where('address_id', $address_id)->where('id', $address_price_id)->firstOrFail();
             $price->delete();
 
             // Fetch the updated list of prices for the address
