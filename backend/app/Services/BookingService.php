@@ -17,6 +17,47 @@ use Illuminate\Support\Facades\DB;
 
 class BookingService
 {
+    private const BOOKING_PAGINATE_COUNT = 15;
+
+    public function getBookingHistory($userId)
+    {
+        return Booking::where('user_id', $userId)
+            ->with(['address.company', 'address.badges'])
+            ->paginate(self::BOOKING_PAGINATE_COUNT);
+    }
+
+    public function filterBookingHistory($userId, $status, $date, $time, $search)
+    {
+        $query = Booking::where('user_id', $userId);
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($date) {
+            $query->whereDate('date', Carbon::parse($date));
+        }
+
+        if ($time) {
+            $query->whereTime('start_time', '<=', Carbon::parse($time))
+                ->whereTime('end_time', '>=', Carbon::parse($time));
+        }
+
+        if ($search) {
+            $lowerSearch = strtolower($search);
+            $query->where(function($q) use ($lowerSearch) {
+                $q->whereHas('address.company', function($q2) use ($lowerSearch) {
+                    $q2->whereRaw('LOWER(name) LIKE ?', ["%$lowerSearch%"]);
+                })
+                    ->orWhereHas('address', function($q3) use ($lowerSearch) {
+                        $q3->whereRaw('LOWER(street) LIKE ?', ["%$lowerSearch%"]);
+                    });
+            });
+        }
+
+        return $query->with(['address.company', 'address.badges'])->paginate(self::BOOKING_PAGINATE_COUNT);
+    }
+
     public function getAvailableStartTime(string $date, int $addressId): array
     {
         $date = Carbon::parse($date);

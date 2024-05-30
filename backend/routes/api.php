@@ -8,6 +8,7 @@ use App\Http\Controllers\API\{AddressController,
     CompanyController,
     CountryController,
     EquipmentController,
+    MenuController,
     OperatingHourController,
     SubscriptionController};
 use App\Http\Controllers\VerifyEmailController;
@@ -91,10 +92,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
     });
 
-    //settings
-//    Route::get('history', [BookingController::class, 'getBookingHistory']);
-//    Route::get('studios', [BookingController::class, 'getMyStudios'])->middleware('role:studio_owner');
-//    Route::get('booking-management', [BookingController::class, ''])->middleware('role:studio_owner');
+
+    //settings/history
+    Route::get('history', [BookingController::class, 'getBookingHistory']);
+    Route::post('history/filter', [BookingController::class, 'filterBookingHistory']);
+
+    Route::get('menu', [MenuController::class, 'getMenu']);
+
+
+    Route::get('studios', [AddressController::class, 'getMyStudios'])->middleware('role:studio_owner');
+    Route::get('booking-management', [BookingController::class, ''])->middleware('role:studio_owner');
 //    Route::get('settings/profile', [RegisteredUserController::class, 'updateProfile']);
 
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);

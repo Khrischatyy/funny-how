@@ -52,7 +52,7 @@ class AddressController extends BaseController
 
         $this->addDefaultHours($address->id);
 
-        return $this->sendResponse($company, 'Brand added');
+        return $this->sendResponse($company, 'Company and address added');
     }
 
     public function createAddress(AddressRequest $addressRequest, $city, $company)
