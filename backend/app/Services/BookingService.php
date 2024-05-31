@@ -20,16 +20,28 @@ class BookingService
 {
     private const BOOKING_PAGINATE_COUNT = 15;
 
-    public function getBookingHistory($userId)
-    {
-        return Booking::where('user_id', $userId)
-            ->with(['address.company', 'address.badges', 'status'])
-            ->paginate(self::BOOKING_PAGINATE_COUNT);
-    }
-
-    public function filterBookingHistory($userId, $status, $date, $time, $search)
+    public function getBookings($userId, $type)
     {
         $query = Booking::where('user_id', $userId);
+
+        if ($type === 'history') {
+            $query->where('date', '<', now());
+        } else {
+            $query->where('date', '>=', now());
+        }
+
+        return $query->with(['address.company', 'address.badges', 'status'])->paginate(self::BOOKING_PAGINATE_COUNT);
+    }
+
+    public function filterBookings($userId, $status, $date, $time, $search, $type)
+    {
+        $query = Booking::where('user_id', $userId);
+
+        if ($type === 'history') {
+            $query->where('date', '<', now());
+        } else {
+            $query->where('date', '>=', now());
+        }
 
         if ($status) {
             $query->whereHas('status', function ($query) use ($status) {
@@ -164,7 +176,6 @@ class BookingService
 
         return $availableEndTimes;
     }
-
 
     public function getTotalCost(string $startTime, string $endTime, int $addressId)
     {

@@ -24,42 +24,40 @@ class BookingController extends BaseController
 {
     public function __construct(private BookingService $bookingService, private PaymentService $paymentService)
     {}
-    public function getBookingHistory(): JsonResponse
+    public function getBookings(string $type): JsonResponse
     {
         try {
-            $userId = Auth::id(); // Assuming the user is authenticated
+            $userId = Auth::id();
+            $bookings = $this->bookingService->getBookings($userId, $type);
 
-            $bookingHistory = $this->bookingService->getBookingHistory($userId);
-
-            if ($bookingHistory->isEmpty()) {
-                return $this->sendError('No booking history found.', 404);
+            if ($bookings->isEmpty()) {
+                return $this->sendError('No bookings found.', 404);
             }
 
-            return $this->sendResponse($bookingHistory, 'Booking history retrieved successfully.');
+            return $this->sendResponse($bookings, 'Bookings retrieved successfully.');
         } catch (Exception $e) {
-            return $this->sendError('Failed to retrieve booking history.', 500, ['error' => $e->getMessage()]);
+            return $this->sendError('Failed to retrieve bookings.', 500, ['error' => $e->getMessage()]);
         }
     }
 
-    public function filterBookingHistory(FilterBookingHistoryRequest $request): JsonResponse
+    public function filterBookings(FilterBookingHistoryRequest $request, string $type): JsonResponse
     {
         try {
-            $userId = Auth::id(); // Assuming the user is authenticated
-
+            $userId = Auth::id();
             $status = $request->input('status');
             $date = $request->input('date');
             $time = $request->input('time');
             $search = $request->input('search');
 
-            $bookingHistory = $this->bookingService->filterBookingHistory($userId, $status, $date, $time, $search);
+            $bookings = $this->bookingService->filterBookings($userId, $status, $date, $time, $search, $type);
 
-            if ($bookingHistory->isEmpty()) {
-                return $this->sendError('No booking history found.', 404);
+            if ($bookings->isEmpty()) {
+                return $this->sendError('No bookings found.', 404);
             }
 
-            return $this->sendResponse($bookingHistory, 'Filtered booking history retrieved successfully.');
+            return $this->sendResponse($bookings, 'Filtered bookings retrieved successfully.');
         } catch (Exception $e) {
-            return $this->sendError('Failed to retrieve booking history.', 500, ['error' => $e->getMessage()]);
+            return $this->sendError('Failed to retrieve bookings.', 500, ['error' => $e->getMessage()]);
         }
     }
 

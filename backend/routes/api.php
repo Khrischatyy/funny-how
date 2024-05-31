@@ -93,16 +93,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
     });
 
+    //admin panel
+    ///history
+    Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');
+    Route::post('history/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'history');
 
-    //settings/history
-    Route::get('history', [BookingController::class, 'getBookingHistory']);
-    Route::post('history/filter', [BookingController::class, 'filterBookingHistory']);
+    Route::get('booking-management', [BookingController::class, 'getBookings'])->defaults('type', 'future');
+    Route::post('booking-management/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'future');
 
     Route::get('menu', [MenuController::class, 'getMenu']);
+    //bookings
 
 
     Route::get('studios', [AddressController::class, 'getMyStudios'])->middleware('role:studio_owner');
-    Route::get('booking-management', [BookingController::class, ''])->middleware('role:studio_owner');
 //    Route::get('settings/profile', [RegisteredUserController::class, 'updateProfile']);
 
     Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
