@@ -10,9 +10,9 @@ use App\Http\Controllers\API\{AddressController,
     EquipmentController,
     MenuController,
     OperatingHourController,
-    SubscriptionController};
+    };
 use App\Http\Controllers\VerifyEmailController;
-use App\Services\SubscriptionService;
+use App\Services\PaymentService;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
     EmailVerificationNotificationController,
@@ -83,7 +83,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
         Route::post('reservation', [BookingController::class, 'bookAddress']);
-        Route::post('/calculate-price', [BookingController::class, 'calculatePrice']);
+        Route::post('payment-success', [BookingController::class, 'paymentSuccess']);
+        Route::post('calculate-price', [BookingController::class, 'calculatePrice']);
 
         //reservation start, end time
         Route::withoutMiddleware('auth:sanctum')->group(function () {

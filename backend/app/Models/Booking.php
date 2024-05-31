@@ -9,7 +9,14 @@ class Booking extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['address_id', 'start_time', 'end_time', 'user_id', 'total_cost', 'date'];
+    protected $fillable = [
+        'address_id', 'start_time', 'end_time', 'user_id', 'total_cost', 'date', 'status_id',
+    ];
+
+    public function status()
+    {
+        return $this->belongsTo(BookingStatus::class);
+    }
 
     public function address()
     {

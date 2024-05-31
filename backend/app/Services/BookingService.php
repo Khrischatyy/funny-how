@@ -7,6 +7,7 @@ use App\Exceptions\OperatingHourException;
 use App\Http\Requests\BookingRequest;
 use App\Http\Requests\ReservationRequest;
 use App\Models\Booking;
+use App\Models\BookingStatus;
 use App\Models\OperatingHour;
 use App\Models\StudioClosure;
 use App\Models\User;
@@ -22,7 +23,7 @@ class BookingService
     public function getBookingHistory($userId)
     {
         return Booking::where('user_id', $userId)
-            ->with(['address.company', 'address.badges'])
+            ->with(['address.company', 'address.badges', 'status'])
             ->paginate(self::BOOKING_PAGINATE_COUNT);
     }
 
@@ -31,7 +32,9 @@ class BookingService
         $query = Booking::where('user_id', $userId);
 
         if ($status) {
-            $query->where('status', $status);
+            $query->whereHas('status', function ($query) use ($status) {
+                $query->where('name', $status);
+            });
         }
 
         if ($date) {
@@ -45,17 +48,17 @@ class BookingService
 
         if ($search) {
             $lowerSearch = strtolower($search);
-            $query->where(function($q) use ($lowerSearch) {
-                $q->whereHas('address.company', function($q2) use ($lowerSearch) {
+            $query->where(function ($q) use ($lowerSearch) {
+                $q->whereHas('address.company', function ($q2) use ($lowerSearch) {
                     $q2->whereRaw('LOWER(name) LIKE ?', ["%$lowerSearch%"]);
                 })
-                    ->orWhereHas('address', function($q3) use ($lowerSearch) {
+                    ->orWhereHas('address', function ($q3) use ($lowerSearch) {
                         $q3->whereRaw('LOWER(street) LIKE ?', ["%$lowerSearch%"]);
                     });
             });
         }
 
-        return $query->with(['address.company', 'address.badges'])->paginate(self::BOOKING_PAGINATE_COUNT);
+        return $query->with(['address.company', 'address.badges', 'status'])->paginate(self::BOOKING_PAGINATE_COUNT);
     }
 
     public function getAvailableStartTime(string $date, int $addressId): array
@@ -211,7 +214,17 @@ class BookingService
             'user_id' => $userWhoBooks->id,
             'total_cost' => $this->getTotalCost($startTime, $endTime, $addressId),
             'date' => $bookingDate->format('Y-m-d'),
+            'status_id' => 1, // studio is on pending after booking
         ]);
+    }
+
+    public function updateBookingStatus($bookingId, $statusId)
+    {
+        $booking = Booking::find($bookingId);
+        if ($booking) {
+            $booking->status_id = $statusId;
+            $booking->save();
+        }
     }
 
     private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime)

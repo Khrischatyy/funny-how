@@ -62,6 +62,7 @@ export default defineNuxtConfig({
       googleMapKey: process.env.GOOGLE_MAPS_API,
       googlePlacesApi: process.env.GOOGLE_PLACES_API,
       apiBase: process.env.AXIOS_BASEURL,
+      frontendUrl: process.env.AXIOS_FRONTEND,
     }
   },
   tailwindcss: {

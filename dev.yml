@@ -38,6 +38,7 @@ services:
       dockerfile: Dockerfile
       args:
         - AXIOS_BASEURL=http://127.0.0.1/api
+        - AXIOS_FRONTEND=http://127.0.0.1
         - AXIOS_BROWSER_BASEURL=/api
     expose:
       - "3000"

@@ -8,10 +8,11 @@ use App\Http\Requests\AvailableStartTimeRequest;
 use App\Http\Requests\BookingRequest;
 use App\Http\Requests\CalculatePriceRequest;
 use App\Http\Requests\FilterBookingHistoryRequest;
+use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\ReservationRequest;
 use App\Models\Booking;
 use App\Services\BookingService;
-use App\Services\SubscriptionService;
+use App\Services\PaymentService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\DB;
 
 class BookingController extends BaseController
 {
-    public function __construct(private BookingService $bookingService, private SubscriptionService $subscriptionService)
+    public function __construct(private BookingService $bookingService, private PaymentService $paymentService)
     {}
     public function getBookingHistory(): JsonResponse
     {
@@ -85,6 +86,7 @@ class BookingController extends BaseController
     public function bookAddress(BookingRequest $bookingRequest): JsonResponse
     {
         $booking = $this->bookingService->bookAddress($bookingRequest);
+
         $totalCost = $this->bookingService->getTotalCost(
             $bookingRequest->input('start_time'),
             $bookingRequest->input('end_time'),
@@ -92,9 +94,27 @@ class BookingController extends BaseController
         );
 
 
-        $session = $this->subscriptionService->makePayment($totalCost);
+        $session = $this->paymentService->makePayment($totalCost, $booking->id);
 
         return $this->sendResponse(['booking' => $booking, 'payment_session' => $session], 'Studio booked successfully');
+    }
+
+    public function paymentSuccess(PaymentRequest $request): JsonResponse
+    {
+        try {
+            $sessionId = $request->input('session_id');
+            $bookingId = $request->input('booking_id');
+
+            $result = $this->paymentService->processPaymentSuccess($sessionId, $bookingId, $this->bookingService);
+
+            if (isset($result['error'])) {
+                return $this->sendError($result['error'], 400);
+            }
+
+            return $this->sendResponse([], $result['success']);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to update booking status after payment.', 500, ['error' => $e->getMessage()]);
+        }
     }
 
     public function calculatePrice(CalculatePriceRequest $request)
