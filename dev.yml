@@ -53,3 +53,19 @@ services:
       - /usr/src/app/node_modules
     networks:
       - funny
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    container_name: swagger
+    ports:
+      - "8080:8080"
+    environment:
+      SWAGGER_JSON: /app/public/api/documentation.json
+    volumes:
+      - ./backend:/app
+    networks:
+      - funny
+
+networks:
+  funny:
+    driver: bridge
