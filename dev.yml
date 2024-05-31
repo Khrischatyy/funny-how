@@ -31,6 +31,8 @@ services:
       - funny
     env_file:
       - .env
+    command: >
+      /bin/sh -c "php artisan l5-swagger:generate"
 
   frontend:
     container_name: frontend
@@ -61,7 +63,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SWAGGER_JSON: /app/storage/api-docs/api-docs.json
+      SWAGGER_JSON: /app/storage/api-docs/documentation.json
     volumes:
       - ./backend:/app
     networks:

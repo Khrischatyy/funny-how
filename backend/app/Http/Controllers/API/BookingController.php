@@ -46,7 +46,6 @@ class BookingController extends BaseController
      *     @OA\Response(
      *         response=200,
      *         description="Bookings retrieved successfully",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Booking"))
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -91,12 +90,10 @@ class BookingController extends BaseController
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/FilterBookingHistoryRequest")
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Filtered bookings retrieved successfully",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Booking"))
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -152,7 +149,6 @@ class BookingController extends BaseController
      *     @OA\Response(
      *         response=200,
      *         description="Available start time retrieved successfully",
-     *         @OA\JsonContent(type="array", @OA\Items(type="string"))
      *     )
      * )
      */
@@ -165,39 +161,7 @@ class BookingController extends BaseController
         return $this->sendResponse($availableStartTime, 'Available start time retrieved successfully.');
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/reservation/available-end-time",
-     *     summary="Get reservation available end time",
-     *     tags={"Reservations"},
-     *     @OA\Parameter(
-     *         name="date",
-     *         in="query",
-     *         required=true,
-     *         description="Date for the reservation",
-     *         @OA\Schema(type="string", format="date")
-     *     ),
-     *     @OA\Parameter(
-     *         name="address_id",
-     *         in="query",
-     *         required=true,
-     *         description="ID of the address",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="start_time",
-     *         in="query",
-     *         required=true,
-     *         description="Start time for the reservation",
-     *         @OA\Schema(type="string", format="time")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Available end time retrieved successfully",
-     *         @OA\JsonContent(type="array", @OA\Items(type="string"))
-     *     )
-     * )
-     */
+
     public function getReservationAvailableEndTime(AvailableEndTimeRequest $request): JsonResponse
     {
         $date = $request->query('date');
@@ -209,26 +173,6 @@ class BookingController extends BaseController
         return $this->sendResponse($availableEndTime, 'Available end time retrieved successfully.');
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/bookings",
-     *     summary="Book an address",
-     *     tags={"Bookings"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/BookingRequest")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Studio booked successfully",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="booking", ref="#/components/schemas/Booking"),
-     *             @OA\Property(property="payment_session", type="string")
-     *         )
-     *     )
-     * )
-     */
     public function bookAddress(BookingRequest $bookingRequest): JsonResponse
     {
         $booking = $this->bookingService->bookAddress($bookingRequest);

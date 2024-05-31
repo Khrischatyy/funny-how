@@ -32,7 +32,7 @@ return [
                 /*
                  * File name of the generated json documentation file
                 */
-                'docs_json' => 'api/documentation.json',
+                'docs_json' => 'documentation.json',
 
                 /*
                  * File name of the generated YAML documentation file
