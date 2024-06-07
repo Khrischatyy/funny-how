@@ -5,6 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @OA\Info(
+ *     title="Funny How Documentation API",
+ *     version="1.0.0"
+ * )
+ */
+
 class BaseController extends Controller
 {
     public function sendResponse($result, $message, $code = 200): \Illuminate\Http\JsonResponse

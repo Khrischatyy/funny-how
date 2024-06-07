@@ -27,14 +27,14 @@ class OperatingHoursSeeder extends Seeder
             [
                 'address_id' => 1,
                 'mode_id' => 3,
-                'day_of_week' => 6,
+                'day_of_week' => 0,
                 'open_time' => '11:00',
                 'close_time' => '17:00'
             ],
             [
                 'address_id' => 1,
                 'mode_id' => 3,
-                'day_of_week' => 7,
+                'day_of_week' => 6,
                 'open_time' => '11:00',
                 'close_time' => '17:00'
             ],

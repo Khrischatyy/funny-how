@@ -31,8 +31,6 @@ services:
       - funny
     env_file:
       - .env
-    command: >
-      /bin/sh -c "php artisan l5-swagger:generate"
 
   frontend:
     container_name: frontend

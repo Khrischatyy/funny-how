@@ -30,8 +30,6 @@ use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
 |
 */
 
-// TODO переделать роуты в соответствии REST спецификацией
-
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('auth')->group(function () {
 
@@ -72,13 +70,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('{address_id}/badge', [BadgeController::class, 'setAddressBadge']);
 
         //prices
-        Route::get('{address_id}/prices', [AddressController::class, 'getAddressPrices']);
         Route::post('{address_id}/prices', [AddressController::class, 'createOrUpdateAddressPrice']);
-        Route::delete('/prices', [AddressController::class, 'deleteAddressPrices']);
-        Route::get('/{address_id}/prices', [AddressController::class, 'getAddressPrices'])->where('address_id', '[0-9]+');
+        Route::delete('prices', [AddressController::class, 'deleteAddressPrices']);
+        Route::get('{address_id}/prices', [AddressController::class, 'getAddressPrices'])->where('address_id', '[0-9]+');
 
         //equipments
-        Route::get('/{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
+        Route::get('{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
 
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
@@ -93,8 +90,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
     });
 
-    //admin panel
-    ///history
     Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');
     Route::post('history/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'history');
 
@@ -102,27 +97,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('booking-management/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'future');
 
     Route::get('menu', [MenuController::class, 'getMenu']);
-    //bookings
 
-
-    Route::get('studios', [AddressController::class, 'getMyStudios'])->middleware('role:studio_owner');
-//    Route::get('settings/profile', [RegisteredUserController::class, 'updateProfile']);
-
-    Route::get('/company/{slug}', [CompanyController::class, 'getCompany']);
-    Route::get('/operation-modes', [OperatingHourController::class, 'getOperationModes']);
-    Route::post('/brand', [AddressController::class, 'createBrand']); // company + address created
+    Route::get('company/{slug}', [CompanyController::class, 'getCompany']);
+    Route::get('operation-modes', [OperatingHourController::class, 'getOperationModes']);
+    Route::post('brand', [AddressController::class, 'createBrand']); // company + address created
 });
 
-//book address page
 Route::prefix('countries')->group(function () {
     Route::get('/', [CountryController::class, 'getCountries']);
-    Route::get('/{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
+    Route::get('{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 });
 
-Route::get('/companies/{city_id}', [CompanyController::class, 'getCompaniesByCityId'])->where('cityId', '[0-9]+');
-Route::get('/city/{city_id}/studios', [AddressController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');
-
-
-//subscription
-//    Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
-//    Route::get('register/company/{slug}', [CompanyController::class, 'getRegisterCompany'])->middleware('role:studio_owner');
+Route::get('city/{city_id}/studios', [AddressController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');

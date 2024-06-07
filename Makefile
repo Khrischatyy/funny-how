@@ -62,7 +62,14 @@ route:
 tinker:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan tinker"
 
+swagger:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan l5-swagger:generate"
 
+scribe:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan scribe:generate"
+
+#user:
+#	@docker exec -it --user www-data nginx /bin/sh
 
 # PROD
 

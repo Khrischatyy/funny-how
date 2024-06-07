@@ -126,10 +126,13 @@ class BookingService
 
         $operatingHours = $this->getOperatingHours($addressId, $date);
 
-        $openTime = $date->copy()->setTimeFromTimeString($operatingHours->open_time);
-        $closeTime = $date->copy()->setTimeFromTimeString($operatingHours->close_time);
+        // Extract the time portion only
+        $openTime = Carbon::createFromFormat('H:i:s', $operatingHours->open_time);
+        $closeTime = Carbon::createFromFormat('H:i:s', $operatingHours->close_time);
+        $startTimeOnly = Carbon::createFromFormat('H:i:s', $startTime->format('H:i:s'));
 
-        if ($startTime->lt($openTime) || $startTime->gte($closeTime)) {
+        // Compare times without date
+        if ($startTimeOnly->lt($openTime) || $startTimeOnly->gte($closeTime)) {
             throw new BookingException('Start time is outside of operating hours', 422);
         }
 

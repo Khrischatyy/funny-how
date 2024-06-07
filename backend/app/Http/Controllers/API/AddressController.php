@@ -10,6 +10,7 @@ use App\Models\Address;
 use App\Models\AddressPrice;
 use App\Models\Country;
 use App\Repositories\AddressRepository;
+use App\Services\AddressService;
 use App\Services\CityService;
 use App\Services\CompanyService;
 use Exception;
@@ -21,11 +22,69 @@ use Illuminate\Http\Request;
 class AddressController extends BaseController
 {
     public function __construct(public AddressRepository $addressRepository,
+                                public AddressService $addressService,
                                 public CityService $cityService,
                                 public CompanyService $companyService)
     {}
 
-
+    /**
+     * @OA\Get(
+     *     path="/city/{city_id}/studios",
+     *     tags={"Find By Place"},
+     *     summary="Get list of studios by city ID",
+     *     @OA\Parameter(
+     *         name="city_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer"),
+     *         description="The ID of the city"
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Addresses retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=2),
+     *                     @OA\Property(property="latitude", type="string", example="20.5320636"),
+     *                     @OA\Property(property="longitude", type="string", example="44.792424"),
+     *                     @OA\Property(property="street", type="string", example="Mirijevski Venac 4"),
+     *                     @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
+     *                     @OA\Property(property="city_id", type="integer", example=1),
+     *                     @OA\Property(property="company_id", type="integer", example=1),
+     *                     @OA\Property(property="company", type="object",
+     *                         @OA\Property(property="id", type="integer", example=1),
+     *                         @OA\Property(property="name", type="string", example="Section"),
+     *                         @OA\Property(property="logo", type="string", example="https://funny-how-s3-bucket.s3.amazonaws.com/public/images/9zS6zSlP3k1CvojwujRUyKOLnjOBp5jWbV6nhZI9.jpg"),
+     *                         @OA\Property(property="slug", type="string", example="section"),
+     *                         @OA\Property(property="founding_date", type="string", format="date", example="2020-12-10"),
+     *                         @OA\Property(property="rating", type="string", example="9.7"),
+     *                         @OA\Property(property="created_at", type="string", nullable=true, example=null),
+     *                         @OA\Property(property="updated_at", type="string", nullable=true, example=null)
+     *                     ),
+     *                     @OA\Property(property="badges", type="array",
+     *                         @OA\Items(type="object",
+     *                             @OA\Property(property="id", type="integer", example=3),
+     *                             @OA\Property(property="name", type="string", example="rent"),
+     *                             @OA\Property(property="image", type="string", example="public/badges/rent.svg"),
+     *                             @OA\Property(property="pivot", type="object",
+     *                                 @OA\Property(property="address_id", type="integer", example=2),
+     *                                 @OA\Property(property="badge_id", type="integer", example=3)
+     *                             )
+     *                         )
+     *                     )
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Addresses retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="No addresses found in the specified city"),
+     *     @OA\Response(response="500", description="Failed to retrieve addresses")
+     * )
+     */
     public function getAddressesInCity(int $cityId): JsonResponse
     {
         try {
@@ -41,6 +100,45 @@ class AddressController extends BaseController
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/brand",
+     *     summary="Create a new brand (company and address)",
+     *     tags={"Brand"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"street", "city", "country", "longitude", "latitude", "company"},
+     *             @OA\Property(property="street", type="string", example="Газетный переулок"),
+     *             @OA\Property(property="city", type="string", example="Москва"),
+     *             @OA\Property(property="country", type="string", example="Россия"),
+     *             @OA\Property(property="longitude", type="number", format="float", example=37.609337),
+     *             @OA\Property(property="latitude", type="number", format="float", example=55.758972),
+     *             @OA\Property(property="logo", type="string", format="binary", description="Company logo"),
+     *             @OA\Property(property="company", type="string", example="Section")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Company and address added",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="name", type="string", example="Sectionss"),
+     *                 @OA\Property(property="logo", type="string", nullable=true, example=null),
+     *                 @OA\Property(property="slug", type="string", example="sectionss"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-07T10:22:34.000000Z"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-07T10:22:34.000000Z"),
+     *                 @OA\Property(property="id", type="integer", example=3)
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Company and address added"),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="422", description="Unprocessable Entity")
+     * )
+     */
     public function createBrand(AddressRequest $addressRequest): JsonResponse
     {
 
@@ -48,76 +146,47 @@ class AddressController extends BaseController
 
         $company = $this->companyService->createNewCompany($addressRequest);
 
-        $address = $this->createAddress($addressRequest, $city, $company);
+        $address = $this->addressService->createAddress($addressRequest, $city, $company);
 
         $this->addDefaultHours($address->id);
 
         return $this->sendResponse($company, 'Company and address added');
     }
 
-    public function createAddress(AddressRequest $addressRequest, $city, $company)
-    {
-        return Address::create([
-            'street' => $addressRequest->street,
-            'longitude' => $addressRequest->longitude,
-            'latitude' => $addressRequest->latitude,
-            'city_id' => $city->id,
-            'company_id' => $company->id,
-        ]);
-    }
-
     /**
-     * Add a default price/hours (1hour/60$) to address
-     *
-     * @param int $address_id
-     * @return Address | JsonResponse
-     */
-    private function addDefaultHours(int $address_id): Address | JsonResponse
-    {
-        try {
-            $address = Address::findOrFail($address_id);
-
-            // Set price for 1 hour at $60
-            $address->prices()->create([
-                'address_id' => $address_id,
-                'hours' => 1,
-                'total_price' => 60.00,
-                'price_per_hour' => 60.00
-            ]);
-
-            return $address;
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError('Address not found.', 404);
-        } catch (Exception $e) {
-            return $this->sendError('Failed to add price.', 500, ['error' => $e->getMessage()]);
-        }
-    }
-
-//    public function getAddressBadges($address_id): JsonResponse
-//    {
-//        try {
-//            // Find the address
-//            $address = Address::with('badges')->findOrFail($address_id);
-//
-//            // Generate the S3 URLs for the badges
-//            $badges = $address->badges->map(function ($badge) {
-//                $badge->image_url = Storage::disk('s3')->url($badge->image);
-//                return $badge;
-//            });
-//
-//
-//
-//            return $this->sendResponse($badges, 'Badges retrieved successfully.');
-//        } catch (Exception $e) {
-//            return $this->sendError('Failed to retrieve badges.', 500, ['error' => $e->getMessage()]);
-//        }
-//    }
-
-    /**
-     * Get studio prices for a specific address.
-     *
-     * @param int $address_id
-     * @return JsonResponse
+     * @OA\Get(
+     *     path="/address/{address_id}/prices",
+     *     summary="Get prices for an address",
+     *     tags={"Prices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer"),
+     *         description="The ID of the address"
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Prices updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="hours", type="integer", example=1),
+     *                     @OA\Property(property="total_price", type="number", format="float", example=60.00),
+     *                     @OA\Property(property="price_per_hour", type="number", format="float", example=60.00),
+     *                     @OA\Property(property="is_enabled", type="boolean", example=true)
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Prices updated successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Address not found"),
+     *     @OA\Response(response="500", description="Failed to retrieve prices")
+     * )
      */
     public function getAddressPrices($address_id): JsonResponse
     {
@@ -132,10 +201,50 @@ class AddressController extends BaseController
     }
 
     /**
-     * Update studio prices for a specific address.
-     *
-     * @param AddressPricesRequest $request
-     * @return JsonResponse
+     * @OA\Post(
+     *     path="/address/{address_id}/prices",
+     *     summary="Create or update prices for an address",
+     *     tags={"Prices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer"),
+     *         description="The ID of the address"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"hours", "total_price", "is_enabled"},
+     *             @OA\Property(property="hours", type="integer", example=1),
+     *             @OA\Property(property="total_price", type="number", format="float", example=60.00),
+     *             @OA\Property(property="is_enabled", type="boolean", example=true),
+     *             @OA\Property(property="address_price_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Prices updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="address_id", type="integer", example=1),
+     *                     @OA\Property(property="hours", type="integer", example=1),
+     *                     @OA\Property(property="is_enabled", type="boolean", example=true),
+     *                     @OA\Property(property="total_price", type="string", example="50.00"),
+     *                     @OA\Property(property="price_per_hour", type="string", example="50.00")
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Prices updated successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Address or price entry not found"),
+     *     @OA\Response(response="500", description="Failed to update prices")
+     * )
      */
     public function createOrUpdateAddressPrice(AddressPricesRequest $request, int $address_id): JsonResponse
     {
@@ -182,10 +291,41 @@ class AddressController extends BaseController
     }
 
     /**
-     * Remove studio prices for a specific address.
-     *
-     * @param int $price_id
-     * @return JsonResponse
+     * @OA\Delete(
+     *     path="/address/prices",
+     *     summary="Delete a price for an address",
+     *     tags={"Prices"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"address_id", "address_prices_id"},
+     *             @OA\Property(property="address_id", type="integer", example=1),
+     *             @OA\Property(property="address_prices_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Price deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=2),
+     *                     @OA\Property(property="address_id", type="integer", example=1),
+     *                     @OA\Property(property="hours", type="integer", example=4),
+     *                     @OA\Property(property="is_enabled", type="boolean", example=true),
+     *                     @OA\Property(property="total_price", type="string", example="80.00"),
+     *                     @OA\Property(property="price_per_hour", type="string", example="20.00")
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Studio price deleted successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Price not found for the given address"),
+     *     @OA\Response(response="500", description="Failed to delete price")
+     * )
      */
     public function deleteAddressPrices(AddressPriceDeleteRequest $request): JsonResponse
     {
@@ -205,6 +345,33 @@ class AddressController extends BaseController
             return $this->sendError('Price not found for the given address.', 404);
         } catch (Exception $e) {
             return $this->sendError('Failed to delete studio price.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Add a default price/hours (1hour/60$) to address
+     *
+     * @param int $address_id
+     * @return Address | JsonResponse
+     */
+    private function addDefaultHours(int $address_id): Address | JsonResponse
+    {
+        try {
+            $address = Address::findOrFail($address_id);
+
+            // Set price for 1 hour at $60
+            $address->prices()->create([
+                'address_id' => $address_id,
+                'hours' => 1,
+                'total_price' => 60.00,
+                'price_per_hour' => 60.00
+            ]);
+
+            return $address;
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to add price.', 500, ['error' => $e->getMessage()]);
         }
     }
 }

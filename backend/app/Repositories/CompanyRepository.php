@@ -9,7 +9,7 @@ class CompanyRepository
 {
     public function getCompanyBySlug(string $slug)
     {
-        $company = Company::where('slug', $slug)
+        $company = Company::where('slug', mb_strtolower($slug))
             ->with(['addresses.badges' => function ($query) {
                 $query->select(['badges.*']);
             }])

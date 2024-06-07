@@ -17,6 +17,6 @@ class AddressPrice extends Model
     }
 
     public function company() {
-
+        return $this->belongsTo(Company::class, 'address_id');
     }
 }
