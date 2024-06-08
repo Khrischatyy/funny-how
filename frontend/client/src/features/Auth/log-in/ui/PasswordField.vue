@@ -23,7 +23,7 @@
 import { IconEye, IconEyeClosed, VInput } from 'shared/ui/common'
 import { ref, watchEffect } from 'vue'
 import Localization from './PasswordField.localization.json'
-import { useTranslation } from 'shared/lib/i18n'
+// import { useTranslation } from 'shared/lib/i18n'
 
 const { t } = useTranslation(Localization)
 

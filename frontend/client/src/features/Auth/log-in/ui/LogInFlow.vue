@@ -62,7 +62,7 @@ import { VDialog, VInput, VCheckbox, VButton, ButtonSizeEnum } from 'shared/ui/c
 import { BrandingLogo } from 'shared/ui/branding'
 import { ref } from 'vue'
 import PasswordField from './PasswordField.vue'
-import { useTranslation } from 'shared/lib/i18n'
+// import { useTranslation } from 'shared/lib/i18n'
 import { useAuthorization } from '../model'
 import Localization from './LogInFlow.localization.json'
 import { navigateTo } from 'nuxt/app'

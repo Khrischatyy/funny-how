@@ -15,6 +15,9 @@ export default {
     './error.vue',
   ],
 	theme: {
+	container: {
+
+	},
 	borderRadius: {
 		none: '0',
 		sm: '.3rem',
@@ -68,7 +71,8 @@ export default {
 			},
 			yellow: {
 				DEFAULT: '#EBBA0C'
-			}
+			},
+			'custom-gray': '#171717',
 		},
 		boxShadow: {
 			DEFAULT: '0px 4px 25px 0px rgba(0, 0, 0, 0.08)'

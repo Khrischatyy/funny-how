@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useTranslation } from 'shared/lib/i18n'
+// import { useTranslation } from 'shared/lib/i18n'
 import Localization from './localization.json'
 
 const { t } = useTranslation(Localization)
