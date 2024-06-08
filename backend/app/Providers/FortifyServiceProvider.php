@@ -6,6 +6,7 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Models\AdminCompany;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class FortifyServiceProvider extends ServiceProvider
                         "message" => "You are successfully logged in",
                         "token" => $user->createToken($request->email)->plainTextToken,
                         "role" => $user->getRoleNames()->first(),
+                        "has_company" => AdminCompany::where('admin_id', $user->id)->exists(),
                     ], 200);
                 }
                 return redirect()->intended(Fortify::redirects('login'));
