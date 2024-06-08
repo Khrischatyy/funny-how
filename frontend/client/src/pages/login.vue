@@ -184,7 +184,7 @@ function authForm() {
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBase}/v1/auth/login`,
+    url: `${config.public.apiBase}/auth/login`,
     data: getFormValues('auth'),
     headers: {
       'Accept': 'application/json'

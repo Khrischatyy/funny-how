@@ -2,7 +2,7 @@
   <div class="text-white flex flex-col min-h-screen">
     <Header />
     <div class="flex flex-1 overflow-hidden">
-      <SideMenu class=""/>
+      <SideMenu class="w-64"/>
       <div class="flex-1 overflow-auto">
         <div class="container mx-auto px-2 sm:px-4 py-6 pt-16 lg:pt-6">
           <div class="mb-6">

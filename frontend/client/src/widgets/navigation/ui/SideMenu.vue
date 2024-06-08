@@ -12,14 +12,24 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { getSideMenu } from '~/src/widgets/navigation/api/useSideMenu';
 
 const isOpen = ref(false);
+const sideMenu = ref(null);
 
 const toggleMenu = () => {
   isOpen.value = !isOpen.value;
 };
+
+onMounted(async () => {
+  try {
+    sideMenu.value = await getSideMenu();
+  } catch (error) {
+    console.error('Failed to fetch side menu:', error);
+  }
+});
 
 defineExpose({ toggleMenu });
 </script>

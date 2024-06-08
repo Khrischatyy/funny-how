@@ -40,15 +40,15 @@ services:
       args:
         - AXIOS_BASEURL=http://127.0.0.1/api
         - AXIOS_FRONTEND=http://127.0.0.1
-        - AXIOS_BROWSER_BASEURL=/api
+        - AXIOS_BROWSER_BASEURL=/api/v1
     expose:
       - "3000"
     ports:
       - "3000:3000"
     command: "npm run dev"
     environment:
-      - AXIOS_BASEURL=http://127.0.0.1/api
-      - AXIOS_BROWSER_BASEURL=/api
+      - AXIOS_BASEURL=http://127.0.0.1
+      - AXIOS_API_VERSION=/api/v1
     volumes:
       - ./frontend/client:/usr/src/app
       - /usr/src/app/node_modules

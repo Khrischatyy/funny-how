@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath, URL } from 'url'
+// @ts-ignore
 export default defineNuxtConfig({
   security: {
     headers: {
@@ -61,8 +62,7 @@ export default defineNuxtConfig({
     public: {
       googleMapKey: process.env.GOOGLE_MAPS_API,
       googlePlacesApi: process.env.GOOGLE_PLACES_API,
-      apiBase: process.env.AXIOS_BASEURL,
-      frontendUrl: process.env.AXIOS_FRONTEND,
+      apiBase: process.env.AXIOS_BASEURL ? process.env.AXIOS_BASEURL + process.env.AXIOS_API_VERSION : '',
     }
   },
   tailwindcss: {
