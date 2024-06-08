@@ -84,6 +84,9 @@ export const useSessionStore = defineStore({
 				localStorage.removeItem(USER_INFO_KEY)
 				localStorage.removeItem(ACCESS_TOKEN_KEY)
 				localStorage.removeItem(ROLE_INFO_KEY)
+				localStorage.removeItem(BRAND_KEY)
+				localStorage.removeItem(RESERVES_KEY)
+				localStorage.removeItem(PAYMENT_SESSION)
 			}
 			this.isAuthorized = isAuthorized
 		},

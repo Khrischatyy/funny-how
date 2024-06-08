@@ -7,16 +7,16 @@ import {BrandingLogoSmall} from "~/src/shared/ui/branding";
 import {useRoute} from "nuxt/app";
 import {type StudioFormValues, useCreateStudioFormStore} from "~/src/entities/RegistrationForms";
 import {IconDown, IconMic} from "~/src/shared/ui/common";
-import axios from "axios";
 import GoogleMap from "~/src/widgets/GoogleMap.vue";
-import {DatePicker, TimePicker} from "~/src/features/DatePicker";
-import SelectPicker from "~/src/features/DatePicker/ui/SelectPicker.vue";
-import {TimeSelect} from "~/src/widgets";
+import { SelectPicker } from "~/src/features/DatePicker";
+import { TimeSelect } from "~/src/widgets";
+import {useNuxtApp} from "#app";
 
 definePageMeta({
   middleware: ["auth"],
 })
 const route = useRoute();
+const { $axios } = useNuxtApp();
 
 useHead({
   title: 'Dashboard | '+ route.params.slug,
@@ -67,7 +67,7 @@ onMounted(async () => {
 
 async function getStartSlots() {
   const config = useRuntimeConfig()
-  const start_slots = await axios.get(`${config.public.apiBase}/v1/address/reservation/start-time?address_id=1&date=${rentingForm.value.date}`);
+  const start_slots = await $axios.get(`${config.public.apiBase}/v1/address/reservation/start-time?address_id=1&date=${rentingForm.value.date}`);
   if (start_slots.data.success) {
     hoursAvailableStart.value = start_slots.data.data;
   }
@@ -75,7 +75,7 @@ async function getStartSlots() {
 
 async function getEndSlots(start_time: string) {
   const config = useRuntimeConfig()
-  const end_slots = await axios.get(`${config.public.apiBase}/v1/address/reservation/end-time?address_id=1&date=${rentingForm.value.date}&start_time=${start_time}`);
+  const end_slots = await $axios.get(`${config.public.apiBase}/v1/address/reservation/end-time?address_id=1&date=${rentingForm.value.date}&start_time=${start_time}`);
   console.log('end_slots', end_slots.data.data)
   if (end_slots.data.success) {
     hoursAvailableEnd.value = end_slots.data.data;
@@ -99,8 +99,6 @@ function processAvailableHoursStart() {
   });
   return Array.from(hoursSet).map(hour => hour.toString().padStart(2, '0'));
 }
-
-
 
 export type reservationResponse = {
   address_id: number,
@@ -133,8 +131,8 @@ function book(){
       end_time: rentingForm.value.end_time,
     }
   };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
+  $axios.defaults.headers.common['X-Api-Client'] = `web`
+  $axios.request(requestConfig)
       .then((response) => {
         //responseQuote
 // "address_id": 2,
@@ -176,8 +174,8 @@ function getAddressId(){
       'Authorization': 'Bearer ' + useSessionStore().accessToken
     }
   };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
+  $axios.defaults.headers.common['X-Api-Client'] = `web`
+  $axios.request(requestConfig)
       .then((response) => {
         console.log('response', response.data.data)
         brand.value = response.data.data;
@@ -269,7 +267,7 @@ function signOut() {
 
             Street: {{address.street}}<br/>
           </div>
-          <GoogleMap :logo="brand.logo_url" :lat="address.latitude" :lng="address.longitude"/>
+          <GoogleMap class="h-[300px]" :logo="brand.logo_url" :lat="address.latitude" :lng="address.longitude"/>
           <div class="w-96 justify-between gap-1.5 mt-10 items-center inline-flex mb-10 text-center">
             <h2 class="text-white text-xxl font-bold text-center tracking-wide">
               Badges
