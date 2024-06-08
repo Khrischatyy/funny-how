@@ -12,6 +12,12 @@
 
 $font-path: '~/src/shared/assets/fonts/Roboto/';
 $font-path-mazzard: '~/src/shared/assets/fonts/Mazzard/';
+$font-path-impact: '~/src/shared/assets/fonts/Impact/Impact';
+$font-path-montserrat: '~/src/shared/assets/fonts/Montserrat/';
+$font-path-bebas: '~/src/shared/assets/fonts/BebasNeue/BebasNeue';
+
+$italic-path-montserrat: $font-path-montserrat + 'Italic/Montserrat-Italic';
+$rergular-path-montserrat: $font-path-montserrat + '/Montserrat';
 
 $bold-path: 			$font-path + 'Bold/Roboto-Bold';
 $bold-italic-path:		$font-path + 'BoldItalic/Roboto-BoldItalic';
@@ -30,6 +36,11 @@ $extra-light-path-mazzard:			$font-path-mazzard + 'ExtraLight/MazzardM-ExtraLigh
 $regular-path-mazzard:				$font-path-mazzard + 'Regular/MazzardM-Regular';
 $medium-path-mazzard:				$font-path-mazzard + 'Medium/MazzardM-Medium';
 
+
+@include use-font(Impact, $font-path-impact, 400, normal);
+@include use-font(Montserrat, $font-path-montserrat, 400, normal);
+@include use-font(Montserrat, $italic-path-montserrat, 400, italic);
+@include use-font(BebasNeue, $font-path-bebas, 400, normal);
 
 @include use-font(Roboto, $bold-path, 700, normal);
 @include use-font(Roboto, $bold-italic-path, 700, italic);

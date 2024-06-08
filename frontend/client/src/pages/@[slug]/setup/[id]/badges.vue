@@ -222,11 +222,20 @@ function signOut() {
         <BrandingLogo class="mb-20"/>
         <div class="animate__animated animate__fadeInRight">
           <div class="breadcrumbs mb-10 text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
+            <icon-elipse :class="'opacity-20'" class="h-4"/>
+            <router-link :class="'opacity-20'" :to="`/@${route.params.slug}/setup/${route.params.id}/hours`">
+              Setup Hours
+            </router-link>
+            <icon-line :class="'opacity-20'" class="h-2 only-desktop"/>
             <icon-elipse :class="'opacity-100'" class="h-4"/>
-            <button :class="'opacity-100'"> Add Studio</button>
+            <router-link :class="'opacity-100'" :to="`/@${route.params.slug}/setup/${route.params.id}/badges`">
+              Setup Badges
+            </router-link>
             <icon-line :class="'opacity-100'" class="h-2 only-desktop"/>
             <icon-elipse :class="'opacity-20'" class="h-4"/>
-            <button :class="'opacity-20'" > Price Plans </button>
+            <router-link :class="'opacity-20'" :to="`/@${route.params.slug}/setup/${route.params.id}/prices`">
+              Setup Prices
+            </router-link>
           </div>
         </div>
 

@@ -36,12 +36,12 @@ const props = defineProps({
 const openTemp = ref(false);
 
 const emit = defineEmits(['timeChange']);
-const hours = computed(() => props.availableHours);
+const hours = computed(() => processAvailableHours());
 const periods = ['AM', 'PM'];
 
 
-const selectedHour = ref(parseInt(props.time?.split(':')[0]) % 12 || 12);
-const selectedPeriod = ref(parseInt(props.time?.split(':')[0]) >= 12 ? 'PM' : 'AM');
+const selectedHour = ref(parseInt(hours[0]?.split(':')[0]) % 12 || 12);
+const selectedPeriod = ref(parseInt(periods[0]?.split(':')[0]) >= 12 ? 'PM' : 'AM');
 const route = useRoute();
 
 
@@ -53,13 +53,9 @@ watch(() => props.time, (newTime) => {
 
 function processAvailableHours() {
   const hoursSet = new Set();
-  props.availableHours.forEach(slot => {
-    const startHour = parseInt(slot.start_time.split(':')[0]);
-    const endHour = parseInt(slot.end_time.split(':')[0]);
-
-    for (let hour = startHour; hour <= endHour; hour++) {
-      hoursSet.add(hour % 12 || 12); // Convert to 12-hour format
-    }
+  if(props.availableHours.length === 0) return Array.from(hoursSet).map(hour => hour.toString().padStart(2, '0'));
+  props.availableHours.forEach(time => {
+      hoursSet.add(time.split(':')[0] % 12 || 12); // Convert to 12-hour format
   });
   return Array.from(hoursSet).map(hour => hour.toString().padStart(2, '0'));
 }
@@ -67,9 +63,10 @@ function processAvailableHours() {
 const dragging = (isDragging) => {
   emit('dragging', isDragging);
 };
-const hourChanged = (type, changedData) => {
-  selectedHour.value = parseInt(changedData);
-  emit('timeChange', formatTime(selectedHour.value, selectedPeriod.value));
+const hourChanged = (type, changedDataIndex) => {
+  console.log('changedDataIndex', changedDataIndex);
+  selectedHour.value = props.availableHours[changedDataIndex-1];
+  emit('timeChange', );
 };
 
 const periodChanged = (type, changedData) => {

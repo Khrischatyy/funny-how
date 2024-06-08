@@ -51,26 +51,40 @@ const rentingForm = ref({
 const today = new Date();
 const tomorrow = new Date();
 tomorrow.setDate(today.getDate() + 1);
-const hoursAvailableStart = computed(() => processAvailableHours());
-const hoursAvailableEnd = computed(() => processAvailableHours());
+const hoursAvailableStart = ref([]);
+const hoursAvailableEnd = ref([]);
 const rentingList = [{name: 'today', date: ''}, {name: 'tomorrow', date: ''}, {name: 'another-day', date: 'another-day'}];
 rentingList[0].date = today.toISOString().split('T')[0];
 rentingList[1].date = tomorrow.toISOString().split('T')[0];
-const availableHours = ref([]); // Store available hours
 onMounted(async () => {
   const config = useRuntimeConfig()
   getAddressId()
   session.value = useSessionStore()
   rentingForm.value.date = rentingList[0].date
 
-  const response = await axios.get(`${config.public.apiBase}/v1/address/reservations?address_id=1&date=2024-05-27`);
-  if (response.data.success) {
-    availableHours.value = response.data.data;
-  }
-  console.log('availableHours', availableHours.value);
+  await getStartSlots()
 })
 
-function processAvailableHours() {
+async function getStartSlots() {
+  const config = useRuntimeConfig()
+  const start_slots = await axios.get(`${config.public.apiBase}/v1/address/reservation/start-time?address_id=1&date=${rentingForm.value.date}`);
+  if (start_slots.data.success) {
+    hoursAvailableStart.value = start_slots.data.data;
+  }
+}
+
+async function getEndSlots(start_time: string) {
+  const config = useRuntimeConfig()
+  const end_slots = await axios.get(`${config.public.apiBase}/v1/address/reservation/end-time?address_id=1&date=${rentingForm.value.date}&start_time=${start_time}`);
+  console.log('end_slots', end_slots.data.data)
+  if (end_slots.data.success) {
+    hoursAvailableEnd.value = end_slots.data.data;
+  }
+  console.log('availableHours', hoursAvailableEnd.value);
+
+}
+
+function processAvailableHoursStart() {
   const hoursSet = new Set();
   availableHours.value.forEach(slot => {
     const startHour = parseInt(slot.start_time.split(':')[0]);
@@ -205,6 +219,13 @@ function dateChanged(newDate: DateReponse, input: keyof StudioFormValues) {
 }
 
 function timeChanged(newDate: string, input: keyof StudioFormValues) {
+  console.log('Time changed:', newDate, input);
+  if(input == 'start_time'){
+    rentingForm.value[input] = newDate;
+    getEndSlots(newDate)
+    return
+  }
+
   rentingForm.value[input] = newDate;
 
 }

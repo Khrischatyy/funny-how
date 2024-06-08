@@ -118,7 +118,7 @@ function signOut() {
             <button :class="'opacity-100'"> Add Studio</button>
             <icon-line :class="'opacity-100'" class="h-2 only-desktop" />
             <icon-elipse :class="'opacity-20'" class="h-4" />
-            <button :class="'opacity-20'"> Price Plans </button>
+            <button :class="'opacity-20'"> Setup Hours </button>
           </div>
         </div>
 

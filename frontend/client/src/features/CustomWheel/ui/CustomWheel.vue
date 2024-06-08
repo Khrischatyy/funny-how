@@ -69,7 +69,6 @@ const onMouseMove = (event) => {
 
   const maxPosition = -props.data.length * 50;
   position.value = Math.max(maxPosition, Math.min(50, position.value + offset.value));
-  console.log('position', position.value);
   previousY = event.touches ? event.touches[0].clientY : event.clientY;
 };
 
