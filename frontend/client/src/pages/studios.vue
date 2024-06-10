@@ -35,13 +35,39 @@ function signOut() {
 </script>
 
 <template>
-  <div class="ease-in-out min-h-[100vh] w-full h-full flex flex-col gap-10 items-center justify-center">
+  <div class=" container ease-in-out min-h-[100vh] w-full h-full flex flex-col gap-10 items-center justify-center">
+    <header class="flex justify-between items-center p-4">
       <BrandingLogo/>
-    <div class="w-96">
-      <div class="input border-double relative">
-        <input type="text" class="border-double outline-0 w-full h-full relative focus:border-white border border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
+      <button class="flex items-center space-x-2">
+        <span class="text-white uppercase bold text-4xl">Sign In</span>
+        <img src="./studiosIcons/user 1.svg" alt="Sign In Icon" />
+      </button>
+    </header>
+
+    <main>
+      <button class="flex items-stretch">
+        <span class="text-white uppercase bold text-3xl">Pick it in the map</span>
+        <img src="./studiosIcons/image 3.svg" alt="Pck it in the map Icon" />
+      </button>
+      <div class="flex flex-col">
+        <form class="border border-white">
+          <label for="countries" class="text-white bold capitalize">Country</label>
+          <option></option>
+        </form>
+        <form class="border border-white">
+          <label for="cities" class="text-white bold capitalize">City</label>
+          <option></option>
+        </form>
+        <button class="block border border-white">
+          <span class="text-white bold capitalize inline">Search</span>
+          <img src="./studiosIcons/- 1.png" alt="Search icon" class="inline">
+        </button>
       </div>
-    </div>
+    </main>
+
+    <footer>
+
+    </footer>
   </div>
 </template>
 
