@@ -9,6 +9,7 @@ import {FSelect} from "~/src/entities/RegistrationForms/ui";
 import {IconMic} from "~/src/shared/ui/common";
 import IconHeadphones from "~/src/shared/ui/common/Icon/IconHeadphones.vue";
 import IconMonitor from "~/src/shared/ui/common/Icon/IconMonitor.vue";
+import {StudioCard} from "~/src/entities/Studio";
 
 
 useHead({
@@ -34,6 +35,14 @@ function signOut() {
   session.value.logout()
 }
 
+const studios = ref([
+  { id: 1, logo: '/logo.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
+  { id: 2, logo: '/logo.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
+  { id: 3, logo: '/logo.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
+  { id: 1, logo: '/logo.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
+  { id: 2, logo: '/logo.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
+  { id: 3, logo: '/logo.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
+]);
 </script>
 
 <template>
@@ -44,39 +53,8 @@ function signOut() {
       <FSelect class="font-[BebasNeue]" label="City" @change="value => {console.log(value)}" :options="['123', '234']"/>
       <FSelect class="font-[BebasNeue]" label="Search" @change="value => {console.log(value)}" :options="['123', '234']"/>
   </div>
-  <div class="flex gap-10 studio-cards">
-
-    <div class="bg-neutral-900 px-7 py-10 rounded-[20px] border-2 border-white border-dashed flex-col justify-start items-center gap-[30px] inline-flex">
-      <img class="max-w-[161px] max-h-[161px] object-contain" src="/logo.png" />
-      <div class="font-[BebasNeue] text-center text-white text-2xl font-normal">Death Row Records Studio</div>
-      <div class="text-center">
-        <span class="text-white text-2xl font-normal uppercase font-['BebasNeue']">
-        Rating:
-        </span>
-        <span class="text-red-500 text-2xl font-normal font-['BebasNeue']">5.3</span>
-      </div>
-      <div class="justify-start items-start gap-[31px] inline-flex">
-        <div class="flex-col justify-start items-center gap-[5px] inline-flex">
-          <div class="w-[31px] h-[31px] relative flex justify-center">
-            <IconMic/>
-          </div>
-          <div class="text-center text-white text-sm font-normal font-['BebasNeue']">record</div>
-        </div>
-        <div class="flex-col justify-start items-center gap-[5px] inline-flex">
-          <div class="w-[31px] h-[31px] relative">
-            <IconMonitor/>
-          </div>
-          <div class="text-center text-white text-sm font-normal font-['BebasNeue']">rent</div>
-        </div>
-        <div class="flex-col justify-start items-start gap-[5px] inline-flex">
-          <div class="w-[31px] h-[31px] relative">
-            <IconHeadphones/>
-          </div>
-          <div class="text-center text-white text-sm font-normal font-['BebasNeue']">Mixing</div>
-        </div>
-      </div>
-    </div>
-
+  <div class="grid md:grid-cols-3 sm:grid-cols-1 gap-10 studio-cards">
+    <StudioCard v-for="studio in studios" :studio="studio" :key="studio.id"/>
   </div>
   </div>
 </template>
