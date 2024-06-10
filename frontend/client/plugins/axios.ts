@@ -1,4 +1,4 @@
-import { defineNuxtPlugin } from '#app';
+import { defineNuxtPlugin, useRuntimeConfig } from '#app';
 import axios from 'axios';
 import { useSessionStore } from '~/src/entities/Session/model';
 import { useRouter } from 'vue-router';
@@ -6,9 +6,11 @@ import { useRouter } from 'vue-router';
 export default defineNuxtPlugin(() => {
     const sessionStore = useSessionStore();
     const router = useRouter();
+    const config = useRuntimeConfig();
+    const apiBase = config.public.apiBase;
 
     const instance = axios.create({
-        baseURL: process.env.AXIOS_BASEURL || 'http://localhost:3000',
+        baseURL: apiBase
     });
 
     instance.interceptors.request.use(config => {
