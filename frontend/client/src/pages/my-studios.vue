@@ -1,15 +1,12 @@
 <template>
   <div class="text-white flex flex-col min-h-screen">
-    <Header />
+    <Header @toggleSideMenu="toggleSideMenu" />
     <div class="flex flex-1 overflow-hidden">
-      <SideMenu :sideMenu="sideMenuArray" ref="sideMenuRef" class="w-64"/>
+      <SideMenu :sideMenu="sideMenuArray" ref="sideMenuRef" class="lg:block lg:w-64"/>
       <div class="flex-1 overflow-auto">
         <div class="container mx-auto px-2 sm:px-4 py-6 pt-16 lg:pt-6">
-          <div class="mb-6 flex justify-between items-center">
+          <div class="mb-6 flex justify-between items-center lg:hidden">
             <h1 class="text-2xl font-bold">Studios</h1>
-            <button class="lg:hidden p-2" @click="toggleSideMenu">
-              <i class="fas fa-bars fa-2x text-white"></i>
-            </button>
           </div>
           <FilterBar />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
