@@ -197,7 +197,7 @@ function authForm() {
           session.value.setAccessToken(response.data.token)
           session.value.setAuthorized(true)
           session.value.setUserRole(response.data.role)
-          if(session.value.userRole == 'studio_owner'){
+          if(session.value.userRole == 'studio_owner' && !response.data.has_company){
             navigateTo('/create')
             session.value.setIsLoading(false)
           } else {

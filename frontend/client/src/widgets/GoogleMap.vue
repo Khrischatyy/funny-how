@@ -51,7 +51,7 @@ const studios = {
   <ClientOnly>
     <GoogleMap :api-key="config.public.googleMapKey" class="map" :center="center" :zoom="zoom">
       <MarkerCluster :options="{ position: center }">
-        <MarkerList v-for="studio in studios" :key="studio.id" :logo="props.logo || 'src/shared/ui/branding/assets/logo.png'" :marker="studio"/>
+        <MarkerList v-for="studio in studios" :key="studio.id" :logo="props.logo || '/logo.png'" :marker="studio"/>
       </MarkerCluster>
     </GoogleMap>
   </ClientOnly>
