@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import {navigateTo} from "nuxt/app";
+import {useCookie} from "#app";
 
 type UserRole = 'user' | 'studio_owner';
 
@@ -39,6 +40,9 @@ export const useSessionStore = defineStore({
 	actions: {
 		setAccessToken(token: string | null) {
 			this.accessToken = token
+			const tokenCookie = useCookie(ACCESS_TOKEN_KEY);
+			tokenCookie.value = token;
+
 			if (process.client) {
 				if (token) {
 					localStorage.setItem(ACCESS_TOKEN_KEY, token)

@@ -3,7 +3,7 @@ import axios from 'axios'
 import type { InternalAxiosRequestConfig, AxiosRequestHeaders } from 'axios'
 import { computed } from 'vue'
 import { useSessionStore } from '~/src/entities/Session'
-import { useRuntimeConfig } from '#app'
+import {useCookie, useRuntimeConfig} from '#app'
 import { useRouter } from 'vue-router'
 
 export function useApi<ResponseT, MappedResponseT = ResponseT>({
@@ -18,7 +18,7 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
     const sessionStore = useSessionStore()
     const router = useRouter()
     const config = useRuntimeConfig()
-    const apiBase = process.client ? '/api/v1' : config.public.apiBase
+    const apiBase = process.client ? 'http://127.0.0.1/api/v1' : config.public.apiBase
 
     const axiosInstance = axios.create({
         baseURL: apiBase
@@ -26,7 +26,14 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
 
     axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
         if (auth) {
-            const token = sessionStore.accessToken || (process.client ? localStorage.getItem(ACCESS_TOKEN_KEY) : null)
+            let token: string | null | undefined = null
+            if (process.server) {
+                // Use server-side storage to get token
+                const sessionCookie = useCookie(ACCESS_TOKEN_KEY)
+                token = sessionCookie.value
+            } else {
+                token = sessionStore.accessToken || localStorage.getItem(ACCESS_TOKEN_KEY)
+            }
             if (token) {
                 if (!config.headers) {
                     config.headers = {} as AxiosRequestHeaders
@@ -83,7 +90,6 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
     const urlPath = computed<string>(() => {
         return typeof url === 'function' ? url() : url
     })
-
 
     const makeRequest = async (method: string, data?: object, requestOptions?: object): Promise<MappedResponseT | null> => {
         try {

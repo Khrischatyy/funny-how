@@ -48,6 +48,3 @@ watch(() => props.modelValue, (newValue) => {
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-</style>

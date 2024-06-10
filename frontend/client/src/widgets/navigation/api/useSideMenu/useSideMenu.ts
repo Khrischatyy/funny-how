@@ -1,12 +1,19 @@
 import { useNuxtApp } from '#app';
+import {useApi} from "~/src/lib/api";
 
-export async function getSideMenu() {
-    const { $axios } = useNuxtApp();
-    try {
-        const response = await $axios.get('menu');
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching side menu:', error);
-        throw error;
-    }
+interface SideMenuResponse {
+    success: boolean;
+    data: Record<string, any>;
+    message: string;
+    code: number;
+}
+
+export const getSideMenu = async () => {
+    const { fetch } = useApi<SideMenuResponse>({
+        url: '/menu',
+        auth: true
+    })
+    const response = await fetch();
+    console.log('Side Menu Response:', response);
+    return response;
 }

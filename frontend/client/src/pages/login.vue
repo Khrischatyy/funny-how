@@ -13,6 +13,7 @@ import { Loader } from '@googlemaps/js-api-loader';
 import {BrandingLogoSample, BrandingLogoSmall} from "~/src/shared/ui/branding";
 import {navigateTo} from "nuxt/app";
 import CreateAccountForm from "~/src/features/Register/createAccount/ui/CreateAccountForm.vue";
+import {useApi} from "~/src/lib/api";
 
 useHead({
   title: 'Funny How – Book a Session Time',
@@ -178,38 +179,40 @@ function signOut() {
   step.value = 'auth'
 }
 
-function authForm() {
-  const config = useRuntimeConfig()
-  session.value.setIsLoading(true)
-  let requestConfig = {
-    method: 'post',
-    credentials: true,
-    url: `${config.public.apiBase}/auth/login`,
-    data: getFormValues('auth'),
-    headers: {
-      'Accept': 'application/json'
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        if(response.data.token){
-          session.value.setAccessToken(response.data.token)
-          session.value.setAuthorized(true)
-          session.value.setUserRole(response.data.role)
-          if(session.value.userRole == 'studio_owner' && !response.data.has_company){
-            navigateTo('/create')
-            session.value.setIsLoading(false)
-          } else {
-            window.location.reload();
-          }
-        }
-      })
-      .catch((error) => {
-        let errors = getFormErrors('auth');
-        Object.assign(errors, error.response.data.errors)
-      });
+async function authForm() {
+  const config = useRuntimeConfig();
+  const session = useSessionStore();
+  session.setIsLoading(true);
 
+  const { post } = useApi({
+    url: `/auth/login`,
+    auth: false
+  });
+
+  try {
+    const data = await post(getFormValues('auth'));
+
+    if (data.token) {
+      session.setAccessToken(data.token);
+      session.setAuthorized(true);
+      session.setUserRole(data.role);
+
+      if (data.role === 'studio_owner' && !data.has_company) {
+        navigateTo('/create');
+      } else {
+        window.location.reload();
+      }
+    }
+  } catch (error) {
+    let errors = getFormErrors('auth');
+    if (error.response && error.response.data && error.response.data.errors) {
+      Object.assign(errors, error.response.data.errors);
+    } else {
+      console.error('Login error:', error);
+    }
+  } finally {
+    session.setIsLoading(false);
+  }
 }
 
 function verifyUser() {
