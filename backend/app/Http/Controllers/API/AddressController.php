@@ -8,7 +8,6 @@ use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
-use App\Models\Country;
 use App\Repositories\AddressRepository;
 use App\Services\AddressService;
 use App\Services\CityService;
@@ -16,8 +15,6 @@ use App\Services\CompanyService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Request;
 
 class AddressController extends BaseController
 {
@@ -345,6 +342,74 @@ class AddressController extends BaseController
             return $this->sendError('Price not found for the given address.', 404);
         } catch (Exception $e) {
             return $this->sendError('Failed to delete studio price.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/my-studios",
+     *     tags={"Studios"},
+     *     summary="Get list of my studios",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Studios retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=2),
+     *                     @OA\Property(property="latitude", type="string", example="20.5320636"),
+     *                     @OA\Property(property="longitude", type="string", example="44.792424"),
+     *                     @OA\Property(property="street", type="string", example="Mirijevski Venac 4"),
+     *                     @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
+     *                     @OA\Property(property="city_id", type="integer", example=1),
+     *                     @OA\Property(property="company_id", type="integer", example=1),
+     *                     @OA\Property(property="company", type="object",
+     *                         @OA\Property(property="id", type="integer", example=1),
+     *                         @OA\Property(property="name", type="string", example="Section"),
+     *                         @OA\Property(property="logo", type="string", example="https://funny-how-s3-bucket.s3.amazonaws.com/public/images/9zS6zSlP3k1CvojwujRUyKOLnjOBp5jWbV6nhZI9.jpg"),
+     *                         @OA\Property(property="slug", type="string", example="section"),
+     *                         @OA\Property(property="founding_date", type="string", format="date", example="2020-12-10"),
+     *                         @OA\Property(property="rating", type="string", example="9.7"),
+     *                         @OA\Property(property="created_at", type="string", nullable=true, example=null),
+     *                         @OA\Property(property="updated_at", type="string", nullable=true, example=null)
+     *                     ),
+     *                     @OA\Property(property="badges", type="array",
+     *                         @OA\Items(type="object",
+     *                             @OA\Property(property="id", type="integer", example=3),
+     *                             @OA\Property(property="name", type="string", example="rent"),
+     *                             @OA\Property(property="image", type="string", example="public/badges/rent.svg"),
+     *                             @OA\Property(property="pivot", type="object",
+     *                                 @OA\Property(property="address_id", type="integer", example=2),
+     *                                 @OA\Property(property="badge_id", type="integer", example=3)
+     *                             )
+     *                         )
+     *                     )
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Studios retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="No studios found"),
+     *     @OA\Response(response="500", description="Failed to retrieve studios")
+     * )
+     */
+    public function getMyAddresses(): JsonResponse
+    {
+
+        try {
+            $addresses = $this->addressService->getMyAddresses();
+
+            if ($addresses->isEmpty()) {
+                return $this->sendError('No studios found.', 404);
+            }
+
+            return $this->sendResponse($addresses, 'Studios retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve studios.', 500, ['error' => $e->getMessage()]);
         }
     }
 
