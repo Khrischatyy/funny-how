@@ -9,7 +9,7 @@
     ></div>
     <!-- Само меню -->
     <div
-        class="fixed inset-y-0 left-0 w-full p-4 bg-black transform transition-transform duration-300 ease-in-out z-50 sm:relative sm:w-auto sm:p-0 sm:bg-transparent sm:transform-none sm:transition-none sm:ease-none sm:duration-0"
+        class="fixed z-0 inset-y-0 left-0 w-full p-4 bg-black transform transition-transform duration-300 ease-in-out z-50 sm:relative sm:w-auto sm:p-0 sm:bg-transparent sm:transform-none sm:transition-none sm:ease-none sm:duration-0"
         :class="{ 'translate-x-0': isOpen, '-translate-x-full': !isOpen }"
     >
       <nav class="space-y-4">

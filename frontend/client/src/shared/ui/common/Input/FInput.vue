@@ -6,6 +6,7 @@ import {IconSearch} from "~/src/shared/ui/common/Icon/Filter";
 const props = defineProps<{
   label?: string;
   modelValue: string;
+  type?: string;
 }>()
 
 const value = ref<string>(props.modelValue)
@@ -31,7 +32,7 @@ watch(() => props.modelValue, (newValue) => {
       <input
           @input="handleInput"
           v-model="value"
-          type="text"
+          :type="type || 'text'"
           :placeholder="label"
           class="w-full px-3 h-11 flex justify-start items-center outline-none focus:border-white border border-white border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
       />
