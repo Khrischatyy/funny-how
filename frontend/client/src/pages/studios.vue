@@ -39,34 +39,61 @@ function signOut() {
     <header class="flex justify-between items-center p-4">
       <BrandingLogo/>
       <button class="flex items-center space-x-2">
-        <span class="text-white uppercase bold text-4xl">Sign In</span>
+        <span class="text-white uppercase font-bold text-4xl">Sign In</span>
         <img src="./studiosIcons/user 1.svg" alt="Sign In Icon" />
       </button>
     </header>
 
     <main>
       <button class="flex items-stretch">
-        <span class="text-white uppercase bold text-3xl">Pick it in the map</span>
+        <span class="text-white uppercase font-bold text-3xl">Pick it in the map</span>
         <img src="./studiosIcons/image 3.svg" alt="Pck it in the map Icon" />
       </button>
       <div class="flex flex-col">
         <form class="border border-white">
-          <label for="countries" class="text-white bold capitalize">Country</label>
+          <label for="countries" class="text-white font-bold uppercase">Country</label>
           <option></option>
         </form>
         <form class="border border-white">
-          <label for="cities" class="text-white bold capitalize">City</label>
+          <label for="cities" class="text-white font-bold uppercase">City</label>
           <option></option>
         </form>
         <button class="block border border-white">
-          <span class="text-white bold capitalize inline">Search</span>
+          <span class="text-white font-bold uppercase inline">Search</span>
           <img src="./studiosIcons/- 1.png" alt="Search icon" class="inline">
         </button>
       </div>
     </main>
 
     <footer>
-
+      <div>
+        <span class="text-white font-bold uppercase description text-xl">Find studios in belgrad:</span>
+      </div>
+      <div class="flex">
+        <div class="flex border-white rounded">
+          <div class="flex flex-col">
+            <img src="./studiosIcons/image 2.svg" alt="Abbey Road Studios logo">
+            <h2>death row records studio</h2>
+            <h2>rating <span>5.3</span></h2>
+            <div class="flex">
+              <img src="">
+            </div>
+          </div>
+        </div>
+        <div>
+            <img src="./studiosIcons/Rectangle 4.png" alt="image with chair and plant">
+        </div>
+        <div>
+          <div>
+            <img src="./studiosIcons/image 2.svg" alt="Abbey Road Studios logo">
+          </div>
+        </div>
+        <div>
+          <div>
+            <img src="./studiosIcons/image 2.svg" alt="Abbey Road Studios logo">
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
 </template>
