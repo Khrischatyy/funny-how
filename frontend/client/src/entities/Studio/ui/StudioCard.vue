@@ -1,29 +1,48 @@
 <template>
   <div class="bg-black p-4 rounded-md shadow-lg flex flex-col justify-between">
-    <div class="flex justify-between items-start mb-4">
-      <img :src="studio.logo" alt="Logo" class="h-12 w-12 object-cover rounded-full" />
-      <button class="text-red-500">
-        <i class="fas fa-trash-alt"></i>
-      </button>
-    </div>
-    <div>
-      <h3 class="text-xl font-bold">{{ studio.name }}</h3>
-      <p class="text-gray-400">{{ studio.address }}</p>
-    </div>
-    <div class="mt-4 flex justify-between items-center">
-      <div class="flex items-center">
-        <i class="fas fa-clock text-gray-400 mr-1"></i>
-        <span class="text-gray-400">{{ studio.hours }}</span>
+    <div class="flex justify-start items-center mb-4 gap-5">
+      <img :src="studio.logo" alt="Logo" class="h-12 w-12 object-contain rounded-full" />
+      <div>
+        <h3 class="text-xl font-bold text-white">{{ studio.name }}</h3>
+        <p class="text-white">{{ studio.address }}</p>
       </div>
+    </div>
+
+    <div class="mt-4 flex gap-3 justify-between items-center">
+      <div v-for="(item, index) in 3" class="w-24 h-20 relative">
+        <div v-if="index == 0" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-[#1a1a1a] to-transparent rounded-lg rounded-[8px] absolute  flex items-center justify-start">
+          <IconLeft iconType="thin"/>
+        </div>
+        <div v-if="index == 2" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-transparent to-[#1a1a1a] rounded-lg rounded-[8px] absolute flex items-center justify-end">
+          <IconRight iconType="thin"/>
+        </div>
+        <img src="https://via.placeholder.com/96x80" alt="Logo" class="w-full h-full object-contain rounded-[10px]" />
+      </div>
+    </div>
+
+    <div class="mt-4 flex gap-3 justify-between items-center">
       <div class="flex items-center">
-        <i class="fas fa-dollar-sign text-gray-400 mr-1"></i>
-        <span class="text-gray-400">{{ studio.price }}$ / hour</span>
+        <IconClock class="opacity-20"/>
+        <div class="flex flex-col">
+          <span class="text-white opacity-20">Working Hours</span>
+          <span class="text-white">{{ studio.hours }}</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <IconPrice class="opacity-20"/>
+        <div class="flex flex-col">
+          <span class="text-white opacity-20">Price</span>
+          <span class="text-white">{{ studio.price }}$ / hour</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import IconPrice from "~/src/shared/ui/common/Icon/Filter/IconPrice.vue";
+import {IconClock, IconLeft, IconRight} from "~/src/shared/ui/common";
+
 defineProps({
   studio: {
     type: Object,

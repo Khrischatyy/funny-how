@@ -17,7 +17,7 @@ $font-path-montserrat: '~/src/shared/assets/fonts/Montserrat/';
 $font-path-bebas: '~/src/shared/assets/fonts/BebasNeue/BebasNeue';
 
 $italic-path-montserrat: $font-path-montserrat + 'Italic/Montserrat-Italic';
-$rergular-path-montserrat: $font-path-montserrat + '/Montserrat';
+$regular-path-montserrat: $font-path-montserrat + '/Montserrat';
 
 $bold-path: 			$font-path + 'Bold/Roboto-Bold';
 $bold-italic-path:		$font-path + 'BoldItalic/Roboto-BoldItalic';
@@ -38,7 +38,7 @@ $medium-path-mazzard:				$font-path-mazzard + 'Medium/MazzardM-Medium';
 
 
 @include use-font(Impact, $font-path-impact, 400, normal);
-@include use-font(Montserrat, $font-path-montserrat, 400, normal);
+@include use-font(Montserrat, $regular-path-montserrat, 400, normal);
 @include use-font(Montserrat, $italic-path-montserrat, 400, italic);
 @include use-font(BebasNeue, $font-path-bebas, 400, normal);
 

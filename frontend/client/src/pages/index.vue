@@ -20,11 +20,6 @@ const isLoading = ref(false)
 
 const session = ref()
 onMounted(async () => {
-  const config = useRuntimeConfig()
-  session.value = useSessionStore()
-  if (session.value.brand) {
-    navigateTo(`/@${session.value.brand}`)
-  }
 
 })
 

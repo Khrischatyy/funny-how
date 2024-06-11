@@ -101,6 +101,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('company/{slug}', [CompanyController::class, 'getCompany']);
     Route::get('operation-modes', [OperatingHourController::class, 'getOperationModes']);
     Route::post('brand', [AddressController::class, 'createBrand']); // company + address created
+
+    Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
 });
 
 Route::prefix('countries')->group(function () {
