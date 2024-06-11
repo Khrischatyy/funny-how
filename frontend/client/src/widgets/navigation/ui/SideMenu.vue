@@ -13,7 +13,7 @@
         :class="{ 'translate-x-0': isOpen, '-translate-x-full': !isOpen }"
     >
       <nav class="space-y-4">
-        <a v-for="item in sideMenu" :key="item.name" href="#" class="block text-lg font-bold py-2 flex items-center">
+        <a v-for="(item, index) in sideMenu" :key="item.name" href="#" :class="selected == index ? 'border border-white ' : ''" class="block text-lg font-bold py-2 rounded-[10px] px-1.5 py-3 flex items-center">
           <img :src="item.path" alt="Icon" class="h-6 w-6 mr-2"/>
           {{ item.name }}
         </a>
@@ -34,7 +34,7 @@ const props = defineProps({
     required: true,
   },
 });
-
+const selected = ref(0);
 const isOpen = ref(false);
 
 const toggleMenu = () => {

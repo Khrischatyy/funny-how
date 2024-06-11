@@ -1,16 +1,14 @@
 <template>
   <div class="text-white flex flex-col min-h-screen">
-    <Header @toggleSideMenu="toggleSideMenu" />
+    <Header subhead="true" subhead-title="Studios" @toggleSideMenu="toggleSideMenu" />
+
     <div class="flex flex-1 overflow-hidden">
-      <SideMenu v-if="!isLoading" :sideMenu="sideMenuArray" ref="sideMenuRef" class="lg:block lg:w-64" />
+      <SideMenu v-if="!isLoading" :sideMenu="sideMenuArray" ref="sideMenuRef" class="lg:block lg:w-64 pl-0 md:pl-10" />
       <div v-else class="flex items-center justify-center lg:w-64">
         <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
       </div>
       <div class="flex-1 overflow-auto">
-        <div class="container mx-auto px-2 sm:px-4 py-6 pt-16 lg:pt-6">
-          <div class="mb-6 flex justify-between items-center lg:hidden">
-            <h1 class="text-2xl font-bold">Studios</h1>
-          </div>
+        <div class="container mx-auto px-2 md:px-4">
           <FilterBar />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <AddStudioButton />

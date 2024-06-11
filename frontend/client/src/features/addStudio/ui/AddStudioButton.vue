@@ -1,11 +1,20 @@
 <template>
-  <div class="bg-custom-gray text-white rounded-lg flex items-center justify-center border border-dashed border-gray-600">
-    <button class="text-gray-400">
-      <i class="fas fa-plus fa-2x"></i> Add studio
-    </button>
+  <div class="text-white rounded-[10px] flex items-center justify-center border border-dashed border-white border-opacity-20 cursor-pointer">
+    <div class="flex flex-col justify-center items-center gap-5">
+      <IconAddRing/>
+      <span class="text-2xl">Add Studio</span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // No additional logic needed for now
+import {IconAddRing} from "~/src/shared/ui/common";
 </script>
+
+<style scoped>
+.border-dashed {
+  border-width: 2px;
+  border-style: dashed;
+}
+</style>
