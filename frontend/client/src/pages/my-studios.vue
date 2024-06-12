@@ -1,6 +1,6 @@
 <template>
   <div class="text-white flex flex-col min-h-screen">
-    <Header subhead="true" subhead-title="Studios" @toggleSideMenu="toggleSideMenu" />
+    <Header :subhead="true" subhead-title="Studios" @toggleSideMenu="toggleSideMenu" />
 
     <div class="flex flex-1 overflow-hidden">
       <SideMenu v-if="!isLoading" :sideMenu="sideMenuArray" ref="sideMenuRef" class="lg:block lg:w-64 pl-0 md:pl-10" />
@@ -11,12 +11,13 @@
         <div class="container mx-auto px-2 md:px-4">
           <FilterBar />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AddStudioButton />
+            <AddStudioButton @click="togglePopup" />
             <StudioCard v-for="studio in studios" :key="studio.id" :studio="studio" />
           </div>
         </div>
       </div>
     </div>
+    <AddStudioModal :show-popup="showPopup" @togglePopup="togglePopup" />
     <Footer class="mt-auto" />
   </div>
 </template>
@@ -41,10 +42,11 @@
 import { ref, watch } from 'vue';
 import { AddStudioButton } from '~/src/features/addStudio';
 import { StudioCard } from '~/src/entities/Studio';
-import { Header, Footer, FilterBar } from '~/src/shared/ui/components';
+import {Header, Footer, FilterBar, Popup} from '~/src/shared/ui/components';
 import { SideMenu } from '~/src/widgets/navigation';
 import { getSideMenu } from '~/src/widgets/navigation/api/useSideMenu';
 import { useAsyncData } from '#app';
+import {AddStudioModal} from "~/src/widgets/Modals";
 
 const sideMenuRef = ref();
 
@@ -53,6 +55,12 @@ const sideMenuArray = ref([]);
 const isLoading = ref(true);
 
 const { data, error } = await useAsyncData('sideMenu', getSideMenu);
+
+const showPopup = ref(false);
+
+const togglePopup = () => {
+  showPopup.value = !showPopup.value;
+}
 
 watch(data, (newData) => {
   if (newData) {

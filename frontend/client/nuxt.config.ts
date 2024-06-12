@@ -69,5 +69,7 @@ export default defineNuxtConfig({
   	cssPath: '@/src/shared/assets/style/tailwind.css',
   },
   css: ['@/src/shared/assets/style/index.scss', 'animate.css/animate.min.css'],
-
+  buildModules: [
+    '@nuxtjs/tailwindcss',
+  ],
 })

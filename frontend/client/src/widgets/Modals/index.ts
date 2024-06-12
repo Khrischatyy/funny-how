@@ -1,0 +1,1 @@
+export { default as AddStudioModal } from './AddStudioModal.vue';

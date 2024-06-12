@@ -46,6 +46,7 @@
         </button>
       </div>
     </template>
+
   </div>
 </template>
 
@@ -85,4 +86,6 @@ onMounted(() => {
 input, select, button {
   border-radius: 0.375rem; /* Закругленные края */
 }
+
+
 </style>

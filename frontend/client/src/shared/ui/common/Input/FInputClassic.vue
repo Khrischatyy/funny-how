@@ -1,27 +1,43 @@
-<!-- Input.vue -->
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import {onMounted, ref, useSlots, watch} from "vue";
+import {IconUpload} from "~/src/shared/ui/common";
 
 const props = defineProps<{
   label?: string;
   modelValue: string | number | null;
+  type?: string;
 }>()
-
+const slots = useSlots();
 const value = ref<string | number | null>(props.modelValue);
+const file = ref<File | null>(null);
+const imageUrl = ref<string | null>(null);
 
 const emit = defineEmits({
-  'update:modelValue': (value: string | number) => true,
+  'update:modelValue': (value: string | number | File) => true,
 });
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  value.value = target.value;
-  emit('update:modelValue', target.value);
+  if (props.type === 'file' && target.files) {
+    file.value = target.files[0];
+    imageUrl.value = URL.createObjectURL(target.files[0]);
+    emit('update:modelValue', target.files[0]);
+  } else {
+    value.value = target.value;
+    emit('update:modelValue', target.value);
+  }
+};
+const handlePlaceholderClick = () => {
+  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+  fileInput.click();
 };
 
 watch(() => props.modelValue, (newValue) => {
-  value.value = newValue;
+  if (props.type !== 'file') {
+    value.value = newValue;
+  }
 });
+
 </script>
 
 <template>
@@ -29,13 +45,27 @@ watch(() => props.modelValue, (newValue) => {
     <div class="absolute left-3">
       <slot name="icon" />
     </div>
+    <input
+        v-if="props.type !== 'file'"
+        @input="handleInput"
+        v-model="value"
+        :placeholder="props.label"
+        :class="slots?.icon?'pl-10':''"
+        class="w-full flex justify-start items-center px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 focus:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+        :type="props.type || 'text'"
+    />
+    <div v-else class="w-11 h-11 flex items-center justify-center border border-white border-opacity-20 rounded-[10px] bg-transparent text-white text-sm font-medium tracking-wide cursor-pointer" @click="handlePlaceholderClick">
       <input
-          @input="handleInput"
-          v-model="value"
-          :placeholder="props.label"
-          class="w-full flex justify-start items-center px-3 pl-10 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 focus:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
-          type="text"
+          id="fileInput"
+          type="file"
+          class="hidden"
+          @change="handleInput"
       />
+      <span v-if="!imageUrl" class="opacity-20">
+        <IconUpload/>
+      </span>
+      <img v-if="imageUrl" :src="imageUrl" alt="Uploaded Image" class="w-full h-full object-cover rounded-[10px]" />
+    </div>
   </div>
 </template>
 
