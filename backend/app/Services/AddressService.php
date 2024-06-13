@@ -42,7 +42,7 @@ class AddressService
         if (Gate::denies('update', $address)) {
             abort(403, 'You are not authorized to update this address.');
         }
-§
+
         Log::info('Starting photo upload process');
 
         if (!$request->hasFile('photos')) {
