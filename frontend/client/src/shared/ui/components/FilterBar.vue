@@ -2,7 +2,7 @@
   <div class="flex flex-col lg:grid lg:grid-cols-3 lg:justify-between items-center gap-2 md:gap-6 mb-6 space-y-4 lg:space-y-0 w-full">
     <!-- Search and IconButton on the first line -->
     <div class="flex items-center w-full">
-      <FInputClassic label="Search" v-model="filters.search" class="w-full">
+      <FInputClassic placeholder="Search" v-model="filters.search" class="w-full">
         <template #icon>
           <IconSearch class="h-5 w-5 text-gray-400" />
         </template>

@@ -17,7 +17,7 @@
         </div>
       </div>
     </div>
-    <AddStudioModal :show-popup="showPopup" @togglePopup="togglePopup" />
+    <AddStudioModal :show-popup="showPopup" @closePopup="closePopup" @togglePopup="togglePopup" />
     <Footer class="mt-auto" />
   </div>
 </template>
@@ -60,6 +60,9 @@ const showPopup = ref(false);
 
 const togglePopup = () => {
   showPopup.value = !showPopup.value;
+}
+const closePopup = () => {
+  showPopup.value = false;
 }
 
 watch(data, (newData) => {

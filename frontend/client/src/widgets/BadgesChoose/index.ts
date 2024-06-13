@@ -1,0 +1,1 @@
+export {default as BadgesChoose} from './ui/BadgesChoose.vue';

@@ -4,6 +4,7 @@ import {IconUpload} from "~/src/shared/ui/common";
 
 const props = defineProps<{
   label?: string;
+  placeholder?: string;
   modelValue: string | number | null;
   type?: string;
 }>()
@@ -41,7 +42,14 @@ watch(() => props.modelValue, (newValue) => {
 </script>
 
 <template>
-  <div class="relative flex items-center justify-center">
+  <div class="w-full flex-col flex gap-1.5">
+    <div class="label-action flex justify-between items-center w-full">
+      <div v-if="label" class="text-white text-sm font-normal tracking-wide opacity-20">{{ label }}</div>
+      <div v-if="slots?.action" class="action">
+        <slot name="action" />
+      </div>
+    </div>
+    <div class="relative flex items-center justify-center">
     <div class="absolute left-3">
       <slot name="icon" />
     </div>
@@ -49,7 +57,7 @@ watch(() => props.modelValue, (newValue) => {
         v-if="props.type !== 'file'"
         @input="handleInput"
         v-model="value"
-        :placeholder="props.label"
+        :placeholder="props.placeholder"
         :class="slots?.icon?'pl-10':''"
         class="w-full flex justify-start items-center px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 focus:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
         :type="props.type || 'text'"
@@ -66,6 +74,7 @@ watch(() => props.modelValue, (newValue) => {
       </span>
       <img v-if="imageUrl" :src="imageUrl" alt="Uploaded Image" class="w-full h-full object-cover rounded-[10px]" />
     </div>
+  </div>
   </div>
 </template>
 
