@@ -189,17 +189,6 @@ watch(route, (newRoute) => {
 }, { immediate: true })
 </script>
 
-<template>
-  <div class="ease-in-out min-h-[100vh] w-full h-full flex flex-col gap-10 items-center justify-center">
-      <BrandingLogo/>
-    <div class="w-96">
-      <div class="input border-double relative">
-        <input type="text" class="border-double outline-0 w-full h-full relative focus:border-white border border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
-      </div>
-    </div>
-  </div>
-</template>
-
 <style scoped lang="scss">
 .search-input {
   padding: 0.5rem;
