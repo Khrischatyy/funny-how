@@ -9,14 +9,14 @@
     </div>
 
     <div class="mt-4 flex gap-3 justify-between items-center">
-      <div v-for="(item, index) in 3" class="w-24 h-20 relative">
-        <div v-if="index == 0" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-[#1a1a1a] to-transparent rounded-lg rounded-[8px] absolute  flex items-center justify-start">
+      <div v-for="(photo, index) in studio.photos" :key="photo.id" class="w-24 h-20 relative">
+        <div v-if="index == 0" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-[#1a1a1a] to-transparent rounded-lg rounded-[8px] absolute flex items-center justify-start">
           <IconLeft iconType="thin"/>
         </div>
-        <div v-if="index == 2" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-transparent to-[#1a1a1a] rounded-lg rounded-[8px] absolute flex items-center justify-end">
+        <div v-if="index == studio.photos.length - 1" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-transparent to-[#1a1a1a] rounded-lg rounded-[8px] absolute flex items-center justify-end">
           <IconRight iconType="thin"/>
         </div>
-        <img src="https://via.placeholder.com/96x80" alt="Logo" class="w-full h-full object-contain rounded-[10px]" />
+        <img :src="photo.url" alt="Photo" class="w-full h-full object-contain rounded-[10px]" />
       </div>
     </div>
 

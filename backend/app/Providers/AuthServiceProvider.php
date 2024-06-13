@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+use App\Models\Address;
+use App\Policies\AddressPolicy;
 use App\Policies\CompanyPolicy;
 use Faker\Provider\zh_TW\Company;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
 //         'App\Models\Model' => 'App\Policies\ModelPolicy',
+        Address::class => AddressPolicy::class,
         Company::class => CompanyPolicy::class,
     ];
 

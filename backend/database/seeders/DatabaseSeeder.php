@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             OperatingModeSeeder::class,
             OperatingHoursSeeder::class,
             AddressPriceSeeder::class,
+            AddressPhotoSeeder::class,
         ]);
 
         // \App\Models\User::factory(10)->create();

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Address extends Model
 {
@@ -34,5 +35,10 @@ class Address extends Model
     public function prices()
     {
         return $this->hasMany(AddressPrice::class);
+    }
+
+    public function photos()
+    {
+        return $this->hasMany(AddressPhoto::class);
     }
 }

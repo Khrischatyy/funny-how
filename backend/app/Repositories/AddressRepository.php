@@ -10,6 +10,6 @@ class AddressRepository implements AddressRepositoryInterface
 {
     public function getAddressByCityId(int $cityId)
     {
-        return Address::where('city_id', $cityId)->with(['company', 'badges']);
+        return Address::where('city_id', $cityId)->with(['company', 'badges', 'photos']);
     }
 }

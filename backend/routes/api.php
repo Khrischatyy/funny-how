@@ -83,6 +83,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('payment-success', [BookingController::class, 'paymentSuccess']);
         Route::post('calculate-price', [BookingController::class, 'calculatePrice']);
 
+        Route::post('photos-upload', [AddressController::class, 'uploadAddressPhotos']);
+
         //reservation start, end time
         Route::withoutMiddleware('auth:sanctum')->group(function () {
             Route::get('reservation/start-time', [BookingController::class, 'getReservationAvailableStartTime']);
@@ -103,6 +105,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('brand', [AddressController::class, 'createBrand']); // company + address created
 
     Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
+
 });
 
 Route::prefix('countries')->group(function () {

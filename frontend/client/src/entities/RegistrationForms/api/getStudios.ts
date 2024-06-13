@@ -24,6 +24,12 @@ export interface Studio {
     updated_at: string;
     city_id: number;
     company_id: number;
+    photos: {
+        address_id: number,
+        path: string,
+        index: number,
+        url: string,
+    }
     company: Company;
     badges: Badge[];
 }

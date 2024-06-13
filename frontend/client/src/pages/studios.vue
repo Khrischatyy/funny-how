@@ -63,6 +63,12 @@ type SimpleStudio = {
   address: string
   hours: string
   price: number
+  photos: {
+    address_id: number,
+    path: string,
+    index: number,
+    url: string,
+  }
   company?: {
     name: string
     address: string
@@ -115,6 +121,7 @@ const handleCityChange = async (cityId: string) => {
     logo: studio.company.logo,
     name: studio.company.name,
     address: studio.street,
+    photos: studio.photos,
     hours: '10:00 - 18:00', // Assuming static hours for now, adjust as needed
     price: 10 // Assuming static price for now, adjust as needed
   }))

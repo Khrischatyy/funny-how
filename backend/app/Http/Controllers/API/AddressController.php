@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\AddressPhotosRequest;
 use App\Http\Requests\AddressPriceDeleteRequest;
 use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
@@ -23,6 +24,71 @@ class AddressController extends BaseController
                                 public CityService $cityService,
                                 public CompanyService $companyService)
     {}
+
+    /**
+     * @OA\Post(
+     *     path="/address/{address_id}/photos",
+     *     summary="Upload photos for an address",
+     *     tags={"Address"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer"),
+     *         description="The ID of the address"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="photos", type="array", @OA\Items(type="string", format="binary")),
+     *             @OA\Property(property="index", type="string", example="1")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Photos uploaded successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="path", type="string", example="photos/1.jpg"),
+     *                     @OA\Property(property="address_id", type="integer", example=1),
+     *                     @OA\Property(property="index", type="string", example="1")
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Photos uploaded successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Address not found"),
+     *     @OA\Response(response="500", description="Failed to upload photos")
+     * )
+     */
+    public function uploadAddressPhotos(AddressPhotosRequest $request): JsonResponse
+    {
+        $address_id = $request->input('address_id');
+        try {
+            $address = Address::findOrFail($address_id);
+
+            if (!$request->hasFile('photos')) {
+                return $this->sendError('No photos uploaded.', 400);
+            }
+
+            $photos = $this->addressService->uploadPhotos($request, $address);
+
+            if (empty($photos)) {
+                return $this->sendError('No photos were saved.', 500);
+            }
+
+            return $this->sendResponse($photos, 'Photos uploaded successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to upload photos.', 500, ['error' => $e->getMessage()]);
+        }
+    }
 
     /**
      * @OA\Get(
@@ -399,7 +465,6 @@ class AddressController extends BaseController
      */
     public function getMyAddresses(): JsonResponse
     {
-
         try {
             $addresses = $this->addressService->getMyAddresses();
 
