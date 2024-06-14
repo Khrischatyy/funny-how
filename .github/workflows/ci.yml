@@ -14,7 +14,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Run something
+#      - name: Build Docker images
+#        env:
+#          DB_HOST: ${{ secrets.DB_HOST }}
+#          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+#          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+#          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+#        run: make build-prod
+#
+#      - name: Run tests
+#        env:
+#          DB_HOST: ${{ secrets.DB_HOST }}
+#          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+#          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+#          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 #        run: |
 #          make composer
 #          make migrate
@@ -25,6 +38,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Add SSH key to known hosts
+        run: ssh-keyscan -H ${{ secrets.HOST_IP }} >> ~/.ssh/known_hosts
 
       - name: Deploy to server
         env:
