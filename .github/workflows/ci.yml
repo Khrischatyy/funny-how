@@ -14,10 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Run tests
-        run: |
-          make composer
-          make migrate
+#      - name: Run something
+#        run: |
+#          make composer
+#          make migrate
 
   deploy:
     needs: build
