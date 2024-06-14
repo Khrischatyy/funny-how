@@ -170,6 +170,12 @@ return [
              * By default the spec will be in version 3.0.0
              */
 //            'open_api_spec_version' => env('L5_SWAGGER_OPEN_API_SPEC_VERSION', app()->environment('local', 'development') ? \L5Swagger\Generator::OPEN_API_DEFAULT_SPEC_VERSION : '3.0.0'),
+//            'open_api_spec_version' => env('L5_SWAGGER_OPEN_API_SPEC_VERSION', function () {
+//                if (app()->environment('local', 'development')) {
+//                    return \L5Swagger\Generator::OPEN_API_DEFAULT_SPEC_VERSION;
+//                }
+//                return '3.0.0';
+//            }),
         ],
 
         /*
