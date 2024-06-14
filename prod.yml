@@ -55,6 +55,7 @@ services:
         - AXIOS_API_VERSION=/api/v1
     expose:
       - "3000"
+    restart: always
     ports:
       - "3000:3000"
     environment:
