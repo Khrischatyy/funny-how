@@ -2,25 +2,19 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
 
-  #      - name: Build Docker images
-  #        run: make build-prod
-  #
-  #      - name: Run tests
-  #        run: |
-  #          make composer
-  #          make migrate
 
   deploy:
     needs: build
@@ -38,20 +32,13 @@ jobs:
         run: mkdir -p ~/.ssh
 
       - name: Add SSH key to known hosts
-        run: ssh-keyscan -H ${{ secrets.HOST_IP }} >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H ${{ secrets.AWS_INSTANCE_IP }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to server
+      - name: Deploy to AWS EC2
         env:
-          HOST_USER: ${{ secrets.HOST_USER }}
-          HOST_IP: ${{ secrets.HOST_IP }}
+          AWS_INSTANCE_IP: ${{ secrets.AWS_INSTANCE_IP }}
+          AWS_USER: ${{ secrets.AWS_USER }}
         run: |
-          ssh $HOST_USER@$HOST_IP 'bash -c "
+          ssh -o StrictHostKeyChecking=no $AWS_USER@$AWS_INSTANCE_IP 'bash -c "
             cd /home/ubuntu/funny-how &&
-            make stop &&
-            make clean &&
-            make build-prod &&
-            make composer-prod &&
-            make migrate-prod &&
-            make start-prod &&
-            make optimize-prod &&
-            docker system prune -af"'
+            make update-prod-container
