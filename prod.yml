@@ -51,7 +51,9 @@ services:
       context: ./frontend/client
       dockerfile: Dockerfile-prod
       args:
+        - NODE_ENV=production
         - AXIOS_BASEURL=http://nginx
+        - AXIOS_BASEURL_CLIENT=https://funny-how.com
         - AXIOS_API_VERSION=/api/v1
     restart: always
     ports:
@@ -59,6 +61,7 @@ services:
     environment:
       - NODE_ENV=production
       - AXIOS_BASEURL=http://nginx
+      - AXIOS_BASEURL_CLIENT=https://funny-how.com
       - AXIOS_API_VERSION=/api/v1
     networks:
       - funny

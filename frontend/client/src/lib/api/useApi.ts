@@ -16,7 +16,7 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
     const sessionStore = useSessionStore()
     const router = useRouter()
     const config = useRuntimeConfig()
-    const apiBase = process.client ? 'http://127.0.0.1/api/v1' : config.public.apiBase
+    const apiBase = process.client ? config.public.apiBaseClient : config.public.apiBase
 
     const urlPath = computed<string>(() => {
         return typeof url === 'function' ? url() : url
