@@ -15,6 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+  #      - name: Build Docker images
+  #        run: make build-prod
+  #
+  #      - name: Run tests
+  #        run: |
+  #          make composer
+  #          make migrate
 
   deploy:
     needs: build
@@ -28,17 +35,20 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
 
-      - name: Create .ssh directory
-        run: mkdir -p ~/.ssh
-
       - name: Add SSH key to known hosts
-        run: ssh-keyscan -H ${{ secrets.AWS_INSTANCE_IP }} >> ~/.ssh/known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.AWS_INSTANCE_IP }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to AWS EC2
+      - name: Deploy to server
         env:
           AWS_INSTANCE_IP: ${{ secrets.AWS_INSTANCE_IP }}
           AWS_USER: ${{ secrets.AWS_USER }}
         run: |
-          ssh -o StrictHostKeyChecking=no $AWS_USER@$AWS_INSTANCE_IP 'bash -c "
-            cd /home/ubuntu/funny-how &&
-            make update-prod-container
+          ssh -o StrictHostKeyChecking=no $AWS_USER@$AWS_INSTANCE_IP << 'EOF'
+            cd /var/www/html
+            git pull
+            composer install --no-dev
+            php artisan migrate --force
+            php artisan optimize
+  EOF
