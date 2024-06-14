@@ -119,7 +119,7 @@ function setHours(){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/address/operating-hours`,
+    url: `${config.public.apiBaseClient}/address/operating-hours`,
     data: filterUnassigned(workHours.value),
     headers: {
       'Accept': 'application/json',
@@ -143,7 +143,7 @@ function getModes(){
   let requestConfig = {
     method: 'get',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/operation-modes`,
+    url: `${config.public.apiBaseClient}/operation-modes`,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',
@@ -167,7 +167,7 @@ function getAddressId(){
   let requestConfig = {
     method: 'get',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/company/${route.params.slug}`,
+    url: `${config.public.apiBaseClient}/company/${route.params.slug}`,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',

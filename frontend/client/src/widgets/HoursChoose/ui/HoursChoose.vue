@@ -106,7 +106,7 @@ function setHours(){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/address/operating-hours`,
+    url: `${config.public.apiBaseClient}/address/operating-hours`,
     data: filterUnassigned(workHours.value),
     headers: {
       'Accept': 'application/json',

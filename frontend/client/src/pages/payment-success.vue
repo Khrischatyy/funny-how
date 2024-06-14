@@ -28,7 +28,7 @@ onMounted(async () => {
   }
 
   try {
-    const response = await axios.post(`${config.public.apiBaseClient}/v1/address/payment-success`, {
+    const response = await axios.post(`${config.public.apiBaseClient}/address/payment-success`, {
       session_id: sessionId,
       booking_id: bookingId,
     });

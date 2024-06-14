@@ -193,7 +193,7 @@ function createAccount(){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/auth/register`,
+    url: `${config.public.apiBaseClient}/auth/register`,
     data: getFormValues('create_account'),
     headers: {
       'Accept': 'application/json'
@@ -225,7 +225,7 @@ function authForm() {
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/auth/login`,
+    url: `${config.public.apiBaseClient}/auth/login`,
     data: getFormValues('auth'),
     headers: {
       'Accept': 'application/json'
@@ -252,7 +252,7 @@ function verifyUser() {
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/auth/email/verify/2/07573a3c93dad6e7c283ea427d9f6cf94cf22783?expires=1713901523&signature=fc718ddc61b7cebdbe3dd9eeafb546e2505a5725468334a93e9ba8bf6f3bb884`,
+    url: `${config.public.apiBaseClient}/auth/email/verify/2/07573a3c93dad6e7c283ea427d9f6cf94cf22783?expires=1713901523&signature=fc718ddc61b7cebdbe3dd9eeafb546e2505a5725468334a93e9ba8bf6f3bb884`,
     headers: {
       'Accept': 'application/json'
     }

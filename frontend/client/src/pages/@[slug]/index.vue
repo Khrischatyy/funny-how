@@ -67,7 +67,7 @@ onMounted(async () => {
 
 async function getStartSlots() {
   const config = useRuntimeConfig()
-  const start_slots = await $axios.get(`${config.public.apiBaseClient}/v1/address/reservation/start-time?address_id=1&date=${rentingForm.value.date}`);
+  const start_slots = await $axios.get(`${config.public.apiBaseClient}/address/reservation/start-time?address_id=1&date=${rentingForm.value.date}`);
   if (start_slots.data.success) {
     hoursAvailableStart.value = start_slots.data.data;
   }
@@ -75,7 +75,7 @@ async function getStartSlots() {
 
 async function getEndSlots(start_time: string) {
   const config = useRuntimeConfig()
-  const end_slots = await $axios.get(`${config.public.apiBaseClient}/v1/address/reservation/end-time?address_id=1&date=${rentingForm.value.date}&start_time=${start_time}`);
+  const end_slots = await $axios.get(`${config.public.apiBaseClient}/address/reservation/end-time?address_id=1&date=${rentingForm.value.date}&start_time=${start_time}`);
   console.log('end_slots', end_slots.data.data)
   if (end_slots.data.success) {
     hoursAvailableEnd.value = end_slots.data.data;
@@ -118,7 +118,7 @@ function book(){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/address/reservation`,
+    url: `${config.public.apiBaseClient}/address/reservation`,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ function getAddressId(){
   let requestConfig = {
     method: 'get',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/company/${route.params.slug}`,
+    url: `${config.public.apiBaseClient}/company/${route.params.slug}`,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',

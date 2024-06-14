@@ -71,7 +71,7 @@ export const useCreateStudioFormStore = defineStore({
             let requestConfig = {
                 method: 'post',
                 credentials: true,
-                url: `${config.public.apiBaseClient}/v1/brand`,
+                url: `${config.public.apiBaseClient}/brand`,
                 data: formData,
                 headers: {
                     'Accept': 'application/json',

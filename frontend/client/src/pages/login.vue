@@ -152,7 +152,7 @@ function createAccount(){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBaseClient}/v1/auth/register`,
+    url: `${config.public.apiBaseClient}/auth/register`,
     data: getFormValues('create_account'),
     headers: {
       'Accept': 'application/json'
