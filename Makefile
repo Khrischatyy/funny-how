@@ -3,10 +3,10 @@
 pull:
 	git pull
 
-#MANIPULATE CONTAINER
+# MANIPULATE CONTAINER
 
 update-dev-container: stop clean build composer db start
-update-prod-container: stop-prod clean-prod pull build-prod optimize-prod composer-prod  migrate-prod start-prod
+update-prod-container: stop-prod clean-prod pull build-prod composer-prod migrate-prod start-prod optimize-prod
 
 # DEV
 
@@ -94,23 +94,13 @@ npm-install-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm frontend sh -c "npm i"
 
 composer-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "composer install"
+	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "composer install --no-dev --optimize-autoloader"
 
 migrate-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan migrate"
+	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan migrate --force"
 
 seeds-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan db:seed"
 
 optimize-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan optimize:clear"
-
-
-
-# SSL
-
-certificate-test:
-	@docker-compose -f prod.yml -f docker-compose.yml run --rm certbot certonly --webroot --webroot-path /app --dry-run -d funny-how.com
-
-certificate:
-	@docker-compose -f prod.yml -f docker-compose.yml run --rm certbot certonly --webroot --webroot-path /app -d funny-how.com
+	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan optimize"
