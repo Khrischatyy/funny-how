@@ -42,13 +42,9 @@ jobs:
 
       - name: Deploy to server
         env:
-          AWS_INSTANCE_IP: ${{ secrets.AWS_INSTANCE_IP }}
-          AWS_USER: ${{ secrets.AWS_USER }}
+          HOST_USER: ${{ secrets.AWS_USER }}
+          HOST_IP: ${{ secrets.AWS_INSTANCE_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no $AWS_USER@$AWS_INSTANCE_IP << 'EOF'
-            cd /var/www/html
-            git pull
-            composer install --no-dev
-            php artisan migrate --force
-            php artisan optimize
-  EOF
+          ssh -o StrictHostKeyChecking=no $HOST_USER@$HOST_IP "
+            cd /home/ubuntu/funny-how &&
+            make update-prod-container"
