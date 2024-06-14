@@ -6,7 +6,7 @@ pull:
 #MANIPULATE CONTAINER
 
 update-dev-container: stop clean build composer db start
-update-prod-container: stop-prod clean-prod pull build-prod composer-prod migrate-prod start-prod
+update-prod-container: stop-prod clean-prod pull build-prod optimize-prod composer-prod  migrate-prod start-prod
 
 # DEV
 
