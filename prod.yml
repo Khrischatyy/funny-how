@@ -53,17 +53,13 @@ services:
       args:
         - AXIOS_BASEURL=http://nginx
         - AXIOS_API_VERSION=/api/v1
-    expose:
-      - "3000"
     restart: always
     ports:
       - "3000:3000"
     environment:
+      - NODE_ENV=production
       - AXIOS_BASEURL=http://nginx
       - AXIOS_API_VERSION=/api/v1
-    volumes:
-      - ./frontend/client:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - funny
 
