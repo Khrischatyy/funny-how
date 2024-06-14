@@ -14,13 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Build Docker images
-#        run: make build-prod
-#
-#      - name: Run tests
-#        run: |
-#          make composer
-#          make migrate
+  #      - name: Build Docker images
+  #        run: make build-prod
+  #
+  #      - name: Run tests
+  #        run: |
+  #          make composer
+  #          make migrate
 
   deploy:
     needs: build
@@ -41,6 +41,6 @@ jobs:
           HOST_IP: ${{ secrets.HOST_IP }}
           HOST_PASSWORD: ${{ secrets.HOST_PASSWORD }}
         run: |
-          ssh $HOST_USER@$HOST_IP "
+          ssh $HOST_USER@$HOST_IP 'bash -c "
             cd /home/ubuntu/funny-how &&
-            make update-prod-container
+            make update-prod-container"'
