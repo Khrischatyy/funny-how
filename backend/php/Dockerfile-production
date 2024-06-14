@@ -43,3 +43,9 @@ RUN mkdir -p /home/$WWWUSER/.composer && \
 COPY php-production.ini /etc/php/8.1/fpm/conf.d/xy-custom.ini
 
 USER $WWWUSER
+
+COPY . .
+
+RUN composer install --no-dev --optimize-autoloader
+
+CMD ["php-fpm"]
