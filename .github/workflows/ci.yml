@@ -43,9 +43,4 @@ jobs:
         run: |
           ssh $HOST_USER@$HOST_IP "
             cd /home/ubuntu/funny-how &&
-            make stop &&
-            make clean &&
-            make build-prod &&
-            make composer-prod &&
-            make migrate-prod &&
-           
+            make update-prod-container
