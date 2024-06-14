@@ -15,13 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-  #      - name: Build Docker images
-  #        run: make build-prod
-  #
-  #      - name: Run tests
-  #        run: |
-  #          make composer
-  #          make migrate
 
   deploy:
     needs: build
