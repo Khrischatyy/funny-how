@@ -37,7 +37,7 @@ function createAccount(){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBase}/v1/auth/register`,
+    url: `${config.public.apiBaseClient}/v1/auth/register`,
     data: store.inputValues,
     headers: {
       'Accept': 'application/json'

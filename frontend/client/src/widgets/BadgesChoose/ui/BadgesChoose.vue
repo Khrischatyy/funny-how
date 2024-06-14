@@ -117,7 +117,7 @@ function toogleBadge(badge_id){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBase}/v1/address/${route.params.id}/badge`,
+    url: `${config.public.apiBaseClient}/v1/address/${route.params.id}/badge`,
     data: data,
     headers: {
       'Accept': 'application/json',
@@ -141,7 +141,7 @@ function getBadges(){
   let requestConfig = {
     method: 'get',
     credentials: true,
-    url: `${config.public.apiBase}/v1/address/${route.params.id}/badges`,
+    url: `${config.public.apiBaseClient}/v1/address/${route.params.id}/badges`,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',
@@ -165,7 +165,7 @@ function getAddressId(){
   let requestConfig = {
     method: 'get',
     credentials: true,
-    url: `${config.public.apiBase}/v1/company/${route.params.slug}`,
+    url: `${config.public.apiBaseClient}/v1/company/${route.params.slug}`,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',

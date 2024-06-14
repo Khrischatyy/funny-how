@@ -182,7 +182,7 @@ function sendPrice(price){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBase}/v1/address/${route.params.id}/prices`,
+    url: `${config.public.apiBaseClient}/v1/address/${route.params.id}/prices`,
     data: data,
     headers: {
       'Accept': 'application/json',
@@ -207,7 +207,7 @@ function deletePrice(price){
   let requestConfig = {
     method: 'delete',
     maxBodyLength: Infinity,
-    url: `${config.public.apiBase}/v1/address/prices?address_id=${route.params.id}&address_prices_id=${price.id}`,
+    url: `${config.public.apiBaseClient}/v1/address/prices?address_id=${route.params.id}&address_prices_id=${price.id}`,
     headers: {
       'Accept': 'application/json',
       'Authorization': 'Bearer ' + useSessionStore().accessToken
@@ -230,7 +230,7 @@ function getPrices(){
   let requestConfig = {
     method: 'get',
     credentials: true,
-    url: `${config.public.apiBase}/v1/address/${route.params.id}/prices`,
+    url: `${config.public.apiBaseClient}/v1/address/${route.params.id}/prices`,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',
@@ -254,7 +254,7 @@ function getAddressId(){
   let requestConfig = {
     method: 'get',
     credentials: true,
-    url: `${config.public.apiBase}/v1/company/${route.params.slug}`,
+    url: `${config.public.apiBaseClient}/v1/company/${route.params.slug}`,
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'multipart/form-data',

@@ -171,7 +171,7 @@ function sendPrice(price){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBase}/v1/address/${route.params.id}/prices`,
+    url: `${config.public.apiBaseClient}/v1/address/${route.params.id}/prices`,
     data: data,
     headers: {
       'Accept': 'application/json',

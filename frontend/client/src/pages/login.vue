@@ -152,7 +152,7 @@ function createAccount(){
   let requestConfig = {
     method: 'post',
     credentials: true,
-    url: `${config.public.apiBase}/v1/auth/register`,
+    url: `${config.public.apiBaseClient}/v1/auth/register`,
     data: getFormValues('create_account'),
     headers: {
       'Accept': 'application/json'
@@ -174,10 +174,6 @@ function createAccount(){
       });
 }
 
-function signOut() {
-  session.value.logout()
-  step.value = 'auth'
-}
 
 async function authForm() {
   const config = useRuntimeConfig();
@@ -215,27 +211,6 @@ async function authForm() {
   }
 }
 
-function verifyUser() {
-  const config = useRuntimeConfig()
-
-  let requestConfig = {
-    method: 'post',
-    credentials: true,
-    url: `${config.public.apiBase}/v1/auth/email/verify/2/07573a3c93dad6e7c283ea427d9f6cf94cf22783?expires=1713901523&signature=fc718ddc61b7cebdbe3dd9eeafb546e2505a5725468334a93e9ba8bf6f3bb884`,
-    headers: {
-      'Accept': 'application/json'
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-}
 </script>
 
 <template>
