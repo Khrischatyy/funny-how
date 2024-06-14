@@ -28,13 +28,13 @@ class AddressService
     public function getMyAddresses(): Collection
     {
         $user = Auth::user();
-        $companies = AdminCompany::where('admin_id', $user->id)->pluck('company_id');
+        $firstCompany = AdminCompany::where('admin_id', $user->id)->firstOrFail();
 
-        if (Gate::denies('view', $companies->first())) {
+        if (Gate::denies('view', $firstCompany->company)) {
             abort(403, 'You are not authorized to view these addresses.');
         }
 
-        return Address::whereIn('company_id', $companies)->get();
+        return Address::where('company_id', $firstCompany->company_id)->with(['badges', 'photos'])->get();
     }
 
     public function uploadPhotos(AddressPhotosRequest $request, Address $address)

@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Address;
+use App\Models\AdminCompany;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -30,8 +31,6 @@ class AddressPolicy
      */
     public function view(User $user, Address $address)
     {
-//        $company = $address->company;
-//        return $user->adminCompany && $user->adminCompany->company_id === $company->id;
     }
 
     /**

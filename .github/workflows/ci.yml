@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Docker images
+        run: make update-prod-container
+
+      - name: Run tests
+        run: |
+          make composer
+          make migrate
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Deploy to server
+        env:
+          HOST_USER: ${{ secrets.HOST_USER }}
+          HOST_IP: ${{ secrets.HOST_IP }}
+          HOST_PASSWORD: ${{ secrets.HOST_PASSWORD }}
+        run: |
+          scp -r ./ $HOST_USER@$HOST_IP:/var/www/funny-how
+          ssh $HOST_USER@$HOST_IP "
+            cd /var/www/funny-how &&
+            make stop &&
+            make clean &&
+            make build-prod &&
+            make composer-prod &&
+            make migrate-prod &&
+            make start-prod &&
+            make optimize-prod &&
+            docker system prune -af"
