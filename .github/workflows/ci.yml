@@ -48,7 +48,6 @@ jobs:
           HOST_IP: ${{ secrets.HOST_IP }}
           HOST_PASSWORD: ${{ secrets.HOST_PASSWORD }}
         run: |
-          scp -r ./ $HOST_USER@$HOST_IP:/home/ubuntu/funny-how
           ssh $HOST_USER@$HOST_IP "
             cd /home/ubuntu/funny-how &&
             make stop &&
