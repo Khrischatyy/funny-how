@@ -37,7 +37,7 @@ function signOut() {
             Find Some Here
           </RouterLink>
           <RouterLink to="/studios" class="text-3xl text-white uppercase hover:opacity-70">
-            Book Studio
+            Lock In Your Session
           </RouterLink>
         </div>
   </div>
