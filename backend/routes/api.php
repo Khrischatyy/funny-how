@@ -11,13 +11,16 @@ use App\Http\Controllers\API\{AddressController,
     MenuController,
     OperatingHourController,
     };
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\VerifyEmailController;
 use App\Services\PaymentService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
     EmailVerificationNotificationController,
     PasswordResetLinkController,
     RegisteredUserController};
+use Laravel\Socialite\Facades\Socialite;
 
 /*
 |--------------------------------------------------------------------------
@@ -112,5 +115,12 @@ Route::prefix('countries')->group(function () {
     Route::get('/', [CountryController::class, 'getCountries']);
     Route::get('{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 });
+
+Route::prefix('/auth/google')->group(function () {
+    Route::get('redirect', [GoogleController::class, 'redirectToGoogle']);
+    Route::get('callback', [GoogleController::class, 'handleGoogleCallback']);
+});
+
+
 
 Route::get('city/{city_id}/studios', [AddressController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');

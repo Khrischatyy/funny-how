@@ -15,7 +15,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
-use Laravel\Fortify\Contracts\VerifyEmailResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -41,7 +40,6 @@ class FortifyServiceProvider extends ServiceProvider
             }
         });
 
-
         //customized register response
         $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
             public function toResponse($request)
@@ -52,7 +50,6 @@ class FortifyServiceProvider extends ServiceProvider
                         "message" => 'Registration successful, verify your email address',
                         "token" => $user->createToken($request->email)->plainTextToken,
                         "role" => $user->getRoleNames()->first(),
-
                     ], 200)
                     : redirect()->intended(Fortify::redirects('register'));
             }
