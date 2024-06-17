@@ -24,18 +24,18 @@ function redirectToGoogle() {
   <div class="ease-in-out min-h-[100vh] w-full h-full flex flex-col gap-10 items-center justify-center">
     <BrandingLogo/>
     <div class="font-bebas flex flex-col text-center gap-5">
-      <RouterLink to="/map" class="text-3xl text-white uppercase hover:opacity-70">
+      <RouterLink to="/map" class="text-4xl text-white uppercase hover:opacity-70">
         Find Some Here
       </RouterLink>
-      <RouterLink to="/studios" class="text-3xl text-white uppercase hover:opacity-70">
+      <RouterLink to="/studios" class="text-4xl text-white uppercase hover:opacity-70">
         Lock In Your Session
       </RouterLink>
     </div>
     <button
         aria-label="Sign in with Google"
-        class="flex items-center gap-3 bg-google-button-dark rounded-full p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-dark-hover border-dashed border-red"
+        class="flex items-center gap-3 mt-5 bg-google-button-dark rounded-full font-bebas p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-dark-hover border-dashed border-red"
     >
-      <div class="flex items-center justify-center bg-white w-9 h-9 rounded-full">
+      <div class="flex items-center justify-center bg-white w-9 h-9 rounded-full ">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5">
           <title>Sign in with Google</title>
           <desc>Google G Logo</desc>
