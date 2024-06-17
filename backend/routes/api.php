@@ -116,9 +116,11 @@ Route::prefix('countries')->group(function () {
     Route::get('{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
 });
 
-Route::prefix('/auth/google')->group(function () {
-    Route::get('redirect', [GoogleController::class, 'redirectToGoogle']);
-    Route::get('callback', [GoogleController::class, 'handleGoogleCallback']);
+Route::middleware(['web'])->group(function () {
+    Route::prefix('/auth/google')->group(function () {
+        Route::get('redirect', [GoogleController::class, 'redirectToProvider']);
+        Route::get('callback', [GoogleController::class, 'handleGoogleCallback']);
+    });
 });
 
 

@@ -42,6 +42,18 @@ export default {
 			title: ['48px', '56px']
 		},
 		colors: {
+			google: {
+				'text-gray': '#3c4043',
+				'button-blue': '#1a73e8',
+				'button-blue-hover': '#5195ee',
+				'button-dark': '#171717',
+				'button-dark-hover': '#000000',
+				'button-border-light': '#dadce0',
+				'logo-blue': '#4285f4',
+				'logo-green': '#34a853',
+				'logo-yellow': '#fbbc05',
+				'logo-red': '#ea4335',
+			},
 			purple: {
 				DEFAULT: '#6A60F2',
 				100: '#C3BFFA',
