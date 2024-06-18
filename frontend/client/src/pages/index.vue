@@ -15,7 +15,8 @@ useHead({
 const isLoading = ref(false);
 
 function redirectToGoogle() {
-  window.location.href = '/auth/google/redirect';
+  const config = useRuntimeConfig();
+  window.location.href = `/api/v1/auth/google/redirect`;
 }
 
 </script>
