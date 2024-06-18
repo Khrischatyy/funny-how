@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\LoginResponse;
 
-class GoogleController extends Controller
+class GoogleController extends BaseController
 {
     public function redirectToProvider()
     {
@@ -21,6 +22,7 @@ class GoogleController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->user();
+
 
             $user = User::updateOrCreate(
                 ['google_id' => $googleUser->id],
@@ -39,6 +41,7 @@ class GoogleController extends Controller
             // Redirect back to the frontend with the token
             return redirect(env('AXIOS_BASEURL_CLIENT') . '/auth/callback?token=' . $token);
         } catch (\Exception $e) {
+            dd($e->getMessage());
             // Handle the exception or redirect to an error page
             return redirect('/login')->with('error', 'Failed to login with Google.');
         }
