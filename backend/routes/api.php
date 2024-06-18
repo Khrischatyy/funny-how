@@ -10,7 +10,7 @@ use App\Http\Controllers\API\{AddressController,
     EquipmentController,
     MenuController,
     OperatingHourController,
-    };
+    UserController};
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\VerifyEmailController;
 use App\Services\PaymentService;
@@ -109,6 +109,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
 
+    Route::get('/me', [UserController::class, 'getMe']);
+
 });
 
 Route::prefix('countries')->group(function () {
@@ -122,6 +124,8 @@ Route::middleware(['web'])->group(function () {
         Route::get('callback', [GoogleController::class, 'handleGoogleCallback']);
     });
 });
+
+
 
 
 
