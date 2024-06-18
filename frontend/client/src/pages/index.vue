@@ -33,6 +33,7 @@ function redirectToGoogle() {
     </div>
     <button
         aria-label="Sign in with Google"
+        @click="redirectToGoogle"
         class="flex items-center gap-3 mt-5 bg-google-button-dark rounded-full font-bebas p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-dark-hover border-dashed border-red"
     >
       <div class="flex items-center justify-center bg-white w-9 h-9 rounded-full ">
@@ -105,5 +106,4 @@ function redirectToGoogle() {
     }
   }
 }
-
 </style>

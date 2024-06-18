@@ -14,6 +14,5 @@ export const getSideMenu = async () => {
         auth: true
     })
     const response = await fetch();
-    console.log('Side Menu Response:', response);
     return response;
 }

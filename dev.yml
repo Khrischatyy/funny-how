@@ -31,6 +31,9 @@ services:
       - funny
     env_file:
       - .env
+    environment:
+      - AXIOS_BASEURL_CLIENT=http://127.0.0.1
+
 
   frontend:
     container_name: frontend

@@ -20,26 +20,27 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
+            $googleUser = Socialite::driver('google')->user();
 
-            $user = User::firstOrCreate([
-                'email' => $googleUser->getEmail(),
-            ], [
-                'name' => $googleUser->getName(),
-                'password' => bcrypt(Str::random(24)),
-            ]);
+            $user = User::updateOrCreate(
+                ['google_id' => $googleUser->id],
+                [
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'password' => Str::random(12)
+                ]
+            );
 
             Auth::login($user);
 
-            $token = $user->createToken($user->email)->plainTextToken;
+            // Create a Sanctum token
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-            return response()->json([
-                'message' => 'Successfully logged in',
-                'token' => $token,
-                'user' => $user,
-            ], 200);
+            // Redirect back to the frontend with the token
+            return redirect(env('AXIOS_BASEURL_CLIENT') . '/auth/callback?token=' . $token);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to authenticate with Google.', 'message' => $e->getMessage()], 500);
+            // Handle the exception or redirect to an error page
+            return redirect('/login')->with('error', 'Failed to login with Google.');
         }
     }
 }
