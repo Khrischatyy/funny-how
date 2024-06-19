@@ -47,7 +47,7 @@ export default {
 				'button-blue': '#1a73e8',
 				'button-blue-hover': '#5195ee',
 				'button-dark': '#171717',
-				'button-dark-hover': '#000000',
+				'button-dark-hover': '#171717',
 				'button-border-light': '#dadce0',
 				'logo-blue': '#4285f4',
 				'logo-green': '#34a853',
