@@ -50,7 +50,7 @@ class GoogleController extends BaseController
             // Redirect back to the frontend with the token
             return redirect(env('AXIOS_BASEURL_CLIENT') . '/auth/callback?token=' . $token);
         } catch (\Exception $e) {
-            dd($e->getMessage(), 'stop');
+            dd($e, 'stop');
             // Handle the exception or redirect to an error page
             return redirect('/login')->with('error', 'Failed to login with Google.');
         }
