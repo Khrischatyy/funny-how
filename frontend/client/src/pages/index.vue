@@ -26,12 +26,14 @@ function redirectToGoogle() {
     <BrandingLogo/>
     <div class="font-bebas flex flex-col text-center gap-5">
       <RouterLink to="/map" class="text-4xl text-white uppercase hover:opacity-70">
-        Find Some Here
+        Find Some Here <span class="text-red-500">📍</span>
       </RouterLink>
       <RouterLink to="/studios" class="text-4xl text-white uppercase hover:opacity-70">
-        Lock In Your Session
+        Book Stuff <span class="text-white">📅</span>
       </RouterLink>
     </div>
+
+
     <button
         aria-label="Sign in with Google"
         @click="redirectToGoogle"
