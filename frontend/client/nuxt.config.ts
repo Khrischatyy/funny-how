@@ -6,8 +6,9 @@ export default defineNuxtConfig({
       contentSecurityPolicy: {
         'default-src': ["'self'", "'unsafe-inline'", "data:", "https://maps.googleapis.com", "https://maps.gstatic.com"],
         'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://maps.googleapis.com"],
-        'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        'img-src': ["'self'", "data:", "https://*.googleapis.com", "https://*.gstatic.com"],
+        'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // обновлено
+        'style-src-elem': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // добавлено
+        'img-src': ["'self'", "data:", "https://*.googleapis.com", "https://*.gstatic.com", "https://funny-how-s3-bucket.s3.amazonaws.com"], // обновлено
         'connect-src': ["'self'", "https://maps.googleapis.com"],
         'font-src': ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"]
       }
@@ -71,7 +72,7 @@ export default defineNuxtConfig({
     }
   },
   tailwindcss: {
-  	cssPath: '@/src/shared/assets/style/tailwind.css',
+    cssPath: '@/src/shared/assets/style/tailwind.css',
   },
   css: ['@/src/shared/assets/style/index.scss', 'animate.css/animate.min.css'],
   buildModules: [

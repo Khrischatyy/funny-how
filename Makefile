@@ -36,9 +36,14 @@ npm-install-package:
 npm-install-save-dev:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm frontend sh -c "npm install --save-dev"
 
-pdate-frontend:
+update-frontend:
 	@docker-compose -f docker-compose.yml -f dev.yml stop frontend
 	@docker-compose -f docker-compose.yml -f dev.yml up -d frontend
+
+
+update-frontend-prod:
+	@docker-compose -f docker-compose.yml -f prod.yml stop frontend
+	@docker-compose -f docker-compose.yml -f prod.yml up -d frontend
 
 migrate:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan migrate"
