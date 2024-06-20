@@ -39,7 +39,6 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue'
 import { ref, computed, watch, onMounted, type Ref } from 'vue'
-import { BrandingLogo } from '~/src/shared/ui/branding'
 import { FSelect } from '~/src/entities/RegistrationForms/ui'
 import { StudioCard } from '~/src/entities/Studio'
 import { getStudios, type Studio } from '~/src/entities/RegistrationForms/api/getStudios'

@@ -10,11 +10,11 @@
 
     <div class="mt-4 flex gap-3 justify-between items-center">
       <div v-for="(photo, index) in studio.photos" :key="photo.id" class="w-24 h-20 relative">
-        <div v-if="index == 0" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-[#1a1a1a] to-transparent rounded-lg rounded-[8px] absolute flex items-center justify-start">
-          <IconLeft iconType="thin"/>
+        <div v-if="index === 0" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-[#1a1a1a] to-transparent rounded-lg absolute flex items-center justify-start">
+          <IconLeft iconType="thin" />
         </div>
-        <div v-if="index == studio.photos.length - 1" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-transparent to-[#1a1a1a] rounded-lg rounded-[8px] absolute flex items-center justify-end">
-          <IconRight iconType="thin"/>
+        <div v-if="index === studio.photos.length - 1" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-transparent to-[#1a1a1a] rounded-lg absolute flex items-center justify-end">
+          <IconRight iconType="thin" />
         </div>
         <img :src="photo.url" alt="Photo" class="w-full h-full object-contain rounded-[10px]" />
       </div>
@@ -22,14 +22,14 @@
 
     <div class="mt-4 flex gap-3 justify-between items-center">
       <div class="flex items-center">
-        <IconClock class="opacity-20"/>
+        <IconClock class="opacity-20" />
         <div class="flex flex-col">
           <span class="text-white opacity-20">Working Hours</span>
           <span class="text-white">{{ studio.hours }}</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <IconPrice class="opacity-20"/>
+        <IconPrice class="opacity-20" />
         <div class="flex flex-col">
           <span class="text-white opacity-20">Price</span>
           <span class="text-white">{{ studio.price }}$ / hour</span>
@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import IconPrice from "~/src/shared/ui/common/Icon/Filter/IconPrice.vue";
-import {IconClock, IconLeft, IconRight} from "~/src/shared/ui/common";
+import { IconClock, IconLeft, IconRight } from "~/src/shared/ui/common";
 
 defineProps({
   studio: {

@@ -12,7 +12,7 @@
           <FilterBar />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <AddStudioButton @click="togglePopup" />
-            <StudioCard v-for="studio in studios" :key="studio.id" :studio="studio" />
+            <StudioCard v-for="studio in myStudios" :key="studio.id" :studio="studio" :photos="studio.photos" />
           </div>
         </div>
       </div>
@@ -37,33 +37,38 @@
 }
 </style>
 
-
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { AddStudioButton } from '~/src/features/addStudio';
 import { StudioCard } from '~/src/entities/Studio';
-import {Header, Footer, FilterBar, Popup} from '~/src/shared/ui/components';
+import { Header, Footer, FilterBar, Popup } from '~/src/shared/ui/components';
 import { SideMenu } from '~/src/widgets/navigation';
 import { getSideMenu } from '~/src/widgets/navigation/api/useSideMenu';
 import { useAsyncData } from '#app';
-import {AddStudioModal} from "~/src/widgets/Modals";
+import { AddStudioModal } from "~/src/widgets/Modals";
+import { getMyStudios } from '~/src/entities/RegistrationForms/api/getMyStudios';
 
 const sideMenuRef = ref();
-
 const sideMenu = ref({});
 const sideMenuArray = ref([]);
 const isLoading = ref(true);
+const myStudios = ref([]);
+const showPopup = ref(false);
+
+const fetchStudios = async () => {
+  const studios = await getMyStudios();
+  myStudios.value = studios;
+};
 
 const { data, error } = await useAsyncData('sideMenu', getSideMenu);
 
-const showPopup = ref(false);
-
 const togglePopup = () => {
   showPopup.value = !showPopup.value;
-}
+};
+
 const closePopup = () => {
   showPopup.value = false;
-}
+};
 
 watch(data, (newData) => {
   if (newData) {
@@ -79,17 +84,13 @@ if (error.value) {
   isLoading.value = false; // Set loading to false in case of error
 }
 
-const studios = ref([
-  { id: 1, logo: 'path/to/logo1.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
-  { id: 2, logo: 'path/to/logo2.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
-  { id: 3, logo: 'path/to/logo3.png', name: 'Abbey road studios', address: 'Address', hours: '10:00 - 18:00', price: 10 },
-]);
-
 const toggleSideMenu = () => {
   if (sideMenuRef.value) {
     sideMenuRef.value.toggleMenu();
   }
 };
 
-console.log('SideMenu Array:', sideMenuArray.value);
+onMounted(() => {
+  fetchStudios();
+});
 </script>
