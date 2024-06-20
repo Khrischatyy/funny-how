@@ -45,7 +45,7 @@ const studios = {
 
 <template>
   <ClientOnly>
-    {{config.public.googleMapKey}}
+    Key: {{config.public.googleMapKey}}
     <GoogleMap :api-key="config.public.googleMapKey" class="map" :center="center" :zoom="zoom">
       <MarkerCluster :options="{ position: center }">
         <MarkerList v-for="studio in studios" :key="studio.id" :logo="props.logo || '/logo.png'" :marker="studio"/>
