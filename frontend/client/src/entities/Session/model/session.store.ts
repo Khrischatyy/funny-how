@@ -117,6 +117,9 @@ export const useSessionStore = defineStore({
 		setIsLoading(isLoading: boolean) {
 			this.isLoading = isLoading
 		},
+		isGuest() {
+			return !this.isAuthorized
+		},
 		logout() {
 			this.setAuthorized(false)
 			navigateTo('/login')

@@ -3,10 +3,6 @@ import {GoogleMap, MarkerCluster} from 'vue3-google-map';
 import {ref, computed, onMounted} from 'vue';
 import MarkerList from "~/src/widgets/MarkerList.vue";
 import { useRuntimeConfig } from '#imports'; // Ensure correct import
-import { useNuxtApp } from '#app'; // Ensure correct import
-
-const { $googleMapKey } = useNuxtApp(); // Correctly access the injected key
-
 const config = useRuntimeConfig(); // Ensure correct usage
 
 
