@@ -11,7 +11,7 @@
 | Vue.js     | 3.4.19  |
 | Cashier    | 14.14   |
 
-Swagger documentation is available in a dev environment on port: 8080
+Swagger documentation is available in a dev environment **after** launch containers: [http://127.0.0.1:8080](http://127.0.0.1:8080)
 ----
 ## Start The Project
 
