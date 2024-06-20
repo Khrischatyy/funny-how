@@ -22,7 +22,6 @@ class GoogleController extends BaseController
     {
         try {
             $googleUser = Socialite::driver('google')->user();
-            dd('shit');
             $user = User::where('email', $googleUser->email)->first();
 
             if ($user) {
