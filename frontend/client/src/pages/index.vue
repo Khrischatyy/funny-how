@@ -51,7 +51,6 @@ const session = useSessionStore();
         </div>
       </RouterLink>
     </div>
-
     <button
         v-if="session.isGuest()"
         aria-label="Sign in with Google"

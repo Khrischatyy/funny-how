@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath, URL } from 'url'
 // @ts-ignore
 export default defineNuxtConfig({
