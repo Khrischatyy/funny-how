@@ -16,7 +16,8 @@ Swagger documentation is available in a dev environment on port: 8080
 ### Start The Project
 
 ---
-Create env file (ask .env file from khrischatyy@gmail.com)
+Create env file (ask .env file from khrischatyy@gmail.com or rushadaev@gmail.com)
+
 ```bash
 $ cp .env.example .env
 ```
