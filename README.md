@@ -1,4 +1,4 @@
-# Funny-how 
+# Funny-how
 
 ### Technologies used in Docker 💻
 | Technology | Version |
@@ -31,7 +31,7 @@ Launch containers
 $ make start
 ```
 
-Update container
+Update frontend container
 ```bash
 $ make update-dev-container 
 ```
