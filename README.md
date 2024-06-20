@@ -13,26 +13,40 @@
 
 Swagger documentation is available in a dev environment on port: 8080
 ----
-### Start The Project
+## Start The Project
 
 ---
-Create env file (ask .env file from khrischatyy@gmail.com or rushadaev@gmail.com)
+For credentials, contact us at khrischatyy@gmail.com or rushadaev@gmail.com
+
+Create an .env file
 
 ```bash
-$ cp .env.example .env
+cp .env.example .env
 ```
+
+**Use the tab key after writing the make command**
+
+**All commands are described in the Makefile in the main folder `funny-how/`**
+
+**Execute all commands in the main folder `funny-how/`**
+
 
 Build containers
 ```bash
-$ make build
+make build
 ```
 
 Launch containers
 ```bash
-$ make start
+make start
 ```
 
 Update frontend container
 ```bash
-$ make update-dev-container 
+make update-frontend
+```
+
+Update all containers
+```bash
+make update-dev-container 
 ```
