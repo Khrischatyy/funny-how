@@ -6,6 +6,7 @@ use App\Http\Requests\AddressPhotosRequest;
 use App\Http\Requests\AddressRequest;
 use App\Models\Address;
 use App\Models\AdminCompany;
+use App\Models\OperatingHour;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -34,7 +35,20 @@ class AddressService
             abort(403, 'You are not authorized to view these addresses.');
         }
 
-        return Address::where('company_id', $firstCompany->company_id)->with(['badges', 'photos'])->get();
+        $addresses = Address::where('company_id', $firstCompany->company_id)
+            ->with(['badges', 'photos', 'prices'])
+            ->get();
+
+        // Получение операционных часов для всех адресов за один запрос
+        $addressIds = $addresses->pluck('id');
+        $operatingHours = OperatingHour::whereIn('address_id', $addressIds)->get()->groupBy('address_id');
+
+        // Объединение операционных часов с адресами
+        $addresses->each(function ($address) use ($operatingHours) {
+            $address->working_hours = $operatingHours->get($address->id)->first();
+        });
+
+        return $addresses;
     }
 
     public function uploadPhotos(AddressPhotosRequest $request, Address $address)

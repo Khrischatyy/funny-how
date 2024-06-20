@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\BookingService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -40,5 +41,12 @@ class Address extends Model
     public function photos()
     {
         return $this->hasMany(AddressPhoto::class);
+    }
+
+    public function workingHours()
+    {
+        // Получаем операционные часы из BookingService
+        $bookingService = new BookingService();
+        return $bookingService->getOperatingHours($this->id, now());
     }
 }

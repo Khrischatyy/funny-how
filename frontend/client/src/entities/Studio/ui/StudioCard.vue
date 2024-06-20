@@ -1,19 +1,19 @@
 <template>
   <div class="bg-black p-4 rounded-md shadow-lg flex flex-col justify-between">
     <div class="flex justify-start items-center mb-4 gap-5">
-      <img :src="studio.logo" alt="Logo" class="h-12 w-12 object-contain rounded-full" />
+      <img :src="logoSrc" alt="Logo" class="h-12 w-12 object-contain rounded-full" />
       <div>
         <h3 class="text-xl font-bold text-white">{{ studio.name }}</h3>
-        <p class="text-white">{{ studio.address }}</p>
+        <p class="text-white">{{ studio.street }}</p>
       </div>
     </div>
 
-    <div class="mt-4 flex gap-3 justify-between items-center">
-      <div v-for="(photo, index) in studio.photos" :key="photo.id" class="w-24 h-20 relative">
-        <div v-if="index === 0" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-[#1a1a1a] to-transparent rounded-lg absolute flex items-center justify-start">
+    <div class="mt-4 flex gap-3 justify-between items-center relative">
+      <div v-for="(photo, index) in displayedPhotos" :key="index" class="w-24 h-20 relative">
+        <div v-if="index === 0" @click="prevPhoto" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-[#1a1a1a] to-transparent rounded-lg absolute flex items-center justify-start">
           <IconLeft iconType="thin" />
         </div>
-        <div v-if="index === studio.photos.length - 1" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-transparent to-[#1a1a1a] rounded-lg absolute flex items-center justify-end">
+        <div v-if="index === displayedPhotos.length - 1" @click="nextPhoto" class="cursor-pointer w-24 h-20 bg-gradient-to-r from-transparent to-[#1a1a1a] rounded-lg absolute flex items-center justify-end">
           <IconRight iconType="thin" />
         </div>
         <img :src="photo.url" alt="Photo" class="w-full h-full object-contain rounded-[10px]" />
@@ -25,14 +25,26 @@
         <IconClock class="opacity-20" />
         <div class="flex flex-col">
           <span class="text-white opacity-20">Working Hours</span>
-          <span class="text-white">{{ studio.hours }}</span>
+          <span class="text-white">{{ workingHours }}</span>
         </div>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 relative">
         <IconPrice class="opacity-20" />
         <div class="flex flex-col">
           <span class="text-white opacity-20">Price</span>
-          <span class="text-white">{{ studio.price }}$ / hour</span>
+          <span class="text-white">{{ primaryPrice }}</span>
+        </div>
+        <button v-if="studio.prices.length > 1" class="ml-2 text-xs text-gray-500 hover:text-gray-300" @click="togglePriceTooltip">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M19 11h.01M5 11h.01M9 7h.01M15 7h.01M4 15h16" />
+          </svg>
+        </button>
+        <div v-if="showPriceTooltip" class="absolute bottom-0 right-0 mb-8 mr-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg">
+          <ul>
+            <li v-for="price in studio.prices" :key="price.id">
+              ${{ price.total_price }} / {{ price.hours }} hour
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -40,15 +52,77 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import IconPrice from "~/src/shared/ui/common/Icon/Filter/IconPrice.vue";
 import { IconClock, IconLeft, IconRight } from "~/src/shared/ui/common";
 
-defineProps({
+// Import the default images
+import defaultLogo from '~/src/shared/assets/image/microphone.png';
+import defaultPhoto3_1 from '~/src/shared/assets/image/skeleton-studio-card/music-studio.png';
+import defaultPhoto3_2 from '~/src/shared/assets/image/skeleton-studio-card/studio.png';
+import defaultPhoto3_3 from '~/src/shared/assets/image/skeleton-studio-card/studio-microphone.png';
+
+const props = defineProps({
   studio: {
     type: Object,
     required: true
   }
 });
+
+const currentIndex = ref(0);
+const showPriceTooltip = ref(false);
+
+const logoSrc = computed(() => {
+  return props.studio.logo && props.studio.logo.trim() !== '' ? props.studio.logo : defaultLogo;
+});
+
+const displayedPhotos = computed(() => {
+  let photos = props.studio.photos.slice(currentIndex.value, currentIndex.value + 3);
+
+  while (photos.length < 3) {
+    if (photos.length === 0) {
+      photos.push({ id: 'default1', url: defaultPhoto3_1 });
+    } else if (photos.length === 1) {
+      photos.push({ id: 'default2', url: defaultPhoto3_2 });
+    } else if (photos.length === 2) {
+      photos.push({ id: 'default3', url: defaultPhoto3_3 });
+    }
+  }
+
+  return photos.slice(0, 3);
+});
+
+const nextPhoto = () => {
+  if (currentIndex.value + 3 < props.studio.photos.length) {
+    currentIndex.value += 1;
+  }
+};
+
+const prevPhoto = () => {
+  if (currentIndex.value > 0) {
+    currentIndex.value -= 1;
+  }
+};
+
+const workingHours = computed(() => {
+  if (props.studio.working_hours.mode_id === 1) {
+    return '24ч';
+  } else {
+    return `${props.studio.working_hours.open_time} - ${props.studio.working_hours.close_time}`;
+  }
+});
+
+const primaryPrice = computed(() => {
+  if (props.studio.prices && props.studio.prices.length > 0) {
+    const price = props.studio.prices[0];
+    return `$${price.total_price} / ${price.hours} hour`;
+  }
+  return '';
+});
+
+const togglePriceTooltip = () => {
+  showPriceTooltip.value = !showPriceTooltip.value;
+};
 </script>
 
 <style scoped>

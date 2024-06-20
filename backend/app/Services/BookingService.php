@@ -279,7 +279,7 @@ class BookingService
             ->exists();
     }
 
-    private function getOperatingHours(int $addressId, Carbon $bookingDate): OperatingHour
+    public function getOperatingHours(int $addressId, Carbon $bookingDate): OperatingHour
     {
         $operatingHours = OperatingHour::where('address_id', $addressId)->get();
 
