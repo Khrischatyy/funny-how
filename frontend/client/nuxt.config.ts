@@ -64,7 +64,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      googleMapKey: process.env.GOOGLE_MAPS_API,
+      googleMapKey: process.env.NUXT_ENV_GOOGLE_MAPS_API,
       googlePlacesApi: process.env.GOOGLE_PLACES_API,
       apiBase: process.env.AXIOS_BASEURL ? process.env.AXIOS_BASEURL + process.env.AXIOS_API_VERSION : '',
       apiBaseClient: process.env.AXIOS_BASEURL_CLIENT ? process.env.AXIOS_BASEURL_CLIENT + process.env.AXIOS_API_VERSION : '',

@@ -55,7 +55,7 @@ services:
       - AXIOS_BASEURL=http://nginx
       - AXIOS_BASEURL_CLIENT=http://127.0.0.1
       - AXIOS_API_VERSION=/api/v1
-      - GOOGLE_MAPS_API=${GOOGLE_MAPS_API:-default_map_key}
+      - NUXT_ENV_GOOGLE_MAPS_API=${GOOGLE_MAPS_API:-default_map_key}
     volumes:
       - ./frontend/client:/usr/src/app
       - /usr/src/app/node_modules
