@@ -16,7 +16,15 @@ class OperatingHoursSeeder extends Seeder
      */
     public function run()
     {
+
         $inserts = [
+            [
+                'address_id' => 3,
+                'mode_id' => 1,
+                'day_of_week' => null,
+                'open_time' => '00:00',
+                'close_time' => '24:00'
+            ],
             [
                 'address_id' => 2,
                 'mode_id' => 1,

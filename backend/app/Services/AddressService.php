@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\OperatingHourException;
 use App\Http\Requests\AddressPhotosRequest;
 use App\Http\Requests\AddressRequest;
 use App\Models\Address;
@@ -92,12 +93,17 @@ class AddressService
         return $uploadedPhotos;
     }
 
-    public function getAddressByCityIdWithWorkingHours(int $cityId): Collection
+    public function getAddressByCityIdWithWorkingHours(int $cityId): Collection //менять тут
     {
         $addresses = $this->addressRepository->getAddressByCityId($cityId);
 
         $addressIds = $addresses->pluck('id');
         $operatingHours = $this->addressRepository->getOperatingHoursByAddressIds($addressIds);
+
+        if ($operatingHours->isEmpty()) {
+            throw new OperatingHourException("You didn't set hours", 400);
+        }
+
 
         $addresses->each(function ($address) use ($operatingHours) {
             $address->working_hours = $operatingHours->get($address->id)->first();
