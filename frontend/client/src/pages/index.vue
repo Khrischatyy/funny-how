@@ -30,7 +30,7 @@ const isShowLogin = computed(() => {
     <BrandingLogo/>
     <div class="font-bebas flex flex-col text-center gap-5">
       <RouterLink to="/map" class="text-4xl text-white uppercase hover:opacity-70">
-        <div class="flex justify-center items-center ">
+        <div class="flex gap-3 justify-center items-center ">
           <div>
             Find Some Here
           </div>
@@ -43,7 +43,7 @@ const isShowLogin = computed(() => {
       </RouterLink>
       <RouterLink to="/studios" class="text-4xl text-white uppercase hover:opacity-70 flex justify-center">
         <div class="">
-          Lock In Your Session:
+          Lock In Your Session
         </div>
         <div class="flex items-center justify-center relative -translate-y-1 translate-x-2">
           <img
