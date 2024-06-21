@@ -21,7 +21,7 @@ function redirectToGoogle() {
   window.location.href = `/api/v1/auth/google/redirect`;
 }
 const isShowLogin = computed(() => {
-  return useCookie(ACCESS_TOKEN_KEY).value === null;
+  return !useCookie(ACCESS_TOKEN_KEY).value;
 });
 </script>
 
@@ -43,7 +43,7 @@ const isShowLogin = computed(() => {
       </RouterLink>
       <RouterLink to="/studios" class="text-4xl text-white uppercase hover:opacity-70 flex justify-center">
         <div class="">
-          Lock In Your Session
+          Lock In Your Session:
         </div>
         <div class="flex items-center justify-center relative -translate-y-1 translate-x-2">
           <img
