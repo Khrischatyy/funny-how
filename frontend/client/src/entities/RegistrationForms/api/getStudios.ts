@@ -1,4 +1,5 @@
 import {useApi} from "~/src/lib/api";
+import {inputField} from "#build/src/entities/RegistrationForms";
 
 export interface Badge {
     id: number;
@@ -32,6 +33,27 @@ export interface Studio {
     }
     company: Company;
     badges: Badge[];
+    prices: Prices[];
+    working_hours: WorkingHours[];
+}
+
+interface WorkingHours {
+    id: number;
+    address_id: number;
+    mode_id: number;
+    day_of_week: number | null;
+    open_time: string;
+    close_time: string;
+    is_closed: boolean;
+}
+
+interface Prices {
+    address_id: number;
+    hours: string;
+    id: number;
+    is_enabled: boolean;
+    price_per_hour: string;
+    total_price: string;
 }
 
 interface GetStudiosResponse {

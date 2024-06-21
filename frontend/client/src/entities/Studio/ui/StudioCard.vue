@@ -77,7 +77,7 @@ const logoSrc = computed(() => {
 });
 
 const displayedPhotos = computed(() => {
-  let photos = props.studio.photos.slice(currentIndex.value, currentIndex.value + 3);
+  let photos = props.studio.photos ? props.studio.photos.slice(currentIndex.value, currentIndex.value + 3) : [];
 
   while (photos.length < 3) {
     if (photos.length === 0) {
@@ -93,7 +93,7 @@ const displayedPhotos = computed(() => {
 });
 
 const nextPhoto = () => {
-  if (currentIndex.value + 3 < props.studio.photos.length) {
+  if (currentIndex.value + 3 < (props.studio.photos ? props.studio.photos.length : 0)) {
     currentIndex.value += 1;
   }
 };

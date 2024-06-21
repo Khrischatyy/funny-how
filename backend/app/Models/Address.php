@@ -42,11 +42,4 @@ class Address extends Model
     {
         return $this->hasMany(AddressPhoto::class);
     }
-
-    public function workingHours()
-    {
-        // Получаем операционные часы из BookingService
-        $bookingService = new BookingService();
-        return $bookingService->getOperatingHours($this->id, now());
-    }
 }

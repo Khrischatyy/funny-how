@@ -111,19 +111,22 @@ const handleCountryChange = async (countryId: string) => {
 }
 
 const handleCityChange = async (cityId: string) => {
-  selectedCity.value = cityId
-  localStorage.setItem('selectedCity', cityId.toString())
-  updateURL()
-  const studiosData = await getStudios(cityId)
+  selectedCity.value = cityId;
+  localStorage.setItem('selectedCity', cityId.toString());
+  updateURL();
+  const studiosData = await getStudios(cityId);
+
   studios.value = studiosData.map(studio => ({
     id: studio.id,
     logo: studio.company.logo,
     name: studio.company.name,
     address: studio.street,
     photos: studio.photos,
-    hours: '10:00 - 18:00', // Assuming static hours for now, adjust as needed
-    price: 10 // Assuming static price for now, adjust as needed
-  }))
+    prices: studio.prices,
+    working_hours: studio.working_hours,
+    hours: studio.working_hours.mode_id === 1 ? '24ч' : `${studio.working_hours.open_time} - ${studio.working_hours.close_time}`,
+    price: studio.prices.length > 0 ? studio.prices[0].total_price : 0
+  }));
 }
 
 const handleSearch = () => {

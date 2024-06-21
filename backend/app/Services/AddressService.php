@@ -7,6 +7,7 @@ use App\Http\Requests\AddressRequest;
 use App\Models\Address;
 use App\Models\AdminCompany;
 use App\Models\OperatingHour;
+use App\Repositories\AddressRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
 
 class AddressService
 {
+    public function __construct(public AddressRepository $addressRepository,
+                                public BookingService $bookingService) {}
     public function createAddress(AddressRequest $addressRequest, $city, $company)
     {
         return Address::create([
@@ -35,15 +38,11 @@ class AddressService
             abort(403, 'You are not authorized to view these addresses.');
         }
 
-        $addresses = Address::where('company_id', $firstCompany->company_id)
-            ->with(['badges', 'photos', 'prices'])
-            ->get();
+        $addresses = $this->addressRepository->getMyAddresses($firstCompany->company_id);
 
-        // Получение операционных часов для всех адресов за один запрос
         $addressIds = $addresses->pluck('id');
-        $operatingHours = OperatingHour::whereIn('address_id', $addressIds)->get()->groupBy('address_id');
+        $operatingHours = $this->addressRepository->getOperatingHoursByAddressIds($addressIds);
 
-        // Объединение операционных часов с адресами
         $addresses->each(function ($address) use ($operatingHours) {
             $address->working_hours = $operatingHours->get($address->id)->first();
         });
@@ -91,5 +90,19 @@ class AddressService
         }
 
         return $uploadedPhotos;
+    }
+
+    public function getAddressByCityIdWithWorkingHours(int $cityId): Collection
+    {
+        $addresses = $this->addressRepository->getAddressByCityId($cityId);
+
+        $addressIds = $addresses->pluck('id');
+        $operatingHours = $this->addressRepository->getOperatingHoursByAddressIds($addressIds);
+
+        $addresses->each(function ($address) use ($operatingHours) {
+            $address->working_hours = $operatingHours->get($address->id)->first();
+        });
+
+        return $addresses;
     }
 }

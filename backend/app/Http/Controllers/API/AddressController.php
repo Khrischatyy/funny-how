@@ -151,7 +151,7 @@ class AddressController extends BaseController
     public function getAddressesInCity(int $cityId): JsonResponse
     {
         try {
-            $addresses = $this->addressRepository->getAddressByCityId($cityId)->get();
+            $addresses = $this->addressService->getAddressByCityIdWithWorkingHours($cityId);
 
             if ($addresses->isEmpty()) {
                 return $this->sendError('No addresses found in the specified city.', 404);

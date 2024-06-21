@@ -14,6 +14,7 @@ import {BrandingLogoSample, BrandingLogoSmall} from "~/src/shared/ui/branding";
 import {navigateTo} from "nuxt/app";
 import CreateAccountForm from "~/src/features/Register/createAccount/ui/CreateAccountForm.vue";
 import {useApi} from "~/src/lib/api";
+import GoogleSignInButton from "~/src/shared/ui/components/GoogleSignInButton.vue"
 
 useHead({
   title: 'Funny How – Book a Session Time',
@@ -322,11 +323,15 @@ async function authForm() {
                   <div class="text-white text-sm font-normal tracking-wide">Stay signed in for a month</div>
                 </label>
               </div>
-              <div class="justify-center items-center gap-2.5 inline-flex">
-                <button @click="authForm()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Sign In</button>
-              </div>
-              <div class="justify-center items-center gap-2.5 inline-flex">
-                <button @click="createForm()" class="w-96 h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white border text-sm font-medium tracking-wide">Don’t have an account? Create account</button>
+
+
+              <div class="flex flex-col items-center gap-2.5">
+                <button @click="authForm()" class="w-96 h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Sign In</button>
+
+                <div class="justify-center items-center gap-2.5 inline-flex">
+                  <button @click="createForm()" class="w-96 h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white border text-sm font-medium tracking-wide">Don’t have an account? Create account</button>
+                </div>
+                <GoogleSignInButton class=""></GoogleSignInButton>
               </div>
               <div class="w-96 h-11 p-3.5 justify-center items-center gap-2.5 inline-flex">
                 <button  class="w-96 h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white text-sm font-medium tracking-wide">Forgot password?</button>
