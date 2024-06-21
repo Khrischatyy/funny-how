@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, onBeforeMount, computed} from 'vue';
 import { navigateTo } from 'nuxt/app';
 import { useRuntimeConfig } from '#imports';
 import { BrandingLogo } from '~/src/shared/ui/branding';
-import {useSessionStore} from "~/src/entities/Session";
+import {ACCESS_TOKEN_KEY, useSessionStore} from "~/src/entities/Session";
+import {useCookie} from "#app";
 
 useHead({
   title: 'Funny How – Book a Session Time',
@@ -19,7 +20,9 @@ function redirectToGoogle() {
   const config = useRuntimeConfig();
   window.location.href = `/api/v1/auth/google/redirect`;
 }
-const session = useSessionStore();
+const isShowLogin = computed(() => {
+  return useCookie(ACCESS_TOKEN_KEY).value === null;
+});
 </script>
 
 <template>
@@ -52,7 +55,7 @@ const session = useSessionStore();
       </RouterLink>
     </div>
     <button
-        v-if="session.isGuest()"
+        v-if="isShowLogin"
         aria-label="Sign in with Google"
         @click="redirectToGoogle"
         class="flex items-center gap-3 mt-5 rounded-full font-bebas p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-dark-hover border-dashed border-red"

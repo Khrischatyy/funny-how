@@ -4,10 +4,12 @@ import {
     ROLE_INFO_KEY, ACCESS_TOKEN_KEY, RESERVES_KEY, PAYMENT_SESSION, BRAND_KEY
 } from '~/src/entities/Session/model'
 import {UserRoleEnum} from "~/src/entities/@abstract/User";
+import {useCookie} from "#app";
 
 export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.hook('app:beforeMount', async () => {
         const sessionStore = useSessionStore()
+        sessionStore.setAuthorized(true)
         // Проверяем, выполняется ли код на клиенте
         if (process.client) {
             const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY)
@@ -38,6 +40,12 @@ export default defineNuxtPlugin((nuxtApp) => {
                 sessionStore.setAuthorized(false) // Пользователь не авторизован
             }
         } else {
+            sessionStore.setAuthorized(true)
+            let token = useCookie(ACCESS_TOKEN_KEY).value
+            if(token) {
+                sessionStore.setAccessToken(token)
+                sessionStore.setAuthorized(true)
+            }
             // На стороне сервера пользователь считается неавторизованным
             sessionStore.setAuthorized(false)
         }
