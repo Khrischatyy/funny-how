@@ -50,3 +50,10 @@ Update all containers
 ```bash
 make update-dev-container 
 ```
+
+Reload the nginx server
+```bash
+make nginx-reload
+```
+
+
