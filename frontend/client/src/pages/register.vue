@@ -443,7 +443,7 @@ function verifyUser() {
                 <div class="justify-start items-center w-full gap-2.5 inline-flex">
                   <div class="justify-center w-96 items-center gap-2.5 inline-flex">
                     <label for="studio_logo" class="flex-col justify-center items-center h-[58px] px-3.5 py-3.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
-                      <BrandingLogoSample/>
+                      <BrandingLogo/>
                       upload...
                     </label>
                     <input class="hidden" id="studio_logo" @change="getFormValues('setup')['studio_logo']" type="file" placeholder="Enter Your Studio Name" />
