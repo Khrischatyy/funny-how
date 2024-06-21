@@ -119,3 +119,10 @@ optimize-prod:
 
 nginx-reload-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml exec nginx nginx -s reload
+
+
+# CAUTION: This will remove all Docker containers, volumes, and networks.
+clean-all:
+	@docker rm -f $(docker ps -a -q) || true
+	@docker volume rm $(docker volume ls -q) || true
+	@docker network rm $(docker network ls -q) || true
