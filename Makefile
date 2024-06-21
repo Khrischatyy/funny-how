@@ -27,6 +27,9 @@ restart: stop start
 clean:
 	@docker-compose -f docker-compose.yml -f dev.yml down
 
+nginx-reload:
+	@docker-compose -f docker-compose.yml -f dev.yml exec nginx nginx -s reload
+
 npm-install:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm frontend sh -c "npm i"
 
@@ -74,8 +77,8 @@ tinker:
 swagger:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan l5-swagger:generate"
 
-scribe:
-	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan scribe:generate"
+#scribe:
+#	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan scribe:generate"
 
 #user:
 #	@docker exec -it --user www-data nginx /bin/sh
@@ -113,3 +116,6 @@ seeds-prod:
 
 optimize-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan optimize"
+
+nginx-reload-prod:
+	@docker-compose -f docker-compose.yml -f prod.yml exec nginx nginx -s reload
