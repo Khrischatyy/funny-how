@@ -123,6 +123,6 @@ nginx-reload-prod:
 
 # CAUTION: This will remove all Docker containers, volumes, and networks.
 clean-all:
-	@docker rm -f $(docker ps -a -q) || true
-	@docker volume rm $(docker volume ls -q) || true
-	@docker network rm $(docker network ls -q) || true
+	@docker ps -a -q | xargs -r docker rm -f
+	@docker volume ls -q | xargs -r docker volume rm
+	@docker network ls --format '{{.Name}}' | awk '$$1 !~ /^(bridge|host|none)$$/' | xargs -r docker network rm
