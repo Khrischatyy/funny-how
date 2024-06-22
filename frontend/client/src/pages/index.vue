@@ -7,6 +7,7 @@ import {ACCESS_TOKEN_KEY, useSessionStore} from "~/src/entities/Session";
 import {useCookie} from "#app";
 import GoogleSignInButton from '~/src/shared/ui/components/GoogleSignInButton.vue';
 import {Header, Footer} from "~/src/shared/ui/components";
+import {navigateTo} from "nuxt/app";
 
 useHead({
   title: 'Funny How – Book a Session Time',
@@ -24,6 +25,9 @@ function redirectToGoogle() {
 const isShowLogin = computed(() => {
   return !useCookie(ACCESS_TOKEN_KEY).value;
 });
+function signOut() {
+  useSessionStore().logout();
+}
 </script>
 
 <template>
@@ -57,6 +61,14 @@ const isShowLogin = computed(() => {
         </RouterLink>
       </div>
       <GoogleSignInButton class="mt-10" />
+      <div v-if="useSessionStore().brand" class="justify-center items-center gap-2.5 inline-flex mt-10">
+        <button @click="navigateTo(`/@${useSessionStore().brand}`)" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">
+          My company @{{ useSessionStore().brand }}
+        </button>
+      </div>
+      <div class="justify-center items-center gap-2.5 inline-flex mt-10">
+        <button @click="signOut()" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">Sign Out</button>
+      </div>
     </div>
     <Footer />
   </div>
