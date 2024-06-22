@@ -38,15 +38,25 @@ class OperatingModeSeeder extends Seeder
         DB::table('operating_modes')->updateOrInsert(
             ['id' => 3],
             [
-                'mode' => 'regular',
-                'description_registration' => 'Set working hours for all weekdays (5 days) and weekends (2 days).',
-                'description_customer' => 'Working hours for weekdays and weekends.',
+                'mode' => 'weekdays',
+                'description_registration' => 'Set working hours for all weekdays (5 days)',
+                'description_customer' => 'Working hours for weekdays',
                 // 'description' => 'Weekdays + Weekends - выставляются часы во все сразу будние (5 дней) выходные (2 дня), при выборе regular, 24/7 и everyday - недоступны',
             ]
         );
 
         DB::table('operating_modes')->updateOrInsert(
             ['id' => 4],
+            [
+                'mode' => 'weekends',
+                'description_registration' => 'Set working hours for all weekends (2 days).',
+                'description_customer' => 'Working hours for weekends.',
+                // 'description' => 'Weekdays + Weekends - выставляются часы во все сразу будние (5 дней) выходные (2 дня), при выборе regular, 24/7 и everyday - недоступны',
+            ]
+        );
+
+        DB::table('operating_modes')->updateOrInsert(
+            ['id' => 5],
             [
                 'mode' => 'ondays',
                 'description_registration' => 'Set working hours for specific days.',

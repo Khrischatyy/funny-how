@@ -20,7 +20,6 @@
       </div>
     </div>
 
-    <!-- Вставка значков и карусели -->
     <div class="mt-4 flex gap-3 justify-between items-center">
       <div v-if="studio.badges.length > 5" class="relative">
         <div class="flex overflow-x-scroll">
@@ -35,11 +34,18 @@
     </div>
 
     <div class="mt-4 flex gap-3 justify-between items-center">
-      <div class="flex items-center">
-        <IconClock class="opacity-20" />
-        <div class="flex flex-col">
-          <span class="text-white opacity-20">Working Hours</span>
-          <span class="text-white">{{ workingHours }}</span>
+      <div class="flex items-center relative group">
+        <IconClock class="opacity-20 group-hover:opacity-100" />
+        <div class="flex flex-col group-hover:opacity-100">
+          <span class="text-white opacity-20 group-hover:opacity-100">Working Hours</span>
+          <span class="text-white">{{ todayWorkingHours }}</span>
+        </div>
+        <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <ul>
+            <li v-for="hour in studio.working_hours" :key="hour.id">
+              {{ daysOfWeek[hour.day_of_week] }}: {{ hour.open_time }} - {{ hour.close_time }}
+            </li>
+          </ul>
         </div>
       </div>
       <div class="flex items-center gap-2 relative group">
@@ -114,11 +120,17 @@ const prevPhoto = () => {
   }
 };
 
-const workingHours = computed(() => {
-  if (props.studio.working_hours.mode_id === 1) {
-    return '24ч';
+// Days of the week in English
+const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const todayWorkingHours = computed(() => {
+  const today = new Date().getDay();
+  const todayHours = props.studio.working_hours.find(hour => hour.day_of_week === today);
+  if (!todayHours) return 'Closed';
+  if (todayHours.mode_id === 1) {
+    return '24h';
   } else {
-    return `${props.studio.working_hours.open_time} - ${props.studio.working_hours.close_time}`;
+    return `${todayHours.open_time} - ${todayHours.close_time}`;
   }
 });
 

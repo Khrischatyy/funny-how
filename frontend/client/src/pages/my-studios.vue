@@ -72,7 +72,6 @@ const closePopup = () => {
 
 watch(data, (newData) => {
   if (newData) {
-    console.log('Side Menu Data:', newData.data);
     sideMenu.value = newData.data || {};
     sideMenuArray.value = Object.values(sideMenu.value);
     isLoading.value = false; // Set loading to false once data is fetched

@@ -26,7 +26,7 @@ class UserController extends BaseController
      *             @OA\Property(property="data", type="object",
      *                 @OA\Property(property="message", type="string", example="User information retrieved successfully"),
      *                 @OA\Property(property="token", type="string", example="TOKEN_HERE"),
-     *                 @OA\Property(property="role", type="string", example="admin"),
+     *                 @OA\Property(property="role", type="string", example="studio_owner"),
      *                 @OA\Property(property="has_company", type="boolean", example=true)
      *             ),
      *             @OA\Property(property="code", type="integer", example=200)
@@ -65,7 +65,7 @@ class UserController extends BaseController
      *         required=true,
      *         @OA\JsonContent(
      *             required={"role"},
-     *             @OA\Property(property="role", type="string", example="admin")
+     *             @OA\Property(property="role", type="string", example="studio_owner")
      *         )
      *     ),
      *     @OA\Response(
@@ -77,7 +77,7 @@ class UserController extends BaseController
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="John Doe"),
      *                 @OA\Property(property="email", type="string", example="john.doe@example.com"),
-     *                 @OA\Property(property="role", type="string", example="admin")
+     *                 @OA\Property(property="role", type="string", example="studio_owner")
      *             ),
      *             @OA\Property(property="message", type="string", example="Role updated successfully."),
      *             @OA\Property(property="code", type="integer", example=200)

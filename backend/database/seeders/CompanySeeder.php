@@ -20,7 +20,7 @@ class CompanySeeder extends Seeder
                 [
                     'id' => 1,
                     'name' => 'Section',
-                    'logo' => 'https://funny-how-s3-bucket.s3.amazonaws.com/public/images/9zS6zSlP3k1CvojwujRUyKOLnjOBp5jWbV6nhZI9.jpg',
+                    'logo' => null,
                     'slug' => 'section',
                     'founding_date' => '2020-12-10 13:25:26',
                     'rating' => 9.7,
@@ -32,7 +32,7 @@ class CompanySeeder extends Seeder
                 [
                     'id' => 2,
                     'name' => 'Abbey Road Studios',
-                    'logo' => 'https://funny-how-s3-bucket.s3.amazonaws.com/public/images/25MCafRIqzD4NUa7XBJgIV7PXgDq1DjbjAEX8BE4.jpg',
+                    'logo' => null,
                     'slug' => 'section-near',
                     'founding_date' => '2021-12-10 13:25:26',
                     'rating' => 9.7,

@@ -125,7 +125,6 @@ const handleCityChange = async (cityId: string) => {
     badges: studio.badges,
     prices: studio.prices,
     working_hours: studio.working_hours,
-    hours: studio.working_hours.mode_id === 1 ? '24ч' : `${studio.working_hours.open_time} - ${studio.working_hours.close_time}`,
     price: studio.prices.length > 0 ? studio.prices[0].total_price : 0
   }));
 }

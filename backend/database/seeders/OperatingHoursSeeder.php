@@ -41,7 +41,7 @@ class OperatingHoursSeeder extends Seeder
             ],
             [
                 'address_id' => 1,
-                'mode_id' => 3,
+                'mode_id' => 4,
                 'day_of_week' => 6,
                 'open_time' => '11:00',
                 'close_time' => '17:00'
@@ -51,7 +51,7 @@ class OperatingHoursSeeder extends Seeder
         for ($day = 1; $day <= 5; $day++) {
             $inserts[] = [
                 'address_id' => 1,
-                'mode_id' => 1,
+                'mode_id' => 3,
                 'day_of_week' => $day,
                 'open_time' => '10:00',
                 'close_time' => '18:00'
