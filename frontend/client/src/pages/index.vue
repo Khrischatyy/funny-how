@@ -37,7 +37,7 @@ const isShowLogin = computed(() => {
               Find Some Here
             </div>
             <img
-                class="h-[39px] relative -translate-y-[2px]"
+                class="h-[25px] relative -translate-y-[2px]"
                 src="../shared/assets/image/map.svg"
                 alt="Funny How"
             >
@@ -56,7 +56,7 @@ const isShowLogin = computed(() => {
           </div>
         </RouterLink>
       </div>
-      <GoogleSignInButton />
+      <GoogleSignInButton class="mt-10" />
     </div>
     <Footer />
   </div>

@@ -7,14 +7,23 @@ use App\Models\City;
 use App\Models\OperatingHour;
 use App\Repositories\Interfaces\AddressRepositoryInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class AddressRepository implements AddressRepositoryInterface
 {
     public function getAddressByCityId(int $cityId)
     {
-        return Address::where('city_id', $cityId)
+        $addresses = Address::where('city_id', $cityId)
             ->with(['company', 'badges', 'photos', 'prices'])
             ->get();
+
+        $addresses->each(function ($address) {
+            $address->badges->each(function ($badge) {
+                $badge->image = Storage::disk('s3')->url($badge->image);
+            });
+        });
+
+        return $addresses;
     }
 
     public function getMyAddresses(int $companyId): Collection

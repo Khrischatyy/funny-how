@@ -77,6 +77,9 @@ tinker:
 swagger:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan l5-swagger:generate"
 
+drop-dev-db:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan migrate:reset"
+
 #scribe:
 #	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan scribe:generate"
 

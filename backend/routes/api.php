@@ -109,6 +109,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
 
+    Route::post('set-role', [UserController::class, 'setRole']);
+
     Route::get('/me', [UserController::class, 'getMe']);
 
 });

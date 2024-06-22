@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             ['id' => 1],
             [
                 'name' => 'Alex',
-                'email' => 'khrischatyy@gmail.com',
+                'email' => 'fhkhrischatyy@gmail.com',
                 'password' => '$2y$10$bA5BVAqpoNbKhOPE./WxM.enbjoJZaItZTACdMeVHNhUyiOCfN8Mq',
                 'updated_at' => now(),
                 'created_at' => now()
@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
             ['id' => 2],
             [
                 'name' => 'Rus',
-                'email' => 'rushadaev@gmail.com',
+                'email' => 'fhrushadaev@gmail.com',
                 'password' => '$2y$10$Gqg3FGE3X0rOZ3q1etepx.qZ6sGsBW7.SwpSCrhKOh1ENWoSpwBya',
                 'updated_at' => now(),
                 'created_at' => now()

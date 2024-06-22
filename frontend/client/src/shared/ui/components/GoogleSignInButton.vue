@@ -36,7 +36,7 @@ import { useRuntimeConfig } from '#imports';
 import {useCookie} from "#app";
 import {ACCESS_TOKEN_KEY} from "~/src/lib/api/config";
 
-const isGuest = useCookie(ACCESS_TOKEN_KEY).value;
+const isGuest = !useCookie(ACCESS_TOKEN_KEY).value;
 
 function redirectToGoogle() {
   window.location.href = `/api/v1/auth/google/redirect`;

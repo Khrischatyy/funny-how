@@ -1,10 +1,10 @@
 <template>
   <div class="bg-black p-4 rounded-md shadow-lg flex flex-col justify-between">
     <div class="flex justify-start items-center mb-4 gap-5">
-      <img :src="logoSrc" alt="Logo" class="h-12 w-12 object-contain rounded-full" />
+      <img :src="logoSrc" alt="Logo" class="h-[35px] w-[35px]" />
       <div>
         <h3 class="text-xl font-bold text-white">{{ studio.name }}</h3>
-        <p class="text-white">{{ studio.street }}</p>
+        <p class="text-white">{{ studio.address }}</p>
       </div>
     </div>
 
@@ -20,6 +20,20 @@
       </div>
     </div>
 
+    <!-- Вставка значков и карусели -->
+    <div class="mt-4 flex gap-3 justify-between items-center">
+      <div v-if="studio.badges.length > 5" class="relative">
+        <div class="flex overflow-x-scroll">
+          <img v-for="(badge, index) in studio.badges" :key="badge.id" :src="badge.image" :alt="badge.name" class="w-8 h-8 object-contain mr-2" />
+        </div>
+        <div class="absolute top-0 left-0 h-full w-8 bg-gradient-to-r from-[#1a1a1a] to-transparent"></div>
+        <div class="absolute top-0 right-0 h-full w-8 bg-gradient-to-r from-transparent to-[#1a1a1a]"></div>
+      </div>
+      <div v-else>
+        <img v-for="(badge, index) in studio.badges" :key="badge.id" :src="badge.image" :alt="badge.name" class="w-8 h-8 object-contain mr-2" />
+      </div>
+    </div>
+
     <div class="mt-4 flex gap-3 justify-between items-center">
       <div class="flex items-center">
         <IconClock class="opacity-20" />
@@ -28,18 +42,13 @@
           <span class="text-white">{{ workingHours }}</span>
         </div>
       </div>
-      <div class="flex items-center gap-2 relative">
-        <IconPrice class="opacity-20" />
+      <div class="flex items-center gap-2 relative group">
+        <IconPrice class="opacity-20 group-hover:opacity-100" />
         <div class="flex flex-col">
-          <span class="text-white opacity-20">Price</span>
+          <span class="text-white opacity-20 group-hover:opacity-100">Price</span>
           <span class="text-white">{{ primaryPrice }}</span>
         </div>
-        <button v-if="studio.prices.length > 1" class="ml-2 text-xs text-gray-500 hover:text-gray-300" @click="togglePriceTooltip">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M19 11h.01M5 11h.01M9 7h.01M15 7h.01M4 15h16" />
-          </svg>
-        </button>
-        <div v-if="showPriceTooltip" class="absolute bottom-0 right-0 mb-8 mr-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg">
+        <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <ul>
             <li v-for="price in studio.prices" :key="price.id">
               ${{ price.total_price }} / {{ price.hours }} hour
@@ -57,7 +66,8 @@ import IconPrice from "~/src/shared/ui/common/Icon/Filter/IconPrice.vue";
 import { IconClock, IconLeft, IconRight } from "~/src/shared/ui/common";
 
 // Import the default images
-import defaultLogo from '~/src/shared/assets/image/microphone.png';
+import defaultLogo from '~/src/shared/assets/image/studio.png';
+
 import defaultPhoto3_1 from '~/src/shared/assets/image/skeleton-studio-card/music-studio.png';
 import defaultPhoto3_2 from '~/src/shared/assets/image/skeleton-studio-card/studio.png';
 import defaultPhoto3_3 from '~/src/shared/assets/image/skeleton-studio-card/studio-microphone.png';
@@ -119,41 +129,10 @@ const primaryPrice = computed(() => {
   }
   return '';
 });
-
-const togglePriceTooltip = () => {
-  showPriceTooltip.value = !showPriceTooltip.value;
-};
 </script>
 
 <style scoped>
-.card {
-  background: #1a1a1a;
-  padding: 16px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.card img {
-  border-radius: 50%;
-}
-.card h3 {
-  font-size: 1.25rem;
-  font-weight: bold;
-}
-.card p {
-  color: #9ca3af;
-}
-.card .details {
-  margin-top: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.card .details i {
-  color: #9ca3af;
-}
-.card .details span {
-  color: #9ca3af;
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1 !important;
 }
 </style>

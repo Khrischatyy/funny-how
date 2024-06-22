@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('operating_modes', function (Blueprint $table) {
             $table->id();
             $table->string('mode')->unique();
-            $table->string('description');
+            $table->string('description_registration');
+            $table->string('description_customer');
         });
     }
 

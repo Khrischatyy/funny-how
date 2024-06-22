@@ -122,6 +122,7 @@ const handleCityChange = async (cityId: string) => {
     name: studio.company.name,
     address: studio.street,
     photos: studio.photos,
+    badges: studio.badges,
     prices: studio.prices,
     working_hours: studio.working_hours,
     hours: studio.working_hours.mode_id === 1 ? '24ч' : `${studio.working_hours.open_time} - ${studio.working_hours.close_time}`,

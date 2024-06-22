@@ -93,7 +93,7 @@ class AddressService
         return $uploadedPhotos;
     }
 
-    public function getAddressByCityIdWithWorkingHours(int $cityId): Collection //менять тут
+    public function getAddressByCityIdWithWorkingHours(int $cityId): Collection
     {
         $addresses = $this->addressRepository->getAddressByCityId($cityId);
 
@@ -104,9 +104,8 @@ class AddressService
             throw new OperatingHourException("You didn't set hours", 400);
         }
 
-
         $addresses->each(function ($address) use ($operatingHours) {
-            $address->working_hours = $operatingHours->get($address->id)->first();
+            $address->working_hours = $operatingHours->get($address->id);
         });
 
         return $addresses;
