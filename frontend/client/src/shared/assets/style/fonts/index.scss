@@ -1,62 +1,25 @@
 @mixin use-font($font_name, $file_path_without_ext, $weight: normal, $style: normal) {
 	@font-face {
 		font-family: quote($font_name);
-		src: url($file_path_without_ext + '.woff') format('woff'),
-		url($file_path_without_ext + '.woff2') format('woff2'),
-		url($file_path_without_ext + '.ttf')  format('truetype');
+		src: url('#{$file_path_without_ext}.woff') format('woff'),
+		url('#{$file_path_without_ext}.woff2') format('woff2'),
+		url('#{$file_path_without_ext}.ttf') format('truetype');
 		font-weight: $weight;
 		font-style: $style;
 		font-display: swap;
 	}
 }
 
-$font-path: '~/src/shared/assets/fonts/Roboto/';
-$font-path-mazzard: '~/src/shared/assets/fonts/Mazzard/';
-$font-path-impact: '~/src/shared/assets/fonts/Impact/Impact';
-$font-path-montserrat: '~/src/shared/assets/fonts/Montserrat/';
-$font-path-bebas: '~/src/shared/assets/fonts/BebasNeue/BebasNeue';
+$font-path: '/fonts/';
+$font-path-montserrat: $font-path + 'Montserrat/';
+$font-path-bebas: $font-path + 'BebasNeue/';
 
-$italic-path-montserrat: $font-path-montserrat + 'Italic/Montserrat-Italic';
-$regular-path-montserrat: $font-path-montserrat + '/Montserrat';
+@include use-font(Montserrat, $font-path-montserrat + 'Regular/Montserrat-Regular', 400, normal);
+@include use-font(Montserrat, $font-path-montserrat + 'Italic/Montserrat-Italic', 400, italic);
 
-$bold-path: 			$font-path + 'Bold/Roboto-Bold';
-$bold-italic-path:		$font-path + 'BoldItalic/Roboto-BoldItalic';
-$italic-path: 			$font-path + 'Italic/Roboto-Italic';
-$medium-path: 			$font-path + 'Medium/Roboto-Medium';
-$medium-italic-path: 	$font-path + 'MediumItalic/Roboto-MediumItalic';
-$regular-path: 			$font-path + 'Regular/Roboto-Regular';
+@include use-font(BebasNeue, $font-path-bebas + 'BebasNeue', 400, normal);
 
-$black-path-mazzard: 				$font-path-mazzard + 'Black/MazzardM-Black';
-$black-italic-path-mazzard: 		$font-path-mazzard + 'BlackItalic/MazzardM-BlackItalic';
-$bold-path-mazzard: 				$font-path-mazzard + 'Bold/MazzardM-Bold';
-$bold-italic-path-mazzard:			$font-path-mazzard + 'BoldItalic/MazzardM-BoldItalic';
-$extra-bold-path-mazzard:			$font-path-mazzard + 'ExtraBold/MazzardM-ExtraBold';
-$extra-bold-italic-path-mazzard:	$font-path-mazzard + 'ExtraBoldItalic/MazzardM-ExtraBoldItalic';
-$extra-light-path-mazzard:			$font-path-mazzard + 'ExtraLight/MazzardM-ExtraLight';
-$regular-path-mazzard:				$font-path-mazzard + 'Regular/MazzardM-Regular';
-$medium-path-mazzard:				$font-path-mazzard + 'Medium/MazzardM-Medium';
-
-
-@include use-font(Impact, $font-path-impact, 400, normal);
-@include use-font(Montserrat, $regular-path-montserrat, 400, normal);
-@include use-font(Montserrat, $italic-path-montserrat, 400, italic);
-@include use-font(BebasNeue, $font-path-bebas, 400, normal);
-
-@include use-font(Roboto, $bold-path, 700, normal);
-@include use-font(Roboto, $bold-italic-path, 700, italic);
-@include use-font(Roboto, $medium-path, 500, normal);
-@include use-font(Roboto, $medium-italic-path, 500, italic);
-@include use-font(Roboto, $italic-path, 400, italic);
-@include use-font(Roboto, $regular-path, 400, normal);
-
-@include use-font(Mazzard, $black-path-mazzard, 700, normal);
-@include use-font(Mazzard, $black-italic-path-mazzard, 700, italic);
-
-@include use-font(Mazzard, $bold-path-mazzard, 600, normal);
-@include use-font(Mazzard, $bold-italic-path-mazzard, 600, italic);
-
-@include use-font(Mazzard, $medium-path-mazzard, 500, normal);
-
-@include use-font(Mazzard, $regular-path-mazzard, 400, normal);
-
-@include use-font(Mazzard, $extra-light-path-mazzard, 100, normal);
+@include use-font(Roboto, $font-path + 'Roboto/Regular/Roboto-Regular', 400, normal);
+@include use-font(Roboto, $font-path + 'Roboto/Bold/Roboto-Bold', 700, normal);
+@include use-font(Roboto, $font-path + 'Roboto/Italic/Roboto-Italic', 400, italic);
+@include use-font(Roboto, $font-path + 'Roboto/BoldItalic/Roboto-BoldItalic', 700, italic);

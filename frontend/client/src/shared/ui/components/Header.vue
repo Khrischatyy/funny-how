@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <header class="p-4 flex items-center justify-between lg:justify-center">
-      <button class="lg:hidden p-2 flex items-center" @click="$emit('toggleSideMenu')">
-        <i class="fas fa-bars fa-2x text-white"></i>
-        <span class="ml-2">Menu</span>
+  <div class="w-full">
+    <header class="mt-0 md:mt-10 p-4 w-full flex items-center relative justify-center">
+      <button class="lg:hidden p-2 flex items-center absolute left-0" @click="$emit('toggleSideMenu')">
+        <IconBurger/>
+        <span class="ml-2 text-white">Menu</span>
       </button>
       <div class="flex justify-center">
-        <BrandingLogo class="h-12"/>
+        <BrandingLogo />
       </div>
     </header>
     <div v-if="subhead" class="subhead flex flex-1 mb-4">
@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import { defineEmits } from 'vue';
 import { BrandingLogo } from '~/src/shared/ui/branding';
+import {IconBurger} from "~/src/shared/ui/common";
 
 const props = withDefaults(defineProps<{
   subhead?: boolean,
