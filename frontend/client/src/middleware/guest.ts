@@ -7,7 +7,6 @@ export default defineNuxtRouteMiddleware(() => {
 
     if (token) {
         navigateTo('/');
-        return false;
     }
 
     return true;  // Continue with the navigation if no token is found
