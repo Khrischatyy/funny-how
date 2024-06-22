@@ -51,6 +51,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(AdminCompany::class, 'admin_id');
     }
 
+    public function company()
+    {
+        return $this->hasOneThrough(Company::class, AdminCompany::class, 'admin_id', 'id', 'id', 'company_id');
+    }
+
     // Связь с моделью Booking
     public function bookings()
     {

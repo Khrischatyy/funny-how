@@ -1,5 +1,4 @@
 import {useApi} from "~/src/lib/api";
-import {inputField} from "#build/src/entities/RegistrationForms";
 
 export interface Badge {
     id: number;
@@ -14,6 +13,7 @@ export interface Company {
     slug: string;
     founding_date: string;
     rating: string;
+    addresses: any[];
 }
 
 export interface Studio {

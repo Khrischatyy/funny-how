@@ -47,6 +47,7 @@ class UserController extends BaseController
             return $this->sendResponse([
                 "message" => "User information retrieved successfully",
                 "role" => $user->getRoleNames()->first(),
+                "company_slug" => $user->company->slug ?? null,
                 "has_company" => AdminCompany::where('admin_id', $user->id)->exists(),
             ], 'User information retrieved successfully.');
         } catch (Exception $e) {

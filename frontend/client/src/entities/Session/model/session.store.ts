@@ -20,7 +20,7 @@ export const USER_INFO_KEY = 'user-info-key'
 export const USER_ROLE_KEY = 'user-role-key'
 export const ROLE_INFO_KEY = 'role-info-key'
 
-export const ACCESS_TOKEN_KEY = 'access_token_key'
+export const ACCESS_TOKEN_KEY = 'access-token-key'
 export const BRAND_KEY = 'brand-key'
 
 export const RESERVES_KEY = 'reserves-key'
@@ -91,6 +91,8 @@ export const useSessionStore = defineStore({
 				localStorage.removeItem(BRAND_KEY)
 				localStorage.removeItem(RESERVES_KEY)
 				localStorage.removeItem(PAYMENT_SESSION)
+				useCookie(ACCESS_TOKEN_KEY).value = null
+
 			}
 			this.isAuthorized = isAuthorized
 		},

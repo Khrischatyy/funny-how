@@ -35,9 +35,6 @@ const session = ref()
 onMounted(async () => {
   const config = useRuntimeConfig()
   session.value = useSessionStore()
-  if(!session.value.isAuthorized){
-    navigateTo('/login')
-  }
 
   const loader = new Loader({
     apiKey: config.public.googlePlacesApi,

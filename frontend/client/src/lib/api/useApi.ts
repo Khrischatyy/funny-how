@@ -3,6 +3,24 @@ import { computed, ref } from 'vue'
 import { useSessionStore } from '~/src/entities/Session'
 import { useCookie, useRuntimeConfig } from '#app'
 import { useRouter } from 'vue-router'
+import {navigateTo} from "nuxt/app";
+
+interface FetchOptions {
+    baseURL: string;
+    headers: Record<string, string>;
+}
+
+interface RequestOptions {
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+    params?: Record<string, any>;
+    body?: any;
+}
+
+interface ApiResponse<T> {
+    data: T;
+    message: string;
+    status: number;
+}
 
 export function useApi<ResponseT, MappedResponseT = ResponseT>({
                                                                    url,
@@ -10,7 +28,7 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
                                                                    auth = false
                                                                }: {
     url: (() => string) | string
-    options?: { transformResponse?: (data: any) => MappedResponseT }
+    options?: { transformResponse?: (data: ResponseT) => MappedResponseT };
     auth?: boolean
 }) {
     const sessionStore = useSessionStore()
@@ -22,87 +40,94 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
         return typeof url === 'function' ? url() : url
     })
 
-    const fetchOptions = ref({
+    const fetchOptions = ref<FetchOptions>({
         baseURL: apiBase,
-        headers: {
-            accept: 'application/json'
-        } as Record<string, string>
-    })
+        headers: { accept: 'application/json' },
+    });
 
     if (auth) {
-        let token: string | null | undefined = null
-        if (process.server) {
-            // Use server-side storage to get token
-            const sessionCookie = useCookie(ACCESS_TOKEN_KEY)
-            token = sessionCookie.value
-        } else {
-            token = sessionStore.accessToken || localStorage.getItem(ACCESS_TOKEN_KEY)
-        }
+        const sessionCookie = useCookie(ACCESS_TOKEN_KEY);
+        const token = sessionCookie.value;
         if (token) {
-            fetchOptions.value.headers.Authorization = `Bearer ${token}`
+            fetchOptions.value.headers.Authorization = `Bearer ${decodeURIComponent(token)}`;
         }
     }
 
-    const handleResponse = (response: any) => {
-        if (response.data.message && response.data.message !== 'OK') {
-            console.log('Success:', response.data.message)  // Replace with any other message display method
-        }
-        return response.data
-    }
+    const handleError = (error: any): Promise<Awaited<{ message: string; status: any }>> => {
+        console.error("API Error:", error);
 
-    const handleError = (error: any) => {
-        const response = error.response
-        const responseErrorMessage = response?.data?.messageError?.error
+        // Extract the error response which is nested under `_data`
+        const response = error.response._data;
+        const status = response?.status || error.response?.status;
+        const errorData = response;
 
+        console.log('Error:', response);
+
+        // Define common error messages based on status codes
         const nativeMessages: Record<number, string> = {
             401: 'Authorization error',
             404: 'Page not found',
+            422: 'Validation error', // Specific message for validation errors
             500: 'Server error'
+        };
+        console.log('status', status)
+
+        if (status === 404) {
+            navigateTo('/404');
+            return Promise.resolve({ status, message: 'Redirecting to 404 page' }); // Consider handling as resolved to prevent further error propagation.
+        }
+        if (status === 401) {
+            sessionStore.setAuthorized(false);
+            sessionStore.setAccessToken(null);
+            navigateTo('/login');
+            return Promise.resolve({ status, message: 'Redirecting to login page' });
         }
 
-        const responseError = {
-            message: nativeMessages[response?.status]
+        // Check for specific error messages from the server
+        if (errorData) {
+            if (errorData.errors) {
+                // Server provided specific field errors
+                return Promise.reject({
+                    status: status,
+                    message: errorData.message,
+                    errors: errorData.errors
+                });
+            } else if (errorData.message) {
+                // Server provided a general error message
+                return Promise.reject({
+                    status: status,
+                    message: errorData.message
+                });
+            }
         }
 
-        const unknownError = 'Unknown error'
-
-        if (typeof responseError.message === 'undefined') {
-            if (responseErrorMessage) responseError.message = responseErrorMessage
-            else responseError.message = unknownError + `: ${response?.status}`
-        }
-
-        console.error('Error:', responseError.message)  // Replace with any other message display method
-
-        if (response?.status === 401) {
-            sessionStore.setAuthorized(false)
-            router.push('/login')
-        }
-
-        return Promise.reject(error)
+        // Default error handling if no specific messages are found
+        const message = nativeMessages[status] || `Unknown error: ${status}`;
+        return Promise.reject({ status, message });
     }
 
-    const makeRequest = async (method: 'GET' | 'POST' | 'PUT' | 'DELETE', data?: object, requestOptions?: object): Promise<MappedResponseT | null> => {
+    const makeRequest = async (requestOptions: RequestOptions): Promise<MappedResponseT | null> => {
         try {
-            const response = await $fetch(urlPath.value, {
-                method,
-                baseURL: fetchOptions.value.baseURL,
-                headers: fetchOptions.value.headers,
-                body: data,
-                ...options,
-                ...requestOptions
-            }).catch(handleError)
-            return options?.transformResponse ? options.transformResponse(response) : response
+            const response = await $fetch<ApiResponse<ResponseT>>(urlPath.value, {
+                ...fetchOptions.value,
+                ...requestOptions,
+            });
+
+            if (options?.transformResponse) {
+                return options.transformResponse(response.data);
+            }
+
+            return response as MappedResponseT; // Call handleResponse here
         } catch (error) {
-            console.error(error)
-            return null
+            await handleError(error); // Process and rethrow
+            throw error; // Make sure to rethrow the error
         }
     }
 
     return {
-        fetch: (requestOptions?: object) => makeRequest('GET', undefined, requestOptions),
-        post: (data: object, requestOptions?: object) => makeRequest('POST', data, requestOptions),
-        put: (data: object, requestOptions?: object) => makeRequest('PUT', data, requestOptions),
-        delete: (requestOptions?: object) => makeRequest('DELETE', undefined, requestOptions)
-        // other methods can be added similarly
+        fetch: (requestOptions?: RequestOptions) => makeRequest({ ...requestOptions, method: 'GET' }),
+        post: (data: any, requestOptions?: RequestOptions) => makeRequest({ ...requestOptions, method: 'POST', body: data }),
+        put: (data: any, requestOptions?: RequestOptions) => makeRequest({ ...requestOptions, method: 'PUT', body: data }),
+        delete: (requestOptions?: RequestOptions) => makeRequest({ ...requestOptions, method: 'DELETE' })
     }
 }

@@ -44,9 +44,6 @@ onMounted(async () => {
   session.value = useSessionStore()
   getBadges()
   getAddressId()
-  if(!session.value.isAuthorized){
-    navigateTo('/login')
-  }
 
   const loader = new Loader({
     apiKey: config.public.googlePlacesApi,

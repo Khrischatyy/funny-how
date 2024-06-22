@@ -4,7 +4,7 @@ import { CreateForm } from "~/src/features/Register/create"
 import BrandingLogo from "~/src/shared/ui/branding/BrandingLogo.vue";
 import {useHead} from "@unhead/vue";
 import Particles from "~/src/shared/ui/components/Particles/Particles.vue";
-import { useRuntimeConfig } from '#imports'
+import {definePageMeta, useRuntimeConfig} from '#imports'
 import axios from "axios";
 import { useSessionStore } from "~/src/entities/Session";
 import {nextTick, onMounted, reactive, ref, watch, watchEffect} from "vue";
@@ -21,6 +21,10 @@ useHead({
   meta: [
     { name: 'Funny How', content: 'Book A Studio Time' }
   ],
+})
+
+definePageMeta({
+  middleware: 'guest'
 })
 
 const isLoading = ref(false)
@@ -197,7 +201,7 @@ async function authForm() {
       if (data.role === 'studio_owner' && !data.has_company) {
         navigateTo('/create');
       } else {
-        window.location.reload();
+        navigateTo('/');
       }
     }
   } catch (error) {

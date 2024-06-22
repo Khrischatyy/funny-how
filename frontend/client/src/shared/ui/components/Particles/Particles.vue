@@ -1,11 +1,12 @@
 <template>
-  <div ref="container" class="threejs-container"></div>
+  <div class="fixed left-0 bottom-0 w-full pointer-events-none">
+      <div ref="container" class="threejs-container"></div>
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {onMounted, onUnmounted, ref} from 'vue';
 import * as THREE from 'three';
-
 const container = ref(null);
 
 const SEPARATION = 50, AMOUNTX = 60, AMOUNTY = 30;

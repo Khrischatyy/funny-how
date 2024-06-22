@@ -2,15 +2,12 @@
 import { useHead } from "@unhead/vue";
 import { definePageMeta, useRuntimeConfig } from '#imports';
 import { useSessionStore } from "~/src/entities/Session";
-import { onMounted, ref, computed } from "vue";
-import { BrandingLogo, BrandingLogoSample } from "~/src/shared/ui/branding";
+import {onMounted, ref, computed, watchEffect} from "vue";
+import { BrandingLogo } from "~/src/shared/ui/branding";
 import { navigateTo, useRoute } from "nuxt/app";
-import {
-  type StudioFormValues,
-  useCreateStudioFormStore
-} from "~/src/entities/RegistrationForms";
 import {IconElipse, IconLine, IconUpload} from "~/src/shared/ui/common";
 import { Loader } from "@googlemaps/js-api-loader";
+import {useCreateStudio} from "~/src/entities/Studio/api";
 
 useHead({
   title: 'Dashboard | Slug',
@@ -19,26 +16,28 @@ useHead({
   ],
 });
 
-const isLoading = ref(false);
+definePageMeta({
+  middleware: ["auth", "owner"],
+})
+
+const { createStudio, errors, isLoading, formValues } = useCreateStudio();
+
 const route = useRoute();
 
-const formStore = useCreateStudioFormStore();
-const formErrors = computed(() => formStore.errors);
-
 function isError(field: string): boolean {
-  return formErrors.value.hasOwnProperty(field) ? formErrors.value[field][0] : false;
+  return errors.value.hasOwnProperty(field) ? errors.value[field][0] : false;
 }
 
 const session = ref();
+
 onMounted(async () => {
   const config = useRuntimeConfig();
   session.value = useSessionStore();
-  if (!session.value.isAuthorized) {
-    navigateTo('/login');
-  }
+
+
 
   const loader = new Loader({
-    apiKey: config.public.googlePlacesApi,
+    apiKey: config.public.googleMapKey,
     version: "weekly",
   });
 
@@ -64,27 +63,23 @@ onMounted(async () => {
   autocomplete.addListener('place_changed', () => {
     const place = autocomplete.getPlace();
 
-    getFormValues().address = input?.value;
-    getFormValues().country = place.address_components.find(item => item.types.includes('country'))?.short_name;
-    getFormValues().city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
-    getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
-    getFormValues().longitude = place.geometry.location.lng();
-    getFormValues().latitude = place.geometry.location.lat();
+    formValues.address = input?.value;
+    formValues.country = place.address_components.find(item => item.types.includes('country'))?.short_name;
+    formValues.city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
+    formValues.street = place.address_components.find(item => item.types.includes('route'))?.short_name;
+    formValues.longitude = place.geometry.location.lng();
+    formValues.latitude = place.geometry.location.lat();
   });
 });
-
-function getFormValues(): StudioFormValues {
-  return formStore.inputValues;
-}
 
 function changeLogo() {
   const input = document.getElementById('studio_logo') as HTMLInputElement;
   const file = input.files?.[0];
   if (file) {
-    getFormValues().logo = file;
+    formValues.logo = file;
     const reader = new FileReader();
     reader.onload = (e) => {
-      getFormValues().logo_preview = e.target?.result as string;
+      formValues.logo_preview = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   }
@@ -93,9 +88,10 @@ function changeLogo() {
 async function setupStudio() {
   isLoading.value = true;
   try {
-    await formStore.submit();
-  } catch (errors) {
-    // Handle errors
+    await createStudio(formValues); // Use composable to submit form
+    // Navigate or handle success as needed
+  } catch (error) {
+    console.error('Error submitting studio form:', error);
   } finally {
     isLoading.value = false;
   }
@@ -125,11 +121,14 @@ function signOut() {
         <div class="w-96 justify-center items-center inline-flex mb-10 text-center">
           <div class="text-white text-xl font-bold text-center tracking-wide">Setup Your Studio {{ route.params.slug }}</div>
         </div>
+        <div v-if="isError('general')" class="w-96 justify-center items-center inline-flex">
+          <div class="text-red-500 text-sm font-normal tracking-wide">{{ isError('general') }}</div>
+        </div>
 
         <div class="flex-col justify-start items-start gap-1.5 flex">
           <div class="w-96 justify-between items-start inline-flex">
             <div class="text-white text-sm font-normal tracking-wide">Studio name and logo</div>
-            <div v-if="formErrors.hasOwnProperty('company')&& !getFormValues().company" class="text-right text-red-500 text-sm font-normal tracking-wide">
+            <div v-if="errors.hasOwnProperty('company')&& !formValues.company" class="text-right text-red-500 text-sm font-normal tracking-wide">
               {{ isError('company') }}
             </div>
           </div>
@@ -137,12 +136,12 @@ function signOut() {
             <div class="flex justify-center w-96 items-center gap-2.5">
               <label for="studio_logo" class="w-[58px] h-[58px] flex flex-col justify-center items-center px-1.5 py-1.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
                 <div class="flex flex-col justify-end h-full">
-                  <IconUpload class="mx-1.5 my-1.5 opacity-50 hover:opacity-100" v-if="!getFormValues().logo" />
-                  <img :src="`${getFormValues().logo_preview}`" v-if="getFormValues().logo_preview" class="w-[58px] h-[58px] object-contain">
+                  <IconUpload class="mx-1.5 my-1.5 opacity-50 hover:opacity-100" v-if="!formValues.logo" />
+                  <img :src="`${formValues.logo_preview}`" v-if="formValues.logo_preview" class="w-[58px] h-[58px] object-contain">
                 </div>
               </label>
               <input class="hidden" id="studio_logo" @change="changeLogo()" type="file" />
-              <input v-model="getFormValues().company" :class="formErrors.hasOwnProperty('company') && !getFormValues().company ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
+              <input v-model="formValues.company" :class="errors.hasOwnProperty('company') && !formValues.company ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
             </div>
           </div>
         </div>
@@ -150,12 +149,12 @@ function signOut() {
         <div class="flex-col justify-start items-start gap-1.5 flex">
           <div class="w-96 justify-between items-start inline-flex">
             <div class="text-white text-sm font-normal tracking-wide">Address</div>
-            <div v-if="formErrors.hasOwnProperty('street') && !getFormValues().street" class="text-right text-red-500 text-sm font-normal tracking-wide">
+            <div v-if="errors.hasOwnProperty('street') && !formValues.street" class="text-right text-red-500 text-sm font-normal tracking-wide">
               {{ isError('street') }}
             </div>
           </div>
           <div class="justify-start items-center gap-2.5 inline-flex">
-            <input id="place" :class="formErrors.hasOwnProperty('street') && !getFormValues().street ? 'border border-red border-opacity-80 placeholder-red' : 'border border-white border-opacity-20'" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
+            <input id="place" :class="errors.hasOwnProperty('street') && !formValues.street ? 'border border-red border-opacity-80 placeholder-red' : 'border border-white border-opacity-20'" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
           </div>
         </div>
 
@@ -167,7 +166,7 @@ function signOut() {
             </div>
           </div>
           <div class="justify-start items-center gap-2.5 inline-flex">
-            <textarea name="about" v-model="getFormValues().about" :class="{ 'border-red': isError('about') }" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"></textarea>
+            <textarea name="about" v-model="formValues.about" :class="{ 'border-red': isError('about') }" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"></textarea>
           </div>
         </div>
         <div class="justify-center items-center gap-2.5 inline-flex">

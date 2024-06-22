@@ -1,0 +1,92 @@
+import {reactive, ref} from 'vue';
+import { useApi } from "~/src/lib/api";
+import {useSessionStore} from "~/src/entities/Session";
+import {navigateTo} from "nuxt/app";
+
+export type StudioFormValues = {
+    logo: File | null;
+    company: string;
+    address: string;
+    country: string;
+    city: string;
+    street: string;
+    about: string;
+    longitude: string;
+    latitude: string;
+    logo_preview: string | null;
+};
+
+export type ResponseBrand = {
+    success: boolean;
+    data: {
+        name: string;
+        logo: string;
+        slug: string;
+        updated_at: string;
+        created_at: string;
+        id: number;
+    };
+    message: string;
+    code: number;
+};
+
+export function useCreateStudio() {
+    const formValues = reactive<StudioFormValues>({
+            logo: null,
+            company: '',
+            address: '',
+            country: '',
+            city: '',
+            street: '',
+            about: '',
+            longitude: '',
+            latitude: '',
+            logo_preview: null,
+    });
+
+
+    const errors = ref({});
+    const isLoading = ref(false);
+
+    async function createStudio(data: StudioFormValues) {
+        const formData = new FormData();
+        Object.keys(data).forEach((key: any) => {
+            if (key in data) {
+                const value = data[key as keyof StudioFormValues];
+                if (value !== null) {
+                    formData.append(key, value as string | Blob);
+                }
+            }
+        });
+
+        const { post } = useApi({
+            url: '/brand',
+            auth: true,
+        });
+
+        // Clear previous errors before a new submission
+        errors.value = {};
+
+        try {
+            const response = await post(formData);
+            console.log('Successful response:', response);
+            useSessionStore().setBrand(response?.data?.slug)
+            navigateTo(`/@${response?.data?.slug}/setup/${response?.data?.id}/hours`)
+            return response;
+        } catch (error: any) {
+            console.error("Failed to create studio:", error);
+            if (error.errors) {
+                // Update UI or state with specific field errors
+                errors.value = error.errors;
+            } else {
+                // Handle general error message
+                errors.value.general = [error.message];
+            }
+            throw error; // Rethrow the error to allow further handling
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    return { createStudio, errors, isLoading, formValues };
+}

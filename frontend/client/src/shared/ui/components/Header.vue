@@ -5,7 +5,7 @@
         <IconBurger/>
         <span class="ml-2 text-white">Menu</span>
       </button>
-      <div class="flex justify-center">
+      <div @click="navigateTo('/')" class="flex justify-center cursor-pointer">
         <BrandingLogo />
       </div>
     </header>
@@ -23,6 +23,7 @@
 import { defineEmits } from 'vue';
 import { BrandingLogo } from '~/src/shared/ui/branding';
 import {IconBurger} from "~/src/shared/ui/common";
+import {navigateTo} from "nuxt/app";
 
 const props = withDefaults(defineProps<{
   subhead?: boolean,

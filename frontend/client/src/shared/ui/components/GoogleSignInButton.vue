@@ -1,6 +1,6 @@
 <template>
   <button
-      v-if="isGuest"
+      v-if="!isAuthorized"
       aria-label="Sign in with Google"
       @click="redirectToGoogle"
       class="flex items-center gap-3 rounded-full font-bebas p-0.5 pr-4 transition-colors duration-300 hover:bg-google-button-dark-hover border-dashed border-red"
@@ -36,7 +36,7 @@ import { useRuntimeConfig } from '#imports';
 import {useCookie} from "#app";
 import {ACCESS_TOKEN_KEY} from "~/src/lib/api/config";
 
-const isGuest = !useCookie(ACCESS_TOKEN_KEY).value;
+const isAuthorized = useCookie(ACCESS_TOKEN_KEY).value;
 
 function redirectToGoogle() {
   window.location.href = `/api/v1/auth/google/redirect`;

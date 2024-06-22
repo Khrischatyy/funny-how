@@ -96,9 +96,7 @@ onMounted(async () => {
   session.value = useSessionStore()
   addSamplePrices()
 
-  if(!session.value.isAuthorized){
-    navigateTo('/login')
-  }
+
 
   const loader = new Loader({
     apiKey: config.public.googlePlacesApi,

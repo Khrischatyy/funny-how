@@ -30,16 +30,9 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/svg+xml', href: '/meta/favicon.svg' },
         { rel: 'manifest', href: '/meta/site.webmanifest' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/meta/apple-touch-icon.png' },
-        {
-          rel: 'preload',
-          as: 'font',
-          href: '/fonts/BebasNeue/BebasNeue.woff2',
-          type: 'font/woff2',
-          crossorigin: 'anonymous'
-        },
       ]
     },
-    pageTransition: { name: 'page', mode: 'out-in' }
+    //pageTransition: { name: 'page', mode: 'out-in' }
   },
   build: {
     transpile: ['@googlemaps/js-api-loader'],

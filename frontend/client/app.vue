@@ -1,6 +1,8 @@
 <template>
   <div class="overflow-hidden">
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>
 

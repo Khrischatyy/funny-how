@@ -14,6 +14,8 @@ import {
 import {IconDown, IconElipse, IconLeft, IconLine, IconRight} from "~/src/shared/ui/common";
 import {Loader} from "@googlemaps/js-api-loader";
 import axios from "axios";
+import {type ResponseDto, useApi} from "~/src/lib/api";
+import type {Company} from "~/src/entities/RegistrationForms/api";
 definePageMeta({
   middleware: ["auth"],
 })
@@ -23,6 +25,10 @@ useHead({
   meta: [
     { name: 'Funny How', content: 'Dashboard' }
   ],
+})
+
+definePageMeta({
+  middleware: ["auth"],
 })
 
 const isLoading = ref(false)
@@ -35,7 +41,7 @@ const workHours = ref({
   address_id: '',
 })
 
-const modes = ref([])
+const modes = ref<Mode[] | undefined>([]);
 
 const route = useRoute();
 
@@ -50,63 +56,6 @@ onMounted(async () => {
   session.value = useSessionStore()
   getModes()
   getAddressId()
-  if(!session.value.isAuthorized){
-    navigateTo('/login')
-  }
-
-  const loader = new Loader({
-    apiKey: config.public.googlePlacesApi,
-    version: "weekly",
-
-  });
-
-  console.log('loader', loader);
-
-  const Places = await loader.importLibrary('places')
-
-  // the center, defaultbounds are not necessary but are best practices to limit/focus search results
-  const center = { lat: 34.082298, lng: -82.284777 };
-  // Create a bounding box with sides ~10km away from the center point
-  const defaultBounds = {
-    north: center.lat + 0.1,
-    south: center.lat - 0.1,
-    east: center.lng + 0.1,
-    west: center.lng - 0.1,
-  };
-
-  //this const will be the first arg for the new instance of the Places API
-
-  const input = document.getElementById("place"); //binds to our input element
-
-  console.log('input', input); //optional logging
-
-  //this object will be our second arg for the new instance of the Places API
-  const options = {
-    componentRestrictions: { country: ["us", "ca"] },
-    fields: ["address_components", "geometry"],
-    types: ["address"],
-  };
-
-  // per the Google docs create the new instance of the import above. I named it Places.
-  const autocomplete = new Places.Autocomplete(input, options);
-
-  console.log('autocomplete', autocomplete); //optional log but will show you the available methods and properties of the new instance of Places.
-
-  //add the place_changed listener to display results when inputs change
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-
-    getFormValues().address = input?.value;
-    getFormValues().country = place.address_components.find(item => item.types.includes('country'))?.short_name;
-    getFormValues().city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
-    getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
-    getFormValues().longitude = place.geometry.viewport?.Gh?.hi;
-    getFormValues().latitude = place.geometry.viewport?.Wh?.hi;
-
-    console.log('place', place);
-  });
-
-
 })
 
 function filterUnassigned(obj) {
@@ -137,52 +86,30 @@ function setHours(){
         console.log(error);
       });
 }
-function getModes(){
-  const config = useRuntimeConfig()
 
-  let requestConfig = {
-    method: 'get',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/operation-modes`,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        modes.value = response.data.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+type Mode = {
+  id: number,
+  mode: string,
+  description: string
+}
+
+function getModes() {
+  const api = useApi<ResponseDto<Mode[]>>({ url: '/operation-modes' });
+
+  api.fetch().then((response) => {
+    modes.value = response?.data;
+  }).catch(error => {
+    console.error('error', error);
+  });
 }
 
 function getAddressId(){
-  const config = useRuntimeConfig()
-
-  let requestConfig = {
-    method: 'get',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/company/${route.params.slug}`,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        workHours.value.address_id = response?.data?.data.addresses.find(addr => addr.id == route.params.id)?.id
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const api = useApi<ResponseDto<Company>>({ url: `/company/${route.params.slug}` });
+  api.fetch().then((response) => {
+    workHours.value.address_id = response?.data.addresses.find(addr => addr.id == route.params.id)?.id
+  }).catch(error => {
+    console.error('error', error);
+  });
 }
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
