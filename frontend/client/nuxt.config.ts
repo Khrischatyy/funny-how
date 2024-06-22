@@ -15,6 +15,7 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Book, Record, and Create with Ease. Empowering Artists Everywhere.' },
         { name: 'keywords', content: 'music, studio, booking, recording, artists, schedule, payments' },
         { name: 'author', content: 'Funny-how LLC' },
+        { name: 'google-site-verification', content: 'evvuLgCt6o39oe6HrkxWAV-GHJqT-ODFg98jfAtjm9o' },
         { property: 'og:title', content: 'Funny How - Empowering Artists Everywhere' },
         { property: 'og:description', content: 'Book, Record, and Create with Ease. Seamless Scheduling, Integrated Payment System, Collaborative Planning Tools.' },
         { property: 'og:image', content: '/meta/open-graph-image.png' },
