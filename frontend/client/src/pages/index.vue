@@ -66,7 +66,7 @@ function signOut() {
           My company @{{ useSessionStore().brand }}
         </button>
       </div>
-      <div class="justify-center items-center gap-2.5 inline-flex mt-10">
+      <div v-if="useCookie(ACCESS_TOKEN_KEY).value" class="justify-center items-center gap-2.5 inline-flex mt-10">
         <button @click="signOut()" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">Sign Out</button>
       </div>
     </div>
