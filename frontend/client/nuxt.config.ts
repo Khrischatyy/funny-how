@@ -3,23 +3,35 @@ import { fileURLToPath, URL } from 'url'
 export default defineNuxtConfig({
   security: {
     headers: {
-      // contentSecurityPolicy: {
-        // 'default-src': ["'self'", "'unsafe-inline'", "data:", "https://maps.googleapis.com", "https://maps.gstatic.com"],
-        // 'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://maps.googleapis.com"],
-        // 'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // обновлено
-        // 'style-src-elem': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // добавлено
-        // 'img-src': ["'self'", "data:", "https://*.googleapis.com", "https://*.gstatic.com", "https://funny-how-s3-bucket.s3.amazonaws.com"], // обновлено
-        // 'connect-src': ["'self'", "https://maps.googleapis.com"],
-        // 'font-src': ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"]
-      // }
+      // your security headers
     }
   },
   app: {
     head: {
       charset: 'utf-8',
-      viewport: 'width=device-width, initial-scale=1',
+      viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+      title: 'Funny How - Empowering Artists Everywhere',
+      meta: [
+        { name: 'description', content: 'Book, Record, and Create with Ease. Empowering Artists Everywhere.' },
+        { name: 'keywords', content: 'music, studio, booking, recording, artists, schedule, payments' },
+        { name: 'author', content: 'Funny-how LLC' },
+        { property: 'og:title', content: 'Funny How - Empowering Artists Everywhere' },
+        { property: 'og:description', content: 'Book, Record, and Create with Ease. Seamless Scheduling, Integrated Payment System, Collaborative Planning Tools.' },
+        { property: 'og:image', content: '/meta/open-graph-image.png' },
+        { property: 'og:url', content: 'https://funny-how.com/' },
+        { property: 'og:type', content: 'website' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Funny How - Empowering Artists Everywhere' },
+        { name: 'twitter:description', content: 'Book, Record, and Create with Ease. Seamless Scheduling, Integrated Payment System, Collaborative Planning Tools.' },
+        { name: 'twitter:image', content: '/meta/twitter-card-image.png' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/meta/favicon.svg' },
+        { rel: 'manifest', href: '/meta/site.webmanifest' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/meta/apple-touch-icon.png' }
+      ]
     },
-    pageTransition: { name: 'page', mode: 'out-in'}
+    pageTransition: { name: 'page', mode: 'out-in' }
   },
   build: {
     transpile: ['@googlemaps/js-api-loader'],
