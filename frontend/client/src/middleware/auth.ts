@@ -25,6 +25,7 @@ export default defineNuxtRouteMiddleware(() => {
 
         if (!token) {
             navigateTo('/login')
+            return false;
         }
 
 
