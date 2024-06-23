@@ -24,7 +24,6 @@ export function getMe() {
 export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.hook('app:beforeMount', async () => {
         let token = useCookie(ACCESS_TOKEN_KEY).value
-        console.log('tokentokentoken', token)
         if(token){
             await getMe().then((response) => {
                 authorizeUser(useSessionStore(), response, nuxtApp._route, token)
