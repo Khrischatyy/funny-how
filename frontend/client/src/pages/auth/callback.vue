@@ -6,6 +6,7 @@ import {useApi} from "~/src/lib/api";
 import {useSessionStore} from "~/src/entities/Session";
 import {authorizeUser} from "~/src/shared/utils";
 import {getMe} from "~/plugins/session";
+import {navigateTo} from "nuxt/app";
 
 
 useHead({
@@ -24,6 +25,7 @@ const callAuthorizeUser = async (token: string) => {
   try {
     await getMe().then((response) => {
       authorizeUser(session, response, route, token)
+      navigateTo('/')
     })
   } catch (error) {
     console.error('Authorization error:', error);
