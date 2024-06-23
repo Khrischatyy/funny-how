@@ -7,13 +7,15 @@ import {UserRoleEnum} from "~/src/entities/@abstract/User";
 import {useCookie} from "#app";
 import {useApi} from "~/src/lib/api";
 import type { ResponseDto } from "~/src/lib/api/types";
+import type {StoreDefinition} from "pinia";
+import {authorizeUser} from "~/src/shared/utils";
 
-type meResponse = {
+export type meResponse = {
     role: string;
     has_company: boolean;
     company_slug: number;
 }
-function getMe() {
+export function getMe() {
     const api = useApi<ResponseDto<meResponse>>({ url: '/me', 'auth': true });
 
     return api.fetch();
@@ -25,16 +27,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         console.log('tokentokentoken', token)
         if(token){
             await getMe().then((response) => {
-                const sessionStore = useSessionStore()
-                sessionStore.setUserRole(response?.data.role as UserRoleEnum)
-                sessionStore.setAuthorized(true)
-                if(response?.data.has_company) {
-                    sessionStore.setBrand(response?.data.company_slug.toString())
-                }
-                const route = nuxtApp._route
-                if (response?.data.company_slug && route.path === '/create') {
-                    navigateTo(`/@${response?.data.company_slug}`)
-                }
+                authorizeUser(useSessionStore(), response, nuxtApp._route, token)
             })
         }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
-import {ref, onMounted, onBeforeMount, computed} from 'vue';
+import {ref, onMounted, onBeforeMount, computed, watch} from 'vue';
 import { useRuntimeConfig } from '#imports';
 import { BrandingLogo } from '~/src/shared/ui/branding';
 import {ACCESS_TOKEN_KEY, useSessionStore} from "~/src/entities/Session";
@@ -17,6 +17,16 @@ useHead({
 });
 
 const isLoading = ref(false);
+const isBrand = ref('');
+const session = useSessionStore();
+
+watch(() => session.brand, (newValue) => {
+  isBrand.value = <string>newValue;
+});
+
+onMounted(() => {
+  isBrand.value = <string>session.brand;
+});
 
 function redirectToGoogle() {
   const config = useRuntimeConfig();
@@ -61,13 +71,13 @@ function signOut() {
         </RouterLink>
       </div>
       <GoogleSignInButton class="mt-10" />
-      <div v-if="useSessionStore().brand" class="justify-center items-center gap-2.5 inline-flex mt-10">
-        <button @click="navigateTo(`/@${useSessionStore().brand}`)" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">
-          My company @{{ useSessionStore().brand }}
+      <div v-if="isBrand" class="justify-center w-full max-w-96 p-5 items-center gap-2.5 inline-flex mt-10">
+        <button @click="navigateTo(`/@${isBrand}`)" class="w-full h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">
+          My company @{{ isBrand }}
         </button>
       </div>
-      <div v-if="useCookie(ACCESS_TOKEN_KEY).value" class="justify-center items-center gap-2.5 inline-flex mt-10">
-        <button @click="signOut()" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">Sign Out</button>
+      <div v-if="useCookie(ACCESS_TOKEN_KEY).value" class="justify-center w-full max-w-96 p-5 items-center gap-2.5 inline-flex mt-10">
+        <button @click="signOut()" class="w-full h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">Sign Out</button>
       </div>
     </div>
     <Footer />

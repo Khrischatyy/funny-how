@@ -3,6 +3,8 @@ import {navigateTo} from "nuxt/app";
 import {useCookie} from "#app";
 
 type UserRole = 'user' | 'studio_owner';
+export const USER_ROLE = 'user' as UserRole;
+export const STUDIO_OWNER_ROLE = 'studio_owner' as UserRole;
 
 type State = {
 	userInfo: string | null,

@@ -7,6 +7,8 @@ const props = defineProps<{
   placeholder?: string;
   modelValue: string | number | null;
   type?: string;
+  size?: 'sm' | 'md' | 'lg';
+  error: string | boolean;
 }>()
 const slots = useSlots();
 const value = ref<string | number | null>(props.modelValue);
@@ -44,7 +46,10 @@ watch(() => props.modelValue, (newValue) => {
 <template>
   <div class="w-full flex-col flex gap-1.5">
     <div class="label-action flex justify-between items-center w-full">
-      <div v-if="label" class="text-white text-sm font-normal tracking-wide opacity-20">{{ label }}</div>
+      <div v-if="label"
+           :class="{ 'opacity-20': props.size === 'sm', 'opacity-100': props.size === 'md' || props.size === 'lg' }"
+           class="text-white text-sm font-normal tracking-wide">{{ label }}</div>
+      <div v-if="error" class="text-right text-red-500 text-sm font-normal tracking-wide">{{ error }}</div>
       <div v-if="slots?.action" class="action">
         <slot name="action" />
       </div>
@@ -58,8 +63,8 @@ watch(() => props.modelValue, (newValue) => {
         @input="handleInput"
         v-model="value"
         :placeholder="props.placeholder"
-        :class="slots?.icon?'pl-10':''"
-        class="w-full flex justify-start items-center px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 focus:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+        :class="{ 'pl-10': slots?.icon, 'border-red': error, 'border-white': !error && !slots?.icon, 'py-3': props.size === 'sm', 'py-5': props.size === 'md', 'py-7': props.size === 'lg'}"
+        class="w-full flex justify-start items-center px-3 h-11 outline-none rounded-[10px] focus:border-white border border-opacity-20 focus:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
         :type="props.type || 'text'"
     />
     <div v-else class="w-11 h-11 flex items-center justify-center border border-white border-opacity-20 rounded-[10px] bg-transparent text-white text-sm font-medium tracking-wide cursor-pointer" @click="handlePlaceholderClick">
@@ -67,6 +72,7 @@ watch(() => props.modelValue, (newValue) => {
           id="fileInput"
           type="file"
           class="hidden"
+          :class="{ 'pl-10': slots?.icon, 'border-red': error, 'border-white': !error && !slots?.icon }"
           @change="handleInput"
       />
       <span v-if="!imageUrl" class="opacity-20">

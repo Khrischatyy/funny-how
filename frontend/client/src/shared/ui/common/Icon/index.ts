@@ -17,3 +17,7 @@ export { default as IconClose } from './IconClose.vue'
 export { default as IconPeople} from './IconPeople.vue'
 export { default as IconWeed } from './IconWeed.vue'
 export { default as IconBurger } from './IconBurger.vue'
+
+export { default as IconBooking } from './IconBooking.vue'
+export { default as IconClients } from './IconClients.vue'
+export { default as IconHistory } from './IconHistory.vue'

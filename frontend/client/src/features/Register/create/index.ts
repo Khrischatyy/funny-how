@@ -1,1 +1,1 @@
-export { default as CreateForm } from './ui/CreateForm.vue'
+export { default as ChooseRole } from './ui/ChooseRole.vue'

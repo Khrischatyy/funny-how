@@ -4,6 +4,8 @@ import {Particles} from "~/src/shared/ui/components";
 import {useRouter} from "vue-router";
 import {useApi} from "~/src/lib/api";
 import {useSessionStore} from "~/src/entities/Session";
+import {authorizeUser} from "~/src/shared/utils";
+import {getMe} from "~/plugins/session";
 
 
 useHead({
@@ -15,28 +17,14 @@ useHead({
 
 const router = useRouter();
 const session = useSessionStore();
-
-const authorizeUser = async (token: string) => {
+const route = useRouter().currentRoute.value;
+const callAuthorizeUser = async (token: string) => {
   session.setIsLoading(true);
 
   try {
-    // Validate the token or fetch the user data with the token
-    const { fetch } = useApi({ url: '/me', auth: false });
-    const data = await fetch({ headers: { Authorization: `Bearer ${token}` } });
-console.log('data', data);
-    if (data) {
-      let role = data?.data?.role;
-      let has_company = data?.data?.has_company;
-      session.setAccessToken(token);
-      session.setAuthorized(true);
-      session.setUserRole(data?.data?.role);
-
-      if (role === 'studio_owner' && has_company) {
-        await router.push('/create');
-      } else {
-        await router.push('/');
-      }
-    }
+    await getMe().then((response) => {
+      authorizeUser(session, response, route, token)
+    })
   } catch (error) {
     console.error('Authorization error:', error);
     await router.push('/login');
@@ -46,11 +34,10 @@ console.log('data', data);
 };
 
 // Extract token from URL query
-const route = useRouter().currentRoute.value;
 const token = route.query.token;
 
 if (token) {
-  authorizeUser(token as string);
+  callAuthorizeUser(token as string);
 } else {
   router.push('/login');
 }

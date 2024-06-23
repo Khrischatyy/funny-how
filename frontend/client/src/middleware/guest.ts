@@ -6,7 +6,8 @@ export default defineNuxtRouteMiddleware(() => {
     const token = useCookie(ACCESS_TOKEN_KEY).value;
 
     if (token) {
-        navigateTo('/');
+        navigateTo('/');  // Redirect if token exists
+        return false;  // Prevent further navigation
     }
 
     return true;  // Continue with the navigation if no token is found

@@ -32,7 +32,6 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
     auth?: boolean
 }) {
     const sessionStore = useSessionStore()
-    const router = useRouter()
     const config = useRuntimeConfig()
     const apiBase = process.client ? config.public.apiBaseClient : config.public.apiBase
 
@@ -73,13 +72,15 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
         console.log('status', status)
 
         if (status === 404) {
-            navigateTo('/404');
+            if(process.client)
+                navigateTo('/404');
             return Promise.resolve({ status, message: 'Redirecting to 404 page' }); // Consider handling as resolved to prevent further error propagation.
         }
         if (status === 401) {
             sessionStore.setAuthorized(false);
             sessionStore.setAccessToken(null);
-            navigateTo('/login');
+            if(process.client)
+                navigateTo('/login');
             return Promise.resolve({ status, message: 'Redirecting to login page' });
         }
 
