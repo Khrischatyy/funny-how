@@ -112,7 +112,7 @@ function signOut() {
   <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
     <div class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex">
       <div class="relative w-full flex-col justify-start items-center gap-2.5 flex">
-        <BrandingLogo class="mb-20" />
+        <BrandingLogo @click="navigateTo('/')" class="mb-20" />
         <div class="animate__animated animate__fadeInRight">
           <div class="breadcrumbs mb-10 text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
             <icon-elipse :class="'opacity-100'" class="h-4" />
