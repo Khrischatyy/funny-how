@@ -4,6 +4,7 @@ import {useHead} from "@unhead/vue";
 import {useNuxtApp} from "#app";
 import {useRoute} from "nuxt/app";
 import {ref} from "vue";
+import {Header, Footer} from "~/src/shared/ui/components";
 
 const route = useRoute();
 const { $axios } = useNuxtApp();
@@ -19,6 +20,7 @@ useHead({
 
 <template>
   <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
+    <Header :hide-login-button="true" class="absolute z-50 bottom-0 left-0 md:bottom-[unset] md:left-[unset]" />
     <GoogleMap :lat="'34.0199732'" :lng="'-118.266289'"/>
   </div>
 </template>

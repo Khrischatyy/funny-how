@@ -1,14 +1,14 @@
 <template>
-  <footer class="p-4 text-center text-gray-500 mt-auto">
-    <div class="container mx-auto">
-      <div class="flex justify-between items-center">
+  <footer class="p-4 text-center text-white mt-auto w-full max-w-screen-md">
+    <div class="container mx-auto w-full">
+      <div class="flex flex-col sm:flex-row justify-between items-center w-full">
         <div>
-          <p>&copy; 2024 Funny-how LLC</p>
+          &copy; 2024 Funny-how LLC
         </div>
-        <div>
-          <a href="#" class="text-gray-500 hover:text-white mx-2">Contact us</a>
-          <a href="#" class="text-gray-500 hover:text-white mx-2">Terms of Service</a>
-          <a href="#" class="text-gray-500 hover:text-white mx-2">About us</a>
+        <div class="flex flex-col min-[330px]:flex-row">
+          <a href="#" class="text-white hover:opacity-70 mx-2">Contact us</a>
+          <a href="#" class="text-white hover:opacity-70 mx-2">Terms of Service</a>
+          <a href="#" class="text-white hover:opacity-70 mx-2">About us</a>
         </div>
       </div>
     </div>

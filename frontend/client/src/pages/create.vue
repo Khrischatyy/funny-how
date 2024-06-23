@@ -33,9 +33,14 @@ const session = ref();
 onMounted(async () => {
   const config = useRuntimeConfig();
   session.value = useSessionStore();
-
-
-
+  if(session.value.brand) {
+    navigateTo('/my-studios');
+    return;
+  }
+  if(session.value.userRole == 'user'){
+    navigateTo('/studios');
+    return;
+  }
   const loader = new Loader({
     apiKey: config.public.googleMapKey,
     version: "weekly",

@@ -2,20 +2,16 @@
   <div class="text-white flex flex-col min-h-screen">
     <Header :subhead="true" :subhead-title="$attrs.title as string" @toggleSideMenu="toggleSideMenu" />
     <div class="flex flex-1 overflow-hidden">
-      <SideMenu :is-data-loading="isLoading" :sideMenu="sideMenuTemplate" ref="sideMenuRef" class="lg:block lg:w-64 pl-0 md:pl-10" />
+      <SideMenu :is-data-loading="isLoading" :sideMenu="$attrs?.sideMenu || sideMenuTemplate" ref="sideMenuRef" class="lg:block lg:w-64 pl-0 md:pl-10" />
       <div class="flex-1 overflow-auto">
 
-        <div class="flex justify-start items-start duration-[700ms] md:max-w-[70%] ease-in-out min-h-[50vh] h-full px-2 md:px-4 relative">
-          <div class="relative h-auto w-full min-h-[500px] flex flex-col gap-5 justify-start items-start bg-black rounded-[10px] p-5 z-10">
 
             <div v-if="$attrs.isChildLoading" class="flex items-center justify-center absolute z-[11] left-0 top-0 rounded-[10px] w-full h-full bg-black bg-opacity-70">
               <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
             </div>
 
             <slot/>
-          </div>
-        </div>
-    </div>
+      </div>
     </div>
     <Footer class="mt-auto" />
   </div>
