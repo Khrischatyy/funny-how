@@ -63,28 +63,18 @@ function filterUnassigned(obj) {
 }
 
 function setHours(){
-  const config = useRuntimeConfig()
-
-  let requestConfig = {
-    method: 'post',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/operating-hours`,
-    data: filterUnassigned(workHours.value),
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const {post} = useApi<ResponseDto<Company>>({
+    url: `/address/operating-hours`,
+    auth: true
+  });
+  post({
+    ...filterUnassigned(workHours.value),
+    address_id: route.params.id
+  }).then((response) => {
+    navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
+  }).catch(error => {
+    console.error('error', error);
+  });
 }
 
 type Mode = {

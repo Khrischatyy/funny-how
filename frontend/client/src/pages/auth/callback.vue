@@ -40,6 +40,9 @@ if (token) {
       navigateTo(`/@${response?.data.company_slug}`)
       return
     }
+
+    navigateTo(`/`)
+    return
   }).catch(error => {
     console.error('Authorization error:', error);
     router.push('/login');
