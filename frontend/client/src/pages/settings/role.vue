@@ -76,10 +76,10 @@ const handleRoleUpdate = async (role: string) => {
 <!--  </NuxtLayout>-->
   <div class="duration-[700ms] ease-in-out grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
     <div class="auth-panel bg-[#000000] relative overflow-hidden">
-      <div class="w-full h-full grid items-start lg:items-center justify-center mb-10">
-        <div class="relative flex-col justify-start items-center gap-7 inline-flex">
+      <div class="w-full h-full flex sm:grid items-start lg:items-center justify-center mb-10">
+        <div class="relative flex-col justify-start w-full items-center gap-7 inline-flex">
           <BrandingLogo class="lg:hidden mb-10 mt-10"/>
-          <div :class="'-translate-x-96/2 duration-700'" class="breadcrumbs text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
+          <div :class="'-translate-x-96/2 duration-700'" class="breadcrumbs hidden sm:flex text-white text-sm font-normal tracking-wide gap-1.5 justify-center items-center">
             <icon-elipse :class="'opacity-100'" class="h-4"/>
             <button :class="'opacity-100'">Your Role</button>
             <icon-line :class="'opacity-100'" class="h-2 only-desktop"/>
@@ -92,8 +92,8 @@ const handleRoleUpdate = async (role: string) => {
             <icon-elipse :class="'opacity-20'" class="h-4"/>
             <button :class="'opacity-20'" > Add Studio </button>
           </div>
-          <div class="relative h-full text-white text-3xl font-bold tracking-wider">Choose Role</div>
-          <div class="relative h-full w-auto m-2 md:m-0 md:w-96 min-h-[500px] flex justify-start items-center bg-gradient-to-b from-[#000] via-[#000] to-transparent rounded-xl p-5 z-10">
+          <div class="relative h-full hidden sm:block text-white text-3xl font-bold tracking-wider">Choose Role</div>
+          <div class="relative h-full w-full sm:w-auto m-2 md:m-0 md:w-96 min-h-auto sm:min-h-[500px] flex justify-start items-center bg-gradient-to-b from-[#000] via-[#000] to-transparent rounded-xl p-5 z-10">
             <ChooseRole
               :selected-role="roleValue"
               :show-title="false"
