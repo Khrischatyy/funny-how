@@ -29,7 +29,7 @@
         </button>
       </nav>
     </div>
-    <div v-else class="flex items-center justify-center lg:w-64">
+    <div v-else class=" items-center justify-center hidden sm:flex lg:w-64">
       <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
     </div>
   </div>

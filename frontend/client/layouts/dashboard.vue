@@ -1,6 +1,6 @@
 <template>
   <div class="text-white flex flex-col min-h-screen">
-    <Header :subhead="true" :subhead-title="$attrs.title as string" @toggleSideMenu="toggleSideMenu" />
+    <Header :subhead="true" :show-menu="true" :subhead-title="$attrs.title as string" @toggleSideMenu="toggleSideMenu" />
     <div class="flex flex-1 overflow-hidden">
       <SideMenu :is-data-loading="isLoading" :sideMenu="$attrs?.sideMenu || sideMenuTemplate" ref="sideMenuRef" class="lg:block lg:w-64 pl-0 md:pl-10" />
       <div class="flex-1 overflow-auto">

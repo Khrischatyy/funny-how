@@ -1,5 +1,5 @@
 <template>
-  <footer class="p-4 text-center text-white mt-auto w-full max-w-screen-md">
+  <footer class="p-4 text-center text-white mt-auto mx-auto w-full max-w-screen-md">
     <div class="container mx-auto w-full">
       <div class="flex flex-col sm:flex-row justify-between items-center w-full">
         <div>

@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
     <header class="mt-0 md:mt-10 mx-auto p-4 w-full md:max-w-3xl flex items-center relative justify-center">
-      <button v-if="sideMenuArray.length > 0" class="lg:hidden p-2 flex items-center absolute left-0" @click="$emit('toggleSideMenu')">
+      <button v-if="showMenu" class="lg:hidden p-2 flex items-center absolute left-0" @click="$emit('toggleSideMenu')">
         <IconBurger/>
         <span class="ml-2 text-white">Menu</span>
       </button>
@@ -12,7 +12,7 @@
         <span class="hidden min-[300px]:block mr-2 text-white text-2xl font-[BebasNeue]">Sign In</span>
         <IconUser class="border-[1.5px] border-white rounded-full w-6 h-6"/>
       </button>
-      <button v-if="isAuth && !hideLoginButton" class="p-2 flex items-center hover:opacity-70 absolute right-0" @click="$emit('toggleSideMenu')">
+      <button v-if="isAuth && !hideLoginButton" class="p-2 flex items-center hover:opacity-70 absolute right-0" @click="navigateToProfile">
         <IconUser class="border-[1.5px] border-white rounded-full w-8 h-8"/>
       </button>
     </header>
@@ -32,16 +32,25 @@ import { BrandingLogo } from '~/src/shared/ui/branding';
 import {IconBurger, IconUser} from "~/src/shared/ui/common";
 import {navigateTo} from "nuxt/app";
 import {useCookie} from "#app";
-import {ACCESS_TOKEN_KEY} from "~/src/entities/Session";
+import {ACCESS_TOKEN_KEY, useSessionStore} from "~/src/entities/Session";
 
 const props = withDefaults(defineProps<{
   subhead?: boolean,
   subheadTitle?: string,
   hideLoginButton?: boolean
+  showMenu?: boolean
 }>(), {
   subhead: false
 });
 const sideMenuArray = ref([]);
+const session = useSessionStore();
 const isAuth = useCookie(ACCESS_TOKEN_KEY).value;
 const emit = defineEmits(['toggleSideMenu']);
+const navigateToProfile = () => {
+  if (isAuth && session.userRole === 'studio_owner') {
+    navigateTo('/my-studios');
+  }else {
+    navigateTo('/studios');
+  }
+};
 </script>
