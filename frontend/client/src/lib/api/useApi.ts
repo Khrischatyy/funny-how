@@ -30,7 +30,7 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
                                                                }: {
     url: (() => string) | string
     options?: { transformResponse?: (data: ResponseT) => MappedResponseT };
-    token?: ReturnType<string>;
+    token?: string | null | undefined;
     auth?: boolean
 }) {
     const sessionStore = useSessionStore()

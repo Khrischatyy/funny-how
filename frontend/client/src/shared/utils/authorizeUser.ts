@@ -11,12 +11,12 @@ export function authorizeUser(sessionStore: any, response:ResponseDto<meResponse
         sessionStore.setBrand(response?.data.company_slug.toString())
     }
 
-    if(!response?.data.role){
+    if(!response?.data.role && process.client){
         navigateTo('/settings/role')
         return
     }
 
-    if (response?.data.company_slug && route.path === '/create') {
+    if (response?.data.company_slug && route.path === '/create' && process.client) {
         navigateTo(`/@${response?.data.company_slug}`)
         return
     }else{
