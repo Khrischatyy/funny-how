@@ -1,18 +1,18 @@
 <template>
   <div>
-    <div v-for="field in store.inputFields" class="flex-col justify-start items-start gap-1.5 flex">
-      <div class="w-96 justify-between items-start inline-flex">
+    <div v-for="field in store.inputFields" class="flex-col justify-start items-start gap-1.5 flex w-full">
+      <div class="max-w-96 w-full justify-between items-start inline-flex">
         <div class="text-white text-sm font-normal tracking-wide">{{ field.title }}</div>
         <div class="hidden text-right text-red-500 text-sm font-normal tracking-wide">Error message</div>
       </div>
-      <div class="justify-start items-center gap-2.5 inline-flex">
-        <input :name="field.name" v-model="store.inputValues[field.name]" :type="field.type" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
+      <div class="justify-start items-center gap-2.5 inline-flex w-full">
+        <input :name="field.name" v-model="store.inputValues[field.name]" :type="field.type" class="max-w-96 w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
       </div>
     </div>
-    <div class="justify-center items-center gap-2.5 inline-flex">
-      <button @click="createAccount()" :disabled="isLoading" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Submit {{isLoading ? 'loading...' : ''}}</button>
+    <div class="justify-center items-center gap-2.5 inline-flex w-full">
+      <button @click="createAccount()" :disabled="isLoading" class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Submit {{isLoading ? 'loading...' : ''}}</button>
     </div>
-    <div class="w-96 h-11 p-3.5 justify-between items-center gap-2.5 inline-flex">
+    <div class="max-w-96 w-full h-11 p-3.5 justify-between items-center gap-2.5 inline-flex">
       <button @click="$emit('stepUpdate', 'auth')" class="w-full flex justify-center h-11 p-3.5 hover:opacity-70 rounded-[10px] text-white text-sm font-medium tracking-wide">
         Back to Sign In
       </button>

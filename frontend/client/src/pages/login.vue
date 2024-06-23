@@ -134,10 +134,10 @@ async function authForm() {
     </div>
 
     <div class="auth-panel bg-[#000000] relative overflow-hidden">
-      <div class="w-full h-full grid items-start lg:items-center justify-center mb-10">
-        <div class="relative flex-col justify-start items-center gap-7 inline-flex">
-          <BrandingLogo class="lg:hidden mb-10 mt-10"/>
-          <div :class="step == 'auth' ? 'translate-x-[0px] duration-[700ms] opacity-0' : '-translate-x-96/2 duration-700'" class="breadcrumbs text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
+      <div class="w-full h-full flex sm:grid items-start lg:items-center justify-center mb-10">
+        <div class="relative w-full flex-col justify-start items-center gap-7 inline-flex">
+          <BrandingLogo class="lg:hidden mt-10"/>
+          <div :class="step == 'auth' ? 'translate-x-[0px] duration-[700ms] opacity-0' : '-translate-x-96/2 duration-700'" class="breadcrumbs hidden sm:flex mt-10 text-white text-sm font-normal tracking-wide gap-1.5 justify-center items-center">
             <icon-elipse :class="step == 'create' ? 'opacity-100' : 'opacity-20'" class="h-4"/>
             <button :class="step == 'create' ? 'opacity-100' : 'opacity-20'">Your Role</button>
             <icon-line :class="step == 'create' ? 'opacity-100' : 'opacity-20'" class="h-2 only-desktop"/>
@@ -150,8 +150,8 @@ async function authForm() {
             <icon-elipse :class="step == 'add_studio' ? 'opacity-100' : 'opacity-20'" class="h-4"/>
             <button :class="step == 'add_studio' ? 'opacity-100' : 'opacity-20'" > Add Studio </button>
           </div>
-          <div v-if="!session?.isAuthorized" class="relative text-white text-3xl font-bold tracking-wider">{{getAuthTitleByName(step)}}</div>
-          <div class="relative h-full w-auto m-2 md:m-0 md:w-96 min-h-[500px] flex justify-start items-center bg-gradient-to-b from-[#000] via-[#000] to-transparent rounded-xl p-5 z-10">
+          <div v-if="!session?.isAuthorized" class="relative hidden sm:block text-white text-3xl font-bold tracking-wider">{{getAuthTitleByName(step)}}</div>
+          <div class="relative h-full w-full m-2 md:m-0 md:w-96 min-h-auto sm:min-h-[500px] flex justify-start items-center bg-gradient-to-b from-[#000] via-[#000] to-transparent rounded-xl p-5 z-10">
 
             <div v-if="step == 'auth' && !session?.isAuthorized" ref="auth" :class="step == 'auth' ? 'translate-x-[0px] duration-[700ms]' : 'opacity-0 -translate-x-96 duration-700'" class="relative w-full flex-col justify-start items-center gap-2.5 flex">
 
