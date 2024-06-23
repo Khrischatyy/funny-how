@@ -19,7 +19,7 @@
           :options="cityOptions"
       />
       <FInput
-          v-if="cityOptions.length > 0"
+          v-if="selectedCity"
           v-model="searchTerm"
           label="Search by name or address"
       />
