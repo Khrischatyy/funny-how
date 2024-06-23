@@ -16,7 +16,7 @@ export type meResponse = {
     company_slug: number;
 }
 export function getMe() {
-    const api = useApi<ResponseDto<meResponse>>({ url: '/me', 'auth': true });
+    const api = useApi<ResponseDto<meResponse>>({ url: '/me', auth: true });
 
     return api.fetch();
 }

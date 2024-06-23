@@ -25,10 +25,12 @@ interface ApiResponse<T> {
 export function useApi<ResponseT, MappedResponseT = ResponseT>({
                                                                    url,
                                                                    options,
-                                                                   auth = false
+                                                                   token = useCookie(ACCESS_TOKEN_KEY).value,
+                                                                   auth = false,
                                                                }: {
     url: (() => string) | string
     options?: { transformResponse?: (data: ResponseT) => MappedResponseT };
+    token?: ReturnType<string>;
     auth?: boolean
 }) {
     const sessionStore = useSessionStore()
@@ -46,7 +48,7 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
 
     if (auth) {
         const sessionCookie = useCookie(ACCESS_TOKEN_KEY);
-        const token = sessionCookie.value;
+        //const token = sessionCookie.value;
         if (token) {
             fetchOptions.value.headers.Authorization = `Bearer ${decodeURIComponent(token)}`;
         }

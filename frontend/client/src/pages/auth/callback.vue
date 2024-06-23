@@ -1,59 +1,49 @@
 <script setup lang="ts">
-import {useHead} from "@unhead/vue";
-import {Particles} from "~/src/shared/ui/components";
+import {navigateTo} from 'nuxt/app';
+import {authorizeUser} from '~/src/shared/utils';
+import {type ResponseDto, useApi} from '~/src/lib/api';
+import {Particles} from '~/src/shared/ui/components';
+import {useSessionStore} from '~/src/entities/Session';
 import {useRouter} from "vue-router";
-import {useApi} from "~/src/lib/api";
-import {useSessionStore} from "~/src/entities/Session";
-import {authorizeUser} from "~/src/shared/utils";
-import {getMe} from "~/plugins/session";
-import {navigateTo} from "nuxt/app";
+import {useHead} from "@unhead/vue";
 
-
+// Set the page metadata
 useHead({
   title: 'Funny How – Book a Session Time',
   meta: [
-    { name: 'Funny How', content: 'Book A Studio Time | Auth' }
+    { name: 'description', content: 'Book A Studio Time | Auth' }
   ],
 });
 
 const router = useRouter();
-const session = useSessionStore();
-const route = useRouter().currentRoute.value;
-const callAuthorizeUser = async (token: string) => {
-  session.setIsLoading(true);
+const route = router.currentRoute.value;
+const sessionStore = useSessionStore(); // Retrieve session store
 
-  try {
-    await getMe().then((response) => {
-      authorizeUser(session, response, route, token)
-      navigateTo('/')
-    })
-  } catch (error) {
-    console.error('Authorization error:', error);
-    await router.push('/login');
-  } finally {
-    session.setIsLoading(false);
-  }
-};
-
-// Extract token from URL query
-const token = route.query.token;
-
+// Directly handle the token from URL
+const token = route.query.token as string | undefined;
 if (token) {
-  callAuthorizeUser(token as string);
+  // Setup API with token
+  const api = useApi<ResponseDto<{ user: string, role: string }>>({ url: '/me', auth: true, token });
+  api.fetch().then(response => {
+    // Pass sessionStore to authorizeUser
+    authorizeUser(sessionStore, response, route, token);
+    navigateTo('/');
+  }).catch(error => {
+    console.error('Authorization error:', error);
+    router.push('/login');
+  });
 } else {
   router.push('/login');
 }
-
 </script>
 
 <template>
-<div>
-  <client-only>
-    <Particles :position="{x: 0, y: 0, z: 0}"/>
-  </client-only>
-</div>
+  <div>
+    <client-only>
+      <Particles :position="{x: 0, y: 0, z: 0}"/>
+    </client-only>
+  </div>
 </template>
 
 <style scoped lang="scss">
-
 </style>

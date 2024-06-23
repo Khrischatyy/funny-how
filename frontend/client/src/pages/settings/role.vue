@@ -35,9 +35,10 @@ onMounted(() => {
 
   if (roleValue.value === 'studio_owner') {
     navigateTo('/create')
-  } else {
+  } else if(roleValue.value === 'user') {
     navigateTo('/studios')
   }
+
 });
 const handleBackNavigation = () => {
   window.history.back();
