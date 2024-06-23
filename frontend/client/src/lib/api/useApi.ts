@@ -76,12 +76,12 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
             navigateTo('/404');
             return Promise.resolve({ status, message: 'Redirecting to 404 page' }); // Consider handling as resolved to prevent further error propagation.
         }
-        // if (status === 401) {
-        //     sessionStore.setAuthorized(false);
-        //     sessionStore.setAccessToken(null);
-        //     navigateTo('/login');
-        //     return Promise.resolve({ status, message: 'Redirecting to login page' });
-        // }
+        if (status === 401) {
+            sessionStore.setAuthorized(false);
+            sessionStore.setAccessToken(null);
+            navigateTo('/login');
+            return Promise.resolve({ status, message: 'Redirecting to login page' });
+        }
 
         // Check for specific error messages from the server
         if (errorData) {

@@ -14,7 +14,7 @@ type meResponse = {
     company_slug: number;
 }
 function getMe() {
-    const api = useApi<ResponseDto<meResponse>>({ url: '/me' });
+    const api = useApi<ResponseDto<meResponse>>({ url: '/me', 'auth': true });
 
     return api.fetch();
 }
