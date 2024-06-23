@@ -36,7 +36,7 @@ if (token) {
       return
     }
 
-    if (response?.data.company_slug && route.path === '/create' && process.client) {
+    if (response?.data.company_slug && process.client) {
       navigateTo(`/@${response?.data.company_slug}`)
       return
     }

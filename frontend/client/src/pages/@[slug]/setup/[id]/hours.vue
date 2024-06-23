@@ -94,7 +94,7 @@ type Mode = {
 }
 
 function getModes() {
-  const api = useApi<ResponseDto<Mode[]>>({ url: '/operation-modes' });
+  const api = useApi<ResponseDto<Mode[]>>({ url: '/operation-modes', auth: true });
 
   api.fetch().then((response) => {
     modes.value = response?.data;
@@ -104,7 +104,7 @@ function getModes() {
 }
 
 function getAddressId(){
-  const api = useApi<ResponseDto<Company>>({ url: `/company/${route.params.slug}` });
+  const api = useApi<ResponseDto<Company>>({ url: `/company/${route.params.slug}`, auth: true});
   api.fetch().then((response) => {
     workHours.value.address_id = response?.data.addresses.find(addr => addr.id == route.params.id)?.id
   }).catch(error => {
