@@ -21,6 +21,7 @@ class BadgeSeeder extends Seeder
                     'id' => 1,
                     'name' => 'mixing',
                     'image' => 'public/badges/mixing.svg',
+                    'description' => 'This studio provide sound engineering service'
                 ],
             );
 
@@ -29,7 +30,8 @@ class BadgeSeeder extends Seeder
                 [
                     'id' => 2,
                     'name' => 'record',
-                    'image' => 'public/badges/record.svg'
+                    'image' => 'public/badges/record.svg',
+                    'description' => 'They can help to record your stuff'
                 ],
             );
 
@@ -38,7 +40,8 @@ class BadgeSeeder extends Seeder
                 [
                     'id' => 3,
                     'name' => 'rent',
-                    'image' => 'public/badges/rent.svg'
+                    'image' => 'public/badges/rent.svg',
+                    'description' => 'You can rent whole thing without any escort'
                 ],
             );
 

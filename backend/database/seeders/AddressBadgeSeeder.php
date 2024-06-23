@@ -41,6 +41,57 @@ class AddressBadgeSeeder extends Seeder
                     'badge_id' => 3
                 ]);
 
+        DB::table('address_badge')
+            ->updateOrInsert(
+                [
+                    'id' => 4,
+                    'address_id' => 1,
+                    'badge_id' => 1
+                ],
+            );
+
+        DB::table('address_badge')
+            ->updateOrInsert(
+                [
+                    'id' => 5,
+                    'address_id' => 1,
+                    'badge_id' => 2
+                ]);
+
+        DB::table('address_badge')
+            ->updateOrInsert(
+                [
+                    'id' => 6,
+                    'address_id' => 1,
+                    'badge_id' => 3
+                ]);
+
+
+        DB::table('address_badge')
+            ->updateOrInsert(
+                [
+                    'id' => 7,
+                    'address_id' => 1,
+                    'badge_id' => 1
+                ],
+            );
+
+        DB::table('address_badge')
+            ->updateOrInsert(
+                [
+                    'id' => 8,
+                    'address_id' => 1,
+                    'badge_id' => 2
+                ]);
+
+        DB::table('address_badge')
+            ->updateOrInsert(
+                [
+                    'id' => 9,
+                    'address_id' => 1,
+                    'badge_id' => 3
+                ]);
+
         DB::statement("SELECT setval(pg_get_serial_sequence('address_badge', 'id'), coalesce(max(id)+1, 1), false) FROM address_badge");
 
     }
