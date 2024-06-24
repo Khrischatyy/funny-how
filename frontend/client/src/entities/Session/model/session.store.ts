@@ -36,10 +36,12 @@ export const useSessionStore = defineStore({
 				if (response.data) {
 					this.setUserInfo(JSON.stringify(response.data));
 					this.setAuthorized(true);
+					return response.data;
 				}
 			} catch (error) {
 				console.error('Error fetching user info:', error);
 				this.setAuthorized(false);
+				throw error;
 			}
 		},
 		setAccessToken(token: string | null) {

@@ -155,19 +155,7 @@ const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sat
 
 const todayWorkingHours = computed(() => {
   const today = new Date().getDay();
-  let todayHours = null;
-  if(typeof props.studio === 'object'){
-    todayHours = props.studio.working_hours.day_of_week === today;
-  } else{
-    todayHours = props.studio.working_hours?.find(hour => hour.day_of_week === today) || null;
-  }
-
-  if (!todayHours) return 'Closed';
-  if (todayHours.mode_id === 1) {
-    return '24h';
-  } else {
-    return `${todayHours.open_time} - ${todayHours.close_time}`;
-  }
+  return '24h';
 });
 
 const primaryPrice = computed(() => {

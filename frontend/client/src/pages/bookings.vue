@@ -36,20 +36,29 @@ import {StudioCard} from "~/src/entities/Studio";
 import {BookingCard} from "~/src/entities/Booking/ui";
 const showPopup = ref(false);
 
-type Booking = {
+type BookingRecent = {
   id: number;
+  name: string;
   address: string;
   date: string;
 };
 
-const recentStudio = ref<Booking>({
+type Booking = {
+  id: number;
+  name: string;
+  logo: string;
+  status: number;
+  isFavorite: boolean;
+  address: string;
+  time: string;
+  date: string;
+};
+
+const recentStudio = ref<BookingRecent>({
   id: 1,
   name: 'Studio 1',
-  logo: '/logo.png',
-  status: 1,
   isFavorite: true,
   address: '123 Main St',
-  time: '10:00 AM - 12:00 PM',
   date: '04/07/2024',
 });
 

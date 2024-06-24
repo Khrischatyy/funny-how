@@ -3,6 +3,7 @@ import {
     ROLE_INFO_KEY, ACCESS_TOKEN_KEY, RESERVES_KEY, PAYMENT_SESSION, BRAND_KEY
 } from '~/src/entities/Session/model'
 import {defineNuxtPlugin, useCookie} from "#app";
+import {navigateTo} from "nuxt/app";
 
 export default defineNuxtPlugin(nuxtApp => {
     nuxtApp.hook('app:beforeMount', async () => {
@@ -22,7 +23,12 @@ export default defineNuxtPlugin(nuxtApp => {
 
             // Fetch user info if access token is available
             if (sessionStore.accessToken) {
-                await sessionStore.fetchUserInfo();
+                await sessionStore.fetchUserInfo().then((response) => {
+                    if(!response?.role && process.client){
+                        navigateTo('/settings/role')
+                        return
+                    }
+                });
             } else {
                 sessionStore.setAuthorized(false);
             }

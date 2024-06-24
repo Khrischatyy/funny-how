@@ -8,7 +8,7 @@ const props = defineProps<{
   modelValue: string | number | null;
   type?: string;
   size?: 'sm' | 'md' | 'lg';
-  error: string | boolean;
+  error?: string | boolean;
 }>()
 const slots = useSlots();
 const value = ref<string | number | null>(props.modelValue);
@@ -60,6 +60,7 @@ watch(() => props.modelValue, (newValue) => {
     </div>
     <input
         v-if="props.type !== 'file'"
+        v-bind="$attrs"
         @input="handleInput"
         v-model="value"
         :placeholder="props.placeholder"
@@ -70,6 +71,7 @@ watch(() => props.modelValue, (newValue) => {
     <div v-else class="w-11 h-11 flex items-center justify-center border border-white border-opacity-20 rounded-[10px] bg-transparent text-white text-sm font-medium tracking-wide cursor-pointer" @click="handlePlaceholderClick">
       <input
           id="fileInput"
+          v-bind="$attrs"
           type="file"
           class="hidden"
           :class="{ 'pl-10': slots?.icon, 'border-red': error, 'border-white': !error && !slots?.icon }"

@@ -5,7 +5,7 @@
           <FilterBar />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <AddStudioButton @click="togglePopup" />
-            <StudioCard v-for="studio in myStudios" @click="navigateTo(`/@${studio.company_slug}/studio/${studio.id}`)" :key="studio.id" :studio="studio" />
+            <StudioCard v-for="studio in myStudios" @click="editStudio(studio)" :key="studio.id" :studio="studio" />
           </div>
         </div>
         <AddStudioModal :show-popup="showPopup" @closePopup="closePopup" @togglePopup="togglePopup" />
@@ -29,7 +29,7 @@
 </style>
 
 <script setup lang="ts">
-import {ref, watch, onMounted, type Component} from 'vue';
+import {ref, watch, onMounted, type Component, inject, provide} from 'vue';
 import { AddStudioButton } from '~/src/features/addStudio';
 import { StudioCard } from '~/src/entities/Studio';
 import { Header, Footer, FilterBar, Popup } from '~/src/shared/ui/components';
@@ -48,6 +48,17 @@ const isLoading = ref(true);
 const myStudios = ref([]);
 const showPopup = ref(false);
 
+type Studio = {
+  name: string,
+  address: string,
+  description: string,
+  hours: string,
+  price: number,
+  logo: string,
+  badges: string[],
+  equipment: string[]
+}
+
 const fetchStudios = async () => {
   const studios = await getMyStudios();
   myStudios.value = studios;
@@ -59,6 +70,14 @@ const { data, error } = await useAsyncData('sideMenu', getSideMenu);
 const togglePopup = () => {
   showPopup.value = !showPopup.value;
 };
+
+const studioForPopup = ref<Studio | null>(null);
+
+const editStudio = (studio:any) => {
+  studioForPopup.value = studio;
+  showPopup.value = true;
+}
+provide('studioForPopup', studioForPopup);
 
 const closePopup = () => {
   showPopup.value = false;

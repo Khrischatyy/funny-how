@@ -34,7 +34,7 @@ onMounted(async () => {
     });
 
     if (response.data.success) {
-      window.location.href = `${config.public.frontendUrl}/booking-management`;
+      window.location.href = `${config.public.frontendUrl}/bookings`;
     } else {
       errorMessage.value = response.data.message;
     }

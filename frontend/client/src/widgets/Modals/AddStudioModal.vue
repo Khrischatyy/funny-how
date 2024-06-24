@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {Popup} from "~/src/shared/ui/components";
-import {ref} from "vue";
+import {inject, onMounted, provide, ref} from "vue";
 import { FInputClassic} from "~/src/shared/ui/common";
 import {HoursChoose} from "~/src/widgets/HoursChoose";
 import {PriceChoose} from "~/src/widgets/PriceChoose";
@@ -9,12 +9,25 @@ import {EquipmentChoose} from "~/src/widgets/EquipmentChoose";
 import {AddStudioButton} from "~/src/features/addStudio";
 
 const props = withDefaults(defineProps<{
-  showPopup: boolean
+  showPopup: boolean,
 }>(), {
   showPopup: false
 });
 
 const emit = defineEmits(['togglePopup', 'closePopup']);
+
+type Studio = {
+  id: number,
+  name: string,
+  address: string,
+  description: string,
+  hours: string,
+  price: number,
+  logo: string,
+  badges: string[],
+  equipment: string[]
+}
+const studio = inject('studioForPopup');
 
 const studioForm = ref({
   name: '',
@@ -42,7 +55,7 @@ const closePopup = () => {
           <FInputClassic placeholder="Logo" type="file" v-model="studioForm.logo" />
         </div>
         <div class="name">
-          <FInputClassic placeholder="Name" v-model="studioForm.name" />
+          <FInputClassic :placeholder="studio.company.name" disabled v-model="studioForm.name" />
         </div>
       </div>
     </template>
@@ -64,7 +77,7 @@ const closePopup = () => {
         <div class="w-full flex flex-col gap-5">
           <div class="name w-full flex-col flex gap-1.5">
             <div class="text-white text-sm font-normal tracking-wide opacity-20">Address</div>
-            <FInputClassic placeholder="Address" v-model="studioForm.address"/>
+            <FInputClassic placeholder="Address" v-model="studio.street"/>
           </div>
           <div class="description w-full flex-col flex gap-1.5">
             <div class="text-white text-sm font-normal tracking-wide opacity-20">Description</div>
