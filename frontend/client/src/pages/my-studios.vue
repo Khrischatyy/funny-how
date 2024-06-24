@@ -1,14 +1,16 @@
 <template>
-    <NuxtLayout @toggleSideMenu="toggleSideMenu" :sideMenu="sideMenu" title="Studios" class="text-white flex flex-col min-h-screen" name="dashboard">
-          <div class="container mx-auto px-2 md:px-4">
-            <FilterBar />
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AddStudioButton @click="togglePopup" />
-              <StudioCard v-for="studio in myStudios" @click="navigateTo(`/@${studio.company_slug}/studio/${studio.id}`)" :key="studio.id" :studio="studio" />
-            </div>
+    <div>
+      <NuxtLayout @toggleSideMenu="toggleSideMenu" title="Studios" class="text-white flex flex-col min-h-screen" name="dashboard">
+        <div class="container mx-auto px-2 md:px-4">
+          <FilterBar />
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AddStudioButton @click="togglePopup" />
+            <StudioCard v-for="studio in myStudios" @click="navigateTo(`/@${studio.company_slug}/studio/${studio.id}`)" :key="studio.id" :studio="studio" />
           </div>
-      <AddStudioModal :show-popup="showPopup" @closePopup="closePopup" @togglePopup="togglePopup" />
-    </NuxtLayout>
+        </div>
+        <AddStudioModal :show-popup="showPopup" @closePopup="closePopup" @togglePopup="togglePopup" />
+      </NuxtLayout>
+    </div>
 </template>
 
 <style scoped>
@@ -52,22 +54,7 @@ const fetchStudios = async () => {
 };
 
 const { data, error } = await useAsyncData('sideMenu', getSideMenu);
-interface MenuItem {
-  icon: Component;
-  name: string;
-  path: string;
-  link?: string;
-}
 
-const sideMenu: MenuItem[] = [
-  { name: 'Studios', icon: IconMic, path: '/icons/profile.svg', link: '/studios', role: USER_ROLE },
-  { name: 'Booking management', icon: IconBooking, path: '/icons/profile.svg', link: '/studios', role: USER_ROLE },
-  { name: 'Profile', icon: IconUser, path: '/icons/profile.svg', link: '/settings/role', role: '' },
-  { name: 'My Studios', icon: IconMic, path: '/icons/my-studios.svg', link: '/my-studios', role: STUDIO_OWNER_ROLE },
-  { name: 'Clients', icon: IconClients, path: '/icons/settings.svg', link: '/my-studios', role: STUDIO_OWNER_ROLE },
-  { name: 'History', icon: IconHistory, path: '/icons/settings.svg', link: '/my-studios', role: STUDIO_OWNER_ROLE },
-  { name: 'Logout', icon: IconClose, path: '/icons/logout.svg', link: '/logout', role: '' }
-];
 
 const togglePopup = () => {
   showPopup.value = !showPopup.value;

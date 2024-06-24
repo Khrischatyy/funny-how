@@ -6,11 +6,11 @@
       <div class="flex-1 overflow-auto">
 
 
-            <div v-if="$attrs.isChildLoading" class="flex items-center justify-center absolute z-[11] left-0 top-0 rounded-[10px] w-full h-full bg-black bg-opacity-70">
-              <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
-            </div>
+        <div v-if="$attrs.isChildLoading" class="flex items-center justify-center absolute z-[11] left-0 top-0 rounded-[10px] w-full h-full bg-black bg-opacity-70">
+          <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
+        </div>
 
-            <slot/>
+        <slot/>
       </div>
     </div>
     <Footer class="mt-auto" />
@@ -52,9 +52,9 @@ interface MenuItem {
 import {IconMic, IconBooking, IconUser, IconClients, IconHistory, IconClose} from "~/src/shared/ui/common";
 
 const sideMenuTemplate: MenuItem[] = [
-  { name: 'Studios', icon: IconMic, path: '/icons/profile.svg', link: '/studios', role: USER_ROLE },
-  { name: 'Booking management', icon: IconBooking, path: '/icons/profile.svg', link: '/studios', role: USER_ROLE },
   { name: 'Profile', icon: IconUser, path: '/icons/profile.svg', link: '/settings/role', role: '' },
+  { name: 'Studios', icon: IconMic, path: '/icons/profile.svg', link: '/studios', role: USER_ROLE },
+  { name: 'Booking management', icon: IconBooking, path: '/icons/profile.svg', link: '/bookings', role: '' },
   { name: 'My Studios', icon: IconMic, path: '/icons/my-studios.svg', link: '/my-studios', role: STUDIO_OWNER_ROLE },
   { name: 'Clients', icon: IconClients, path: '/icons/settings.svg', link: '/my-studios', role: STUDIO_OWNER_ROLE },
   { name: 'History', icon: IconHistory, path: '/icons/settings.svg', link: '/my-studios', role: STUDIO_OWNER_ROLE },
@@ -63,6 +63,14 @@ const sideMenuTemplate: MenuItem[] = [
 if (error.value) {
   console.error('Failed to fetch side menu:', error.value);
   isLoading.value = false; // Set loading to false in case of error
+}
+
+interface MenuItem {
+  icon: Component;
+  name: string;
+  path: string;
+  link?: string;
+  role?: string;
 }
 
 const toggleSideMenu = () => {

@@ -3,6 +3,7 @@
     <div class="flex flex-col justify-center items-center gap-5">
       <IconAddRing/>
       <span class="text-2xl">{{ props.title }}</span>
+      <span class="text-sm text-neutral-700">{{ props.subtitle }}</span>
     </div>
   </div>
 </template>
@@ -11,9 +12,10 @@
 // No additional logic needed for now
 import {IconAddRing} from "~/src/shared/ui/common";
 const props = withDefaults(defineProps<{
-  title: string
+  title: string,
+  subtitle?: string,
 }>(), {
-  title: 'Add Studio'
+  title: 'Add Studio',
 });
 </script>
 

@@ -7,9 +7,7 @@
 </template>
 
 <script setup>
-import {BrandingLogo, BrandingLogoSample, BrandingLogoSmall} from "~/src/shared/ui/branding";
-import {useSessionStore} from "~/src/entities/Session";
-const store = useSessionStore();
+
 </script>
 
 <style lang="scss">

@@ -76,13 +76,13 @@ export default {
 				DEFAULT: '#FFFFFF'
 			},
 			red: {
-				DEFAULT: '#E23F53'
+				DEFAULT: '#E75032'
 			},
 			green: {
-				DEFAULT: '#32CD82'
+				DEFAULT: '#66AA3B'
 			},
 			yellow: {
-				DEFAULT: '#EBBA0C'
+				DEFAULT: '#FD9302'
 			},
 			'custom-gray': '#171717',
 		},

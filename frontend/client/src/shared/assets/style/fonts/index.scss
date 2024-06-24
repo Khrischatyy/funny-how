@@ -14,7 +14,7 @@ $font-path: '/fonts/';
 $font-path-montserrat: $font-path + 'Montserrat/';
 $font-path-bebas: $font-path + 'BebasNeue/';
 
-@include use-font(Montserrat, $font-path-montserrat + 'Regular/Montserrat-Regular', 400, normal);
+@include use-font(Montserrat, $font-path-montserrat + 'Montserrat', 400, normal);
 @include use-font(Montserrat, $font-path-montserrat + 'Italic/Montserrat-Italic', 400, italic);
 
 @include use-font(BebasNeue, $font-path-bebas + 'BebasNeue', 400, normal);
