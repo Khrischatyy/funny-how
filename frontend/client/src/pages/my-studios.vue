@@ -1,15 +1,13 @@
 <template>
     <NuxtLayout @toggleSideMenu="toggleSideMenu" :sideMenu="sideMenu" title="Studios" class="text-white flex flex-col min-h-screen" name="dashboard">
-
           <div class="container mx-auto px-2 md:px-4">
             <FilterBar />
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <AddStudioButton @click="togglePopup" />
-              <StudioCard v-for="studio in myStudios" :key="studio.id" :studio="studio" />
+              <StudioCard v-for="studio in myStudios" @click="navigateTo(`/@${studio.company_slug}/studio/${studio.id}`)" :key="studio.id" :studio="studio" />
             </div>
           </div>
       <AddStudioModal :show-popup="showPopup" @closePopup="closePopup" @togglePopup="togglePopup" />
-
     </NuxtLayout>
 </template>
 
@@ -40,6 +38,7 @@ import { AddStudioModal } from "~/src/widgets/Modals";
 import { getMyStudios } from '~/src/entities/RegistrationForms/api/getMyStudios';
 import {IconBooking, IconClients, IconClose, IconHistory, IconMic, IconUser} from "~/src/shared/ui/common";
 import {STUDIO_OWNER_ROLE, USER_ROLE} from "~/src/entities/Session";
+import {navigateTo} from "nuxt/app";
 
 const sideMenuRef = ref();
 const sideMenuArray = ref([]);

@@ -122,6 +122,9 @@ class OperatingHourController extends BaseController
         $company = $this->companyService->getCompanyByAddressId($address_id);
 
         //проверка может ли studio_owner апдейтить студию
+        //TODO: если несколько компаний у owner, проверка не пройдет
+        //Но по логике, у нас owner не может иметь несколько компаний, поэтому думаю все ок
+        //TODO: запроещать создавать больше чем 1 компанию у owner
         $this->authorize('update', $company);
 
 

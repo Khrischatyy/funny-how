@@ -2,7 +2,7 @@
 import {useHead} from "@unhead/vue";
 import {definePageMeta, useRuntimeConfig} from '#imports'
 import {useSessionStore} from "~/src/entities/Session";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, type Ref, ref} from "vue";
 import {BrandingLogoSmall} from "~/src/shared/ui/branding";
 import {useRoute} from "nuxt/app";
 import {type StudioFormValues, useCreateStudioFormStore} from "~/src/entities/RegistrationForms";
@@ -10,26 +10,26 @@ import {IconDown, IconMic} from "~/src/shared/ui/common";
 import GoogleMap from "~/src/widgets/GoogleMap.vue";
 import { SelectPicker } from "~/src/features/DatePicker";
 import { TimeSelect } from "~/src/widgets";
-import {useNuxtApp} from "#app";
+import {type ResponseBrand, useBrand} from "~/src/entities/Studio/api";
 
 definePageMeta({
   middleware: ["auth"],
 })
-const route = useRoute();
-const { $axios } = useNuxtApp();
 
-useHead({
-  title: 'Dashboard | '+ route.params.slug,
-  meta: [
-    { name: 'Funny How', content: 'Dashboard' }
-  ],
-})
+
+const route = useRoute();
+const slug: Ref<string> = computed(() => route.params.slug);
+
+const { brand, pending, error } = useBrand(slug);
+
+const pageTitle: Ref<string> = computed(() => {
+  return brand.value ? `Studio | ${brand.value.name}` : 'Loading...';
+});
 
 const isLoading = ref(false)
 
-
 const session = ref()
-const brand = ref()
+
 
 const dateInput = ref<HTMLInputElement | null>(null);
 const end_time = ref<HTMLInputElement | null>(null);
@@ -56,14 +56,28 @@ const hoursAvailableEnd = ref([]);
 const rentingList = [{name: 'today', date: ''}, {name: 'tomorrow', date: ''}, {name: 'another-day', date: 'another-day'}];
 rentingList[0].date = today.toISOString().split('T')[0];
 rentingList[1].date = tomorrow.toISOString().split('T')[0];
+
 onMounted(async () => {
-  const config = useRuntimeConfig()
-  getAddressId()
   session.value = useSessionStore()
   rentingForm.value.date = rentingList[0].date
-
-  await getStartSlots()
 })
+
+useHead({
+  title: pageTitle,
+  meta: [
+    { name: 'description', content: 'Dashboard for ' + pageTitle }
+  ]
+});
+
+const getCompany = async () => {
+  const response = await fetch();
+  if (response && response.data) {
+    brand.value = response.data;
+    console.log('brand', brand.value)
+    console.log('response', response.data)
+  }
+}
+
 
 async function getStartSlots() {
   const config = useRuntimeConfig()
@@ -161,29 +175,8 @@ function pay(url: string){
   window.open(url, '_blank', 'width=800,height=600,toolbar=0,location=0,menubar=0');
 }
 
-function getAddressId(){
-  const config = useRuntimeConfig()
 
-  let requestConfig = {
-    method: 'get',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/company/${route.params.slug}`,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    }
-  };
-  $axios.defaults.headers.common['X-Api-Client'] = `web`
-  $axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        brand.value = response.data.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-}
+
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
 }
@@ -237,37 +230,64 @@ function signOut() {
 <template>
   <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
     <div class="w-full h-full flex-col justify-between items-start gap-7 inline-flex">
-      <div class="absolute top-0 left-0 w-full p-5">
-        <BrandingLogoSmall class="opacity-50" />
-      </div>
-      <div v-if="brand" class="relative w-full flex-col justify-start items-center gap-2.5 flex">
-
-        <div class="w-96 justify-start gap-1.5 items-center inline-flex mb-10 text-center">
-
-          <div class="text-white text-xl font-bold text-center tracking-wide">
-            <img class="w-full w-100" :src="brand.logo_url" alt="">
+      <div v-if="brand" class="relative w-full flex-col justify-start items-center gap-2.5 flex mt-20">
+        <div class="w-full max-w-lg grid grid-cols-6 gap-4">
+          <!-- Large column spanning 4/6 of the grid -->
+          <div class="col-span-4 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/780x420" alt="Large placeholder" class="w-full h-full object-cover rounded-[10px]">
           </div>
-          <div class="text-white text-xxl font-bold text-center tracking-wide">
-            {{brand.description}}
+          <!-- Two smaller columns, each 1/6 of the grid -->
+          <div class="col-span-1 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
           </div>
-          <div class="text-white text-xxl font-bold text-center tracking-wide">
+          <div class="col-span-1 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+          </div>
+          <!-- Second row with six columns -->
+          <div class="col-span-1 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+          </div>
+          <div class="col-span-1 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+          </div>
+          <div class="col-span-1 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+          </div>
+          <div class="col-span-1 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+          </div>
+          <div class="col-span-1 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+          </div>
+          <div class="col-span-1 bg-white shadow rounded-[10px]">
+            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+          </div>
+        </div>
+        <div class="w-96 flex items-center justify-center gap-1.5 mt-20">
+          <div class="text-white text-xl font-bold tracking-wide">
+            <img class="w-24 h-24 object-cover" :src="brand.logo_url" alt="" style="width: 100px; height: 100px;"> <!-- Fixed size set -->
+          </div>
+          <div class="text-white text-3xl font-bold">
             {{brand.name}}
           </div>
+          <div class="text-white text-3xl font-bold">
+            {{brand.description}}
+          </div>
+
         </div>
 
-        <div class="w-96 justify-between gap-1.5 items-center inline-flex mb-10 text-center">
-          <h2 class="text-white text-xxl font-bold text-center tracking-wide">
+        <div class="w-96 justify-between gap-1.5 items-center inline-flex text-center">
+          <h2 class="text-white text-3xl font-bold text-center tracking-wide">
            Addresses
           </h2>
-
         </div>
         <div v-for="address in brand.addresses" class="w-96 justify-between gap-1.5 items-center flex-col mb-10 text-center">
-          <div class="text-white mb-10 text-xl font-light text-left tracking-wide">
-
-
+          <div class="text-white mb-10 text-3xl font-light text-left tracking-wide">
             Street: {{address.street}}<br/>
           </div>
-          <GoogleMap class="h-[300px]" :logo="brand.logo_url" :lat="address.latitude" :lng="address.longitude"/>
+          <div class="h-[300px]">
+            <GoogleMap class="" :logo="brand.logo_url" :lat="address.latitude" :lng="address.longitude"/>
+          </div>
           <div class="w-96 justify-between gap-1.5 mt-10 items-center inline-flex mb-10 text-center">
             <h2 class="text-white text-xxl font-bold text-center tracking-wide">
               Badges
@@ -379,6 +399,9 @@ function signOut() {
 </template>
 
 <style scoped lang="scss">
+*{
+  font-family: 'BebasNeue', sans-serif;
+}
 a {
   //make cool text decoration and maybe not white but some other color
   text-decoration: underline;

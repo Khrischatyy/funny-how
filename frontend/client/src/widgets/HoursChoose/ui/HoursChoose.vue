@@ -154,7 +154,7 @@ function signOut() {
 </script>
 
 <template>
-  <div class="relative w-full min-w-96 flex-col justify-start items-center gap-1.5 flex">
+  <div class="relative w-full max-w-96 flex-col justify-start items-center gap-1.5 flex">
     <div class="flex-col w-full justify-start items-start gap-1.5 flex">
       <div class="w-full justify-between items-start inline-flex">
         <div class="text-white opacity-20 text-sm font-normal tracking-wide">Working hours</div>

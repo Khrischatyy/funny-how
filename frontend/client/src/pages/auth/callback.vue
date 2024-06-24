@@ -36,10 +36,11 @@ if (token) {
       return
     }
 
-    if (response?.data.company_slug && process.client) {
-      navigateTo(`/@${response?.data.company_slug}`)
-      return
-    }
+    //TODO: Redirect to company page/ dashboard if owner?
+    // if (response?.data.company_slug && process.client) {
+    //   navigateTo(`/@${response?.data.company_slug}`)
+    //   return
+    // }
 
     navigateTo(`/`)
     return

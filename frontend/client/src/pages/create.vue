@@ -10,7 +10,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import {useCreateStudio} from "~/src/entities/Studio/api";
 
 useHead({
-  title: 'Dashboard | Slug',
+  title: 'Dashboard | Create Studio',
   meta: [
     { name: 'Funny How', content: 'Dashboard' }
   ],
@@ -33,14 +33,10 @@ const session = ref();
 onMounted(async () => {
   const config = useRuntimeConfig();
   session.value = useSessionStore();
-  if(session.value.brand) {
-    navigateTo('/my-studios');
-    return;
-  }
-  if(session.value.userRole == 'user'){
-    navigateTo('/studios');
-    return;
-  }
+  // if(session.value.brand) {
+  //   navigateTo('/my-studios');
+  //   return;
+  // }
   const loader = new Loader({
     apiKey: config.public.googleMapKey,
     version: "weekly",

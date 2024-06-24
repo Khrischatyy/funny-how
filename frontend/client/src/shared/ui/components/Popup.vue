@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <div v-if="open" class="modal backdrop-blur-[10px] fixed inset-0 flex items-center justify-center z-20 p-10 overflow-y-auto">
+  <div v-if="open" class="modal backdrop-blur-[10px] fixed inset-0 flex items-center justify-center z-20 p-0 sm:p-10 overflow-y-auto z-50">
     <div :class="{'max-w-lg mx-auto': props.type == 'small'}" class="modal-content flex flex-col gap-5 bg-[#171717] rounded-[10px] shadow-lg w-full p-6 relative z-20">
       <div class="modal-header flex justify-between items-center mb-4">
         <slot name="header" class="text-white text-[22px]/[26px] font-bold" />

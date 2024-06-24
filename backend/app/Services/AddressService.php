@@ -46,6 +46,8 @@ class AddressService
 
         $addresses->each(function ($address) use ($operatingHours) {
             $address->working_hours = $operatingHours->get($address->id)->first();
+
+            $address->company_slug = $address->company->slug;
         });
 
         return $addresses;

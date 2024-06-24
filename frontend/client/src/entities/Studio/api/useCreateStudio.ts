@@ -19,12 +19,8 @@ export type StudioFormValues = {
 export type ResponseBrand = {
     success: boolean;
     data: {
-        name: string;
-        logo: string;
         slug: string;
-        updated_at: string;
-        created_at: string;
-        id: number;
+        address_id: number;
     };
     message: string;
     code: number;
@@ -59,7 +55,7 @@ export function useCreateStudio() {
             }
         });
 
-        const { post } = useApi({
+        const { post } = useApi<ResponseBrand>({
             url: '/brand',
             auth: true,
         });
@@ -70,8 +66,9 @@ export function useCreateStudio() {
         try {
             const response = await post(formData);
             console.log('Successful response:', response);
-            useSessionStore().setBrand(response?.data?.slug)
-            navigateTo(`/@${response?.data?.slug}/setup/${response?.data?.id}/hours`)
+            //response returns slug of the created brand and address_id
+            useSessionStore().setBrand(response?.data.slug || '');
+            navigateTo(`/@${response?.data?.slug}/setup/${response?.data?.address_id}/hours`)
             return response;
         } catch (error: any) {
             console.error("Failed to create studio:", error);

@@ -282,7 +282,7 @@ const addEquipment = () => {
     </div>
 
     <div class="equipment-inputs flex-col w-full justify-center items-center gap-1.5 flex">
-      <div class="equipment w-full grid grid-cols-3 gap-2">
+      <div class="equipment w-full grid grid-cols-2 lg:grid-cols-3 gap-2">
         <div v-for="(eq, index) in equipment" class="flex gap-2">
           <FInputClassic :label="eq.label" :placeholder="`Name ${eq.label}`" v-model="eq.value">
             <template #action>

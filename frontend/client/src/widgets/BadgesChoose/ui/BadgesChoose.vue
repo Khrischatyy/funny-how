@@ -240,7 +240,7 @@ const sampleBadges = [
 
     <div class="flex-col w-full justify-center items-center gap-1.5 flex">
       <div class="w-full justify-center items-center gap-2.5 inline-flex">
-        <div class="w-full max-w-full flex gap-2.5">
+        <div class="w-full max-w-full grid grid-cols-2 lg:grid-cols-3 gap-2.5">
           <div v-for="badge in sampleBadges" :class="'border-opacity-20'" @click="toogleBadge(badge.id)" class="w-full flex gap-2.5 justify-center items-center cursor-pointer h-11 outline-none rounded-[10px] focus:border-white px-1.5 border border-white bg-transparent text-white text-sm font-medium tracking-wide">
             <Component :is="badge.icon" class="w-5 h-5" />
             <span>{{badge.name}}</span>

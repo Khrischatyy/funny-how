@@ -56,8 +56,8 @@
         </div>
         <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <ul>
-            <li v-for="hour in studio.working_hours" :key="hour.id">
-              {{ daysOfWeek[hour.day_of_week] }}: {{ hour.open_time }} - {{ hour.close_time }}
+            <li v-for="hour in studio.working_hours" :key="hour?.id">
+              {{ daysOfWeek[hour?.day_of_week] }}: {{ hour?.open_time }} - {{ hour?.close_time }}
             </li>
           </ul>
         </div>
@@ -155,7 +155,13 @@ const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sat
 
 const todayWorkingHours = computed(() => {
   const today = new Date().getDay();
-  const todayHours = props.studio.working_hours.find(hour => hour.day_of_week === today);
+  let todayHours = null;
+  if(typeof props.studio === 'object'){
+    todayHours = props.studio.working_hours.day_of_week === today;
+  } else{
+    todayHours = props.studio.working_hours?.find(hour => hour.day_of_week === today) || null;
+  }
+
   if (!todayHours) return 'Closed';
   if (todayHours.mode_id === 1) {
     return '24h';

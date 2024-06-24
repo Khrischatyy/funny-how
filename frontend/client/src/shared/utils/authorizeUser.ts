@@ -16,9 +16,11 @@ export function authorizeUser(sessionStore: any, response:ResponseDto<meResponse
         return
     }
 
+    //Переадресуем владельца на его студию если он находится на странице создания студии
+    //Отключено, так как владелец может создать несколько студий
     if (response?.data.company_slug && route.path === '/create' && process.client) {
-        navigateTo(`/@${response?.data.company_slug}`)
-        return
+        //navigateTo(`/@${response?.data.company_slug}`)
+        return true;
     }else{
         return true;
     }

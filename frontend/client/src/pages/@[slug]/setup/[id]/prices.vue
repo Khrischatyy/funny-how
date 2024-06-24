@@ -282,7 +282,7 @@ function routeBack(){
 }
 
 function routeNext(){
-  navigateTo(`/@${route.params.slug}`)
+  navigateTo(`/@${route.params.slug}/studio/${route.params.id}`)
 }
 
 function signOut() {

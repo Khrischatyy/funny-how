@@ -48,7 +48,7 @@ const closePopup = () => {
     </template>
     <template #body>
       <div class="photos mb-5">
-        <div class="grid-cols-[1fr_1fr_250px] grid-rows-1 grid gap-5">
+        <div class="grid-cols-1 grid-rows-3 sm:grid-cols-[1fr_1fr_250px] sm:grid-rows-1 grid gap-5">
           <div class="cover-photo max-h-60">
             <img src="https://via.placeholder.com/800x600" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
           </div>
@@ -60,7 +60,7 @@ const closePopup = () => {
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div class="w-full flex flex-col gap-5">
           <div class="name w-full flex-col flex gap-1.5">
             <div class="text-white text-sm font-normal tracking-wide opacity-20">Address</div>

@@ -213,7 +213,12 @@ class AddressController extends BaseController
 
         $this->addDefaultHours($address->id);
 
-        return $this->sendResponse($company, 'Company and address added');
+        // Return the company and address_id
+
+       return $this->sendResponse([
+            'slug' => $company->slug,
+            'address_id' => $address->id
+        ], 'Company and address added');
     }
 
     /**
