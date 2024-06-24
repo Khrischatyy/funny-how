@@ -30,7 +30,8 @@ class Address extends Model
 
     public function badges()
     {
-        return $this->belongsToMany(Badge::class, 'address_badge');
+        return $this->belongsToMany(Badge::class, 'address_badge', 'address_id', 'badge_id')
+            ->withPivot('address_id', 'badge_id');
     }
 
     public function prices()
@@ -41,5 +42,10 @@ class Address extends Model
     public function photos()
     {
         return $this->hasMany(AddressPhoto::class);
+    }
+
+    public function operatingHours()
+    {
+        return $this->hasMany(OperatingHour::class);
     }
 }

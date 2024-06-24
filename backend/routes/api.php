@@ -108,7 +108,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('brand', [AddressController::class, 'createBrand']); // company + address created
 
     Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
-
+    Route::get('{slug}/studios', [AddressController::class, 'getAddressesByCompanySlug']);
     Route::post('set-role', [UserController::class, 'setRole']);
 
     Route::get('/me', [UserController::class, 'getMe']);

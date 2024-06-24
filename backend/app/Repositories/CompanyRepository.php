@@ -18,7 +18,7 @@ class CompanyRepository
 
         $company->addresses->each(function ($address) {
             $address->badges->each(function ($badge) {
-                $badge->image_url = $badge->getImageUrlAttribute();
+                $badge->image_url = $badge->getIconAttribute();
             });
         });
 

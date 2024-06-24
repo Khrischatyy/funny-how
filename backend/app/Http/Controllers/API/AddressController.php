@@ -10,6 +10,7 @@ use App\Http\Requests\AddressRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
 use App\Models\AdminCompany;
+use App\Models\Company;
 use App\Repositories\AddressRepository;
 use App\Services\AddressService;
 use App\Services\CityService;
@@ -485,6 +486,71 @@ class AddressController extends BaseController
     }
 
     /**
+     * @OA\Get(
+     *     path="/{slug}/addresses",
+     *     summary="Get addresses by company slug",
+     *     tags={"Addresses"},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The slug of the company"
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Addresses retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="street", type="string", example="Gazetny pereulok"),
+     *                     @OA\Property(property="city_id", type="integer", example=1),
+     *                     @OA\Property(property="company_id", type="integer", example=1),
+     *                     @OA\Property(property="longitude", type="string", example="37.609337"),
+     *                     @OA\Property(property="latitude", type="string", example="55.758972"),
+     *                     @OA\Property(property="badges", type="array",
+     *                         @OA\Items(type="object",
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="name", type="string", example="Rent"),
+     *                             @OA\Property(property="image", type="string", example="url_to_image")
+     *                         )
+     *                     ),
+     *                     @OA\Property(property="working_hours", type="object",
+     *                         @OA\Property(property="day", type="string", example="Monday"),
+     *                         @OA\Property(property="open", type="string", example="09:00"),
+     *                         @OA\Property(property="close", type="string", example="18:00")
+     *                     ),
+     *                     @OA\Property(property="prices", type="array",
+     *                         @OA\Items(type="object",
+     *                             @OA\Property(property="hours", type="integer", example=1),
+     *                             @OA\Property(property="total_price", type="number", example=60.00),
+     *                             @OA\Property(property="price_per_hour", type="number", example=60.00),
+     *                             @OA\Property(property="is_enabled", type="boolean", example=true)
+     *                         )
+     *                     )
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Addresses retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Company not found"),
+     *     @OA\Response(response="500", description="Failed to retrieve addresses")
+     * )
+     */
+    public function getAddressesByCompanySlug(string $slug): JsonResponse
+    {
+        try {
+            $addresses = $this->addressService->getAddressesByCompanySlug($slug);
+            return $this->sendResponse($addresses, 'Addresses retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve addresses.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+            /**
      * Add a default price/hours (1hour/60$) to address
      *
      * @param int $address_id

@@ -9,6 +9,7 @@ use App\Models\Address;
 use App\Models\AdminCompany;
 use App\Models\OperatingHour;
 use App\Repositories\AddressRepository;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -41,12 +42,7 @@ class AddressService
 
         $addresses = $this->addressRepository->getMyAddresses($firstCompany->company_id);
 
-        $addressIds = $addresses->pluck('id');
-        $operatingHours = $this->addressRepository->getOperatingHoursByAddressIds($addressIds);
-
-        $addresses->each(function ($address) use ($operatingHours) {
-            $address->working_hours = $operatingHours->get($address->id)->first();
-
+        $addresses->each(function ($address) {
             $address->company_slug = $address->company->slug;
         });
 
@@ -99,17 +95,19 @@ class AddressService
     {
         $addresses = $this->addressRepository->getAddressByCityId($cityId);
 
-        $addressIds = $addresses->pluck('id');
-        $operatingHours = $this->addressRepository->getOperatingHoursByAddressIds($addressIds);
-
-        if ($operatingHours->isEmpty()) {
-            throw new OperatingHourException("You didn't set hours", 400);
+        if ($addresses->isEmpty()) {
+            throw new OperatingHourException("No addresses found for the given city ID.", 400);
         }
 
-        $addresses->each(function ($address) use ($operatingHours) {
-            $address->working_hours = $operatingHours->get($address->id);
-        });
-
         return $addresses;
+    }
+
+    public function getAddressesByCompanySlug(string $slug): Collection
+    {
+        try {
+            return $this->addressRepository->getAddressesByCompanySlug($slug);
+        } catch (Exception $e) {
+            throw new Exception('Failed to retrieve addresses', 500, $e);
+        }
     }
 }

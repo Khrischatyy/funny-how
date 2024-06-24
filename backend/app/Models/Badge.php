@@ -8,15 +8,15 @@ use Illuminate\Support\Facades\Storage;
 
 class Badge extends Model
 {
-    protected $fillable = ['name', 'icon'];
+    protected $fillable = ['name', 'image'];
 
     public function addresses()
     {
         return $this->belongsToMany(Address::class, 'address_badge');
     }
 
-    public function getImageUrlAttribute()
+    public function getImageAttribute($value)
     {
-        return Storage::disk('s3')->url($this->image);
+        return Storage::disk('s3')->url($value);
     }
 }
