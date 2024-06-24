@@ -9,6 +9,7 @@ use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
+use App\Models\AdminCompany;
 use App\Repositories\AddressRepository;
 use App\Services\AddressService;
 use App\Services\CityService;

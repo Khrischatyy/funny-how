@@ -28,6 +28,13 @@ class CompanyService
 
     public function createNewCompany(AddressRequest $companyRequest)
     {
+        $user = Auth::user();
+
+        if (AdminCompany::where('admin_id', $user->id)->exists()) {
+           throw new \Exception('User already has the company', 400);
+        };
+
+
         if($companyRequest->hasFile('logo')) {
             $path = $companyRequest->file('logo')->store('public/images', 's3');
         } else {
