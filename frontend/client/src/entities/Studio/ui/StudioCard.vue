@@ -22,7 +22,7 @@
 
     <div class="mt-4 flex gap-3 justify-center items-center relative mb-5">
       <div v-if="studio.badges.length > 5" class="relative flex gap-2 items-center">
-        <div v-for="(badge, index) in displayedBadges" :key="badge.id" class="relative w-8 h-8">
+        <div v-for="(badge, index) in displayedBadges" :key="badge.id" class="relative w-8 h-8 group">
           <div v-if="index === 0" @click="prevBadge" class="cursor-pointer w-8 h-8 bg-gradient-to-r from-[#1a1a1a] to-transparent rounded-lg absolute flex items-center justify-start">
             <IconLeft iconType="thin" />
           </div>
@@ -30,37 +30,45 @@
             <IconRight iconType="thin" />
           </div>
           <img :src="badge.image" :alt="badge.name" class="w-full h-full object-contain" />
+          <div class="text-white text-xs text-center mt-1">{{ badge.name }}</div>
+          <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {{ badge.description }}
+          </div>
         </div>
       </div>
       <div v-else>
-        <img v-for="(badge, index) in studio.badges" :key="badge.id" :src="badge.image" :alt="badge.name" class="w-8 h-8 object-contain mr-2" />
+        <div v-for="(badge, index) in studio.badges" :key="badge.id" class="relative w-8 h-8 group">
+          <img :src="badge.image" :alt="badge.name" class="w-full h-full object-contain mr-2" />
+          <div class="text-white text-xs text-center mt-1">{{ badge.name }}</div>
+          <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {{ badge.description }}
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="mt-4 flex gap-3 justify-between items-center">
-      <div class="flex items-center gap-2 relative group-hours">
-        <div class="flex items-center relative group-hours-block">
-          <IconClock class="opacity-20 group-hover-hours:opacity-100" />
-          <div class="flex flex-col group-hover-hours:opacity-100">
-            <span class="text-white opacity-20 group-hover-hours:opacity-100">Working Hours</span>
-            <span class="text-white">{{ todayWorkingHours }}</span>
-          </div>
-          <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover-hours:opacity-100 transition-opacity duration-300">
-            <ul>
-              <li v-for="hour in studio.working_hours" :key="hour.id">
-                {{ daysOfWeek[hour.day_of_week] }}: {{ hour.open_time }} - {{ hour.close_time }}
-              </li>
-            </ul>
-          </div>
+      <div class="flex items-center relative group-hours-block group">
+        <IconClock class="opacity-20 group-hover:opacity-100" />
+        <div class="flex flex-col group-hover:opacity-100">
+          <span class="text-white opacity-20 group-hover:opacity-100">Working Hours</span>
+          <span class="text-white">{{ todayWorkingHours }}</span>
+        </div>
+        <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <ul>
+            <li v-for="hour in studio.working_hours" :key="hour.id">
+              {{ daysOfWeek[hour.day_of_week] }}: {{ hour.open_time }} - {{ hour.close_time }}
+            </li>
+          </ul>
         </div>
       </div>
-      <div class="flex items-center gap-2 relative group-price">
-        <IconPrice class="opacity-20 group-hover-price:opacity-100" />
-        <div class="flex flex-col group-hover-price:opacity-100">
-          <span class="text-white opacity-20 group-hover-price:opacity-100">Price</span>
+      <div class="flex items-center gap-2 relative group-price group">
+        <IconPrice class="opacity-20 group-hover:opacity-100" />
+        <div class="flex flex-col group-hover:opacity-100">
+          <span class="text-white opacity-20 group-hover:opacity-100">Price</span>
           <span class="text-white">{{ primaryPrice }}</span>
         </div>
-        <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover-price:opacity-100 transition-opacity duration-300">
+        <div class="absolute bottom-full right-0 mb-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <ul>
             <li v-for="price in studio.prices" :key="price.id">
               ${{ price.total_price }} / {{ price.hours }} hour
@@ -93,7 +101,6 @@ const props = defineProps({
 
 const currentIndex = ref(0);
 const badgeIndex = ref(0);
-const showPriceTooltip = ref(false);
 
 const logoSrc = computed(() => {
   return props.studio.logo && props.studio.logo.trim() !== '' ? props.studio.logo : defaultLogo;
@@ -171,11 +178,11 @@ const primaryPrice = computed(() => {
   opacity: 1 !important;
 }
 
-.group-price:hover .group-hover-price\:opacity-100 {
+.group-price:hover .group-hover:opacity-100 {
   opacity: 1 !important;
 }
 
-.group-hours-block:hover .group-hover-hours\:opacity-100 {
+.group-hours-block:hover .group-hover:opacity-100 {
   opacity: 1 !important;
 }
 </style>
