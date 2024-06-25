@@ -2,6 +2,7 @@ import type { Ref } from 'vue';
 import {useApi} from "~/src/lib/api";
 import {useAsyncData} from "#app";
 import type {RouteParamValue} from "vue-router";
+import {navigateTo} from "nuxt/app";
 export type AddressResponse = {
     success: boolean,
     data: AddressFull,
@@ -75,8 +76,13 @@ export function useAddress(slug: string | RouteParamValue[]) {
     const { data: address, pending, error } =
         useAsyncData<AddressFull>('address', async () => {
         const response = await getBrand();
+
         return response.data; // Assuming 'data' contains the desired AddressFull object
     });
+
+    if (error) {
+        navigateTo('/404');
+    }
 
     return { address, pending, error };
 }
