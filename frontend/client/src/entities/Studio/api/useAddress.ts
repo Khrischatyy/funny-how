@@ -67,7 +67,7 @@ export type AddressFull = {
 export function useAddress(slug: string | RouteParamValue[]) {
     const resolvedSlug = typeof slug === 'string' ? slug : slug.value;
     const { fetch: getBrand } = useApi<AddressResponse>({
-        url: `/address/${slug}`,
+        url: `/address/${resolvedSlug}`,
         auth: true
     });
 

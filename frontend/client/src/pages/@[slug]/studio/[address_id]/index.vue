@@ -9,14 +9,13 @@ import {IconDown, IconMic, IconNav, IconPricetag} from "~/src/shared/ui/common";
 import GoogleMap from "~/src/widgets/GoogleMap.vue";
 import { SelectPicker } from "~/src/features/DatePicker";
 import { TimeSelect } from "~/src/widgets";
-import {type ResponseBrand, useAddress, useBrand} from "~/src/entities/Studio/api";
+import {type ResponseBrand, useAddress} from "~/src/entities/Studio/api";
 import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue";
-import {IconPrice} from "~/src/shared/ui/common/Icon/Filter";
 
 const route = useRoute();
-const slug: Ref<string> = computed(() => route.params.slug);
+const addressId = ref(route.params.address_id);
 
-const { address } = useAddress(route.params.address_id);
+const { address, pending, error } = useAddress(addressId.value);
 
 const pageTitle: Ref<string> = computed(() => {
   return address.value ? `Studio | ${address.value.company.name}` : 'Loading...';
@@ -136,17 +135,6 @@ function book(){
   $axios.defaults.headers.common['X-Api-Client'] = `web`
   $axios.request(requestConfig)
       .then((response) => {
-        //responseQuote
-// "address_id": 2,
-//     "start_time": "2024-05-20T08:18:00.000000Z",
-//     "end_time": "2024-05-20T17:18:00.000000Z",
-//     "user_id": 1,
-//     "total_cost": 30,
-//     "date": "2024-05-20",
-//     "updated_at": "2024-05-20T08:18:49.000000Z",
-//     "created_at": "2024-05-20T08:18:49.000000Z",
-//     "id": 2
-//
         responseQuote.value = response.data.data;
 
         session.value.setReservations(response.data.data?.booking)
@@ -224,6 +212,8 @@ const getRatingColor = (rating: number) => {
 <template>
   <div class="grid min-h-[100vh] h-full bg-black animate__animated animate__fadeInRight">
     <div class="w-full h-full flex-col justify-between items-start gap-7 inline-flex">
+      Error: {{error}}
+      Pending {{pending ? 'true' : 'false'}}
       <div v-if="address" class="relative w-full flex-col justify-start items-center gap-2.5 flex mt-20">
         <div class="w-full max-h-[300px] p-10 grid grid-cols-7 gap-4">
           <!-- Large column spanning 4/6 of the grid -->

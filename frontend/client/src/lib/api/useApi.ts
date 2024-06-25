@@ -67,10 +67,10 @@ export function useApi<ResponseT, MappedResponseT = ResponseT>({
             if (options?.transformResponse) {
                 return options.transformResponse(response.data);
             }
-
+console.log(response)
             return response as MappedResponseT; // Call handleResponse here
         } catch (error) {
-            await ErrorHandler.handleApiError(error);
+           await ErrorHandler.handleApiError(error);
             throw error; // Rethrow the error to maintain promise chain integrity
         }
     }

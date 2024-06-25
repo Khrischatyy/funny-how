@@ -11,7 +11,7 @@ import {
   type StudioFormValues,
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
-import {IconDown, IconElipse, IconLeft, IconLine, IconRight} from "~/src/shared/ui/common";
+import {IconElipse, IconLeft, IconLine, IconRight} from "~/src/shared/ui/common";
 import {Loader} from "@googlemaps/js-api-loader";
 import axios from "axios";
 import {isBadgeTaken} from "~/src/shared/utils/checkBadge";
@@ -49,6 +49,7 @@ function isError(form: string, field: string): boolean {
 }
 
 const session = ref()
+
 onMounted(async () => {
   const config = useRuntimeConfig()
   session.value = useSessionStore()
