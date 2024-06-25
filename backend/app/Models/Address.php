@@ -13,9 +13,16 @@ use Illuminate\Support\Facades\Storage;
  */
 class Address extends Model
 {
+
     use HasFactory;
 
     protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id'];
+
+    public function equipments()
+    {
+        return $this->belongsToMany(Equipment::class, 'address_equipment', 'address_id', 'equipment_id')
+            ->withPivot('address_id', 'equipment_id');
+    }
 
     public function company()
     {
@@ -27,10 +34,7 @@ class Address extends Model
         return $this->hasMany(Booking::class);
     }
 
-    public function equipment()
-    {
-        return $this->belongsToMany(Equipment::class);
-    }
+
 
     public function badges()
     {

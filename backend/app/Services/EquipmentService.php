@@ -2,16 +2,45 @@
 
 namespace App\Services;
 
-use App\Repositories\BookingRepository;
-use App\Repositories\EquipmentRepository;
+use App\Models\Address;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Exception;
 
 class EquipmentService
 {
-    public function __construct(public EquipmentRepository $equipmentRepository)
-    {}
-
     public function getEquipmentsByAddressId(int $addressId)
     {
-        return $this->equipmentRepository->getEquipmentsByAddressId($addressId);
+        try {
+            $address = Address::findOrFail($addressId);
+            return $address->equipments()->with('type')->get(); // Загрузка типа оборудования
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("Address not found.");
+        } catch (Exception $e) {
+            throw new Exception("Failed to retrieve equipment.");
+        }
+    }
+
+    public function setEquipment(array $equipment, int $addressId)
+    {
+        try {
+            $address = Address::findOrFail($addressId);
+            $address->equipments()->attach($equipment['equipment_id']);
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("Address not found.");
+        } catch (Exception $e) {
+            throw new Exception("Failed to set equipment.");
+        }
+    }
+
+    public function deleteEquipment(int $equipmentId, int $addressId)
+    {
+        try {
+            $address = Address::findOrFail($addressId);
+            $address->equipments()->detach($equipmentId);
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("Address not found.");
+        } catch (Exception $e) {
+            throw new Exception("Failed to delete equipment.");
+        }
     }
 }

@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\EquipmentRequest;
 use App\Services\EquipmentService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EquipmentController extends BaseController
 {
@@ -28,42 +33,19 @@ class EquipmentController extends BaseController
      *         description="Equipments retrieved successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="latitude", type="string", example="37.609337"),
-     *                 @OA\Property(property="longitude", type="string", example="55.758972"),
-     *                 @OA\Property(property="street", type="string", example="Газетный переулок"),
-     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
-     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
-     *                 @OA\Property(property="city_id", type="integer", example=2),
-     *                 @OA\Property(property="company_id", type="integer", example=1),
-     *                 @OA\Property(property="company", type="object",
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
      *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="name", type="string", example="Section"),
-     *                     @OA\Property(property="logo", type="string", example="https://funny-how-s3-bucket.s3.amazonaws.com/public/images/9zS6zSlP3k1CvojwujRUyKOLnjOBp5jWbV6nhZI9.jpg"),
-     *                     @OA\Property(property="slug", type="string", example="section"),
-     *                     @OA\Property(property="founding_date", type="string", format="date", example="2020-12-10"),
-     *                     @OA\Property(property="rating", type="string", example="9.7"),
-     *                     @OA\Property(property="created_at", type="string", nullable=true, example=null),
-     *                     @OA\Property(property="updated_at", type="string", nullable=true, example=null)
-     *                 ),
-     *                 @OA\Property(property="equipment", type="array",
-     *                     @OA\Items(type="object",
-     *                         @OA\Property(property="id", type="integer", example=1),
-     *                         @OA\Property(property="name", type="string", example="soyuz 017 serial"),
-     *                         @OA\Property(property="description", type="string", example="Awesome as fuck micro. Fantastic for hip-hop"),
-     *                         @OA\Property(property="shop_path", type="string", example="amazon.com/micro/soyuz017"),
-     *                         @OA\Property(property="type_id", type="integer", example=1),
-     *                         @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
-     *                         @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
-     *                         @OA\Property(property="pivot", type="object",
-     *                             @OA\Property(property="address_id", type="integer", example=1),
-     *                             @OA\Property(property="equipment_id", type="integer", example=1)
-     *                         )
-     *                     )
+     *                     @OA\Property(property="name", type="string", example="soyuz 017 serial"),
+     *                     @OA\Property(property="description", type="string", example="Awesome as fuck micro. Fantastic for hip-hop"),
+     *                     @OA\Property(property="shop_path", type="string", example="amazon.com/micro/soyuz017"),
+     *                     @OA\Property(property="equipment_type_id", type="integer", example=1),
+     *                     @OA\Property(property="equipment_type_name", type="string", example="Microphone"),
+     *                     @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-25T11:06:42.000000Z"),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-25T11:06:42.000000Z")
      *                 )
      *             ),
-     *             @OA\Property(property="message", type="string", example="Equipments received"),
+     *             @OA\Property(property="message", type="string", example="Equipments retrieved successfully."),
      *             @OA\Property(property="code", type="integer", example=200)
      *         )
      *     ),
@@ -71,10 +53,103 @@ class EquipmentController extends BaseController
      *     @OA\Response(response="500", description="Failed to retrieve equipment")
      * )
      */
-    public function getEquipmentsByAddressId(int $addressId)
+    public function getEquipmentsByAddressId(int $addressId): JsonResponse
     {
-        $equipments = $this->equipmentService->getEquipmentsByAddressId($addressId);
+        try {
+            $equipments = $this->equipmentService->getEquipmentsByAddressId($addressId);
+            return $this->sendResponse($equipments, 'Equipments retrieved successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve equipment.', 500, ['error' => $e->getMessage()]);
+        }
+    }
 
-        return $this->sendResponse($equipments, 'Equipments received');
+    /**
+     * @OA\Post(
+     *     path="/address/{address_id}/equipment",
+     *     summary="Set equipment for an address",
+     *     tags={"Equipment"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer"),
+     *         description="The ID of the address"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"equipment_id"},
+     *             @OA\Property(property="equipment_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Equipment added successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Equipment added successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Address not found"),
+     *     @OA\Response(response="500", description="Failed to add equipment")
+     * )
+     */
+    public function setEquipment(EquipmentRequest $request, int $addressId): JsonResponse
+    {
+        try {
+            $this->equipmentService->setEquipment($request->validated(), $addressId);
+            return $this->sendResponse(null, 'Equipment added successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to add equipment.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/address/{address_id}/equipment",
+     *     summary="Delete equipment from an address",
+     *     tags={"Equipment"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer"),
+     *         description="The ID of the address"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"equipment_id"},
+     *             @OA\Property(property="equipment_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Equipment deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Equipment deleted successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Address not found"),
+     *     @OA\Response(response="500", description="Failed to delete equipment")
+     * )
+     */
+    public function deleteEquipment(Request $request, int $addressId): JsonResponse
+    {
+        try {
+            $this->equipmentService->deleteEquipment($request->input('equipment_id'), $addressId);
+            return $this->sendResponse(null, 'Equipment deleted successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to delete equipment.', 500, ['error' => $e->getMessage()]);
+        }
     }
 }

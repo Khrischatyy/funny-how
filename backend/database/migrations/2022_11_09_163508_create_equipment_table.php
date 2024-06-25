@@ -16,14 +16,12 @@ return new class extends Migration
         Schema::create('equipments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description');
-            $table->string('shop_path');
+            $table->text('description')->nullable();
 
-            $table->unsignedBigInteger('type_id');
-            $table->foreign('type_id')->references('id')->on('equipment_type')
+            $table->unsignedBigInteger('equipment_type_id');
+            $table->foreign('equipment_type_id')->references('id')->on('equipment_type')
                 ->onDelete('cascade');
 
-            $table->timestamps();
         });
     }
 

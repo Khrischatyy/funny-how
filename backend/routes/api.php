@@ -78,9 +78,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('prices', [AddressController::class, 'deleteAddressPrices']);
         Route::get('{address_id}/prices', [AddressController::class, 'getAddressPrices'])->where('address_id', '[0-9]+');
 
-        //equipments
-        Route::get('{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
-
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
         Route::post('reservation', [BookingController::class, 'bookAddress']);
@@ -95,7 +92,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('reservation/end-time', [BookingController::class, 'getReservationAvailableEndTime']);
             //get address
             Route::get('{address_id}', [AddressController::class, 'getAddressById']);
+
+
+            Route::get('{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
         });
+
+        Route::delete('{address_id}/equipment', [EquipmentController::class, 'deleteEquipment'])->where('address_id', '[0-9]+');
+        Route::post('{address_id}/equipment', [EquipmentController::class, 'setEquipment'])->where('address_id', '[0-9]+');
+
     });
 
     Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');
