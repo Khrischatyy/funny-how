@@ -6,7 +6,7 @@ pull:
 # MANIPULATE CONTAINER
 
 update-dev-container: stop clean build composer db start
-update-prod-container: stop-prod clean-prod pull build-prod composer-prod migrate-prod start-prod optimize-prod
+update-prod-container: stop-prod clean-prod pull build-prod composer-prod migrate-prod seeds-prod optimize-prod start-prod
 
 # DEV
 
@@ -114,15 +114,14 @@ composer-prod:
 migrate-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan migrate --force"
 
-seeds-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan db:seed"
-
 optimize-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan optimize"
 
 nginx-reload-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml exec nginx nginx -s reload
 
+seeds-prod:
+	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan db:seed --class=RoleSeeder && php artisan db:seed --class=OperatingHoursSeeder"
 
 # CAUTION: This will remove all Docker containers, volumes, and networks.
 clean-all:

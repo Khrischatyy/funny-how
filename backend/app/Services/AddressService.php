@@ -10,6 +10,7 @@ use App\Models\AdminCompany;
 use App\Models\OperatingHour;
 use App\Repositories\AddressRepository;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -20,6 +21,17 @@ class AddressService
 {
     public function __construct(public AddressRepository $addressRepository,
                                 public BookingService $bookingService) {}
+
+    public function getAddressById(int $addressId): Address
+    {
+        try {
+            return $this->addressRepository->getAddressById($addressId);
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("Address not found.");
+        }
+    }
+
+
     public function createAddress(AddressRequest $addressRequest, $city, $company)
     {
         return Address::create([

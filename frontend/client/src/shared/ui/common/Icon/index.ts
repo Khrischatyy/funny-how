@@ -24,3 +24,5 @@ export { default as IconClients } from './IconClients.vue'
 export { default as IconHistory } from './IconHistory.vue'
 
 export { default as IconLike } from './IconLike.vue'
+export { default as IconPricetag } from './IconPricetag.vue'
+export { default as IconNav } from './IconNav.vue'

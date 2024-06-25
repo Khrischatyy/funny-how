@@ -3,7 +3,8 @@
     <button
         v-if="checkScrollVisibility"
         @click.stop="scrollLeft"
-        class="cursor-pointer w-auto rounded-tr-[10px] rounded-tb-[10px] backdrop-blur-[1px] h-full bg-gradient-to-r from-black to-transparent rounded-lg absolute flex items-center justify-start left-0 border-none p-0 z-10"
+        :class="theme === 'dark' ? 'from-[#000]' : 'from-black'"
+        class="cursor-pointer w-auto rounded-tr-[10px] rounded-tb-[10px] backdrop-blur-[1px] h-full bg-gradient-to-r to-transparent rounded-lg absolute flex items-center justify-start left-0 border-none p-0 z-10"
     >
       <IconLeft iconType="thin" />
     </button>
@@ -18,7 +19,8 @@
     <button
         v-if="checkScrollVisibility"
         @click.stop="scrollRight"
-        class="cursor-pointer w-auto rounded-tl-[10px] rounded-bl-[10px] backdrop-blur-[1px] h-full bg-gradient-to-l from-black to-transparent rounded-lg absolute flex items-center justify-end right-0 border-none p-0 z-10"
+        :class="theme === 'dark' ? 'from-[#000]' : 'from-black'"
+        class="cursor-pointer w-auto rounded-tl-[10px] rounded-bl-[10px] backdrop-blur-[1px] h-full bg-gradient-to-l to-transparent rounded-lg absolute flex items-center justify-end right-0 border-none p-0 z-10"
     >
       <IconRight iconType="thin" />
     </button>
@@ -29,7 +31,11 @@
 import {ref, onMounted, watch, reactive, provide} from 'vue';
 import {IconLeft, IconRight} from "~/src/shared/ui/common";
 import {Tooltip} from "~/src/shared/ui/Tooltip";
-
+const props = withDefaults(defineProps<{
+  theme?: string
+}>(), {
+  theme: 'default'
+});
 const scrollContainer = ref(null);
 const scrollableContainer = ref(null);
 

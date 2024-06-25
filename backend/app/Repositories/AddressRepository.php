@@ -35,4 +35,10 @@ class AddressRepository implements AddressRepositoryInterface
             ->get();
     }
 
+    public function getAddressById(int $addressId): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
+    {
+        return Address::with(['badges', 'photos', 'prices', 'company', 'operatingHours'])
+            ->findOrFail($addressId);
+    }
+
 }

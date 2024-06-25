@@ -51,7 +51,7 @@ export function useBrand(slug: Ref<string> | string) {
     //useAsyncData helps to serve it server-side
     const { data: brand, pending, error } = useAsyncData<BrandFull>('brand', async () => {
         const response = await getBrand();
-        return response.data; // Assuming 'data' contains the desired BrandFull object
+        return response?.data; // Assuming 'data' contains the desired BrandFull object
     });
 
     return { brand, pending, error };

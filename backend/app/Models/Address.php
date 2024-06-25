@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @method static findOrFail(int $addressId)
+ * @method static create(array $array)
+ */
 class Address extends Model
 {
     use HasFactory;

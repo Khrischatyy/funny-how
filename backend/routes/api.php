@@ -68,6 +68,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 //        Route::post('/logout', [LogoutController::class, 'destroy']);
     });
     Route::prefix('address')->group(function () {
+
         //badges routes
         Route::get('{address_id}/badges', [BadgeController::class, 'getAddressBadges']);
         Route::post('{address_id}/badge', [BadgeController::class, 'setAddressBadge']);
@@ -92,6 +93,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::withoutMiddleware('auth:sanctum')->group(function () {
             Route::get('reservation/start-time', [BookingController::class, 'getReservationAvailableStartTime']);
             Route::get('reservation/end-time', [BookingController::class, 'getReservationAvailableEndTime']);
+            //get address
+            Route::get('{address_id}', [AddressController::class, 'getAddressById']);
         });
     });
 

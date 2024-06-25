@@ -43,6 +43,8 @@ const tooltipStyle = computed(() => ({
   background-color: black;
   color: white;
   padding: 8px;
+  font-size: 12px;
+  max-width: 180px;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   white-space: pre-wrap; // Handling \n

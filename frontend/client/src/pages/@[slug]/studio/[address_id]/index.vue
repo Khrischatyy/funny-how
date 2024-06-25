@@ -3,27 +3,23 @@ import {useHead} from "@unhead/vue";
 import {definePageMeta, useRuntimeConfig} from '#imports'
 import {useSessionStore} from "~/src/entities/Session";
 import {computed, onMounted, type Ref, ref} from "vue";
-import {BrandingLogoSmall} from "~/src/shared/ui/branding";
 import {useRoute} from "nuxt/app";
 import {type StudioFormValues, useCreateStudioFormStore} from "~/src/entities/RegistrationForms";
-import {IconDown, IconMic} from "~/src/shared/ui/common";
+import {IconDown, IconMic, IconNav, IconPricetag} from "~/src/shared/ui/common";
 import GoogleMap from "~/src/widgets/GoogleMap.vue";
 import { SelectPicker } from "~/src/features/DatePicker";
 import { TimeSelect } from "~/src/widgets";
-import {type ResponseBrand, useBrand} from "~/src/entities/Studio/api";
-
-definePageMeta({
-  middleware: ["auth"],
-})
-
+import {type ResponseBrand, useAddress, useBrand} from "~/src/entities/Studio/api";
+import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue";
+import {IconPrice} from "~/src/shared/ui/common/Icon/Filter";
 
 const route = useRoute();
 const slug: Ref<string> = computed(() => route.params.slug);
 
-const { brand, pending, error } = useBrand(slug);
+const { address } = useAddress(route.params.address_id);
 
 const pageTitle: Ref<string> = computed(() => {
-  return brand.value ? `Studio | ${brand.value.name}` : 'Loading...';
+  return address.value ? `Studio | ${address.value.company.name}` : 'Loading...';
 });
 
 const isLoading = ref(false)
@@ -69,14 +65,6 @@ useHead({
   ]
 });
 
-const getCompany = async () => {
-  const response = await fetch();
-  if (response && response.data) {
-    brand.value = response.data;
-    console.log('brand', brand.value)
-    console.log('response', response.data)
-  }
-}
 
 
 async function getStartSlots() {
@@ -139,7 +127,7 @@ function book(){
       'Authorization': 'Bearer ' + useSessionStore().accessToken
     },
     data: {
-      address_id: brand.value.addresses[0].id,
+      address_id: addressvalue?.id,
       date: rentingForm.value.date,
       start_time: rentingForm.value.start_time,
       end_time: rentingForm.value.end_time,
@@ -221,94 +209,90 @@ function timeChanged(newDate: string, input: keyof StudioFormValues) {
 
 }
 
-function signOut() {
-  session.value.logout()
+const getRatingColor = (rating: number) => {
+  if (rating >= 4) {
+    return 'text-green';
+  } else if (rating >= 3) {
+    return 'text-yellow';
+  } else {
+    return 'text-red';
+  }
 }
 
 </script>
 
 <template>
-  <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
+  <div class="grid min-h-[100vh] h-full bg-black animate__animated animate__fadeInRight">
     <div class="w-full h-full flex-col justify-between items-start gap-7 inline-flex">
-      <div v-if="brand" class="relative w-full flex-col justify-start items-center gap-2.5 flex mt-20">
-        <div class="w-full max-w-lg grid grid-cols-6 gap-4">
+      <div v-if="address" class="relative w-full flex-col justify-start items-center gap-2.5 flex mt-20">
+        <div class="w-full max-h-[300px] p-10 grid grid-cols-7 gap-4">
           <!-- Large column spanning 4/6 of the grid -->
-          <div class="col-span-4 bg-white shadow rounded-[10px]">
+          <div class="col-span-3 max-h-[300px] bg-white shadow rounded-[10px]">
             <img src="https://via.placeholder.com/780x420" alt="Large placeholder" class="w-full h-full object-cover rounded-[10px]">
           </div>
           <!-- Two smaller columns, each 1/6 of the grid -->
-          <div class="col-span-1 bg-white shadow rounded-[10px]">
+          <div class="col-span-2 max-h-[300px] bg-white shadow rounded-[10px]">
             <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
           </div>
-          <div class="col-span-1 bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
-          <!-- Second row with six columns -->
-          <div class="col-span-1 bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
-          <div class="col-span-1 bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
-          <div class="col-span-1 bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
-          <div class="col-span-1 bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
-          <div class="col-span-1 bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
-          <div class="col-span-1 bg-white shadow rounded-[10px]">
+          <div class="col-span-2 max-h-[300px] bg-white shadow rounded-[10px]">
             <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
           </div>
         </div>
-        <div class="w-96 flex items-center justify-center gap-1.5 mt-20">
-          <div class="text-white text-xl font-bold tracking-wide">
-            <img class="w-24 h-24 object-cover" :src="brand.logo_url" alt="" style="width: 100px; height: 100px;"> <!-- Fixed size set -->
-          </div>
-          <div class="text-white text-3xl font-bold">
-            {{brand.name}}
-          </div>
-          <div class="text-white text-3xl font-bold">
-            {{brand.description}}
-          </div>
 
+        <div class="w-96 flex items-center justify-center gap-2 mt-20">
+          <div class="text-white flex flex-col justify-center items-center text-5xl font-bold">
+            <div class="text-white opacity-20 mb-1.5 text-lg font-['Montserrat'] font-normal tracking-wide">
+              Studio name
+            </div>
+            <div class="font-[BebasNeue]">
+            {{address?.company.name}}
+            </div>
+          </div>
         </div>
 
-        <div class="w-96 justify-between gap-1.5 items-center inline-flex text-center">
-          <h2 class="text-white text-3xl font-bold text-center tracking-wide">
-           Addresses
-          </h2>
-        </div>
-        <div v-for="address in brand.addresses" class="w-96 justify-between gap-1.5 items-center flex-col mb-10 text-center">
-          <div class="text-white mb-10 text-3xl font-light text-left tracking-wide">
-            Street: {{address.street}}<br/>
-          </div>
-          <div class="h-[300px]">
-            <GoogleMap class="" :logo="brand.logo_url" :lat="address.latitude" :lng="address.longitude"/>
-          </div>
-          <div class="w-96 justify-between gap-1.5 mt-10 items-center inline-flex mb-10 text-center">
-            <h2 class="text-white text-xxl font-bold text-center tracking-wide">
-              Badges
-            </h2>
-
+        <div  class="w-96 justify-between gap-1.5 items-center flex-col mb-10 text-center">
+          <div class="text-white mb-10 text-5xl font-light text-left tracking-wide">
+            <div class="text-white opacity-20 mb-1.5 text-lg font-['Montserrat'] font-normal tracking-wide">
+              Address
+            </div>
+            <div class="font-[BebasNeue]">
+              Street: {{address?.street}}<br/>
+            </div>
           </div>
           <div  class="w-96 justify-start gap-2.5 items-center inline-flex mb-10 text-center">
-            <div v-for="badge in address.badges" class="text-white text-xl font-light text-left tracking-wide">
-              <div  :class="'border-opacity-100'" class="w-full flex px-3 gap-2.5 justify-center items-center cursor-pointer h-11 outline-none rounded-[10px] focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide">
-                <img :src="badge.image_url" />
-                <span>{{badge.name}}</span>
+            <BadgesList theme="default" :badges="address?.badges" />
+          </div>
+          <div class="w-96 justify-center gap-3.5 items-center flex mb-10 text-center">
+            <div v-for="price in address.prices" class="price-tag flex flex-col gap-1 text-white justify-center items-center">
+              <div class="mb-2">
+              <IconPricetag/>
+              </div>
+              <div class="font-[BebasNeue] text-3xl flex justify-center items-center">
+                {{price.hours}} HOUR{{price.hours > 1 ? 'S' : ''}}
+              </div>
+              <div class="font-['Montserrat']">
+                ${{price.total_price}}
               </div>
             </div>
           </div>
-          <div class="w-96 justify-between gap-1.5 items-center inline-flex mb-10 text-center">
-            <h2 class="text-white text-xxl font-bold text-center tracking-wide">
-              Booking
-            </h2>
-
+          <div  class="w-96 justify-center gap-3.5 items-center flex mb-10 text-center">
+            <div class="price-tag flex gap-2 font-[BebasNeue] text-4xl text-white justify-center items-center">
+              Rating: <span :class="getRatingColor(address?.company.rating)">{{address?.company.rating}}</span>
+            </div>
           </div>
-          <div class="relative w-full flex items-center">
+        </div>
+        <div  class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center">
+          <div class="w-full max-w-[514px] h-[313px] relative">
+            <a :href="`https://www.google.com/maps?q=${address?.latitude},${address?.longitude}`" target="_blank" class="nav group absolute z-10 w-full h-full group bg-black cursor-pointer bg-opacity-70 hover:bg-opacity-90 transition duration-300 flex justify-center items-center">
+              <div class="navigate-button font-[BebasNeue] group-hover:scale-115 transition duration-300 text-2xl text-white flex gap-3 justify-center items-center">
+                <IconNav class="w-[20px] h-[20px]"/> Direction
+              </div>
+            </a>
+            <GoogleMap class="" :logo="address?.company.logo_url" :lat="address?.latitude" :lng="address?.longitude"/>
+          </div>
+        </div>
+          <div  class="w-96 justify-between gap-1.5 items-center flex-col mb-10 text-center">
+          <div class="relative w-full flex items-center mt-10">
             <div class="flex items-center w-full">
               <SelectPicker class="w-full" @dateSelected="dateChanged($event, 'date')" />
             </div>
@@ -371,7 +355,7 @@ function signOut() {
           <div class="text-white text-sm text-left font-bold tracking-wide">
             <!--             {{session.reservations}}: { "address_id": 2, "start_time": "2024-05-20T18:58:00.000000Z", "end_time": "2024-05-20T18:59:00.000000Z", "user_id": 1, "total_cost": 30, "date": "2024-05-20", "updated_at": "2024-05-20T08:58:30.000000Z", "created_at": "2024-05-20T08:58:30.000000Z", "id": 5 }-->
             You have a reservation at <br>
-            <a :href="`/@${brand.name}`"> {{brand.name}}</a> on {{brand.addresses[0].street}} <br>
+            <a :href="`/@${address?.company.slug}`"> {{address?.company.name}}</a> on {{address.street}} <br>
             <br/>
             {{formatDate(session?.reservations?.date)}} from <br>
             {{formatTime(session?.reservations?.start_time)}} to {{formatTime(session?.reservations?.end_time)}} <br>
@@ -399,15 +383,12 @@ function signOut() {
 </template>
 
 <style scoped lang="scss">
-*{
-  font-family: 'BebasNeue', sans-serif;
-}
-a {
-  //make cool text decoration and maybe not white but some other color
-  text-decoration: underline;
-  color: var(--color-gold);
-  text-shadow: 2px 2px 4px var(--color-dark-orange); /* Shadow effect */
-}
+//a {
+//  //make cool text decoration and maybe not white but some other color
+//  text-decoration: underline;
+//  color: var(--color-gold);
+//  text-shadow: 2px 2px 4px var(--color-dark-orange); /* Shadow effect */
+//}
 .shadow-text{
   text-shadow: 2px 3px 1px rgba(0, 0, 0, 0.8), 12px 14px 1px rgba(0, 0, 0, 0.8);
 }

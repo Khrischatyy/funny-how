@@ -30,7 +30,8 @@
       </div>
     </div>
     <div class="grid md:grid-cols-3 sm:grid-cols-1 gap-10 studio-cards">
-      <StudioCard class="animate__animated animate__fadeInRight" v-for="studio in filteredStudios" :studio="studio" :key="studio.id" />
+
+      <StudioCard @click="goToStudio(studio)" class="animate__animated animate__fadeInRight cursor-pointer" v-for="studio in filteredStudios" :studio="studio" :key="studio.id" />
     </div>
   </div>
   </div>
@@ -47,6 +48,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { getCountries, getCities, type City } from '~/src/entities/RegistrationForms/api'
 import {Header} from "~/src/shared/ui/components";
 import {FInput} from "~/src/shared/ui/common";
+import {navigateTo} from "nuxt/app";
 
 useHead({
   title: 'Funny How – Book a Session Time',
@@ -71,7 +73,8 @@ type SimpleStudio = {
   company?: {
     name: string
     address: string
-    logo: string
+    logo: string,
+    slug: string,
   }
 }
 
@@ -97,6 +100,11 @@ const filteredStudios = computed(() => {
       studio.address.toLowerCase().includes(term)
   )
 })
+
+const goToStudio = (studio) => {
+  console.log('studio', `/@${studio?.company_slug}/studio/${studio.id}`)
+  navigateTo(`/@${studio?.company_slug}/studio/${studio.id}`)
+}
 
 const handleCountryChange = async (countryId: string) => {
   selectedCountry.value = countryId
@@ -125,6 +133,7 @@ const handleCityChange = async (cityId: string) => {
     badges: studio.badges,
     prices: studio.prices,
     operating_hours: studio.operating_hours,
+    company_slug: studio.company.slug,
     price: studio.prices.length > 0 ? studio.prices[0].total_price : 0
   }));
 }

@@ -19,9 +19,9 @@ class AddressSeeder extends Seeder
         Address::upsert([
             [
                 'id' => 1,
-                'street' => 'Газетный переулок',
-                'latitude' => 37.609337,
-                'longitude' => 55.758972,
+                'street' => 'Gazetniy Av.',
+                'latitude' => 55.7578375,
+                'longitude' => 37.6064895,
                 'city_id' => 2,
                 'company_id' => 1,
             ],

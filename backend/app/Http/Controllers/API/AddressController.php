@@ -28,6 +28,53 @@ class AddressController extends BaseController
     {}
 
     /**
+     * @OA\Get(
+     *     path="/address/{address_id}",
+     *     summary="Get an address by its ID",
+     *     tags={"Address"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer"),
+     *         description="The ID of the address"
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Address retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="street", type="string", example="Main St"),
+     *                 @OA\Property(property="city_id", type="integer", example=100),
+     *                 @OA\Property(property="company_id", type="integer", example=10),
+     *                 @OA\Property(property="latitude", type="string", example="20.5320636"),
+     *                 @OA\Property(property="longitude", type="string", example="44.792424"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z")
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Address retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Address not found")
+     * )
+     */
+    public function getAddressById(int $addressId): JsonResponse
+    {
+        try {
+            $address = $this->addressService->getAddressById($addressId);
+            return $this->sendResponse($address, 'Address retrieved successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve address.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * @OA\Post(
      *     path="/address/{address_id}/photos",
      *     summary="Upload photos for an address",

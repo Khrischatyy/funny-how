@@ -18,13 +18,7 @@
     </div>
 
     <div class="mt-4 flex gap-3 w-full justify-center items-center relative mb-5">
-      <ScrollContainer>
-        <div v-for="(badge, index) in displayedBadges" :key="badge.id" @mouseenter="showTooltip($event, badge.description)" @mouseleave="hideTooltip" class="relative w-8 h-full group scrollElement">
-          <Component :is="ICON_MAP[badge.name as typeof ICON_MAP]" class="w-full h-8 object-fit group-hover:opacity-70" />
-<!--          <img :src="'https://via.placeholder.com/32x32' || badge.image" :alt="badge.name" class="w-full h-full object-contain" />-->
-          <div class="text-white text-xs text-center mt-1 group-hover:opacity-70 font-[BebasNeue]">{{ badge.name }}</div>
-        </div>
-      </ScrollContainer>
+      <BadgesList :badges="displayedBadges" />
     </div>
     <div class="mt-4 flex gap-3 justify-between items-center">
       <div @mouseenter="showTooltip($event, generateTooltipContent('hours'))" @mouseleave="hideTooltip" class="flex items-center relative group-hours-block group">
@@ -73,6 +67,7 @@ import defaultPhoto3_3 from '~/src/shared/assets/image/skeleton-studio-card/stud
 import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer";
 import {Tooltip} from "~/src/shared/ui/Tooltip";
 import {PhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
+import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue";
 
 const props = defineProps({
   studio: {
