@@ -83,7 +83,7 @@ class EquipmentTypeSeeder extends Seeder
             ->updateOrInsert(
                 [
                     'id' => 8,
-                    'name' => 'Other shit',
+                    'name' => 'Random Stuff',
                     'icon' => '/images/micro.svg',
                 ]
             );
