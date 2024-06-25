@@ -8,7 +8,7 @@
         <div class="flex flex-col min-[330px]:flex-row">
           <a href="#" class="text-white hover:opacity-70 mx-2">Contact us</a>
           <a href="#" class="text-white hover:opacity-70 mx-2">Terms of Service</a>
-          <a href="#" class="text-white hover:opacity-70 mx-2">About us</a>
+<!--          <a href="#" class="text-white hover:opacity-70 mx-2">About us</a>-->
         </div>
       </div>
     </div>
