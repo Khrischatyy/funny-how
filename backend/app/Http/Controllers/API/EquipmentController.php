@@ -100,8 +100,8 @@ class EquipmentController extends BaseController
     public function setEquipment(EquipmentRequest $request, int $addressId): JsonResponse
     {
         try {
-            $this->equipmentService->setEquipment($request->validated(), $addressId);
-            return $this->sendResponse(null, 'Equipment added successfully.');
+            $equipments = $this->equipmentService->setEquipment($request->validated(), $addressId);
+            return $this->sendResponse($equipments, 'Equipment added successfully.');
         } catch (ModelNotFoundException $e) {
             return $this->sendError('Address not found.', 404);
         } catch (Exception $e) {

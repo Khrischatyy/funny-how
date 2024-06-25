@@ -25,6 +25,8 @@ class EquipmentService
         try {
             $address = Address::findOrFail($addressId);
             $address->equipments()->attach($equipment['equipment_id']);
+            $address->load('equipments'); // Загружаем все связанные оборудования
+            return $address->equipments;
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException("Address not found.");
         } catch (Exception $e) {

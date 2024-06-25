@@ -24,8 +24,7 @@ class EquipmentRequest extends FormRequest
     public function rules()
     {
         return [
-            'equipment_type_id' => 'required|integer|exists:equipment_type,id',
-            'equipment_name' => 'required|string|max:255',
+            'equipment_id' => 'required|integer|exists:equipments,id',
         ];
     }
 }
