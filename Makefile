@@ -121,7 +121,7 @@ nginx-reload-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml exec nginx nginx -s reload
 
 seeds-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan db:seed --class=RoleSeeder && php artisan db:seed --class=OperatingHoursSeeder"
+	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan db:seed --class=RoleSeeder && php artisan db:seed --class=OperatingHoursSeeder --force"
 
 # CAUTION: This will remove all Docker containers, volumes, and networks.
 clean-all:
