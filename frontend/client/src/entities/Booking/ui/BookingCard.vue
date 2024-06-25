@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center">
       <div class="flex justify-start items-center gap-5">
         <div class="h-[35px] w-[35px]">
-          <img :src="booking.logo" alt="Logo" class="h-auto w-full object-fill" />
+          <img :src="booking.logo" alt="Logo" class="h-auto w-full object-cover" />
         </div>
         <div>
           <h3 class="text-xl font-bold text-white">{{ booking.name }}</h3>

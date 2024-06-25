@@ -124,7 +124,7 @@ const handleCityChange = async (cityId: string) => {
     photos: studio.photos,
     badges: studio.badges,
     prices: studio.prices,
-    working_hours: studio.working_hours,
+    operating_hours: studio.operating_hours,
     price: studio.prices.length > 0 ? studio.prices[0].total_price : 0
   }));
 }

@@ -7,7 +7,12 @@
 </template>
 
 <script setup>
+import {useTooltip} from "~/src/shared/ui/Tooltip/";
+import {usePhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
+import { provide} from 'vue';
 
+useTooltip()
+provide('usePhotoSwipe', usePhotoSwipe());
 </script>
 
 <style lang="scss">

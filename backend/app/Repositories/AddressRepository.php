@@ -22,7 +22,7 @@ class AddressRepository implements AddressRepositoryInterface
     public function getMyAddresses(int $companyId): Collection
     {
         return Address::where('company_id', $companyId)
-            ->with(['badges', 'photos', 'prices', 'company'])
+            ->with(['badges', 'photos', 'prices', 'company', 'operatingHours'])
             ->get();
     }
 

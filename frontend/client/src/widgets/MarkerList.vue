@@ -32,7 +32,7 @@ const openDescription = () => {
     <img @click="openDescription" alt="point" class="w-10" src="../shared/assets/image/studio_point.png" />
     <div v-if="isDescriptionOpen" class="p-7 absolute left-12 bg-neutral-900 rounded-[10px] shadow flex-col justify-center items-center gap-7 inline-flex">
       <div  class="w-full h-20">
-        <img class="h-20 rounded-[10px] object-fill" src="https://via.placeholder.com/390x210" />
+        <img class="h-20 rounded-[10px] object-cover" src="https://via.placeholder.com/390x210" />
       </div>
       <div class="flex-col w-full justify-start items-start gap-3.5 flex">
         <div @click="openGoogle(marker.lat, marker.lng)" class="text-white text-xl font-bold font-['Montserrat'] uppercase">Studio name</div>

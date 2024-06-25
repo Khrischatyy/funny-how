@@ -34,10 +34,10 @@ export interface Studio {
     company: Company;
     badges: Badge[];
     prices: Prices[];
-    working_hours: WorkingHours[];
+    operating_hours: OperatingHours[];
 }
 
-interface WorkingHours {
+interface OperatingHours {
     id: number;
     address_id: number;
     mode_id: number;
