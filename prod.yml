@@ -54,7 +54,7 @@ services:
       dockerfile: Dockerfile-prod
       args:
         - NODE_ENV=production
-        - AXIOS_BASEURL=http://nginx
+        - AXIOS_BASEURL=https://nginx
         - AXIOS_BASEURL_CLIENT=https://funny-how.com
         - AXIOS_API_VERSION=/api/v1
         - GOOGLE_MAPS_API=${GOOGLE_MAPS_API:-default_map_key}
@@ -63,7 +63,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - AXIOS_BASEURL=http://nginx
+      - AXIOS_BASEURL=https://nginx
       - AXIOS_BASEURL_CLIENT=https://funny-how.com
       - AXIOS_API_VERSION=/api/v1
       - NUXT_ENV_GOOGLE_MAPS_API=${GOOGLE_MAPS_API:-default_map_key}

@@ -72,7 +72,8 @@ export function useAddress(slug: string | RouteParamValue[]) {
     });
 
     //useAsyncData helps to serve it server-side
-    const { data: address, pending, error } = useAsyncData<AddressFull>('address', async () => {
+    const { data: address, pending, error } =
+        useAsyncData<AddressFull>('address', async () => {
         const response = await getBrand();
         return response.data; // Assuming 'data' contains the desired AddressFull object
     });

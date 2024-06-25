@@ -42,7 +42,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NODE_ENV=development
-        - AXIOS_BASEURL=http://nginx
+        - AXIOS_BASEURL=https://nginx
         - AXIOS_BASEURL_CLIENT=http://127.0.0.1
         - AXIOS_API_VERSION=/api/v1
     expose:
@@ -52,7 +52,7 @@ services:
     command: "npm run dev"
     environment:
       - NODE_ENV=development
-      - AXIOS_BASEURL=http://nginx
+      - AXIOS_BASEURL=https://nginx
       - AXIOS_BASEURL_CLIENT=http://127.0.0.1
       - AXIOS_API_VERSION=/api/v1
       - NUXT_ENV_GOOGLE_MAPS_API=${GOOGLE_MAPS_API:-default_map_key}
