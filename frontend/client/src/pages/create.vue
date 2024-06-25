@@ -8,6 +8,7 @@ import { navigateTo, useRoute } from "nuxt/app";
 import {IconElipse, IconLine, IconUpload} from "~/src/shared/ui/common";
 import { Loader } from "@googlemaps/js-api-loader";
 import {useCreateStudio} from "~/src/entities/Studio/api";
+import {useGoogleMaps} from "~/src/shared/utils";
 
 useHead({
   title: 'Dashboard | Create Studio',
@@ -29,48 +30,23 @@ function isError(field: string): boolean {
 }
 
 const session = ref();
-
+const { initGoogleMaps, autocomplete, geocoder } = useGoogleMaps();
+const place = ref<HTMLInputElement | undefined>();
 onMounted(async () => {
   const config = useRuntimeConfig();
   session.value = useSessionStore();
-  // if(session.value.brand) {
-  //   navigateTo('/my-studios');
-  //   return;
-  // }
-  const loader = new Loader({
-    apiKey: config.public.googleMapKey,
-    version: "weekly",
-  });
 
-  const Places = await loader.importLibrary('places');
-  const center = { lat: 34.082298, lng: -82.284777 };
-  const defaultBounds = {
-    north: center.lat + 0.1,
-    south: center.lat - 0.1,
-    east: center.lng + 0.1,
-    west: center.lng - 0.1,
-  };
-
-  const input = document.getElementById("place");
-
-  const options = {
-    componentRestrictions: { country: ["us", "ca"] },
-    fields: ["address_components", "geometry"],
-    types: ["address"],
-  };
-
-  const autocomplete = new Places.Autocomplete(input, options);
-
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-
-    formValues.address = input?.value;
-    formValues.country = place.address_components.find(item => item.types.includes('country'))?.short_name;
-    formValues.city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
-    formValues.street = place.address_components.find(item => item.types.includes('route'))?.short_name;
-    formValues.longitude = place.geometry.location.lng();
-    formValues.latitude = place.geometry.location.lat();
-  });
+  await initGoogleMaps(place?.value);
+//Перенес все в useGoogleMaps. Проверьте, пожалуйста, правильно ли я это сделал
+  // autocomplete.value.addListener('place_changed', () => {
+  //   console.log('place', place?.value?.value);
+  //   formValues.address = place?.value;
+  //   formValues.country = place?.value?.address_components.find(item => item.types.includes('country'))?.short_name;
+  //   formValues.city = place?.value?.address_components.find(item => item.types.includes('locality'))?.short_name;
+  //   formValues.street = place?.value?.address_components.find(item => item.types.includes('route'))?.short_name;
+  //   formValues.longitude = place?.value?.geometry.location.lng();
+  //   formValues.latitude = place?.value?.geometry.location.lat();
+  // });
 });
 
 function changeLogo() {
@@ -155,7 +131,7 @@ function signOut() {
             </div>
           </div>
           <div class="justify-start items-center gap-2.5 inline-flex">
-            <input id="place" :class="errors.hasOwnProperty('street') && !formValues.street ? 'border border-red border-opacity-80 placeholder-red' : 'border border-white border-opacity-20'" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
+            <input id="place" ref="place" :class="errors.hasOwnProperty('street') && !formValues.street ? 'border border-red border-opacity-80 placeholder-red' : 'border border-white border-opacity-20'" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
           </div>
         </div>
 

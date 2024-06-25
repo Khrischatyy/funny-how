@@ -32,7 +32,6 @@ export class ErrorHandler {
             if (process.client) {
                 navigateTo('/404');
             }
-            throw new Error('Redirecting to 404 page');
             return Promise.reject({ status, message: 'Redirecting to 404 page' });
         }
 

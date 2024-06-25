@@ -80,8 +80,11 @@ export function useAddress(slug: string | RouteParamValue[]) {
         return response.data; // Assuming 'data' contains the desired AddressFull object
     });
 
-    if (error) {
-        navigateTo('/404');
+    if (error.value) {
+        if(error.value.statusCode == 404)
+            navigateTo('/404');
+        else
+            navigateTo('/');
     }
 
     return { address, pending, error };
