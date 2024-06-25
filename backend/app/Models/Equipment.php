@@ -9,6 +9,8 @@ class Equipment extends Model
 {
     use HasFactory;
 
+    protected $table = 'equipments';
+
     protected $fillable = ['name', 'description', 'equipment_type_id'];
 
     /**
@@ -16,7 +18,7 @@ class Equipment extends Model
      */
     public function type()
     {
-        return $this->belongsTo(EquipmentType::class, 'equipment_type_id');
+        return $this->belongsTo(EquipmentType::class, 'equipment_type_id', 'id');
     }
 
     /**
