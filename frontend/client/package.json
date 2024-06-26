@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "funny-how",
   "private": true,
   "type": "module",
   "scripts": {
@@ -24,6 +24,8 @@
   "dependencies": {
     "@fawmi/vue-google-maps": "^0.9.79",
     "@googlemaps/js-api-loader": "^1.16.6",
+    "@nuxtjs/onesignal": "^3.0.0-beta.16",
+    "@nuxtjs/pwa": "^3.3.5",
     "@pinia/nuxt": "^0.5.1",
     "@tsparticles/all": "^3.2.2",
     "@types/dotenv": "^8.2.0",

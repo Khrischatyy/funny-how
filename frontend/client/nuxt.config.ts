@@ -96,5 +96,16 @@ export default defineNuxtConfig({
   css: ['@/src/shared/assets/style/index.scss', 'animate.css/animate.min.css'],
   buildModules: [
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/onesignal',
+    '@nuxtjs/pwa',
   ],
+  oneSignal: {
+    init: {
+      appId: '95b21da8-652b-4cdf-aefb-65e77884aaab',
+      allowLocalhostAsSecureOrigin: true,
+      welcomeNotification: {
+        disable: true
+      }
+    }
+  }
 })
