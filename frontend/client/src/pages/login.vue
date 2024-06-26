@@ -10,9 +10,7 @@ import {IconElipse, IconCopyright, IconLine, IconCheck} from "~/src/shared/ui/co
 import {useCreateAccount, useLogin} from "~/src/entities/User/api";
 import {FInputClassic} from "~/src/shared/ui/common";
 import GoogleSignInButton from "~/src/shared/ui/components/GoogleSignInButton.vue";
-import {useCookie} from "#app";
-import {ACCESS_TOKEN_KEY} from "~/src/lib/api/config";
-import {navigateTo} from "nuxt/app";
+import {CreateAccountFlow} from "~/src/widgets/CreateAccount";
 
 useHead({
   title: 'Funny How – Book a Session Time',
@@ -181,16 +179,17 @@ async function authForm() {
               </div>
             </div>
 
-            <ChooseRole
-                @updateRole="handleRoleUpdate"
-                @navigateBack="handleBackNavigation"
-                v-if="step == 'create' && !session?.isAuthorized"
-                ref="create"
-                :class="step == 'create' ? 'translate-x-[0px] duration-[700ms]' : 'ml-96 translate-x-96 duration-700 opacity-0'"
-                class="relative w-full flex-col justify-start items-center gap-2.5 flex"
-            />
+            <CreateAccountFlow v-if="step == 'create'" />
+<!--            <ChooseRole-->
+<!--                @updateRole="handleRoleUpdate"-->
+<!--                @navigateBack="handleBackNavigation"-->
+<!--                v-if="step == 'create' && !session?.isAuthorized"-->
+<!--                ref="create"-->
+<!--                :class="step == 'create' ? 'translate-x-[0px] duration-[700ms]' : 'ml-96 translate-x-96 duration-700 opacity-0'"-->
+<!--                class="relative w-full flex-col justify-start items-center gap-2.5 flex"-->
+<!--            />-->
 
-            <CreateAccountForm @stepUpdate="step = $event" v-if="step == 'create_account' && !session?.isAuthorized" ref="create_account" :class="step == 'create_account' ? 'translate-x-[0px] duration-[700ms]' : 'opacity-0 translate-x-96 duration-700'" class="relative w-full flex-col justify-start items-center gap-2.5 flex"/>
+<!--            <CreateAccountForm @stepUpdate="step = $event" v-if="step == 'create_account' && !session?.isAuthorized" ref="create_account" :class="step == 'create_account' ? 'translate-x-[0px] duration-[700ms]' : 'opacity-0 translate-x-96 duration-700'" class="relative w-full flex-col justify-start items-center gap-2.5 flex"/>-->
 
 
           </div>

@@ -22,7 +22,7 @@ class CompanyRepository
             });
         });
 
-        $company->logo_url = '/logo.png';
+        //$company->logo_url = '/logo.png';
             //TODO:Включить когда оплатим AWS
         //$company->logo_url = $company->logoStorage::disk('s3')->url($company->logo);
 

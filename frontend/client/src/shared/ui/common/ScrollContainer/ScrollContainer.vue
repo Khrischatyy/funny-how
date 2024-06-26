@@ -9,8 +9,9 @@
       <IconLeft iconType="thin" />
     </button>
     <div
+        v-bind="$attrs"
         ref="scrollableContainer"
-        class="relative flex justify-between w-full h-auto overflow-x-auto overflow-y-visible scroll-smooth no-scrollbar gap-5"
+        class="relative flex justify-base w-full h-auto overflow-x-auto overflow-y-visible scroll-smooth no-scrollbar gap-5"
         @scroll="checkButtons"
     >
       <!-- Slot for template items -->
@@ -69,7 +70,17 @@ watch(scrollableContainer, () => {
 });
 </script>
 
+<style>
+.justify-base {
+  justify-content: space-between;
+}
+.justify-center-important {
+  justify-content: center !important;
+}
+</style>
+
 <style scoped lang="scss">
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -78,7 +89,7 @@ watch(scrollableContainer, () => {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-:deep .scrollElement{
+:deep(.scrollElement){
   flex-shrink: 0;
   &:first-of-type {
     margin-left: 25px;

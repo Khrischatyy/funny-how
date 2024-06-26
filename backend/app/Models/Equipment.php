@@ -10,6 +10,7 @@ class Equipment extends Model
     use HasFactory;
 
     protected $table = 'equipments';
+    public $timestamps = false;
 
     protected $fillable = ['name', 'description', 'equipment_type_id'];
 

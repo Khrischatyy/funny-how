@@ -1,15 +1,21 @@
 <template>
   <teleport to="body">
     <transition name="fade">
-      <div v-show="tooltipData.isVisible" :class="{'animate__fadeIn': tooltipData.isVisible}" :style="tooltipStyle" class="tooltip animate__animated animate__faster">
+      <div v-show="tooltipData.isVisible" :class="[{'animate__fadeIn': tooltipData.isVisible}]" :style="tooltipStyle" class="tooltip animate__animated animate__faster">
         <slot></slot>
       </div>
     </transition>
   </teleport>
 </template>
 
-<script setup>
-import {computed, inject} from 'vue';
+<script setup lang="ts">
+import {computed, defineProps, inject} from 'vue';
+const props = withDefaults(defineProps<{
+  theme?: string
+}>(), {
+  theme: 'default'
+});
+
 
 const {tooltipData} = inject('tooltipData', {
   tooltipData: {
@@ -44,7 +50,9 @@ const tooltipStyle = computed(() => ({
   color: white;
   padding: 8px;
   font-size: 12px;
-  max-width: 180px;
+  max-width: 150px;
+  width: max-content;
+  text-align: center;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   white-space: pre-wrap; // Handling \n

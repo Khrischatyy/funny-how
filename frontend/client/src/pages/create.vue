@@ -2,7 +2,7 @@
 import { useHead } from "@unhead/vue";
 import { definePageMeta, useRuntimeConfig } from '#imports';
 import { useSessionStore } from "~/src/entities/Session";
-import {onMounted, ref, computed, watchEffect} from "vue";
+import {onMounted, ref, computed, watchEffect, watch} from "vue";
 import { BrandingLogo } from "~/src/shared/ui/branding";
 import { navigateTo, useRoute } from "nuxt/app";
 import {IconElipse, IconLine, IconUpload} from "~/src/shared/ui/common";
@@ -30,23 +30,25 @@ function isError(field: string): boolean {
 }
 
 const session = ref();
-const { initGoogleMaps, autocomplete, geocoder } = useGoogleMaps();
+const { initGoogleMaps, autocomplete, addressData } = useGoogleMaps();
 const place = ref<HTMLInputElement | undefined>();
+
+watch(addressData, (newVal) => {
+  formValues.address = newVal.formattedAddress;
+  formValues.latitude = newVal.location.lat.toString();
+  formValues.longitude = newVal.location.lng.toString();
+  formValues.country = newVal.addressComponents['country']?.longName || '';
+  formValues.city = newVal.addressComponents['locality']?.longName || '';
+  formValues.street = `${newVal.addressComponents['street_number']?.longName || ''} ${newVal.addressComponents['route']?.longName || ''}`;
+}, { deep: true });
+
 onMounted(async () => {
   const config = useRuntimeConfig();
   session.value = useSessionStore();
 
+  //Init google map and autocomplete on ref place.value that is InputElement
   await initGoogleMaps(place?.value);
-//Перенес все в useGoogleMaps. Проверьте, пожалуйста, правильно ли я это сделал
-  // autocomplete.value.addListener('place_changed', () => {
-  //   console.log('place', place?.value?.value);
-  //   formValues.address = place?.value;
-  //   formValues.country = place?.value?.address_components.find(item => item.types.includes('country'))?.short_name;
-  //   formValues.city = place?.value?.address_components.find(item => item.types.includes('locality'))?.short_name;
-  //   formValues.street = place?.value?.address_components.find(item => item.types.includes('route'))?.short_name;
-  //   formValues.longitude = place?.value?.geometry.location.lng();
-  //   formValues.latitude = place?.value?.geometry.location.lat();
-  // });
+
 });
 
 function changeLogo() {

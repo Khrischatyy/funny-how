@@ -18,7 +18,7 @@
     </div>
 
     <div class="mt-4 flex gap-3 w-full justify-center items-center relative mb-5">
-      <BadgesList :badges="displayedBadges" />
+      <BadgesList class="justify-center-important" :badges="displayedBadges" />
     </div>
     <div class="mt-4 flex gap-3 justify-between items-center">
       <div @mouseenter="showTooltip($event, generateTooltipContent('hours'))" @mouseleave="hideTooltip" class="flex items-center relative group-hours-block group">

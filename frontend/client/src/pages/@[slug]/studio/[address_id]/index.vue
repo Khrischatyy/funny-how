@@ -11,6 +11,7 @@ import { SelectPicker } from "~/src/features/DatePicker";
 import { TimeSelect } from "~/src/widgets";
 import {type ResponseBrand, useAddress} from "~/src/entities/Studio/api";
 import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue";
+import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer";
 
 const route = useRoute();
 const addressId = ref(route.params.address_id);
@@ -212,159 +213,158 @@ const getRatingColor = (rating: number) => {
 <template>
   <div class="grid min-h-[100vh] h-full bg-black animate__animated animate__fadeInRight">
     <div class="w-full h-full flex-col justify-between items-start gap-7 inline-flex">
-      Error: {{error}}
-      Pending {{pending ? 'true' : 'false'}}
       <div v-if="address" class="relative w-full flex-col justify-start items-center gap-2.5 flex mt-20">
-        <div class="w-full max-h-[300px] p-10 grid grid-cols-7 gap-4">
-          <!-- Large column spanning 4/6 of the grid -->
-          <div class="col-span-3 max-h-[300px] bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/780x420" alt="Large placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
-          <!-- Two smaller columns, each 1/6 of the grid -->
-          <div class="col-span-2 max-h-[300px] bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
-          <div class="col-span-2 max-h-[300px] bg-white shadow rounded-[10px]">
-            <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-          </div>
+        <div class="w-full max-h-[300px] max-w-full md:max-w-4xl p-0 md:p-10 gap-10">
+          <ScrollContainer class="justify-center-important" theme="dark">
+              <div class=" max-h-[300px] bg-white shadow rounded-[10px] scrollElement">
+                <img src="https://via.placeholder.com/780x420" alt="Large placeholder" class="w-full h-full object-cover rounded-[10px]">
+              </div>
+              <div class="max-h-[300px] bg-white shadow rounded-[10px] scrollElement">
+                <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+              </div>
+              <div class="max-h-[300px] bg-white shadow rounded-[10px] scrollElement">
+                <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
+              </div>
+          </ScrollContainer>
         </div>
 
-        <div class="w-96 flex items-center justify-center gap-2 mt-20">
-          <div class="text-white flex flex-col justify-center items-center text-5xl font-bold">
-            <div class="text-white opacity-20 mb-1.5 text-lg font-['Montserrat'] font-normal tracking-wide">
-              Studio name
+        <div class="p-5 md:p-0">
+            <div class="max-w-96 w-full flex items-center justify-center gap-2 mt-20">
+              <div class="text-white w-full flex flex-col justify-center items-center text-5xl font-bold">
+                <div class="text-white w-full opacity-20 mb-3 text-lg font-['Montserrat'] font-normal tracking-wide">
+                  Studio name
+                </div>
+                <div class="font-[BebasNeue] w-full text-left">
+                  {{address?.company.name}}
+                </div>
+              </div>
             </div>
-            <div class="font-[BebasNeue]">
-            {{address?.company.name}}
+            <div  class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center">
+              <div class="text-white mb-10 text-5xl font-light text-left tracking-wide">
+                <div class="text-white opacity-20 mb-3 text-lg font-['Montserrat'] font-normal tracking-wide">
+                  Address
+                </div>
+                <div class="font-[BebasNeue]">
+                  Street: {{address?.street}}<br/>
+                </div>
+              </div>
+              <div  class="max-w-96 w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center">
+                <BadgesList class="justify-center-important" theme="default" :badges="address?.badges" />
+              </div>
+              <div class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center">
+                <div v-for="price in address.prices" class="price-tag flex flex-col gap-1 text-white justify-center items-center">
+                  <div class="mb-2">
+                  <IconPricetag/>
+                  </div>
+                  <div class="font-[BebasNeue] text-3xl flex justify-center items-center">
+                    {{price.hours}} HOUR{{price.hours > 1 ? 'S' : ''}}
+                  </div>
+                  <div class="font-['Montserrat']">
+                    ${{price.total_price}}
+                  </div>
+                </div>
+              </div>
+              <div  class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center">
+                <div class="price-tag flex gap-2 font-[BebasNeue] text-4xl text-white justify-center items-center">
+                  Rating: <span :class="getRatingColor(address?.company.rating)">{{address?.company.rating}}</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+            <div  class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center">
+              <div class="w-full max-w-[514px] h-[313px] relative">
+                <a :href="`https://www.google.com/maps?q=${address?.latitude},${address?.longitude}`" target="_blank" class="nav group absolute z-10 w-full h-full group bg-black cursor-pointer bg-opacity-70 hover:bg-opacity-90 transition duration-300 flex justify-center items-center">
+                  <div class="navigate-button font-[BebasNeue] group-hover:scale-115 transition duration-300 text-2xl text-white flex gap-3 justify-center items-center">
+                    <IconNav class="w-[20px] h-[20px]"/> Direction
+                  </div>
+                </a>
+                <GoogleMap class="" :logo="address?.company.logo_url" :lat="address?.latitude" :lng="address?.longitude"/>
+              </div>
+            </div>
+            <div  class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center">
+              <div class="relative w-full flex items-center mt-10">
+                <div class="flex items-center w-full">
+                  <SelectPicker class="w-full" @dateSelected="dateChanged($event, 'date')" />
+                </div>
+              </div>
 
-        <div  class="w-96 justify-between gap-1.5 items-center flex-col mb-10 text-center">
-          <div class="text-white mb-10 text-5xl font-light text-left tracking-wide">
-            <div class="text-white opacity-20 mb-1.5 text-lg font-['Montserrat'] font-normal tracking-wide">
-              Address
-            </div>
-            <div class="font-[BebasNeue]">
-              Street: {{address?.street}}<br/>
-            </div>
-          </div>
-          <div  class="w-96 justify-start gap-2.5 items-center inline-flex mb-10 text-center">
-            <BadgesList theme="default" :badges="address?.badges" />
-          </div>
-          <div class="w-96 justify-center gap-3.5 items-center flex mb-10 text-center">
-            <div v-for="price in address.prices" class="price-tag flex flex-col gap-1 text-white justify-center items-center">
-              <div class="mb-2">
-              <IconPricetag/>
-              </div>
-              <div class="font-[BebasNeue] text-3xl flex justify-center items-center">
-                {{price.hours}} HOUR{{price.hours > 1 ? 'S' : ''}}
-              </div>
-              <div class="font-['Montserrat']">
-                ${{price.total_price}}
-              </div>
-            </div>
-          </div>
-          <div  class="w-96 justify-center gap-3.5 items-center flex mb-10 text-center">
-            <div class="price-tag flex gap-2 font-[BebasNeue] text-4xl text-white justify-center items-center">
-              Rating: <span :class="getRatingColor(address?.company.rating)">{{address?.company.rating}}</span>
-            </div>
-          </div>
-        </div>
-        <div  class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center">
-          <div class="w-full max-w-[514px] h-[313px] relative">
-            <a :href="`https://www.google.com/maps?q=${address?.latitude},${address?.longitude}`" target="_blank" class="nav group absolute z-10 w-full h-full group bg-black cursor-pointer bg-opacity-70 hover:bg-opacity-90 transition duration-300 flex justify-center items-center">
-              <div class="navigate-button font-[BebasNeue] group-hover:scale-115 transition duration-300 text-2xl text-white flex gap-3 justify-center items-center">
-                <IconNav class="w-[20px] h-[20px]"/> Direction
-              </div>
-            </a>
-            <GoogleMap class="" :logo="address?.company.logo_url" :lat="address?.latitude" :lng="address?.longitude"/>
-          </div>
-        </div>
-          <div  class="w-96 justify-between gap-1.5 items-center flex-col mb-10 text-center">
-          <div class="relative w-full flex items-center mt-10">
-            <div class="flex items-center w-full">
-              <SelectPicker class="w-full" @dateSelected="dateChanged($event, 'date')" />
-            </div>
-          </div>
-
-          <div class="relative hidden w-full flex items-center">
-            <div class="flex items-center">
-              <select v-model="rentingForm.date" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
-                <option v-for="day in rentingList" :value="day.date">
-                  {{day.name}}
-                </option>
-              </select>
-            </div>
-            <div class="relative w-full flex items-center pointer-events-none">
-              <input disabled :value="rentingForm.date" placeholder="Day" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
-              <span class="absolute right-5 text-neutral-700 cursor-pointer">Day</span>
-              <span class="absolute right-0 cursor-pointer">
-            <IconDown/>
-          </span>
-            </div>
-          </div>
-
-          <div v-if="rentingForm.date == 'another-day'" class="relative w-full flex items-center mt-3">
-            <div class="flex items-center">
-              <input v-model="rentingForm.anotherDate" name="date" type="date" ref="dateInput" class="w-full px-3 h-11 outline-none rounded-[10px] opacity-0 absolute focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"  />
-            </div>
-            <div @click="openDatePicker('date')" class="relative w-full flex items-center">
-              <input :value="rentingForm.anotherDate" placeholder="Choose Another Day" class="pointer-events-none w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
-              <span class="absolute right-5 text-neutral-700 cursor-pointer">Day</span>
-              <span class="absolute right-0 cursor-pointer">
+              <div class="relative hidden w-full flex items-center">
+                <div class="flex items-center">
+                  <select v-model="rentingForm.date" class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
+                    <option v-for="day in rentingList" :value="day.date">
+                      {{day.name}}
+                    </option>
+                  </select>
+                </div>
+                <div class="relative w-full flex items-center pointer-events-none">
+                  <input disabled :value="rentingForm.date" placeholder="Day" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
+                  <span class="absolute right-5 text-neutral-700 cursor-pointer">Day</span>
+                  <span class="absolute right-0 cursor-pointer">
                 <IconDown/>
               </span>
+                </div>
+              </div>
+
+              <div v-if="rentingForm.date == 'another-day'" class="relative w-full flex items-center mt-3">
+                <div class="flex items-center">
+                  <input v-model="rentingForm.anotherDate" name="date" type="date" ref="dateInput" class="w-full px-3 h-11 outline-none rounded-[10px] opacity-0 absolute focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"  />
+                </div>
+                <div @click="openDatePicker('date')" class="relative w-full flex items-center">
+                  <input :value="rentingForm.anotherDate" placeholder="Choose Another Day" class="pointer-events-none w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
+                  <span class="absolute right-5 text-neutral-700 cursor-pointer">Day</span>
+                  <span class="absolute right-0 cursor-pointer">
+                    <IconDown/>
+                  </span>
+                </div>
+              </div>
+
+              <div class="max-w-96 w-full justify-between gap-1.5 items-center inline-flex mt-10 mb-10 text-center">
+                <h2 class="text-white text-xxl font-bold text-center tracking-wide">
+                  Choose Hours
+                </h2>
+
+              </div>
+              <div class="relative w-full flex items-center">
+                <TimeSelect :available-hours="hoursAvailableStart" label="Start From" renting-form="rentingForm" @timeChanged="timeChanged($event, 'start_time')" />
+              </div>
+
+              <div class="relative w-full flex items-center">
+                <span class="absolute left-5 top-0 text-neutral-700 cursor-pointer">To</span>
+                <TimeSelect :available-hours="hoursAvailableEnd" label="To" renting-form="rentingForm" @timeChanged="timeChanged($event, 'end_time')" />
+              </div>
             </div>
-          </div>
 
-          <div class="w-96 justify-between gap-1.5 items-center inline-flex mt-10 mb-10 text-center">
-            <h2 class="text-white text-xxl font-bold text-center tracking-wide">
-              Choose Hours
-            </h2>
-
-          </div>
-          <div class="relative w-full flex items-center">
-            <TimeSelect :available-hours="hoursAvailableStart" label="Start From" renting-form="rentingForm" @timeChanged="timeChanged($event, 'start_time')" />
-          </div>
-
-          <div class="relative w-full flex items-center">
-            <span class="absolute left-5 top-0 text-neutral-700 cursor-pointer">To</span>
-            <TimeSelect :available-hours="hoursAvailableEnd" label="To" renting-form="rentingForm" @timeChanged="timeChanged($event, 'end_time')" />
-          </div>
-        </div>
-
-        <div class="flex-col mb-14 justify-center items-center gap-1.5 flex">
-          <div class="justify-center items-center gap-2.5 inline-flex">
-            <button @click="book()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Book Time</button>
-          </div>
-        </div>
-
-        <div v-if="session?.reservations" class="justify-start gap-1.5 items-start border-neutral-700 border p-3 rounded-[10px] inline-flex mb-10 text-center">
-          <IconMic class="text-white h-6 w-6"/>
-          <div class="text-white text-sm text-left font-bold tracking-wide">
-            <!--             {{session.reservations}}: { "address_id": 2, "start_time": "2024-05-20T18:58:00.000000Z", "end_time": "2024-05-20T18:59:00.000000Z", "user_id": 1, "total_cost": 30, "date": "2024-05-20", "updated_at": "2024-05-20T08:58:30.000000Z", "created_at": "2024-05-20T08:58:30.000000Z", "id": 5 }-->
-            You have a reservation at <br>
-            <a :href="`/@${address?.company.slug}`"> {{address?.company.name}}</a> on {{address.street}} <br>
-            <br/>
-            {{formatDate(session?.reservations?.date)}} from <br>
-            {{formatTime(session?.reservations?.start_time)}} to {{formatTime(session?.reservations?.end_time)}} <br>
-
-            {{session?.reservations?.start_time}} - {{session?.reservations?.end_time}} <br>
-          </div>
-        </div>
-
-        <div v-if="session?.payment_session?.status" class="flex-col mb-14 justify-center items-center gap-1.5 flex">
-
-          <div class="justify-center items-center gap-2.5 inline-flex">
-            <div class="w-96 gap-1.5 h-11 hover:opacity-90 bg-transparent rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">
-              <div class="mb-2 text-white">Status Of Payment: <span :class="session?.payment_session?.status == 'open' ? 'text-red' : 'text-white'">{{session?.payment_session?.status == 'open' ? 'Not Paid' : 'Success'}}</span></div>
-              <div class="text-white">Total: ${{session?.payment_session?.amount_total / 100}}</div>
+            <div class="flex-col mb-14 justify-center items-center gap-1.5 flex">
+              <div class="justify-center items-center gap-2.5 inline-flex">
+                <button @click="book()" class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Book Time</button>
+              </div>
             </div>
-          </div>
-          <div class="justify-center items-center gap-2.5 inline-flex">
-            <button @click="pay(session?.payment_session?.url)" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Pay Now</button>
-          </div>
+
+            <div v-if="session?.reservations" class="justify-start gap-1.5 items-start border-neutral-700 border p-3 rounded-[10px] inline-flex mb-10 text-center">
+              <IconMic class="text-white h-6 w-6"/>
+              <div class="text-white text-sm text-left font-bold tracking-wide">
+                <!--             {{session.reservations}}: { "address_id": 2, "start_time": "2024-05-20T18:58:00.000000Z", "end_time": "2024-05-20T18:59:00.000000Z", "user_id": 1, "total_cost": 30, "date": "2024-05-20", "updated_at": "2024-05-20T08:58:30.000000Z", "created_at": "2024-05-20T08:58:30.000000Z", "id": 5 }-->
+                You have a reservation at <br>
+                <a :href="`/@${address?.company.slug}`"> {{address?.company.name}}</a> on {{address.street}} <br>
+                <br/>
+                {{formatDate(session?.reservations?.date)}} from <br>
+                {{formatTime(session?.reservations?.start_time)}} to {{formatTime(session?.reservations?.end_time)}} <br>
+
+                {{session?.reservations?.start_time}} - {{session?.reservations?.end_time}} <br>
+              </div>
+            </div>
+
+            <div v-if="session?.payment_session?.status" class="flex-col mb-14 justify-center items-center gap-1.5 flex">
+
+              <div class="justify-center items-center gap-2.5 inline-flex">
+                <div class="max-w-96 w-full gap-1.5 h-11 hover:opacity-90 bg-transparent rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">
+                  <div class="mb-2 text-white">Status Of Payment: <span :class="session?.payment_session?.status == 'open' ? 'text-red' : 'text-white'">{{session?.payment_session?.status == 'open' ? 'Not Paid' : 'Success'}}</span></div>
+                  <div class="text-white">Total: ${{session?.payment_session?.amount_total / 100}}</div>
+                </div>
+              </div>
+              <div class="justify-center items-center gap-2.5 inline-flex">
+                <button @click="pay(session?.payment_session?.url)" class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Pay Now</button>
+              </div>
+            </div>
         </div>
 
       </div>

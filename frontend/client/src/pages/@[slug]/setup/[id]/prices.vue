@@ -104,59 +104,6 @@ onMounted(async () => {
   getPrices()
   getAddressId()
 
-  const loader = new Loader({
-    apiKey: config.public.googlePlacesApi,
-    version: "weekly",
-
-  });
-
-  console.log('loader', loader);
-
-  const Places = await loader.importLibrary('places')
-
-  // the center, defaultbounds are not necessary but are best practices to limit/focus search results
-  const center = { lat: 34.082298, lng: -82.284777 };
-  // Create a bounding box with sides ~10km away from the center point
-  const defaultBounds = {
-    north: center.lat + 0.1,
-    south: center.lat - 0.1,
-    east: center.lng + 0.1,
-    west: center.lng - 0.1,
-  };
-
-  //this const will be the first arg for the new instance of the Places API
-
-  const input = document.getElementById("place"); //binds to our input element
-
-  console.log('input', input); //optional logging
-
-  //this object will be our second arg for the new instance of the Places API
-  const options = {
-    componentRestrictions: { country: ["us", "ca"] },
-    fields: ["address_components", "geometry"],
-    types: ["address"],
-  };
-
-  // per the Google docs create the new instance of the import above. I named it Places.
-  const autocomplete = new Places.Autocomplete(input, options);
-
-  console.log('autocomplete', autocomplete); //optional log but will show you the available methods and properties of the new instance of Places.
-
-  //add the place_changed listener to display results when inputs change
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-
-    getFormValues().address = input?.value;
-    getFormValues().country = place.address_components.find(item => item.types.includes('country'))?.short_name;
-    getFormValues().city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
-    getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
-    getFormValues().longitude = place.geometry.viewport?.Gh?.hi;
-    getFormValues().latitude = place.geometry.viewport?.Wh?.hi;
-
-    console.log('place', place);
-  });
-
-
 })
 
 function filterUnassigned(obj) {

@@ -1,14 +1,12 @@
 <template>
   <div>
-    <div v-for="field in store.inputFields" class="flex-col justify-start items-start gap-1.5 flex w-full">
-      <div class="max-w-96 w-full justify-between items-start inline-flex">
-        <div class="text-white text-sm font-normal tracking-wide">{{ field.title }}</div>
-        <div class="hidden text-right text-red-500 text-sm font-normal tracking-wide">Error message</div>
-      </div>
-      <div class="justify-start items-center gap-2.5 inline-flex w-full">
-        <input :name="field.name" v-model="store.inputValues[field.name]" :type="field.type" class="max-w-96 w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"/>
-      </div>
+    <div v-if="isError('general')" class="w-96 justify-center items-center inline-flex">
+      <div class="text-red-500 text-sm font-normal tracking-wide">{{ isError('general') }}</div>
     </div>
+    <FInputClassic size="lg" v-model="formValues.name" label="Name" type="text" :error="isError('name')" />
+    <FInputClassic size="lg" v-model="formValues.email" label="E-mail" type="email" :error="isError('email')" />
+    <FInputClassic size="lg" v-model="formValues.password" label="Password" type="password" :error="isError('password')" />
+    <FInputClassic size="lg" v-model="formValues.password_confirmation" label="Confirm Password" type="password" :error="isError('password')" />
     <div class="justify-center items-center gap-2.5 inline-flex w-full">
       <button @click="createAccount()" :disabled="isLoading" class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Submit {{isLoading ? 'loading...' : ''}}</button>
     </div>
@@ -20,49 +18,51 @@
   </div>
 </template>
 <script setup lang="ts">
-import { IconLeft, IconMic, IconUser } from "~/src/shared/ui/common";
-import {type formValues, useCreateAccountFormStore} from "~/src/entities/RegistrationForms";
-import {useRuntimeConfig} from "#imports";
-import axios from "axios";
-import {ref} from "vue";
-import {useSessionStore} from "~/src/entities/Session";
-import {navigateTo} from "nuxt/app";
+import {FInputClassic} from "~/src/shared/ui/common";
+import {inject, ref} from "vue";
 
-const store = useCreateAccountFormStore();
-const isLoading = ref(false)
+type CreateForm = {
+  formValues: {
+    name: string,
+    email: string,
+    password: string,
+    password_confirmation: string,
+    role: string
+  },
+  errors: {
+    [key: string]: string | undefined
+  },
+  isLoading: boolean,
+  isError: (field: string) => string | undefined,
+  registerUser: () => Promise<void>
+};
+
+const createForm = inject<CreateForm>('createForm');
+if (!createForm) {
+  throw new Error('createForm is not provided');
+}
+
+const  {
+  formValues,
+  errors,
+  isLoading,
+  isError,
+  registerUser
+} = inject('createForm');
+
+// const store = useCreateAccountFormStore();
 const emit = defineEmits(['stepUpdate'])
-function createAccount(){
-  const config = useRuntimeConfig()
+const createAccount = async () => {
   isLoading.value = true;
-  let requestConfig = {
-    method: 'post',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/auth/register`,
-    data: store.inputValues,
-    headers: {
-      'Accept': 'application/json'
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        if(response.data.token){
-          let session = useSessionStore()
-          session.setAccessToken(response.data.token)
-          session.setAuthorized(true)
-          session.setUserRole(response.data.role)
-          if(session.userRole == 'studio_owner'){
-            navigateTo('/create')
-            session.setIsLoading(false)
-          } else {
-            window.location.reload();
-          }
-        }
+  try {
+    await registerUser(formValues);
+    // Navigate or handle success as needed
+  } catch (error) {
+    console.error('Error submitting user form:', error);
+  } finally {
+    isLoading.value = false;
+  }
 
-      })
-      .catch((error) => {
-        console.log(error);
-      });
 }
 </script>
 

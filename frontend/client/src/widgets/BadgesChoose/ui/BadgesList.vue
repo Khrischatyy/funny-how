@@ -23,14 +23,14 @@ const ICON_MAP = {
 
 <template>
   <div class="mt-4 flex gap-3 w-full justify-center items-center relative mb-5">
-    <ScrollContainer :theme="theme">
+    <ScrollContainer v-bind="$attrs" :theme="theme">
       <div v-for="(badge, index) in badges" :key="badge.id" @mouseenter="showTooltip($event, badge.description)" @mouseleave="hideTooltip" class="relative w-8 h-full group scrollElement">
         <Component :is="ICON_MAP[badge.name as typeof ICON_MAP]" class="w-full h-8 object-fit group-hover:opacity-70" />
         <!--          <img :src="'https://via.placeholder.com/32x32' || badge.image" :alt="badge.name" class="w-full h-full object-contain" />-->
         <div class="text-white text-xs text-center mt-1 group-hover:opacity-70 font-[BebasNeue]">{{ badge.name }}</div>
       </div>
     </ScrollContainer>
-    <Tooltip>
+    <Tooltip v-bind="$attrs">
       {{ tooltipData.content }}
     </Tooltip>
   </div>
