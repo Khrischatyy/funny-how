@@ -127,7 +127,7 @@ const existedCompany = computed(() => {
                 </div>
               </label>
               <input v-if="!existedCompany" class="hidden" id="studio_logo" @change="changeLogo()" type="file" />
-              <input :disabled="existedCompany" v-model="formValues.company" :class="errors.hasOwnProperty('company') && !formValues.company ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" :placeholder="upperCase(existedCompany) || 'Enter Your Studio Name'" />
+              <input :disabled="existedCompany" v-model="formValues.company" :class="errors.hasOwnProperty('company') && !formValues.company ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" :placeholder="existedCompany ? upperCase(existedCompany) : 'Enter Your Studio Name'" />
             </div>
           </div>
         </div>
