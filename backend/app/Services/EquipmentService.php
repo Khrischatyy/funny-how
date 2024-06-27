@@ -4,8 +4,11 @@ namespace App\Services;
 
 use App\Models\Address;
 use App\Models\Equipment;
+use App\Models\EquipmentType;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class EquipmentService
@@ -45,6 +48,23 @@ class EquipmentService
             throw new ModelNotFoundException("Address not found.");
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), 500);
+        }
+    }
+
+    public function getEquipmentType(): Collection
+    {
+        try {
+            $equipmentTypes = EquipmentType::all();
+
+            if ($equipmentTypes->isEmpty()) {
+                throw new ModelNotFoundException("No equipment types found.");
+            }
+
+            return $equipmentTypes;
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("No equipment types found.");
+        } catch (Exception $e) {
+            throw new Exception("Failed to retrieve equipment.");
         }
     }
 

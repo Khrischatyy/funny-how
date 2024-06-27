@@ -163,13 +163,39 @@ class EquipmentController extends BaseController
         }
     }
 
-    public function getEquipmentType($address_id)
+    /**
+     * @OA\Get(
+     *     path="/equipment-type",
+     *     summary="Get all equipment types",
+     *     tags={"Equipment"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Equipment types retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Microphone"),
+     *                     @OA\Property(property="icon", type="string", example="https://s3.amazonaws.com/yourbucket/icon.png")
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Equipment types retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="No equipment types found"),
+     *     @OA\Response(response="500", description="Server Error")
+     * )
+     */
+    public function getEquipmentType(): JsonResponse
     {
         try {
-            $equipmentTypes = $this->equipmentService->getEquipmentTypeByAddressId($address_id);
+            $equipmentTypes = $this->equipmentService->getEquipmentType();
 
             if (empty($equipmentTypes)) {
-                return $this->sendError('No equipment types found for the given address', 404);
+                return $this->sendError('No equipment types found', 404);
             }
 
             return $this->sendResponse($equipmentTypes, 'Equipment types retrieved successfully');
@@ -177,5 +203,4 @@ class EquipmentController extends BaseController
             return $this->sendError('Server Error', 500, [$e->getMessage()]);
         }
     }
-
 }
