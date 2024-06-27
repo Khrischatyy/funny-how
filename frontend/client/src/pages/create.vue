@@ -65,8 +65,8 @@ function changeLogo() {
 
 async function setupStudio() {
   isLoading.value = true;
-  if(existedCompany)
-    formValues.company = existedCompany;
+  // if(existedCompany)
+  //   formValues.company = existedCompany;
   try {
     await createStudio(formValues); // Use composable to submit form
     // Navigate or handle success as needed
