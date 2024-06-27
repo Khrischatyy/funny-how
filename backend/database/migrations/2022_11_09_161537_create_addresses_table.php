@@ -18,6 +18,7 @@ return new class extends Migration
             $table->float('latitude', 8, 6);
             $table->float('longitude', 8,6);
             $table->string('street');
+            $table->float('rating')->nullable();
             $table->timestamps();
         });
     }

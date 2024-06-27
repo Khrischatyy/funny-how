@@ -23,7 +23,6 @@ class CompanySeeder extends Seeder
                     'logo' => null,
                     'slug' => 'section',
                     'founding_date' => '2020-12-10 13:25:26',
-                    'rating' => 9.7,
                 ],
             );
 
@@ -35,7 +34,6 @@ class CompanySeeder extends Seeder
                     'logo' => null,
                     'slug' => 'section-near',
                     'founding_date' => '2021-12-10 13:25:26',
-                    'rating' => 9.7,
                 ],
             );
 //

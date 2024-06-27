@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->string('slug')->unique();
             $table->date('founding_date')->nullable();
-            $table->float('rating')->nullable();
             $table->timestamps();
         });
     }

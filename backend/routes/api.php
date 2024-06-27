@@ -117,6 +117,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('menu', [MenuController::class, 'getMenu']);
 
     Route::get('company/{slug}', [CompanyController::class, 'getCompany']);
+    Route::get('map/studios', [AddressController::class, '']);
+
+
     Route::get('operation-modes', [OperatingHourController::class, 'getOperationModes']);
     Route::post('brand', [AddressController::class, 'createBrand']); // company + address created
 
