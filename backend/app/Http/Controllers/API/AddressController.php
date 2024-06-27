@@ -7,6 +7,7 @@ use App\Http\Requests\AddressPhotosRequest;
 use App\Http\Requests\AddressPriceDeleteRequest;
 use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
+use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
 use App\Models\AdminCompany;
@@ -117,21 +118,12 @@ class AddressController extends BaseController
      */
     public function uploadAddressPhotos(AddressPhotosRequest $request): JsonResponse
     {
-        $address_id = $request->input('address_id');
+        $address_id = (int) $request->input('address_id');
+
         try {
-            $address = Address::findOrFail($address_id);
+            $result = $this->addressService->uploadAddressPhotos($request, $address_id);
 
-            if (!$request->hasFile('photos')) {
-                return $this->sendError('No photos uploaded.', 400);
-            }
-
-            $photos = $this->addressService->uploadPhotos($request, $address);
-
-            if (empty($photos)) {
-                return $this->sendError('No photos were saved.', 500);
-            }
-
-            return $this->sendResponse($photos, 'Photos uploaded successfully.');
+            return $this->sendResponse($result['photos'], 'Photos uploaded successfully.');
         } catch (ModelNotFoundException $e) {
             return $this->sendError('Address not found.', 404);
         } catch (Exception $e) {
@@ -594,6 +586,54 @@ class AddressController extends BaseController
             return $this->sendResponse($addresses, 'Addresses retrieved successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to retrieve addresses.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @OA\Patch(
+     *     path="/photos/update-index",
+     *     summary="Update the index of a photo",
+     *     tags={"Photos"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"photo_id", "index"},
+     *             @OA\Property(property="photo_id", type="integer", example=1, description="The ID of the photo"),
+     *             @OA\Property(property="index", type="integer", example=1, description="New index for the photo")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Photo index updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="path", type="string", example="photos/1.jpg"),
+     *                 @OA\Property(property="address_id", type="integer", example=1),
+     *                 @OA\Property(property="index", type="integer", example=1)
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Photo index updated successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Photo not found"),
+     *     @OA\Response(response="500", description="Failed to update photo index")
+     * )
+     */
+    public function updatePhotoIndex(UpdatePhotoIndexRequest $request): JsonResponse
+    {
+        $photo_id = $request->input('address_photo_id');
+
+        try {
+            $result = $this->addressService->updatePhotoIndex($request, $photo_id);
+
+            return $this->sendResponse($result, 'Photo index updated successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Photo not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to update photo index.', 500, ['error' => $e->getMessage()]);
         }
     }
 

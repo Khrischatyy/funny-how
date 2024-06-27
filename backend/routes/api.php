@@ -84,7 +84,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('payment-success', [BookingController::class, 'paymentSuccess']);
         Route::post('calculate-price', [BookingController::class, 'calculatePrice']);
 
-        Route::post('photos-upload', [AddressController::class, 'uploadAddressPhotos']);
+
 
         //reservation start, end time
         Route::withoutMiddleware('auth:sanctum')->group(function () {
@@ -94,12 +94,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('{address_id}', [AddressController::class, 'getAddressById']);
 
 
+            Route::get('/equipment-type', [EquipmentController::class, 'getEquipmentType']);
             Route::get('{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
         });
 
         Route::delete('{address_id}/equipment', [EquipmentController::class, 'deleteEquipment'])->where('address_id', '[0-9]+');
         Route::post('{address_id}/equipment', [EquipmentController::class, 'setEquipment'])->where('address_id', '[0-9]+');
 
+    });
+    Route::prefix('photos')->group(function () {
+        Route::post('/upload', [AddressController::class, 'uploadAddressPhotos']);
+        Route::patch('/update-index', [AddressController::class, 'updatePhotoIndex']);
     });
 
     Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');

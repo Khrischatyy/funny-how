@@ -49,7 +49,7 @@ class Address extends Model
 
     public function photos()
     {
-        return $this->hasMany(AddressPhoto::class);
+        return $this->hasMany(AddressPhoto::class, 'address_id', 'id');
     }
 
     public function operatingHours()

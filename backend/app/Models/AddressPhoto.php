@@ -14,6 +14,8 @@ class AddressPhoto extends Model
 
     protected $appends = ['url'];
 
+    public $timestamps = false;
+
     protected $fillable = [
         'address_id', 'path', 'index'
     ];

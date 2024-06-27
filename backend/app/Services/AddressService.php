@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Exceptions\OperatingHourException;
 use App\Http\Requests\AddressPhotosRequest;
 use App\Http\Requests\AddressRequest;
+use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Models\Address;
+use App\Models\AddressPhoto;
 use App\Models\AdminCompany;
 use App\Models\OperatingHour;
 use App\Repositories\AddressRepository;
@@ -30,7 +32,6 @@ class AddressService
             throw new ModelNotFoundException("Address not found.");
         }
     }
-
 
     public function createAddress(AddressRequest $addressRequest, $city, $company)
     {
@@ -61,48 +62,6 @@ class AddressService
         return $addresses;
     }
 
-    public function uploadPhotos(AddressPhotosRequest $request, Address $address)
-    {
-        if (Gate::denies('update', $address)) {
-            abort(403, 'You are not authorized to update this address.');
-        }
-
-        Log::info('Starting photo upload process');
-
-        if (!$request->hasFile('photos')) {
-            Log::error('No photos found in request');
-            return [];
-        }
-
-        $photos = $request->file('photos');
-
-        $uploadedPhotos = [];
-
-        foreach ($photos as $file) {
-            Log::info('Uploading file: ' . $file->getClientOriginalName());
-
-            $path = $file->store('photos', 's3');
-            $index = $request->input('index');
-
-            Log::info('File stored at: ' . $path);
-
-            try {
-                $photo = $address->photos()->create([
-                    'path' => Storage::disk('s3')->url($path),
-                    'index' => $index,
-                ]);
-
-                Log::info('Photo record created: ' . json_encode($photo));
-                $uploadedPhotos[] = $photo;
-            } catch (\Exception $e) {
-                Log::error('Failed to create photo record for file: ' . $file->getClientOriginalName());
-                Log::error('Error: ' . $e->getMessage());
-            }
-        }
-
-        return $uploadedPhotos;
-    }
-
     public function getAddressByCityIdWithWorkingHours(int $cityId): Collection
     {
         $addresses = $this->addressRepository->getAddressByCityId($cityId);
@@ -122,4 +81,83 @@ class AddressService
             throw new Exception('Failed to retrieve addresses', 500, $e);
         }
     }
+
+    public function uploadAddressPhotos(AddressPhotosRequest $request, int $address_id): array
+    {
+        $address = Address::with('photos')->findOrFail($address_id);
+
+        if (Gate::denies('update', $address)) {
+            abort(403, 'You are not authorized to update this address.');
+        }
+
+        if (!$request->hasFile('photos')) {
+            throw new \Exception('No photos uploaded.');
+        }
+
+        $photos = $this->uploadPhotos($request, $address);
+
+        if (empty($photos)) {
+            throw new \Exception('No photos were saved.');
+        }
+
+        // Обновляем адрес с жадной загрузкой фотографий после загрузки
+        $address = Address::with('photos')->findOrFail($address_id);
+
+        return [
+            'photos' => $address->photos,
+            'message' => 'Photos uploaded successfully.'
+        ];
+    }
+
+    public function uploadPhotos(AddressPhotosRequest $request, Address $address)
+    {
+        Log::info('Starting photo upload process');
+
+        $photos = $request->file('photos');
+        $uploadedPhotos = [];
+
+        // Получаем текущее максимальное значение index для данного адреса
+        $currentMaxIndex = $address->photos()->max('index') ?? 0;
+
+        foreach ($photos as $file) {
+            Log::info('Uploading file: ' . $file->getClientOriginalName());
+
+            $path = $file->store('photos', 's3');
+            $index = ++$currentMaxIndex;  // Увеличиваем индекс для каждой новой фотографии
+
+            Log::info('File stored at: ' . $path);
+
+            try {
+                $photo = $address->photos()->create([
+                    'path' => $path,
+                    'index' => $index,
+                ]);
+
+                Log::info('Photo record created: ' . json_encode($photo));
+                $uploadedPhotos[] = $photo;
+            } catch (\Exception $e) {
+                Log::error('Failed to create photo record for file: ' . $file->getClientOriginalName());
+                Log::error('Error: ' . $e->getMessage());
+            }
+        }
+
+        return $uploadedPhotos;
+    }
+
+    public function updatePhotoIndex(UpdatePhotoIndexRequest $request, int $photo_id): array
+    {
+        $photo = AddressPhoto::findOrFail($photo_id);
+
+        $newIndex = $request->input('index');
+
+        // Логирование текущего и нового индекса
+        Log::info('Updating photo index', ['photo_id' => $photo_id, 'current_index' => $photo->index, 'new_index' => $newIndex]);
+
+        $photo->index = $newIndex;
+        $photo->save();
+
+        return $photo->toArray();
+    }
+
+
 }

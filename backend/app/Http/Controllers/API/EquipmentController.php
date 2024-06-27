@@ -152,4 +152,20 @@ class EquipmentController extends BaseController
             return $this->sendError('Failed to delete equipment.', 500, ['error' => $e->getMessage()]);
         }
     }
+
+    public function getEquipmentType($address_id)
+    {
+        try {
+            $equipmentTypes = $this->equipmentService->getEquipmentTypeByAddressId($address_id);
+
+            if (empty($equipmentTypes)) {
+                return $this->sendError('No equipment types found for the given address', 404);
+            }
+
+            return $this->sendResponse($equipmentTypes, 'Equipment types retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error', 500, [$e->getMessage()]);
+        }
+    }
+
 }
