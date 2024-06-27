@@ -38,6 +38,6 @@ class EquipmentSeeder extends Seeder
             ],
             ['id'],
         );
-        DB::statement("SELECT setval(pg_get_serial_sequence('roles', 'id'), coalesce(max(id)+1, 1), false) FROM roles");
+        DB::statement("SELECT setval(pg_get_serial_sequence('equipments', 'id'), coalesce(max(id)+1, 1), false) FROM  equipments");
     }
 }

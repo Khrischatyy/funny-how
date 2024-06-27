@@ -104,7 +104,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     Route::prefix('photos')->group(function () {
         Route::post('/upload', [AddressController::class, 'uploadAddressPhotos']);
-        Route::patch('/update-index', [AddressController::class, 'updatePhotoIndex']);
+        Route::post('/update-index', [AddressController::class, 'updatePhotoIndex']);
     });
 
     Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');

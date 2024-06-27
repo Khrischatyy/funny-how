@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\DeleteEquipmentRequest;
 use App\Http\Requests\EquipmentRequest;
 use App\Services\EquipmentService;
 use Illuminate\Http\JsonResponse;
@@ -134,18 +135,27 @@ class EquipmentController extends BaseController
      *         description="Equipment deleted successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Equipment deleted successfully.")
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Microphone"),
+     *                     @OA\Property(property="description", type="string", example="High quality microphone"),
+     *                     @OA\Property(property="equipment_type_id", type="integer", example=1)
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Equipment deleted successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
      *         )
      *     ),
      *     @OA\Response(response="404", description="Address not found"),
      *     @OA\Response(response="500", description="Failed to delete equipment")
      * )
      */
-    public function deleteEquipment(Request $request, int $addressId): JsonResponse
+    public function deleteEquipment(DeleteEquipmentRequest $request, int $addressId): JsonResponse
     {
         try {
-            $this->equipmentService->deleteEquipment($request->input('equipment_id'), $addressId);
-            return $this->sendResponse(null, 'Equipment deleted successfully.');
+            $equipments = $this->equipmentService->deleteEquipment($request->input('equipment_id'), $addressId);
+            return $this->sendResponse($equipments, 'Equipment deleted successfully.');
         } catch (ModelNotFoundException $e) {
             return $this->sendError('Address not found.', 404);
         } catch (Exception $e) {
