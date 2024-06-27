@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
         Route::post('reservation', [BookingController::class, 'bookAddress']);
+        Route::post('cancel-booking', [BookingController::class, 'cancelBooking']);
         Route::post('payment-success', [BookingController::class, 'paymentSuccess']);
         Route::post('calculate-price', [BookingController::class, 'calculatePrice']);
 

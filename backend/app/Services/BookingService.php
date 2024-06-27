@@ -13,6 +13,7 @@ use App\Models\StudioClosure;
 use App\Models\User;
 use Carbon\Carbon;
 use Doctrine\DBAL\Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -298,6 +299,26 @@ class BookingService
             3, 4 => $this->regular($operatingHours, $bookingDate->dayOfWeek)->firstOrFail(),
             default => throw new OperatingHourException("Invalid operating hours mode", 400),
         };
+    }
+
+    public function cancelBooking(int $bookingId)
+    {
+        try {
+            $booking = Booking::findOrFail($bookingId);
+
+            $booking->status_id = 3;
+            $booking->save();
+
+            $user = Auth::user();
+
+            // Возвращаем все активные бронирования
+            return Booking::where('user_id', $user->id)->get();
+
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException("Booking not found.");
+        } catch (Exception $e) {
+            throw new Exception("Failed to cancel booking: " . $e->getMessage());
+        }
     }
 
     private function regular($operatingHours, $dayOfWeek)

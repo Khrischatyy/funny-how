@@ -7,6 +7,7 @@ use App\Http\Requests\AvailableEndTimeRequest;
 use App\Http\Requests\AvailableStartTimeRequest;
 use App\Http\Requests\BookingRequest;
 use App\Http\Requests\CalculatePriceRequest;
+use App\Http\Requests\CancelBookingRequest;
 use App\Http\Requests\FilterBookingHistoryRequest;
 use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\ReservationRequest;
@@ -15,6 +16,7 @@ use App\Services\BookingService;
 use App\Services\PaymentService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -679,5 +681,43 @@ class BookingController extends BaseController
         $totalPrice = $this->bookingService->getTotalCost($startTime, $endTime, $addressId);
 
         return $this->sendResponse($totalPrice, 'Total price received');
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/cancel-booking",
+     *     summary="Cancel a booking",
+     *     tags={"Bookings"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"booking_id"},
+     *             @OA\Property(property="booking_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Booking cancelled successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Booking cancelled successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Booking not found"),
+     *     @OA\Response(response="500", description="Failed to cancel booking")
+     * )
+     */
+    public function cancelBooking(CancelBookingRequest $request): JsonResponse
+    {
+        try {
+            $result = $this->bookingService->cancelBooking($request->input('booking_id'));
+
+            return $this->sendResponse($result, 'Booking cancelled successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Booking not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to cancel booking.', 500, ['error' => $e->getMessage()]);
+        }
     }
 }
