@@ -15,13 +15,13 @@
       <div class="flex items-center w-full flex-col lg:flex-row gap-6">
 
         <div class="flex w-full h-full gap-2">
-          <FSelectClassic label="Status" :options="[{id: 1, name: 'Status 1'}, {id: 2, name: 'Status 2'}]" v-model="filters.status" class="w-full h-full">
+          <FSelectClassic placeholder="Status" :options="[{id: 1, name: 'Status 1'}, {id: 2, name: 'Status 2'}]" v-model="filters.status" class="w-full h-full">
             <template #icon>
               <IconStatus class="h-5 w-5 text-gray-400" />
             </template>
           </FSelectClassic>
 
-          <FSelectClassic label="Price" :options="[{id: 1, name: 'Price 1'}, {id: 2, name: 'Price 2'}]" v-model="filters.price" class="w-full h-full">
+          <FSelectClassic placeholder="Price" :options="[{id: 1, name: 'Price 1'}, {id: 2, name: 'Price 2'}]" v-model="filters.price" class="w-full h-full">
             <template #icon>
               <IconPrice class="h-5 w-5 text-gray-400" />
             </template>
@@ -32,7 +32,7 @@
 
       <!-- Rating, Filter, Clear Filter on the third line -->
       <div class="flex w-full justify-center items-center gap-6">
-        <FSelectClassic label="Rating" :options="[{id: 1, name: 'Rating 1'}, {id: 2, name: 'Rating 2'}]" v-model="filters.rating" class="w-full h-full">
+        <FSelectClassic placeholder="Rating" :options="[{id: 1, name: 'Rating 1'}, {id: 2, name: 'Rating 2'}]" v-model="filters.rating" class="w-full h-full">
           <template #icon>
             <IconRating class="h-5 w-5 text-gray-400" />
           </template>

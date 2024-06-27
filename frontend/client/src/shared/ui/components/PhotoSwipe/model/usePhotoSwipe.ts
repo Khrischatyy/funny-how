@@ -12,7 +12,7 @@ export function usePhotoSwipe() {
 
     const openGallery = (items: SlideData[], index: number) => {
         if (!pswpElement.value) return;
-
+console.log('index', index)
         const options: PreparedPhotoSwipeOptions = {
             dataSource: items,
             bgOpacity: 0.7,

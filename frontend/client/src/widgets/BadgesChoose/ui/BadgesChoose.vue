@@ -1,37 +1,21 @@
 <script setup lang="ts">
-import {useHead} from "@unhead/vue";
-import {definePageMeta, useRuntimeConfig} from '#imports'
+import {useRuntimeConfig} from '#imports'
 import { useSessionStore } from "~/src/entities/Session";
-import {defineComponent, onMounted, ref, type UnwrapRef} from "vue";
-import {navigateTo, useRoute} from "nuxt/app";
+import {inject, onMounted, ref} from "vue";
 import {
-  type formValues,
-  type inputValues,
-  type StudioFormValues,
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
 import {IconPeople, IconWeed, IconMic, IconMonitor} from "~/src/shared/ui/common";
 
-import {Loader} from "@googlemaps/js-api-loader";
-import axios from "axios";
+
 import {isBadgeTaken} from "~/src/shared/utils/checkBadge";
-import {useRouter} from "vue-router";
+import {useApi} from "~/src/lib/api";
 
-
-const workHours = ref({
-  mode_id: 1,
-  open_time: '',
-  close_time: '',
-  open_time_weekend: '',
-  close_time_weekend: '',
-  address_id: '',
-})
 
 const badges = ref([])
 
-const route = useRoute();
-
-const router = useRouter();
+const error = ref(null)
+const isLoading = ref(false)
 
 function isError(form: string, field: string): boolean {
   let formErrors: Record<string, any> = useCreateStudioFormStore().errors;
@@ -39,165 +23,44 @@ function isError(form: string, field: string): boolean {
 }
 
 const session = ref()
+const studio = inject('studioForPopup');
+
 onMounted(async () => {
-  const config = useRuntimeConfig()
   session.value = useSessionStore()
   getBadges()
-  getAddressId()
-
-  const loader = new Loader({
-    apiKey: config.public.googlePlacesApi,
-    version: "weekly",
-
-  });
-
-  console.log('loader', loader);
-
-  const Places = await loader.importLibrary('places')
-
-  // the center, defaultbounds are not necessary but are best practices to limit/focus search results
-  const center = { lat: 34.082298, lng: -82.284777 };
-  // Create a bounding box with sides ~10km away from the center point
-  const defaultBounds = {
-    north: center.lat + 0.1,
-    south: center.lat - 0.1,
-    east: center.lng + 0.1,
-    west: center.lng - 0.1,
-  };
-
-  //this const will be the first arg for the new instance of the Places API
-
-  const input = document.getElementById("place"); //binds to our input element
-
-  console.log('input', input); //optional logging
-
-  //this object will be our second arg for the new instance of the Places API
-  const options = {
-    componentRestrictions: { country: ["us", "ca"] },
-    fields: ["address_components", "geometry"],
-    types: ["address"],
-  };
-
-  // per the Google docs create the new instance of the import above. I named it Places.
-  const autocomplete = new Places.Autocomplete(input, options);
-
-  console.log('autocomplete', autocomplete); //optional log but will show you the available methods and properties of the new instance of Places.
-
-  //add the place_changed listener to display results when inputs change
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-
-    getFormValues().address = input?.value;
-    getFormValues().country = place.address_components.find(item => item.types.includes('country'))?.short_name;
-    getFormValues().city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
-    getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
-    getFormValues().longitude = place.geometry.viewport?.Gh?.hi;
-    getFormValues().latitude = place.geometry.viewport?.Wh?.hi;
-
-    console.log('place', place);
-  });
-
 
 })
 
-function filterUnassigned(obj) {
-  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== ''));
-}
-
 function toogleBadge(badge_id){
-  const config = useRuntimeConfig()
+  isLoading.value = true;
+  const {post: updateBadge} = useApi({
+    url: `/address/${studio.value.id}/badge`,
+    auth: true
+  });
 
-  let data = {
-    "badge_id": badge_id
-  }
+  updateBadge({badge_id}).then((response) => {
+    badges.value.taken_badges = response.data;
+    isLoading.value = false;
+  })
 
-  let requestConfig = {
-    method: 'post',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/${route.params.id}/badge`,
-    data: data,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        badges.value.taken_badges = response.data.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
 }
 function getBadges(){
-  const config = useRuntimeConfig()
+  isLoading.value = true;
+  const { fetch: fetchBadges } = useApi({
+    url: `/address/${studio.value.id}/badges`,
+    auth: true
+  });
 
-  let requestConfig = {
-    method: 'get',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/${route.params.id}/badges`,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        badges.value = response.data.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-}
-
-function getAddressId(){
-  const config = useRuntimeConfig()
-
-  let requestConfig = {
-    method: 'get',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/company/${route.params.slug}`,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        workHours.value.address_id = response?.data?.data.addresses.find(addr => addr.id == route.params.id)?.id
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-}
-function getFormValues(): StudioFormValues {
-  return useCreateStudioFormStore().inputValues;
+  fetchBadges().then((response) => {
+    console.log('response', response.data)
+    badges.value = response.data;
+    isLoading.value = false;
+  })
 }
 
 function isBadge(badgeId: number, badges): boolean {
   if(badges.length > 0)
     return isBadgeTaken(badgeId, badges);
-}
-
-function routeBack(){
-  navigateTo(`/@${route.params.slug}/setup/${route.params.id}/hours`)
-}
-
-function routeNext(){
-  navigateTo(`/@${route.params.slug}/setup/${route.params.id}/prices`)
-}
-
-function signOut() {
-  session.value.logout()
 }
 const sampleBadges = [
   {
@@ -230,9 +93,6 @@ const sampleBadges = [
     <div class="flex-col w-full justify-start items-start gap-1.5 flex">
       <div class="w-wull justify-between items-start inline-flex">
         <div class="text-whit w-full opacity-20 text-sm font-normal tracking-wide">Studio Information</div>
-        <div :class="isError('setup', 'studio_name') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-            isError('setup', 'studio_name')
-          }}</div>
       </div>
 
 
@@ -241,8 +101,11 @@ const sampleBadges = [
     <div class="flex-col w-full justify-center items-center gap-1.5 flex">
       <div class="w-full justify-center items-center gap-2.5 inline-flex">
         <div class="w-full max-w-full grid grid-cols-2 lg:grid-cols-3 gap-2.5">
-          <div v-for="badge in sampleBadges" :class="'border-opacity-20'" @click="toogleBadge(badge.id)" class="w-full flex gap-2.5 justify-center items-center cursor-pointer h-11 outline-none rounded-[10px] focus:border-white px-1.5 border border-white bg-transparent text-white text-sm font-medium tracking-wide">
-            <Component :is="badge.icon" class="w-5 h-5" />
+          <div v-if="isLoading" class="spinner-container">
+            <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
+          </div>
+          <div v-for="badge in badges?.all_badges" :class="isBadge(badge.id, badges?.taken_badges) ? 'border-opacity-100' : 'border-opacity-20'" @click="toogleBadge(badge.id)" class="w-full flex gap-2.5 justify-center items-center cursor-pointer h-11 outline-none rounded-[10px] focus:border-white px-1.5 border border-white bg-transparent text-white text-sm font-medium tracking-wide">
+            <img class="h-[29px]" :src="badge.image" />
             <span>{{badge.name}}</span>
           </div>
         </div>

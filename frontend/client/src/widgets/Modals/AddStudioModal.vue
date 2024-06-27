@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import {Popup} from "~/src/shared/ui/components";
-import {inject, onMounted, provide, ref} from "vue";
+import {computed, inject, onMounted, provide, reactive, ref, watch} from "vue";
 import { FInputClassic} from "~/src/shared/ui/common";
 import {HoursChoose} from "~/src/widgets/HoursChoose";
 import {PriceChoose} from "~/src/widgets/PriceChoose";
 import {BadgesChoose} from "~/src/widgets/BadgesChoose";
 import {EquipmentChoose} from "~/src/widgets/EquipmentChoose";
 import {AddStudioButton} from "~/src/features/addStudio";
+import {useApi} from "~/src/lib/api";
+import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer";
+import {usePhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
+import type {SlideData} from "photoswipe";
 
 const props = withDefaults(defineProps<{
   showPopup: boolean,
@@ -28,8 +32,9 @@ type Studio = {
   equipment: string[]
 }
 const studio = inject('studioForPopup');
+const isLoading = ref(false);
 
-const studioForm = ref({
+const studioForm = reactive({
   name: '',
   address: '',
   description: '',
@@ -37,22 +42,126 @@ const studioForm = ref({
   price: 0,
   logo: '',
   badges: [],
-  equipment: []
+  equipment: [],
+  photos: []
 });
+
+const isDragOver = ref(false);
+const fileInputRef = ref<HTMLInputElement | null>(null);
+
+const onFileChange = async (event: Event) => {
+  const files = (event.target as HTMLInputElement).files;
+  console.log('files', files)
+  if (files) {
+    await handleFile(files);
+  }
+};
+
+const openFileDialog = () => {
+  fileInputRef.value?.click();
+};
+
+
+const onDragOver = () => {
+  isDragOver.value = true;
+};
+
+const onDragLeave = () => {
+  isDragOver.value = false;
+};
+
+const onDrop = async (event: DragEvent) => {
+  isDragOver.value = false;
+  const files = event.dataTransfer?.files;
+  if (files && files.length > 0) {
+    await handleFile(files);
+  }
+};
+
+const getImageUrlByFile = (file: File) => {
+  console.log(URL.createObjectURL(file))
+  return URL.createObjectURL(file);
+}
+const getImageBase64 = (file: File) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => {
+    console.log(reader.result);
+  }
+}
+
+const handleFile = async (files: FileList) => {
+  isLoading.value = true;
+  const newPhotos = Array.from(files).map((file, index) => ({
+    url: URL.createObjectURL(file),
+    index: index,
+    file,
+  }));
+
+  studioForm.photos = [...studioForm.photos, ...newPhotos];
+
+  const {post: uploadPhoto} = useApi({
+    url: `/photos/upload`,
+    auth: true
+  });
+  const formData = new FormData();
+  //TODO: discuss how to send and accept photos, it works but strange
+  for (let i = 0; i < files.length; i++) {
+    formData.append(`photos[${i}]`, files[i]);
+  }
+  formData.append('address_id', studio.value.id.toString());
+  try {
+    const response = await uploadPhoto(formData);
+    console.log('Upload successful:', response.data);
+    studioForm.photos = response.data
+
+    // Handle response, possibly updating UI to reflect the uploaded state
+  } catch (error) {
+    console.error('Upload failed:', error);
+    // Handle errors, show user feedback
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 const togglePopup = () => {
   emit('togglePopup');
 }
+
+watch(() => studio.value, (newVal) => {
+  if (!newVal) return;
+  studioForm.photos = studio?.value.photos.map(photo => ({
+    url: photo.url,
+    index: photo.index,
+    file: null,
+  }));
+}, {immediate: true});
+
 const closePopup = () => {
+  Object.keys(studioForm).forEach(key => {
+    studioForm[key] = '';
+  });
   emit('closePopup');
 }
+const { pswpElement, openGallery } = usePhotoSwipe();
+const displayedPhotos: SlideData[] = computed(() => studioForm.photos.map(photo => ({
+  src: photo.url,
+  w: photo.file?.width || 1200, // Default width if not specified
+  h: photo.file?.height || 900  // Default height if not specified
+})));
+
+const findRealIndexByUrl = (url: string) => {
+  return studioForm.photos.findIndex(photo => photo.url === url);
+}
+
 </script>
 
 <template>
   <Popup :title="'Add Studio'" :open="showPopup" @close="closePopup">
     <template #header>
       <div class="input-container flex gap-2">
-        <div class="logo">
-          <FInputClassic placeholder="Logo" type="file" v-model="studioForm.logo" />
+        <div v-if="studio.company.logo" class="logo">
+         <img :src="studio.company.logo" alt="logo" class="w-[40px] h-[40px] object-cover rounded-[10px]">
         </div>
         <div class="name">
           <FInputClassic :placeholder="studio.company.name" disabled v-model="studioForm.name" />
@@ -61,15 +170,34 @@ const closePopup = () => {
     </template>
     <template #body>
       <div class="photos mb-5">
-        <div class="grid-cols-1 grid-rows-3 sm:grid-cols-[1fr_1fr_250px] sm:grid-rows-1 grid gap-5">
-          <div class="cover-photo max-h-60">
-            <img src="https://via.placeholder.com/800x600" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
+        <div v-if="isLoading" class="spinner-container">
+          <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
+        </div>
+        <div ref="pswpElement" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+        </div>
+        <div :class="studioForm?.photos.length > 0 ? 'sm:grid-cols-[1fr_1fr_250px]' : ''" class="grid-cols-1 grid-rows-3  sm:grid-rows-1 grid gap-5">
+          <div v-if="studioForm?.photos.length > 0" class="cover-photo max-h-60">
+            <img :src="studioForm?.photos[0].url" @click.stop="() => openGallery(displayedPhotos, 0)" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
           </div>
-          <div class="grid grid-cols-3 grid-rows-2 gap-5 max-h-60">
-            <img v-for="photo in 6" src="https://via.placeholder.com/300" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
+          <div class="grid grid-cols-1 grid-rows-2 gap-5 max-h-60">
+            <div class="scale-[1.19] sm:scale-[1] mt-5 sm:mt-0">
+              <ScrollContainer v-if="studioForm?.photos.length > 1" class=" justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
+                <div v-for="(photo, index) in studioForm?.photos.slice(1, Math.ceil(studioForm?.photos.length / 2))" class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement">
+                  <img :src="photo.url" @click.stop="() => openGallery(displayedPhotos, findRealIndexByUrl(photo.url))" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
+                </div>
+              </ScrollContainer>
+            </div>
+            <div class="scale-[1.19] sm:scale-[1] mt-5 sm:mt-0">
+              <ScrollContainer v-if="studioForm?.photos.length > 1" class="justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
+                <div v-for="(photo, index) in studioForm?.photos.slice(Math.ceil(studioForm?.photos.length / 2))" class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement">
+                  <img :src="photo.url" @click.stop="() => openGallery(displayedPhotos, findRealIndexByUrl(photo.url))" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
+                </div>
+              </ScrollContainer>
+            </div>
           </div>
-          <div class="add-photo">
-            <AddStudioButton title="Add Photo" @click="togglePopup" />
+          <input ref="fileInputRef" type="file" multiple accept="image/png, image/jpeg" @change="onFileChange" style="display: none" />
+          <div  @dragover.prevent="onDragOver" @dragleave="onDragLeave" @drop.prevent="onDrop" class="add-photo">
+            <AddStudioButton :border-opacity="isDragOver ? '100' : '20'" title="Add Photo" @click="openFileDialog"/>
           </div>
         </div>
       </div>
@@ -77,12 +205,12 @@ const closePopup = () => {
         <div class="w-full flex flex-col gap-5">
           <div class="name w-full flex-col flex gap-1.5">
             <div class="text-white text-sm font-normal tracking-wide opacity-20">Address</div>
-            <FInputClassic placeholder="Address" v-model="studio.street"/>
+            <FInputClassic disabled="" placeholder="Address" v-model="studio.street"/>
           </div>
-          <div class="description w-full flex-col flex gap-1.5">
-            <div class="text-white text-sm font-normal tracking-wide opacity-20">Description</div>
-            <FInputClassic placeholder="Description" v-model="studioForm.description"/>
-          </div>
+<!--          <div class="description w-full flex-col flex gap-1.5">-->
+<!--            <div class="text-white text-sm font-normal tracking-wide opacity-20">Description</div>-->
+<!--            <FInputClassic placeholder="Description" v-model="studioForm.description"/>-->
+<!--          </div>-->
           <div class="price w-full flex-col flex gap-1.5">
             <PriceChoose v-model="studioForm.price"/>
           </div>

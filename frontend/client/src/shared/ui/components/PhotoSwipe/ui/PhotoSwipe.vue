@@ -2,7 +2,6 @@
   <div ref="pswpElement" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
   </div>
   <ScrollContainer>
-
     <div v-for="(photo, index) in displayedPhotos" :key="index" class="w-24 h-20 relative scrollElement cursor-pointer hover:scale-105 transition-scale duration-500">
       <img :src="photo.src" @click.stop="() => openGallery(displayedPhotos, index)" alt="Photo" class="w-full h-full object-cover rounded-[10px]" />
     </div>

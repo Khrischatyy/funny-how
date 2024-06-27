@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useHead } from "@unhead/vue";
-import { definePageMeta, useRuntimeConfig } from '#imports';
-import { useSessionStore } from "~/src/entities/Session";
-import {onMounted, ref, computed, watchEffect, watch} from "vue";
-import { BrandingLogo } from "~/src/shared/ui/branding";
-import { navigateTo, useRoute } from "nuxt/app";
+import {useHead} from "@unhead/vue";
+import {definePageMeta, useRuntimeConfig} from '#imports';
+import {useSessionStore} from "~/src/entities/Session";
+import {computed, onMounted, ref, watch} from "vue";
+import {BrandingLogo} from "~/src/shared/ui/branding";
+import {navigateTo, useRoute} from "nuxt/app";
 import {IconElipse, IconLine, IconUpload} from "~/src/shared/ui/common";
-import { Loader } from "@googlemaps/js-api-loader";
 import {useCreateStudio} from "~/src/entities/Studio/api";
 import {useGoogleMaps} from "~/src/shared/utils";
 
@@ -29,7 +28,7 @@ function isError(field: string): boolean {
   return errors.value.hasOwnProperty(field) ? errors.value[field][0] : false;
 }
 
-const session = ref();
+const session = computed(() => useSessionStore());
 const { initGoogleMaps, autocomplete, addressData } = useGoogleMaps();
 const place = ref<HTMLInputElement | undefined>();
 
@@ -44,7 +43,7 @@ watch(addressData, (newVal) => {
 
 onMounted(async () => {
   const config = useRuntimeConfig();
-  session.value = useSessionStore();
+  // session.value = useSessionStore();
 
   //Init google map and autocomplete on ref place.value that is InputElement
   await initGoogleMaps(place?.value);
@@ -66,6 +65,8 @@ function changeLogo() {
 
 async function setupStudio() {
   isLoading.value = true;
+  if(existedCompany)
+    formValues.company = existedCompany;
   try {
     await createStudio(formValues); // Use composable to submit form
     // Navigate or handle success as needed
@@ -79,6 +80,12 @@ async function setupStudio() {
 function signOut() {
   session.value.logout();
 }
+const upperCase = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+const existedCompany = computed(() => {
+  return session.value?.brand;
+});
 </script>
 
 
@@ -90,7 +97,7 @@ function signOut() {
         <div class="animate__animated animate__fadeInRight">
           <div class="breadcrumbs mb-10 text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
             <icon-elipse :class="'opacity-100'" class="h-4" />
-            <button :class="'opacity-100'"> Add Studio</button>
+            <button :class="'opacity-100'"> {{existedCompany ? 'Add Address' : 'Add Studio' }}</button>
             <icon-line :class="'opacity-100'" class="h-2 only-desktop" />
             <icon-elipse :class="'opacity-20'" class="h-4" />
             <button :class="'opacity-20'"> Setup Hours </button>
@@ -98,7 +105,7 @@ function signOut() {
         </div>
 
         <div class="w-96 justify-center items-center inline-flex mb-10 text-center">
-          <div class="text-white text-xl font-bold text-center tracking-wide">Setup Your Studio {{ route.params.slug }}</div>
+          <div class="text-white text-xl font-bold text-center tracking-wide">{{existedCompany ? 'Add Address' : 'Setup Your First Studio'}}</div>
         </div>
         <div v-if="isError('general')" class="w-96 justify-center items-center inline-flex">
           <div class="text-red-500 text-sm font-normal tracking-wide">{{ isError('general') }}</div>
@@ -113,14 +120,14 @@ function signOut() {
           </div>
           <div class="flex justify-start items-center w-full gap-2.5">
             <div class="flex justify-center w-96 items-center gap-2.5">
-              <label for="studio_logo" class="w-[58px] h-[58px] flex flex-col justify-center items-center px-1.5 py-1.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
+              <label v-if="!existedCompany" for="studio_logo" class="w-[58px] h-[58px] flex flex-col justify-center items-center px-1.5 py-1.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center">
                 <div class="flex flex-col justify-end h-full">
                   <IconUpload class="mx-1.5 my-1.5 opacity-50 hover:opacity-100" v-if="!formValues.logo" />
                   <img :src="`${formValues.logo_preview}`" v-if="formValues.logo_preview" class="w-[58px] h-[58px] object-contain">
                 </div>
               </label>
-              <input class="hidden" id="studio_logo" @change="changeLogo()" type="file" />
-              <input v-model="formValues.company" :class="errors.hasOwnProperty('company') && !formValues.company ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Studio Name" />
+              <input v-if="!existedCompany" class="hidden" id="studio_logo" @change="changeLogo()" type="file" />
+              <input :disabled="existedCompany" v-model="formValues.company" :class="errors.hasOwnProperty('company') && !formValues.company ? 'border border-red border-opacity-80' : 'border border-white border-opacity-20'" class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" :placeholder="upperCase(existedCompany) || 'Enter Your Studio Name'" />
             </div>
           </div>
         </div>
@@ -137,17 +144,17 @@ function signOut() {
           </div>
         </div>
 
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">About</div>
-            <div v-if="isError('about')" class="text-right text-red-500 text-sm font-normal tracking-wide">
-              {{ isError('about') }}
-            </div>
-          </div>
-          <div class="justify-start items-center gap-2.5 inline-flex">
-            <textarea name="about" v-model="formValues.about" :class="{ 'border-red': isError('about') }" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"></textarea>
-          </div>
-        </div>
+<!--        <div class="flex-col justify-start items-start gap-1.5 flex">-->
+<!--          <div class="w-96 justify-between items-start inline-flex">-->
+<!--            <div class="text-white text-sm font-normal tracking-wide">About</div>-->
+<!--            <div v-if="isError('about')" class="text-right text-red-500 text-sm font-normal tracking-wide">-->
+<!--              {{ isError('about') }}-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="justify-start items-center gap-2.5 inline-flex">-->
+<!--            <textarea name="about" v-model="formValues.about" :class="{ 'border-red': isError('about') }" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"></textarea>-->
+<!--          </div>-->
+<!--        </div>-->
         <div class="justify-center items-center gap-2.5 inline-flex">
           <button @click="setupStudio()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Save And Continue</button>
         </div>

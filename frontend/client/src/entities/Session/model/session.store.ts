@@ -34,7 +34,9 @@ export const useSessionStore = defineStore({
 			try {
 				const response = await api.fetch();
 				if (response.data) {
+					console.log('response.data:', response.data);
 					this.setUserInfo(JSON.stringify(response.data));
+					this.setBrand(response.data.company_slug);
 					this.setAuthorized(true);
 					return response.data;
 				}

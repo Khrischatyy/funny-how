@@ -4,8 +4,11 @@ import { ref, watch } from "vue";
 
 const props = defineProps<{
   label?: string;
+  placeholder?: string;
   options: { id: number | string; name: string }[];
   modelValue: string | number | null;
+  size?: 'sm' | 'md' | 'lg';
+  error?: string | boolean;
 }>();
 
 const value = ref<string | number | null>(props.modelValue);
@@ -28,7 +31,16 @@ watch(() => props.modelValue, (newValue) => {
 </script>
 
 <template>
-  <div class="w-96 max-w-96 relative">
+  <div class="w-full max-w-96 relative">
+    <div class="label-action flex justify-between items-center w-full">
+      <div v-if="label"
+           :class="{ 'opacity-20': props.size === 'sm', 'opacity-100': props.size === 'md' || props.size === 'lg' }"
+           class="text-white mb-1.5 text-sm font-normal tracking-wide">{{ label }}</div>
+      <div v-if="error" class="text-right mb-1.5 text-red-500 text-sm font-normal tracking-wide">{{ error }}</div>
+      <div v-if="slots?.action" class="action mb-1.5">
+        <slot name="action" />
+      </div>
+    </div>
     <div class="flex items-center">
       <select
         @change="handleChange"
@@ -43,7 +55,7 @@ watch(() => props.modelValue, (newValue) => {
     <div class="relative flex items-center pointer-events-none">
       <div class="w-full flex justify-start items-center gap-2 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 hover:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide">
         <slot name="icon" />
-        {{ props.options.find(option => option.id == value)?.name || props.label }}
+        {{ props.options.find(option => option.id == value)?.name || props.placeholder }}
       </div>
       <span class="absolute right-0 cursor-pointer">
         <IconDown />

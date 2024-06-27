@@ -92,7 +92,7 @@ const currentIndex = ref(0);
 const badgeIndex = ref(0);
 
 const logoSrc = computed(() => {
-  return props.studio.logo && props.studio.logo.trim() !== '' ? props.studio.logo : defaultLogo;
+  return props.studio.company.logo ? props.studio.company.logo_url : defaultLogo;
 });
 
 const displayedPhotos = computed(() => {
@@ -108,12 +108,12 @@ const displayedPhotos = computed(() => {
     {url: 'https://s3-media0.fl.yelpcdn.com/bphoto/vFWvXrnWdaRaFrACieFqpQ/o.jpg'},
   ]
 
-  let photos = props.studio.photos ? props.studio.photos.slice(currentIndex.value, currentIndex.value + 3) : [];
-  if (photos.length < 3) {
-    photos = photos.concat(defaultPhotos);
-  }
-  return yelpPhotos;
-  return photos.slice(0, 4);
+  // let photos = props.studio.photos ? props.studio.photos.slice(currentIndex.value, currentIndex.value + 3) : [];
+  // if (photos.length < 3) {
+  //   photos = photos.concat(defaultPhotos);
+  // }
+  // return yelpPhotos;
+  return props.studio.photos ? props.studio.photos : yelpPhotos;
 });
 
 const displayedBadges = computed(() => {

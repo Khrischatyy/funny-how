@@ -2,7 +2,7 @@
 import {useHead} from "@unhead/vue";
 import {definePageMeta, useRuntimeConfig} from '#imports'
 import {useSessionStore} from "~/src/entities/Session";
-import {computed, onMounted, type Ref, ref} from "vue";
+import {computed, onMounted, onUnmounted, type Ref, ref} from "vue";
 import {useRoute} from "nuxt/app";
 import {type StudioFormValues, useCreateStudioFormStore} from "~/src/entities/RegistrationForms";
 import {IconDown, IconMic, IconNav, IconPricetag} from "~/src/shared/ui/common";
@@ -12,6 +12,8 @@ import { TimeSelect } from "~/src/widgets";
 import {type ResponseBrand, useAddress} from "~/src/entities/Studio/api";
 import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue";
 import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer";
+import {usePhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
+import type {SlideData} from "photoswipe";
 
 const route = useRoute();
 const addressId = ref(route.params.address_id);
@@ -53,16 +55,40 @@ const rentingList = [{name: 'today', date: ''}, {name: 'tomorrow', date: ''}, {n
 rentingList[0].date = today.toISOString().split('T')[0];
 rentingList[1].date = tomorrow.toISOString().split('T')[0];
 
-onMounted(async () => {
-  session.value = useSessionStore()
-  rentingForm.value.date = rentingList[0].date
-})
+
 
 useHead({
   title: pageTitle,
   meta: [
     { name: 'description', content: 'Dashboard for ' + pageTitle }
   ]
+});
+
+const photoContainer = ref<HTMLElement | null>(null);
+
+const handleScroll = () => {
+  if (!photoContainer.value) return;
+  const maxHeight = 250; // Max height of the photo container
+  const minHeight = 200; // Min height of the photo container
+  const scrollThreshold = 0; // Scroll position at which the resizing effect should start
+
+  const scrollPosition = window.scrollY;
+  if (scrollPosition < scrollThreshold) {
+    photoContainer.value.style.height = `${maxHeight}px`;
+  } else {
+    const newHeight = Math.max(minHeight, maxHeight - (scrollPosition - scrollThreshold));
+    photoContainer.value.style.height = `${newHeight}px`;
+  }
+};
+
+onMounted(async () => {
+  session.value = useSessionStore()
+  rentingForm.value.date = rentingList[0].date
+  window.addEventListener('scroll', handleScroll);
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
 });
 
 
@@ -127,7 +153,7 @@ function book(){
       'Authorization': 'Bearer ' + useSessionStore().accessToken
     },
     data: {
-      address_id: addressvalue?.id,
+      address_id: address.value?.id,
       date: rentingForm.value.date,
       start_time: rentingForm.value.start_time,
       end_time: rentingForm.value.end_time,
@@ -208,34 +234,46 @@ const getRatingColor = (rating: number) => {
   }
 }
 
+const { pswpElement, openGallery } = usePhotoSwipe();
+const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(photo => ({
+  src: photo.url,
+  w: photo.file?.width || 1200, // Default width if not specified
+  h: photo.file?.height || 900  // Default height if not specified
+})));
+
 </script>
 
 <template>
   <div class="grid min-h-[100vh] h-full bg-black animate__animated animate__fadeInRight">
-    <div class="w-full h-full flex-col justify-between items-start gap-7 inline-flex">
-      <div v-if="address" class="relative w-full flex-col justify-start items-center gap-2.5 flex mt-20">
-        <div class="w-full max-h-[300px] max-w-full md:max-w-4xl p-0 md:p-10 gap-10">
-          <ScrollContainer class="justify-center-important" theme="dark">
-              <div class=" max-h-[300px] bg-white shadow rounded-[10px] scrollElement">
-                <img src="https://via.placeholder.com/780x420" alt="Large placeholder" class="w-full h-full object-cover rounded-[10px]">
-              </div>
-              <div class="max-h-[300px] bg-white shadow rounded-[10px] scrollElement">
-                <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-              </div>
-              <div class="max-h-[300px] bg-white shadow rounded-[10px] scrollElement">
-                <img src="https://via.placeholder.com/195x210" alt="Small placeholder" class="w-full h-full object-cover rounded-[10px]">
-              </div>
-          </ScrollContainer>
+    <div v-if="!address" class="spinner-container">
+      <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
+    </div>
+    <div v-if="address && address.photos.length > 0" ref="photoContainer" class="photo-container w-full max-h-[250px] max-w-full backdrop-blur p-0 md:p-10">
+      <div ref="pswpElement" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+      </div>
+      <ScrollContainer v-if="address?.photos.length > 0" class=" justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
+        <div v-for="(photo, index) in address?.photos" class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement">
+          <img :src="photo.url" @click.stop="() => openGallery(displayedPhotos, index)" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
         </div>
+      </ScrollContainer>
+    </div>
+    <div class="info-container w-full h-full flex-col justify-between items-start gap-7 inline-flex">
+      <div v-if="address" class="relative w-full flex-col justify-start items-center gap-2.5 flex ">
+
 
         <div class="p-5 md:p-0">
-            <div class="max-w-96 w-full flex items-center justify-center gap-2 mt-20">
+            <div class="max-w-96 w-full flex items-center justify-center gap-2 mt-5 mb-5">
               <div class="text-white w-full flex flex-col justify-center items-center text-5xl font-bold">
                 <div class="text-white w-full opacity-20 mb-3 text-lg font-['Montserrat'] font-normal tracking-wide">
                   Studio name
                 </div>
-                <div class="font-[BebasNeue] w-full text-left">
-                  {{address?.company.name}}
+                <div class="flex gap-5 w-full">
+                  <div>
+                    <img :src="address?.company?.logo_url" class="h-10 w-10 object-contain" />
+                  </div>
+                  <div class="font-[BebasNeue] w-full text-left">
+                    {{address?.company.name}}
+                  </div>
                 </div>
               </div>
             </div>
@@ -248,7 +286,7 @@ const getRatingColor = (rating: number) => {
                   Street: {{address?.street}}<br/>
                 </div>
               </div>
-              <div  class="max-w-96 w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center">
+              <div class="max-w-96 scale-[1.3] w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center">
                 <BadgesList class="justify-center-important" theme="default" :badges="address?.badges" />
               </div>
               <div class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center">
@@ -428,5 +466,10 @@ select {
   text-overflow: '';
   cursor: pointer;
 }
-
+.photo-container {
+  position: sticky;
+  top: 0; // Adjust this value based on your header or desired offset
+  transition: height 0.1s ease-in-out; // Smooth transition for height change
+  z-index: 1000; // Ensure the photo container is above other content
+}
 </style>

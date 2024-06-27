@@ -204,7 +204,7 @@ function signOut() {
           <div class="w-96 justify-center items-center gap-2.5 inline-flex">
             <div class="w-96 max-w-96 flex gap-2.5">
               <div v-for="badge in badges?.all_badges" :class="isBadge(badge.id, badges?.taken_badges) ? 'border-opacity-100' : 'border-opacity-20'" @click="toogleBadge(badge.id)" class="w-full flex gap-2.5 justify-center items-center cursor-pointer h-11 outline-none rounded-[10px] focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide">
-                <img :src="badge.image" />
+                <img class="h-[29px]" :src="badge.image" />
                 <span>{{badge.name}}</span>
               </div>
             </div>

@@ -3,7 +3,7 @@
     <button
         v-if="checkScrollVisibility"
         @click.stop="scrollLeft"
-        :class="theme === 'dark' ? 'from-[#000]' : 'from-black'"
+        :class="theme === 'dark' ? 'from-[#000]' : `from-${mainColor}`"
         class="cursor-pointer w-auto rounded-tr-[10px] rounded-tb-[10px] backdrop-blur-[1px] h-full bg-gradient-to-r to-transparent rounded-lg absolute flex items-center justify-start left-0 border-none p-0 z-10"
     >
       <IconLeft iconType="thin" />
@@ -20,7 +20,7 @@
     <button
         v-if="checkScrollVisibility"
         @click.stop="scrollRight"
-        :class="theme === 'dark' ? 'from-[#000]' : 'from-black'"
+        :class="theme === 'dark' ? 'from-[#000]' : `from-${mainColor}`"
         class="cursor-pointer w-auto rounded-tl-[10px] rounded-bl-[10px] backdrop-blur-[1px] h-full bg-gradient-to-l to-transparent rounded-lg absolute flex items-center justify-end right-0 border-none p-0 z-10"
     >
       <IconRight iconType="thin" />
@@ -33,9 +33,11 @@ import {ref, onMounted, watch, reactive, provide} from 'vue';
 import {IconLeft, IconRight} from "~/src/shared/ui/common";
 import {Tooltip} from "~/src/shared/ui/Tooltip";
 const props = withDefaults(defineProps<{
-  theme?: string
+  theme?: string,
+  mainColor?: string
 }>(), {
-  theme: 'default'
+  theme: 'default',
+  mainColor: 'black'
 });
 const scrollContainer = ref(null);
 const scrollableContainer = ref(null);
@@ -44,7 +46,6 @@ const checkScrollVisibility = ref(false);
 
 // Check visibility of left/right scroll buttons
 const checkButtons = () => {
-  console.log(scrollableContainer.value.scrollWidth, scrollableContainer.value.clientWidth)
   if (scrollableContainer.value) {
     checkScrollVisibility.value =
         scrollableContainer.value.scrollWidth > scrollableContainer.value.clientWidth;
@@ -76,6 +77,9 @@ watch(scrollableContainer, () => {
 }
 .justify-center-important {
   justify-content: center !important;
+}
+.justify-start-important {
+  justify-content: start !important;
 }
 </style>
 

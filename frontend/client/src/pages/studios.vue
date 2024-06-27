@@ -126,7 +126,8 @@ const handleCityChange = async (cityId: string) => {
 
   studios.value = studiosData.map(studio => ({
     id: studio.id,
-    logo: studio.company.logo,
+    logo: studio.company.logo_url,
+    company: studio.company,
     name: studio.company.name,
     address: studio.street,
     photos: studio.photos,

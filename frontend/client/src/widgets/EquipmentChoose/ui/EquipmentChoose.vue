@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {definePageMeta, useRuntimeConfig} from '#imports'
 import { useSessionStore } from "~/src/entities/Session";
-import {onMounted, ref, type UnwrapRef} from "vue";
+import {inject, onMounted, ref, type UnwrapRef} from "vue";
 import {navigateTo, useRoute} from "nuxt/app";
 import {
 
@@ -9,12 +9,13 @@ import {
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
 import {
-  FInputClassic,
+  FInputClassic, FSelectClassic,
   IconClose,
 } from "~/src/shared/ui/common";
 import {Loader} from "@googlemaps/js-api-loader";
 import axios from "axios";
 import {Popup} from "~/src/shared/ui/components";
+import {useApi} from "~/src/lib/api";
 
 function isError(form: string, field: string): boolean {
   let formErrors: Record<string, any> = useCreateStudioFormStore().errors;
@@ -22,39 +23,49 @@ function isError(form: string, field: string): boolean {
 }
 
 const getEquipmentTypes = async () => {
+const {fetch: getTypes} = useApi({
+  url: '/address/equipment-type'
+})
+const {data} = await getTypes()
+equipmentTypes.value = data
 
+  console.log(data)
 }
 
 const session = ref()
 onMounted(async () => {
   const config = useRuntimeConfig()
   session.value = useSessionStore()
-
+  await getEquipment()
+  await getEquipmentTypes()
 })
 
 export type EquipmentType = {
   id: number,
-  label: string,
-  value: string
+  type: number,
+  value: string,
+  icon?:string,
   deletable?: boolean
 }
+
+const equipmentTypes = ref<string[]>([])
 
 const equipment = ref<EquipmentType[]>([
     {
       id: 1,
-      label: 'Microphone',
+      type: 1,
       value: '',
       deletable: false,
     },
     {
       id: 2,
-      label: 'Audio interface',
+      type: 3,
       value: '',
       deletable: false,
     },
     {
       id: 3,
-      label: 'Monitors',
+      type: 4,
       value: '',
       deletable: false,
     }
@@ -66,27 +77,87 @@ const togglePopup = () => {
 
 const closePopup = () => {
   showPopup.value = false
+
 }
 
 const addEquipmentForm = ref({
-  label: '',
+  type: '',
   value: ''
 });
 
-const deleteEquipment = (id: number) => {
-  equipment.value = equipment.value.filter(eq => eq.id !== id)
+
+const studio = inject('studioForPopup');
+const isLoading = ref(false);
+
+export type equipmentResponseType = {
+  id: number,
+  equipment_type_id: number,
+  name: string,
+  type: {
+    id: number,
+    name: string,
+    icon: string
+  }
+}
+const getEquipment = async () => {
+  isLoading.value = true;
+  const {fetch: getEquipment} = useApi({
+    url: `/address/${studio.value.id}/equipment`,
+    auth: true
+  });
+  getEquipment().then((response) => {
+    equipment.value = response.data.map((eq: any) => {
+      return {
+        id: eq.id,
+        type: eq.equipment_type_id,
+        value: eq.name,
+        icon: eq.type.icon,
+        deletable: true,
+      }
+    })
+    isLoading.value = false;
+  })
+}
+const addEquipment = () => {
+  isLoading.value = true;
+  const {post: sendEquipment} = useApi({
+    url: `/address/${studio.value.id}/equipment`,
+    auth: true
+  });
+
+  sendEquipment({
+    equipment_type_id: addEquipmentForm.value.type,
+    name: addEquipmentForm.value.value
+  }).then((response) => {
+    equipment.value = response.data.map((eq: any) => {
+      return {
+        id: eq.id,
+        type: eq.equipment_type_id,
+        value: eq.name,
+        icon: eq.type.icon,
+        deletable: true,
+      }
+    })
+    isLoading.value = false;
+  })
+
+
+  addEquipmentForm.value.value = ''
+  addEquipmentForm.value.type = ''
+  togglePopup()
 }
 
-const addEquipment = () => {
-  equipment.value.push({
-    id: equipment.value.length + 1,
-    label: addEquipmentForm.value.label,
-    value: addEquipmentForm.value.value,
-    deletable: true,
+const deleteEquipment = (id: number) => {
+  isLoading.value = true;
+  const {delete: deleteEquipment} = useApi({
+    url: `/address/${studio.value.id}/equipment?equipment_id=${id}`,
+    auth: true
+  });
+
+  deleteEquipment().then(() => {
+    equipment.value = equipment.value.filter(eq => eq.id !== id)
+    isLoading.value = false;
   })
-  addEquipmentForm.value.value = ''
-  addEquipmentForm.value.label = ''
-  togglePopup()
 }
 </script>
 
@@ -98,14 +169,14 @@ const addEquipment = () => {
       </template>
       <template #body>
         <div class="equipment w-full grid grid-cols-2 gap-2">
-          <FInputClassic label="Label" placeholder="Label" v-model="addEquipmentForm.label"/>
           <FInputClassic label="Value" placeholder="Value" v-model="addEquipmentForm.value"/>
+          <FSelectClassic label="Type" placeholder="Type" v-model="addEquipmentForm.type" :options="equipmentTypes"/>
         </div>
       </template>
       <template #footer>
         <div class="flex justify-between items-center gap-2 w-full">
           <button @click="togglePopup" class="w-full h-11 p-3.5 hover:opacity-90 bg-transparent rounded-[10px] text-white border-white border text-sm font-medium tracking-wide">Cancel</button>
-          <button @click="addEquipment" class="w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-700 border-white border text-sm font-medium tracking-wide">Add</button>
+          <button :disabled="!addEquipmentForm.type || !addEquipmentForm.value" :class="{'opacity-80': !addEquipmentForm.type || !addEquipmentForm.value}" @click="addEquipment" class="w-full h-11 p-3.5 hover:opacity-80 bg-white rounded-[10px] text-neutral-700 border-white border text-sm font-medium tracking-wide">Add</button>
         </div>
       </template>
     </Popup>
@@ -125,8 +196,11 @@ const addEquipment = () => {
 
     <div class="equipment-inputs flex-col w-full justify-center items-center gap-1.5 flex">
       <div class="equipment w-full grid grid-cols-2 lg:grid-cols-3 gap-2">
+        <div v-if="isLoading" class="spinner-container">
+          <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
+        </div>
         <div v-for="(eq, index) in equipment" class="flex gap-2">
-          <FInputClassic :label="eq.label" :placeholder="`Name ${eq.label}`" v-model="eq.value">
+          <FInputClassic :label="equipmentTypes.find(et => et.id == eq.type)?.name" :placeholder="`Name ${eq.type}`" v-model="eq.value">
             <template #action>
               <button v-if="eq.deletable" @click="deleteEquipment(eq.id)" class="w-5 h-5 flex items-center justify-center border border-white border-opacity-20 rounded-[10px] bg-transparent text-white text-sm font-medium tracking-wide cursor-pointer">
                 <IconClose />

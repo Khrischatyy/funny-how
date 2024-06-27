@@ -4,7 +4,7 @@
         <div class="container mx-auto px-2 md:px-4">
           <FilterBar />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AddStudioButton @click="togglePopup" />
+            <AddStudioButton @click="navigateTo('/create')" />
             <StudioCard v-for="studio in myStudios" @click="editStudio(studio)" :key="studio.id" :studio="studio" />
           </div>
         </div>

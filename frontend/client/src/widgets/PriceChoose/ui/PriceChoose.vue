@@ -68,6 +68,7 @@ onMounted(async () => {
 
 
 function getPrices() {
+  isLoading.value = true;
  const { fetch } = useApi({
    url: `/address/${studio.value.id}/prices`,
    auth: true
@@ -75,6 +76,7 @@ function getPrices() {
  fetch()
      .then((response) => {
        prices.value = response.data;
+       isLoading.value = false;
      })
      .catch((error) => {
        console.log(error);
@@ -82,6 +84,7 @@ function getPrices() {
 }
 
 function sendPrice(price){
+  isLoading.value = true;
   const {post} = useApi({
     url: `/address/${studio.value.id}/prices`,
     auth: true
@@ -101,6 +104,7 @@ function sendPrice(price){
       .then((response) => {
         console.log('response', response.data)
         prices.value = response.data;
+        isLoading.value = false;
       })
       .catch((error) => {
         console.log(error);
@@ -108,7 +112,7 @@ function sendPrice(price){
 }
 
 function deletePrice(price){
-
+isLoading.value = true;
   const {delete: callDeletePrice} = useApi({
     url: `/address/prices?address_id=${studio.value.id}&address_prices_id=${price.id}`,
     auth: true
@@ -118,11 +122,16 @@ function deletePrice(price){
       .then((response) => {
         console.log('response', response.data)
         prices.value = response.data;
+        isLoading.value = false;
       })
       .catch((error) => {
         console.log(error);
       });
 }
+
+const error = ref(null)
+const isLoading = ref(false)
+
 </script>
 
 <template>
@@ -130,9 +139,6 @@ function deletePrice(price){
     <div class="flex-col w-full justify-start items-start gap-1.5 flex">
       <div class="w-full justify-between items-start inline-flex">
         <div class="text-neutral-700 text-sm font-normal tracking-wide">Price</div>
-        <div :class="isError('setup', 'studio_name') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-            isError('setup', 'studio_name')
-          }}</div>
       </div>
       <div class="flex-col w-full mb-1 justify-center items-center gap-1.5 flex">
         <div class="justify-center w-full items-center gap-2.5 inline-flex">
@@ -149,9 +155,9 @@ function deletePrice(price){
     <div class="flex-col w-full justify-center items-center gap-1.5 flex">
       <div class="w-full justify-between items-start inline-flex">
         <div class="text-neutral-700 text-sm font-normal tracking-wide">You can edit pricing anytime</div>
-        <div :class="isError('setup', 'studio_name') ? '' : 'hidden'" class=" text-right text-red-500 text-sm font-normal tracking-wide">{{
-            isError('setup', 'studio_name')
-          }}</div>
+      </div>
+      <div v-if="isLoading" class="spinner-container">
+        <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
       </div>
       <div v-for="price in prices" :key="price.hours" class="relative w-full max-w-full flex items-center gap-1.5 justify-between">
         <label class="checkbox-wrapper flex">

@@ -42,7 +42,7 @@ class EquipmentService
 
             $address->equipments()->attach($equipment->id);
 
-            $address->load('equipments');
+            $address->load('equipments.type');
             return $address->equipments;
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException("Address not found.");
