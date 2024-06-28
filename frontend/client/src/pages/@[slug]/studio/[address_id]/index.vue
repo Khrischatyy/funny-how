@@ -64,37 +64,44 @@ const rentingList = [{name: 'today', date: ''}, {name: 'tomorrow', date: ''}, {n
 rentingList[0].date = today.toISOString().split('T')[0];
 rentingList[1].date = tomorrow.toISOString().split('T')[0];
 
+const setSeoMeta = () => {
+  useSeoMeta({
+    title: pageTitle.value,
+    description: pageDescription.value,
+    ogTitle: pageTitle.value,
+    ogDescription: pageDescription.value,
+    ogImage: studioFirstPhoto.value,
+    ogUrl: route.fullPath,
+    twitterTitle: pageTitle.value,
+    twitterDescription: pageDescription.value,
+    twitterImage: studioFirstPhoto.value,
+    twitterCard: 'summary'
+  });
 
+  useHead({
+    title: pageTitle,
+    meta: [
+      { name: 'description', content: pageDescription.value }
+    ],
+    htmlAttrs: {
+      lang: 'en'
+    },
+    link: [
+      {
+        rel: 'icon',
+        type: 'image/png',
+        href: '/favicon.png'
+      }
+    ]
+  });
+};
 
-
-useSeoMeta({
-  title: pageTitle.value,
-  description: pageDescription.value,
-  ogTitle: pageTitle.value,
-  ogDescription: pageDescription.value,
-  ogImage: studioFirstPhoto.value,
-  ogUrl: route.fullPath,
-  twitterTitle: pageTitle.value,
-  twitterDescription: pageDescription.value,
-  twitterImage: studioFirstPhoto.value,
-  twitterCard: 'summary'
-})
 
 useHead({
   title: pageTitle,
   meta: [
     { name: 'description', content: pageDescription }
   ],
-  htmlAttrs: {
-    lang: 'en'
-  },
-  link: [
-    {
-      rel: 'icon',
-      type: 'image/png',
-      href: '/favicon.png'
-    }
-  ]
 })
 
 const photoContainer = ref<HTMLElement | null>(null);
@@ -114,13 +121,19 @@ const handleScroll = () => {
   }
 };
 
+watch(address, () => {
+  setSeoMeta();
+});
+
 onMounted(async () => {
   session.value = useSessionStore();
   rentingForm.value.date = rentingList[0].date;
   window.addEventListener('scroll', handleScroll);
   window.addEventListener('message', handlePaymentStatus);
   await getStartSlots();
+  setSeoMeta();
 });
+
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
@@ -210,12 +223,13 @@ watchEffect(() => {
     bookingError.value = ''
   }
 })
-function book(){
-  isLoading.value = true
-  const { post: bookTime} = useApi({
+function book() {
+  isLoading.value = true;
+  const { post: bookTime } = useApi({
     url: `/address/reservation`,
     auth: true,
   });
+
   bookTime({
     address_id: address.value?.id,
     date: rentingForm.value.date,
@@ -223,16 +237,14 @@ function book(){
     end_time: rentingForm.value.end_time,
   }).then((response) => {
     responseQuote.value = response.data;
-    isLoading.value = false
-    if(response.data?.payment_session?.status == 'open'){
-      pay(response.data?.payment_session?.url)
+    isLoading.value = false;
+    if (response.data?.payment_session?.status == 'open') {
+      window.location.href = response.data?.payment_session?.url;
     }
-    //session.value.setReservations(response.data?.booking)
-    //session.value.setPaymentSession(response.data?.payment_session)
   }).catch((error) => {
-    bookingError.value = error.message
-    isLoading.value = false
-  })
+    bookingError.value = error.message;
+    isLoading.value = false;
+  });
 }
 function pay(url: string) {
   const paymentWindow = window.open(url, '_blank', 'width=800,height=600,toolbar=0,location=0,menubar=0');
