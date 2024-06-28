@@ -285,7 +285,7 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
                  @click.stop="() => openGallery(displayedPhotos, 0)" alt="cover photo" class="w-full drag-item  h-full object-cover rounded-[10px]"/>
           </div>
           <div class="grid grid-cols-1 grid-rows-2 gap-5 max-h-60">
-            <div class="scale-[1.19] sm:scale-[1] mt-5 sm:mt-0">
+            <div class=" mt-5 sm:mt-0">
               <ScrollContainer v-if="studioForm?.photos.length > 1" class=" justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
                 <div v-for="(photo, index) in studioForm?.photos.slice(1, Math.ceil(studioForm?.photos.length / 2))"
                      draggable="true"
@@ -298,7 +298,7 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
                 </div>
               </ScrollContainer>
             </div>
-            <div class="scale-[1.19] sm:scale-[1] mt-5 sm:mt-0">
+            <div class=" mt-5 sm:mt-0">
               <ScrollContainer v-if="studioForm?.photos.length > 1" class="justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
                 <div v-for="(photo, index) in studioForm?.photos.slice(Math.ceil(studioForm?.photos.length / 2))"
                      draggable="true"
