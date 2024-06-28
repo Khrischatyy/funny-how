@@ -30,7 +30,7 @@ export const useSessionStore = defineStore({
 			if (!this.accessToken) {
 				return;
 			}
-			const api = useApi({ url: '/me', auth: true });
+			const api = useApi({ url: '/user/me', auth: true });
 			try {
 				const response = await api.fetch();
 				if (response.data) {

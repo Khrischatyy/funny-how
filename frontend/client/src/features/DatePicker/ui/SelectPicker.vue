@@ -3,6 +3,7 @@
     <div class="relative w-full flex items-center">
       <div class="flex items-center">
         <select @change="optionChanged" class="w-full border-double opacity-0 absolute top-0 px-3 h-[61px] outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
+          <option disabled>Choose Date</option>
           <option v-for="day in options" :value="day.name" :key="day.name">
             {{ day.label }}
           </option>
@@ -94,7 +95,11 @@ const triggerSystemPicker = () => {
   systemDatePicker.value.showPicker();
 };
 
-watch(selectedOption, updateDate);
+watch(() => selectedOption, (newVal) => {
+  if(newVal) {
+    updateDate();
+  }
+});
 </script>
 
 <style scoped>

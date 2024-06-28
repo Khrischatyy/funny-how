@@ -22,7 +22,7 @@ const sessionStore = useSessionStore(); // Retrieve session store
 const token = route.query.token as string | undefined;
 if (token) {
   // Setup API with token
-  const api = useApi<ResponseDto<{ user: string, role: string }>>({ url: '/me', auth: true, token });
+  const api = useApi<ResponseDto<{ user: string, role: string }>>({ url: '/user/me', auth: true, token });
   api.fetch().then(response => {
     sessionStore.setUserRole(response?.data.role)
     sessionStore.setAccessToken(token);

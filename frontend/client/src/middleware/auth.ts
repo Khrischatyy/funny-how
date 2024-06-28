@@ -15,7 +15,7 @@ type meResponse = {
 }
 
 function getMe() {
-    const api = useApi<ResponseDto<meResponse>>({ url: '/me', 'auth': true });
+    const api = useApi<ResponseDto<meResponse>>({ url: '/user/me', 'auth': true });
 
     return api.fetch();
 }

@@ -23,7 +23,7 @@ definePageMeta({
 
 const roleValue = ref('');
 const { post } = useApi({
-  url: 'set-role',
+  url: '/user/set-role',
   auth: true,
 });
 const session = useSessionStore();

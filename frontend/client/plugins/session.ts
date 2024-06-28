@@ -14,11 +14,11 @@ export default defineNuxtPlugin(nuxtApp => {
             const paymentSessionCookie = useCookie(PAYMENT_SESSION);
 
             if (reservesCookie.value) {
-                sessionStore.setReservations(JSON.parse(reservesCookie.value));
+                sessionStore.setReservations(reservesCookie.value);
             }
 
             if (paymentSessionCookie.value) {
-                sessionStore.setPaymentSession(JSON.parse(paymentSessionCookie.value));
+                sessionStore.setPaymentSession(paymentSessionCookie.value);
             }
 
             // Fetch user info if access token is available

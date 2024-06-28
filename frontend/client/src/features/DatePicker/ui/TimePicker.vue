@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import {ref, computed, watch, onMounted, watchEffect} from 'vue';
 import { CustomWheel } from '~/src/features/CustomWheel';
 import { useRoute } from "nuxt/app";
 
@@ -60,10 +60,18 @@ const dragging = (isDragging) => {
 };
 
 watch(() => props.time, (newTime) => {
+  console.log('newTime', newTime);
   const hour = parseInt(newTime?.split(':')[0]);
   selectedHour.value = hour % 12 || 12;
   selectedPeriod.value = hour >= 12 ? 'PM' : 'AM';
 
+});
+
+watchEffect(() => {
+  console.log('props.availableHours', props.availableHours)
+  console.log('selectedHour', selectedHour.value);
+  console.log('selectedPeriod', selectedPeriod.value);
+  console.log('periods.value', periods.value);
 });
 
 const hours = computed(() => processAvailableHours());
@@ -80,10 +88,11 @@ function processAvailableHours() {
       pmHours.add(hour % 12 || 12);
     }
   });
-
+console.log('amHours', amHours.size === 0, 'pmHours',pmHours.size === 0);
   // Update periods based on available hours
-  if (amHours.size === 0) periods.value = ['PM'];
-  if (pmHours.size === 0) periods.value = ['AM'];
+  if (amHours.size === 0) periods.value = ['PM']
+  else if (pmHours.size === 0) periods.value = ['AM']
+  else periods.value = ['AM', 'PM']
 
   return Array.from(new Set([...amHours, ...pmHours])).map(hour => hour.toString().padStart(2, '0'));
 }
@@ -111,9 +120,13 @@ watch(() => props.availableHours, (newHours) => {
 
 const hourChanged = (type, changedDataIndex) => {
   console.log('changedDataIndex', changedDataIndex)
-  processedHour.value = props.availableHours[changedDataIndex];
-  console.log('periodChanged.selectedPeriod', selectedPeriod.value, processedHour.value);
-  emit('timeChange', processedHour.value);
+  const hour = props.availableHours[changedDataIndex];
+  const hourPart = parseInt(hour.split(':')[0]);
+
+  // Ensure processedHour is in 12-hour format
+  processedHour.value = hourPart % 12 || 12;
+  console.log('hourChanged.selectedPeriod', selectedPeriod.value, processedHour.value);
+  emit('timeChange', formatTime(processedHour.value, selectedPeriod.value));
 };
 
 const periodChanged = (type, changedData) => {
@@ -125,11 +138,14 @@ const periodChanged = (type, changedData) => {
 const formatTime = (hour, period) => {
   console.log('formatTime.hour', hour);
   let formattedHour;
-  let [hourPart] = hour.split(':').map(Number);
+  let [hourPart] = hour.toString().split(':').map(Number);
 
   if (period === 'AM') {
+    // If it's 12 AM (midnight), set the formattedHour to 0
     formattedHour = hourPart === 12 ? 0 : hourPart;
   } else {
+    // If it's 12 PM (noon), keep the formattedHour as 12
+    // For other PM hours, add 12 to convert to 24-hour format
     formattedHour = hourPart === 12 ? 12 : hourPart + 12;
   }
 

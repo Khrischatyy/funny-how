@@ -2,7 +2,7 @@
 import {useHead} from "@unhead/vue";
 import {definePageMeta, useRuntimeConfig} from '#imports'
 import {useSessionStore} from "~/src/entities/Session";
-import {computed, onMounted, onUnmounted, type Ref, ref} from "vue";
+import {computed, onMounted, onUnmounted, type Ref, ref, watch, watchEffect} from "vue";
 import {useRoute} from "nuxt/app";
 import {type StudioFormValues, useCreateStudioFormStore} from "~/src/entities/RegistrationForms";
 import {IconDown, IconMic, IconNav, IconPricetag} from "~/src/shared/ui/common";
@@ -15,10 +15,11 @@ import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer";
 import {usePhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
 import type {SlideData} from "photoswipe";
 import {useApi} from "~/src/lib/api";
+import paymentSystems from '~/src/shared/assets/image/payment_systems.png';
 
 const route = useRoute();
 const addressId = ref(route.params.address_id);
-
+const bookingError = ref('');
 const { address, pending, error } = useAddress(addressId.value);
 
 const pageTitle: Ref<string> = computed(() => {
@@ -83,21 +84,29 @@ const handleScroll = () => {
 };
 
 onMounted(async () => {
-  session.value = useSessionStore()
-  rentingForm.value.date = rentingList[0].date
+  session.value = useSessionStore();
+  rentingForm.value.date = rentingList[0].date;
   window.addEventListener('scroll', handleScroll);
+  window.addEventListener('message', handlePaymentStatus);
   await getStartSlots();
-})
+});
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('message', handlePaymentStatus);
 });
 
-
+function handlePaymentStatus(event: MessageEvent) {
+  if (event.origin !== window.location.origin) return; // Ensure the message is from the same origin
+  if (event.data && event.data.status === 'closed') {
+    console.log('Payment window closed');
+    // Handle the status update here
+  }
+}
 
 async function getStartSlots() {
   const {fetch: getStartSlots} = useApi({
-    url: `/address/reservation/start-time?address_id=${address?.value.id}&date=${rentingForm.value.date}`,
+    url: `/address/reservation/start-time?address_id=${addressId.value}&date=${rentingForm.value.date}`,
   });
 
   getStartSlots().then((response) => {
@@ -117,23 +126,42 @@ async function getEndSlots(start_time: string) {
 
 
 }
+const calculatedPrice = ref(0)
 
-function processAvailableHoursStart() {
-  const hoursSet = new Set();
-  availableHours.value.forEach(slot => {
-    const startHour = parseInt(slot.start_time.split(':')[0]);
-    const endHour = parseInt(slot.end_time.split(':')[0]);
-
-    for (let hour = startHour; hour <= endHour; hour++) {
-      hoursSet.add(hour % 12 || 12); // Convert to 12-hour format
-    }
-    for (let hour = endHour; hour <= 12; hour++) {
-      hoursSet.add(hour % 12 || 12); // Convert to 12-hour format
-    }
+const calculatePrice = () => {
+  //address_id
+  //start_time
+  //end_time
+  const {post: getPrice} = useApi({
+    url: `/address/calculate-price`,
+    auth: true,
   });
-  return Array.from(hoursSet).map(hour => hour.toString().padStart(2, '0'));
+
+  getPrice({
+    address_id: addressId.value,
+    start_time: rentingForm.value.start_time,
+    end_time: rentingForm.value.end_time,
+  }).then((response) => {
+    console.log('Price:', response.data);
+    calculatedPrice.value = response.data;
+  });
 }
 
+watch(() => rentingForm.value.start_time, (newVal) => {
+  if(newVal && rentingForm.value.end_time){
+    calculatePrice()
+  }
+})
+watch(() => rentingForm.value.end_time, (newVal) => {
+  if(newVal){
+    calculatePrice()
+  }
+})
+watch(() => rentingForm.value.date, (newVal) => {
+  if(newVal){
+    getStartSlots()
+  }
+})
 export type reservationResponse = {
   address_id: number,
   start_time: string,
@@ -146,45 +174,45 @@ export type reservationResponse = {
 }
 
 const responseQuote = ref({})
-
+watchEffect(() => {
+  if(rentingForm.value.start_time || rentingForm.value.end_time || rentingForm.value.date){
+    bookingError.value = ''
+  }
+})
 function book(){
-  const config = useRuntimeConfig()
-  let requestConfig = {
-    method: 'post',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/reservation`,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    },
-    data: {
-      address_id: address.value?.id,
-      date: rentingForm.value.date,
-      start_time: rentingForm.value.start_time,
-      end_time: rentingForm.value.end_time,
+  isLoading.value = true
+  const { post: bookTime} = useApi({
+    url: `/address/reservation`,
+    auth: true,
+  });
+  bookTime({
+    address_id: address.value?.id,
+    date: rentingForm.value.date,
+    start_time: rentingForm.value.start_time,
+    end_time: rentingForm.value.end_time,
+  }).then((response) => {
+    responseQuote.value = response.data;
+    isLoading.value = false
+    if(response.data?.payment_session?.status == 'open'){
+      pay(response.data?.payment_session?.url)
     }
-  };
-  $axios.defaults.headers.common['X-Api-Client'] = `web`
-  $axios.request(requestConfig)
-      .then((response) => {
-        responseQuote.value = response.data.data;
-
-        session.value.setReservations(response.data.data?.booking)
-        session.value.setPaymentSession(response.data.data?.payment_session)
-
-        console.log('response', response.data.data)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
+    //session.value.setReservations(response.data?.booking)
+    //session.value.setPaymentSession(response.data?.payment_session)
+  }).catch((error) => {
+    bookingError.value = error.message
+    isLoading.value = false
+  })
 }
-function pay(url: string){
-  window.open(url, '_blank', 'width=800,height=600,toolbar=0,location=0,menubar=0');
+function pay(url: string) {
+  const paymentWindow = window.open(url, '_blank', 'width=800,height=600,toolbar=0,location=0,menubar=0');
+
+  const checkWindowClosed = setInterval(() => {
+    if (paymentWindow && paymentWindow.closed) {
+      clearInterval(checkWindowClosed);
+      window.postMessage({ status: 'closed' }, window.location.origin);
+    }
+  }, 500);
 }
-
-
 
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
@@ -324,7 +352,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
                 <GoogleMap class="" :logo="address?.company.logo_url" :lat="address?.latitude" :lng="address?.longitude"/>
               </div>
             </div>
-            <div  class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center">
+            <div v-if="address && hoursAvailableStart" class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center">
               <div class="relative w-full flex items-center mt-10">
                 <div class="flex items-center w-full">
                   <SelectPicker class="w-full" @dateSelected="dateChanged($event, 'date')" />
@@ -367,47 +395,63 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
                 </h2>
 
               </div>
-              <div class="relative w-full flex items-center">
+              <div v-if="rentingForm.date && hoursAvailableStart.length > 0" class="relative w-full flex items-center">
                 <TimeSelect :available-hours="hoursAvailableStart" label="Start From" renting-form="rentingForm" @timeChanged="timeChanged($event, 'start_time')" />
               </div>
-              <div v-if="rentingForm['start_time']" class="relative w-full flex items-center">
+              <div v-if="rentingForm['start_time'] && rentingForm.date && hoursAvailableEnd.length > 0" class="relative w-full flex items-center">
                 <span class="absolute left-5 top-0 text-neutral-700 cursor-pointer">To</span>
                 <TimeSelect :available-hours="hoursAvailableEnd" label="To" renting-form="rentingForm" @timeChanged="timeChanged($event, 'end_time')" />
               </div>
-            </div>
-
-            <div class="flex-col mb-14 justify-center items-center gap-1.5 flex">
-              <div class="justify-center items-center gap-2.5 inline-flex">
-                <button @click="book()" class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Book Time</button>
-              </div>
-            </div>
-
-            <div v-if="session?.reservations" class="justify-start gap-1.5 items-start border-neutral-700 border p-3 rounded-[10px] inline-flex mb-10 text-center">
-              <IconMic class="text-white h-6 w-6"/>
-              <div class="text-white text-sm text-left font-bold tracking-wide">
-                <!--             {{session.reservations}}: { "address_id": 2, "start_time": "2024-05-20T18:58:00.000000Z", "end_time": "2024-05-20T18:59:00.000000Z", "user_id": 1, "total_cost": 30, "date": "2024-05-20", "updated_at": "2024-05-20T08:58:30.000000Z", "created_at": "2024-05-20T08:58:30.000000Z", "id": 5 }-->
-                You have a reservation at <br>
-                <a :href="`/@${address?.company.slug}`"> {{address?.company.name}}</a> on {{address.street}} <br>
-                <br/>
-                {{formatDate(session?.reservations?.date)}} from <br>
-                {{formatTime(session?.reservations?.start_time)}} to {{formatTime(session?.reservations?.end_time)}} <br>
-
-                {{session?.reservations?.start_time}} - {{session?.reservations?.end_time}} <br>
-              </div>
-            </div>
-
-            <div v-if="session?.payment_session?.status" class="flex-col mb-14 justify-center items-center gap-1.5 flex">
-
-              <div class="justify-center items-center gap-2.5 inline-flex">
-                <div class="max-w-96 w-full gap-1.5 h-11 hover:opacity-90 bg-transparent rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">
-                  <div class="mb-2 text-white">Status Of Payment: <span :class="session?.payment_session?.status == 'open' ? 'text-red' : 'text-white'">{{session?.payment_session?.status == 'open' ? 'Not Paid' : 'Success'}}</span></div>
-                  <div class="text-white">Total: ${{session?.payment_session?.amount_total / 100}}</div>
+              <div v-if="calculatedPrice" class="relative w-full max-w-48 mx-auto flex justify-between items-center animate__animated animate__fadeInRight">
+                <div class="text-white text-4xl font-[BebasNeue]">
+                  Price:
+                </div>
+                <div class="text-white text-4xl font-[BebasNeue]">
+                  ${{calculatedPrice}}
                 </div>
               </div>
-              <div class="justify-center items-center gap-2.5 inline-flex">
-                <button @click="pay(session?.payment_session?.url)" class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Pay Now</button>
+            </div>
+            <div v-if="calculatedPrice" class="flex-col mb-14 relative justify-center items-center gap-1.5 flex animate__animated animate__fadeInRight">
+              <div v-if="isLoading" class="spinner-container">
+                <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
+              </div>
+              <div class="justify-center items-center flex mb-10">
+                <img :src="paymentSystems" />
+              </div>
+              <div v-if="bookingError" class="errors mb-5">
+                <div class="text-red-500 text-sm">{{bookingError}}</div>
+              </div>
+              <div class="relative flex items-center cursor-pointer input border-double">
+                <button @click="book()" class="w-full px-16 py-3 font-[BebasNeue] min-h-14 flex justify-start items-center outline-none focus:border-white border border-white border-opacity-100 bg-transparent text-white text-4xl font-medium tracking-wide">
+                 Rent
+                </button>
               </div>
             </div>
+
+<!--            <div v-if="session?.reservations" class="justify-start gap-1.5 items-start border-neutral-700 border p-3 rounded-[10px] inline-flex mb-10 text-center">-->
+<!--              <IconMic class="text-white h-6 w-6"/>-->
+<!--              <div class="text-white text-sm text-left font-bold tracking-wide">-->
+<!--                You have a reservation at <br>-->
+<!--                <a :href="`/@${address?.company.slug}`"> {{address?.company.name}}</a> on {{address.street}} <br>-->
+<!--                <br/>-->
+<!--                {{formatDate(session?.reservations?.date)}} from <br>-->
+<!--                {{formatTime(session?.reservations?.start_time)}} to {{formatTime(session?.reservations?.end_time)}} <br>-->
+
+<!--                {{session?.reservations?.start_time}} - {{session?.reservations?.end_time}} <br>-->
+<!--              </div>-->
+<!--            </div>-->
+
+<!--            <div v-if="session?.payment_session?.status" class="flex-col mb-14 justify-center items-center gap-1.5 flex">-->
+<!--              <div class="justify-center items-center gap-2.5 inline-flex">-->
+<!--                <div class="max-w-96 w-full gap-1.5 h-11 hover:opacity-90 bg-transparent rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">-->
+<!--                  <div class="mb-2 text-white">Status Of Payment: <span :class="session?.payment_session?.status == 'open' ? 'text-red' : 'text-white'">{{session?.payment_session?.status == 'open' ? 'Not Paid' : 'Success'}}</span></div>-->
+<!--                  <div class="text-white">Total: ${{session?.payment_session?.amount_total / 100}}</div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--              <div class="justify-center items-center gap-2.5 inline-flex">-->
+<!--                <button @click="pay(session?.payment_session?.url)" class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Pay Now</button>-->
+<!--              </div>-->
+<!--            </div>-->
         </div>
 
       </div>

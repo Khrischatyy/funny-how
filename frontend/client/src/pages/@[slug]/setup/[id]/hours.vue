@@ -162,9 +162,7 @@ function signOut() {
             <div class="w-96 max-w-96 relative">
               <div class="flex items-center">
                 <select :class="workHours.mode_id == 3 ? 'opacity-0 absolute' : ''" v-model="workHours.mode_id" class="w-full top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
-                  <optgroup v-for="mode in modes" :label="mode.description">
-                  <option class="text-white" :value="mode.id">{{mode.mode}}</option>
-                  </optgroup>
+                  <option v-for="mode in modes" class="text-white" :value="mode.id">{{mode.label}}</option>
                 </select>
                 <span v-if="workHours.mode_id != 3" class="absolute right-0 cursor-pointer">
                   <IconDown/>
@@ -179,8 +177,8 @@ function signOut() {
             </div>
 
             <div v-if="workHours.mode_id == 2" class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center">
-              <input v-model="workHours.open_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From" />
-              <input v-model="workHours.close_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To" />
+              <input v-model="workHours.open_time" step="3600" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From" />
+              <input v-model="workHours.close_time" step="3600" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To" />
             </div>
 
             <div v-if="workHours.mode_id == 3" class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center">
