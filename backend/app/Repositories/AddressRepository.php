@@ -69,4 +69,18 @@ class AddressRepository implements AddressRepositoryInterface
         return $address;
     }
 
+    public function getAllStudios(): Collection
+    {
+        $addresses = Address::with(['badges', 'photos', 'prices', 'company', 'operatingHours'])->get();
+        foreach ($addresses as $address) {
+            if ($address->company->logo) {
+                $address->company->logo_url = Storage::disk('s3')->url($address->company->logo);
+            } else {
+                $address->company->logo_url = null;
+            }
+        }
+
+        return $addresses;
+    }
+
 }

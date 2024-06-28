@@ -188,5 +188,10 @@ class AddressService
         }
     }
 
+    public function getAllStudios(): Collection
+    {
+        return $this->addressRepository->getAllStudios();
+    }
+
 
 }

@@ -115,6 +115,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
 
+
     Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');
     Route::post('history/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'history');
 
@@ -133,10 +134,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
     Route::get('{slug}/studios', [AddressController::class, 'getAddressesByCompanySlug']);
 
-    //user
-
-
-
+    Route::get('map/studios', [AddressController::class, 'getAllStudios']);
 });
 
 Route::prefix('countries')->group(function () {

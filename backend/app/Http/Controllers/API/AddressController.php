@@ -637,6 +637,45 @@ class AddressController extends BaseController
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/map/studios",
+     *     summary="Get all studios",
+     *     tags={"Map"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Studios retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="street", type="string", example="Main St"),
+     *                     @OA\Property(property="city_id", type="integer", example=100),
+     *                     @OA\Property(property="company_id", type="integer", example=10),
+     *                     @OA\Property(property="latitude", type="string", example="20.5320636"),
+     *                     @OA\Property(property="longitude", type="string", example="44.792424"),
+     *                     @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z")
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Studios retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="500", description="Failed to retrieve studios")
+     * )
+     */
+    public function getAllStudios(): JsonResponse
+    {
+        try {
+            $studios = $this->addressService->getAllStudios();
+            return $this->sendResponse($studios, 'Studios retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve studios.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
             /**
      * Add a default price/hours (1hour/60$) to address
      *

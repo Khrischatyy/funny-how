@@ -22,7 +22,7 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/me",
+     *     path="/user/me",
      *     summary="Get authenticated user information",
      *     tags={"User"},
      *     security={{"sanctum":{}}},
@@ -66,7 +66,7 @@ class UserController extends BaseController
 
     /**
      * @OA\Post(
-     *     path="/set-role",
+     *     path="/user/set-role",
      *     summary="Set the role for the authenticated user",
      *     tags={"User"},
      *     security={{"sanctum":{}}},
@@ -121,7 +121,7 @@ class UserController extends BaseController
 
     /**
      * @OA\Put(
-     *     path="/update",
+     *     path="/user/update",
      *     summary="Update authenticated user information",
      *     tags={"User"},
      *     security={{"sanctum":{}}},
