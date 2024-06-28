@@ -1,6 +1,12 @@
 import { fileURLToPath, URL } from 'url'
 // @ts-ignore
 export default defineNuxtConfig({
+  watchers: {
+    webpack: {
+      poll: 1000, // Check for changes every second
+      aggregateTimeout: 300, // Delay before rebuilding
+    }
+  },
   security: {
     headers: {
       // your security headers
@@ -36,6 +42,7 @@ export default defineNuxtConfig({
   },
   build: {
     transpile: ['@googlemaps/js-api-loader'],
+    sourcemap: false,
   },
   dir: {
     app: fileURLToPath(new URL('./src/app', import.meta.url)),

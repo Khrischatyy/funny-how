@@ -129,7 +129,7 @@ const handleCityChange = async (cityId: string) => {
     logo: studio.company.logo_url,
     company: studio.company,
     name: studio.company.name,
-    address: studio.street,
+    street: studio.street,
     photos: studio.photos,
     badges: studio.badges,
     prices: studio.prices,

@@ -4,8 +4,8 @@
     <div class="flex justify-start items-center gap-5">
       <img :src="logoSrc" alt="Logo" class="h-[35px] w-[35px]" />
       <div>
-        <h3 class="text-xl font-bold text-white">{{ studio.name }}</h3>
-        <p class="text-white">{{ studio.address }}</p>
+        <h3 class="text-xl font-bold text-white">{{studio.company.name }}</h3>
+        <p class="text-white">{{ studio.street }}</p>
       </div>
     </div>
     <div v-if="isDelete" class="flex items-center gap-3 cursor-pointer hover:opacity-70">

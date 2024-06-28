@@ -69,7 +69,7 @@ const photoContainer = ref<HTMLElement | null>(null);
 const handleScroll = () => {
   if (!photoContainer.value) return;
   const maxHeight = 250; // Max height of the photo container
-  const minHeight = 200; // Min height of the photo container
+  const minHeight = 150; // Min height of the photo container
   const scrollThreshold = 0; // Scroll position at which the resizing effect should start
 
   const scrollPosition = window.scrollY;
@@ -244,11 +244,11 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
 </script>
 
 <template>
-  <div class="grid min-h-[100vh] h-full bg-black animate__animated animate__fadeInRight">
+  <div class="grid min-h-[100vh] h-full bg-black">
     <div v-if="!address" class="spinner-container">
       <div class="spinner"></div> <!-- Replace with a proper loading indicator -->
     </div>
-    <div v-if="address && address.photos.length > 0" ref="photoContainer" class="photo-container w-full max-h-[250px] max-w-full backdrop-blur p-0 md:p-10">
+    <div v-if="address && address.photos.length > 0" ref="photoContainer" class="photo-container animate__animated animate__fadeInRight w-full max-h-[250px] max-w-full backdrop-blur p-0 py-5 md:p-10">
       <div ref="pswpElement" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
       </div>
       <ScrollContainer v-if="address?.photos.length > 0" class=" justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
@@ -257,11 +257,11 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
         </div>
       </ScrollContainer>
     </div>
-    <div class="info-container w-full h-full flex-col justify-between items-start gap-7 inline-flex">
+    <div class="info-container w-full animate__animated animate__fadeInRight h-full flex-col justify-between items-start gap-7 inline-flex">
       <div v-if="address" class="relative w-full flex-col justify-start items-center gap-2.5 flex ">
 
 
-        <div class="p-5 md:p-0">
+        <div class="p-5 md:p-0 max-w-96">
             <div class="max-w-96 w-full flex items-center justify-center gap-2 mt-5 mb-5">
               <div class="text-white w-full flex flex-col justify-center items-center text-5xl font-bold">
                 <div class="text-white w-full opacity-20 mb-3 text-lg font-['Montserrat'] font-normal tracking-wide">
@@ -286,7 +286,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
                   Street: {{address?.street}}<br/>
                 </div>
               </div>
-              <div class="max-w-96 scale-[1.3] w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center">
+              <div class="max-w-full w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center">
                 <BadgesList class="justify-center-important" theme="default" :badges="address?.badges" />
               </div>
               <div class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center">

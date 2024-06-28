@@ -128,14 +128,19 @@ const togglePopup = () => {
   emit('togglePopup');
 }
 
-watch(() => studio.value, (newVal) => {
-  if (!newVal) return;
-  studioForm.photos = studio?.value.photos.map(photo => ({
-    url: photo.url,
-    index: photo.index,
-    file: null,
-  }));
-}, {immediate: true});
+watch(
+    () => studio.value,
+    (newVal) => {
+      if (!newVal) return;
+      studioForm.photos = studio?.value.photos.map((photo) => ({
+        url: photo.url,
+        id: photo.id,
+        index: photo.index,
+        file: null,
+      })).sort((a, b) => a.index - b.index); // Sort photos by index
+    },
+    { immediate: true }
+);
 
 const closePopup = () => {
   Object.keys(studioForm).forEach(key => {
@@ -154,14 +159,77 @@ const findRealIndexByUrl = (url: string) => {
   return studioForm.photos.findIndex(photo => photo.url === url);
 }
 
+let draggedItemIndex = ref<number | null>(null);
+
+function handleDragStart(event: DragEvent, index: number) {
+  draggedItemIndex.value = index;
+  const dragItem = event.target as HTMLElement;
+  event.dataTransfer?.setData('text/plain', `${index}`);
+
+  // Create a custom drag image
+  const customImage = dragItem.cloneNode(true) as HTMLElement;
+  customImage.style.position = 'absolute';
+  customImage.style.top = '-9999px'; // Move the image out of the viewport
+  customImage.style.width = `${dragItem.offsetWidth}px`; // Set width to the same as original
+  customImage.style.height = `${dragItem.offsetHeight}px`; // Set height to the same as original
+  customImage.style.opacity = '0.8'; // Adjust opacity for visual feedback
+  customImage.classList.add('custom-drag-image');
+  document.body.appendChild(customImage);
+  event.dataTransfer?.setDragImage(customImage, 0, 0);
+}
+
+
+function handleDragEnter(event: DragEvent, index: number) {
+  if (draggedItemIndex.value === null || draggedItemIndex.value === index) return;
+  // Reorder items
+  const draggedItem = studioForm.photos.splice(draggedItemIndex.value, 1)[0];
+  studioForm.photos.splice(index, 0, draggedItem);
+  draggedItemIndex.value = index;
+
+  // Update the index property of photos after reordering
+  studioForm.photos.forEach((photo, idx) => {
+    photo.index = idx;
+  });
+}
+
+function handleDragEnd(event: DragEvent) {
+  if (draggedItemIndex.value === null) return;
+
+  const photo = studioForm.photos[draggedItemIndex.value];
+  const newIndex = draggedItemIndex.value;
+  console.log('photo', photo, 'newIndex', newIndex)
+  // Send photo_id and new index to the server
+  updatePhotoOrder(photo.id, newIndex + 1);
+
+  draggedItemIndex.value = null;
+}
+const updatePhotoOrder = async (photoId: number, newIndex: number) => {
+  const {post: updatePhotoOrder} = useApi({
+    url: `/photos/update-index`,
+    auth: true
+  });
+  try {
+    const response = await updatePhotoOrder({
+      address_photo_id: photoId,
+      index: newIndex
+    });
+    console.log('Update successful:', response.data);
+    // Handle response, possibly updating UI to reflect the uploaded state
+  } catch (error) {
+    console.error('Update failed:', error);
+    // Handle errors, show user feedback
+  }
+}
+
+
 </script>
 
 <template>
   <Popup :title="'Add Studio'" :open="showPopup" @close="closePopup">
     <template #header>
       <div class="input-container flex gap-2">
-        <div v-if="studio.company.logo" class="logo">
-         <img :src="studio.company.logo" alt="logo" class="w-[40px] h-[40px] object-cover rounded-[10px]">
+        <div v-if="studio.company.logo_url" class="logo">
+         <img :src="studio.company.logo_url" alt="logo" class="w-[40px] h-[40px] object-cover rounded-[10px]">
         </div>
         <div class="name">
           <FInputClassic :placeholder="studio.company.name" disabled v-model="studioForm.name" />
@@ -177,19 +245,37 @@ const findRealIndexByUrl = (url: string) => {
         </div>
         <div :class="studioForm?.photos.length > 0 ? 'sm:grid-cols-[1fr_1fr_250px]' : ''" class="grid-cols-1 grid-rows-3  sm:grid-rows-1 grid gap-5">
           <div v-if="studioForm?.photos.length > 0" class="cover-photo max-h-60">
-            <img :src="studioForm?.photos[0].url" @click.stop="() => openGallery(displayedPhotos, 0)" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
+            <img :src="studioForm?.photos[0].url"
+                 draggable="true"
+                 @dragstart="handleDragStart($event, 0)"
+                 @dragover.prevent
+                 @dragenter="handleDragEnter($event, 0)"
+                 @dragend="handleDragEnd"
+                 @click.stop="() => openGallery(displayedPhotos, 0)" alt="cover photo" class="w-full drag-item  h-full object-cover rounded-[10px]"/>
           </div>
           <div class="grid grid-cols-1 grid-rows-2 gap-5 max-h-60">
             <div class="scale-[1.19] sm:scale-[1] mt-5 sm:mt-0">
               <ScrollContainer v-if="studioForm?.photos.length > 1" class=" justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
-                <div v-for="(photo, index) in studioForm?.photos.slice(1, Math.ceil(studioForm?.photos.length / 2))" class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement">
+                <div v-for="(photo, index) in studioForm?.photos.slice(1, Math.ceil(studioForm?.photos.length / 2))"
+                     draggable="true"
+                     @dragstart="handleDragStart($event, findRealIndexByUrl(photo.url))"
+                     @dragover.prevent
+                     @dragenter="handleDragEnter($event, findRealIndexByUrl(photo.url))"
+                     @dragend="handleDragEnd"
+                     class="drag-item max-h-30 w-[250px] bg-white shadow rounded-[10px] scrollElement">
                   <img :src="photo.url" @click.stop="() => openGallery(displayedPhotos, findRealIndexByUrl(photo.url))" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
                 </div>
               </ScrollContainer>
             </div>
             <div class="scale-[1.19] sm:scale-[1] mt-5 sm:mt-0">
               <ScrollContainer v-if="studioForm?.photos.length > 1" class="justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
-                <div v-for="(photo, index) in studioForm?.photos.slice(Math.ceil(studioForm?.photos.length / 2))" class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement">
+                <div v-for="(photo, index) in studioForm?.photos.slice(Math.ceil(studioForm?.photos.length / 2))"
+                     draggable="true"
+                     @dragstart="handleDragStart($event, findRealIndexByUrl(photo.url))"
+                     @dragover.prevent
+                     @dragenter="handleDragEnter($event, findRealIndexByUrl(photo.url))"
+                     @dragend="handleDragEnd"
+                     class="drag-item max-h-30 w-[250px] bg-white shadow rounded-[10px] scrollElement">
                   <img :src="photo.url" @click.stop="() => openGallery(displayedPhotos, findRealIndexByUrl(photo.url))" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
                 </div>
               </ScrollContainer>
@@ -235,4 +321,53 @@ const findRealIndexByUrl = (url: string) => {
 
 <style scoped lang="scss">
 
+.drag-item {
+  cursor: grab;
+}
+
+.drag-item:active {
+  cursor: grabbing;
+  opacity: 0.5;
+}
+
+.drag-item:active {
+  cursor: grabbing;
+}
+
+.custom-drag-image {
+  opacity: 0.8;
+  border-style: dashed;
+  border-width: 2px;
+  animation: float 1.5s infinite ease-in-out, border-rolling 1.5s infinite linear;
+}
+
+@keyframes float {
+  0% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.1;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes border-rolling {
+  0% {
+    border-color: #ccc;
+  }
+  25% {
+    border-color: #f00;
+  }
+  50% {
+    border-color: #0f0;
+  }
+  75% {
+    border-color: #00f;
+  }
+  100% {
+    border-color: #ccc;
+  }
+}
 </style>
