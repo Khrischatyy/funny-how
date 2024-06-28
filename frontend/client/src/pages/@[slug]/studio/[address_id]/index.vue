@@ -66,15 +66,15 @@ rentingList[1].date = tomorrow.toISOString().split('T')[0];
 
 const setSeoMeta = () => {
   useSeoMeta({
-    title: pageTitle.value,
-    description: pageDescription.value,
-    ogTitle: pageTitle.value,
-    ogDescription: pageDescription.value,
-    ogImage: studioFirstPhoto.value,
+    title: () => `${address.value?.company.name} - Funny How`,
+    description: () => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+    ogTitle: `${address.value?.company.name} - Funny How`,
+    ogDescription:() => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+    ogImage: ()=> `${address?.value?.photos[0].url}`,
     ogUrl: route.fullPath,
-    twitterTitle: pageTitle.value,
-    twitterDescription: pageDescription.value,
-    twitterImage: studioFirstPhoto.value,
+    twitterTitle: () => `${address.value?.company.name} - Funny How`,
+    twitterDescription:() => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+    twitterImage:`${address?.value?.photos[0].url}`,
     twitterCard: 'summary'
   });
 
@@ -97,11 +97,40 @@ const setSeoMeta = () => {
 };
 
 
+useSeoMeta({
+  title: () => `${address.value?.company.name} - Funny How`,
+  description: () => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+  ogTitle: `${address.value?.company.name} - Funny How`,
+  ogDescription:() => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+  ogImage: () => {
+    const photos = address?.value?.photos;
+    return photos && photos.length > 0 ? photos[0].url : '/meta/open-graph-image.png';
+  },
+  ogUrl: route.fullPath,
+  twitterTitle: () => `${address.value?.company.name} - Funny How`,
+  twitterDescription:() => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+  twitterImage:() => {
+    const photos = address?.value?.photos;
+    return photos && photos.length > 0 ? photos[0].url : '/meta/open-graph-image.png';
+  },
+  twitterCard: 'summary'
+});
+
 useHead({
   title: pageTitle,
   meta: [
     { name: 'description', content: pageDescription }
   ],
+  htmlAttrs: {
+    lang: 'en'
+  },
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/png',
+      href: '/favicon.png'
+    }
+  ]
 })
 
 const photoContainer = ref<HTMLElement | null>(null);
@@ -121,21 +150,13 @@ const handleScroll = () => {
   }
 };
 
-watch(address, () => {
-  if (address.value) {
-    setSeoMeta();
-  }
-});
-
 onMounted(async () => {
   session.value = useSessionStore();
   rentingForm.value.date = rentingList[0].date;
   window.addEventListener('scroll', handleScroll);
   window.addEventListener('message', handlePaymentStatus);
   await getStartSlots();
-  setSeoMeta();
 });
-
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
@@ -225,13 +246,12 @@ watchEffect(() => {
     bookingError.value = ''
   }
 })
-function book() {
-  isLoading.value = true;
-  const { post: bookTime } = useApi({
+function book(){
+  isLoading.value = true
+  const { post: bookTime} = useApi({
     url: `/address/reservation`,
     auth: true,
   });
-
   bookTime({
     address_id: address.value?.id,
     date: rentingForm.value.date,
@@ -239,14 +259,16 @@ function book() {
     end_time: rentingForm.value.end_time,
   }).then((response) => {
     responseQuote.value = response.data;
-    isLoading.value = false;
-    if (response.data?.payment_session?.status == 'open') {
-      window.location.href = response.data?.payment_session?.url;
+    isLoading.value = false
+    if(response.data?.payment_session?.status == 'open'){
+      pay(response.data?.payment_session?.url)
     }
+    //session.value.setReservations(response.data?.booking)
+    //session.value.setPaymentSession(response.data?.payment_session)
   }).catch((error) => {
-    bookingError.value = error.message;
-    isLoading.value = false;
-  });
+    bookingError.value = error.message
+    isLoading.value = false
+  })
 }
 function pay(url: string) {
   const paymentWindow = window.open(url, '_blank', 'width=800,height=600,toolbar=0,location=0,menubar=0');

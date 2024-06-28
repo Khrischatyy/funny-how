@@ -3,8 +3,9 @@ import GoogleMap from "~/src/widgets/GoogleMap.vue";
 import {useHead} from "@unhead/vue";
 import {useNuxtApp} from "#app";
 import {useRoute} from "nuxt/app";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {Header, Footer} from "~/src/shared/ui/components";
+import {useApi} from "~/src/lib/api";
 
 const route = useRoute();
 const { $axios } = useNuxtApp();
@@ -16,12 +17,22 @@ useHead({
   ],
 })
 
+const studios = ref([]);
+onMounted(async () => {
+  const {fetch:getStudios} = useApi({
+    'url': '/map/studios',
+  });
+  getStudios().then((response) => {
+    studios.value = response.data;
+    console.log(studios.value.map((studio) => studio.company.name));
+  });
+});
 </script>
 
 <template>
   <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
     <Header :hide-login-button="true" class="absolute z-50 bottom-0 left-0 md:bottom-[unset] md:left-[unset]" />
-    <GoogleMap :lat="'34.0199732'" :lng="'-118.266289'"/>
+    <GoogleMap :lat="'34.0199732'" v-if="studios.length>0" :markers="studios" :lng="'-118.266289'"/>
   </div>
 </template>
 

@@ -1,10 +1,10 @@
 <script setup>
 import {GoogleMap, MarkerCluster} from 'vue3-google-map';
-import {ref, computed, onMounted} from 'vue';
+import {ref, computed, onMounted, watch, reactive} from 'vue';
 import MarkerList from "~/src/widgets/MarkerList.vue";
-import { useRuntimeConfig } from '#imports'; // Ensure correct import
-const config = useRuntimeConfig(); // Ensure correct usage
+import {useRuntimeConfig} from '#imports';
 
+const config = useRuntimeConfig();
 
 const props = defineProps({
   lat: {
@@ -18,6 +18,9 @@ const props = defineProps({
   },
   title: {
     type: String
+  },
+  markers: {
+    type: Array
   }
 });
 
@@ -30,22 +33,42 @@ const center = computed(() => ({
 }));
 
 const zoom = ref(15);
-
-const studios = {
-  studio1: {
-    id: 'studio1',
-    name: 'FC Bayern Studio',
-    description: 'A top-notch studio used by FC Bayern München. Perfect for high-quality recordings and events.',
-    lat: center.value.lat,
-    lng: center.value.lng
-  }
+const studios = ref([]); // Using ref instead of reactive
+const updateStudios = (markers) => {
+  studios.value = markers.map((studio) => ({
+    id: studio.id,
+    name: studio.company.name,
+    lat: parseFloat(studio.latitude),
+    lng: parseFloat(studio.longitude),
+    street: studio.street,
+    price: studio.prices.length > 0 ? studio.prices[0].total_price : 'N/A',
+    operatingHours: studio.operating_hours.length > 0 ? `${studio.operating_hours[0].open_time} - ${studio.operating_hours[0].close_time}` : 'N/A',
+    photos: studio.photos.length > 0 ? studio.photos[0].url : '',
+    url: `/@${studio.company.slug}/studio/${studio.id}`,
+  }));
+  console.log('Updated studios:', studios.value);
 };
+
+onMounted(() => {
+  if (props.markers) {
+    updateStudios(props.markers);
+  }
+});
+
+watch(() => props.markers, (newMarkers) => {
+  if (newMarkers) {
+    updateStudios(newMarkers);
+  }
+}, {immediate: true}); // Add immediate to run the watch initially
+
+
 
 </script>
 
 <template>
   <ClientOnly>
-    <GoogleMap :api-key="config.public.googleMapKey" class="map" :center="center" :zoom="zoom">
+    <GoogleMap v-if="studios.length > 0" :api-key="config.public.googleMapKey" class="map" :center="center"
+               :zoom="zoom">
       <MarkerCluster :options="{ position: center }">
         <MarkerList v-for="studio in studios" :key="studio.id" :logo="props.logo || '/logo.png'" :marker="studio"/>
       </MarkerCluster>

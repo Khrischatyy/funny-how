@@ -134,9 +134,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
     Route::get('{slug}/studios', [AddressController::class, 'getAddressesByCompanySlug']);
 
-    Route::get('map/studios', [AddressController::class, 'getAllStudios']);
-});
 
+});
+Route::get('map/studios', [AddressController::class, 'getAllStudios']);
 Route::prefix('countries')->group(function () {
     Route::get('/', [CountryController::class, 'getCountries']);
     Route::get('{country_id}/cities', [CityController::class, 'getCitiesByCountryId'])->where('countryId', '[0-9]+');
