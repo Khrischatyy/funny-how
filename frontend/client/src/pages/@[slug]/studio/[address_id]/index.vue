@@ -122,7 +122,9 @@ const handleScroll = () => {
 };
 
 watch(address, () => {
-  setSeoMeta();
+  if (address.value) {
+    setSeoMeta();
+  }
 });
 
 onMounted(async () => {

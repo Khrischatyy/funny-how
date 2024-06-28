@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'url'
 // @ts-ignore
 export default defineNuxtConfig({
+  ssr: true,
   watchers: {
     webpack: {
       poll: 1000, // Check for changes every second
