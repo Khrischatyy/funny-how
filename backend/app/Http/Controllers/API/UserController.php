@@ -104,9 +104,9 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized.', 401);
         }
 
-//        if ($user->roles->isNotEmpty()) {
-//            return $this->sendError('User already has a role.', 409);
-//        }
+        if ($user->roles->isNotEmpty()) {
+            return $this->sendError('User already has a role.', 409);
+        }
 
         $role = $request->input('role');
 
