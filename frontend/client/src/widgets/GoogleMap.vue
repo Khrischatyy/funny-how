@@ -67,9 +67,9 @@ watch(() => props.markers, (newMarkers) => {
 
 <template>
   <ClientOnly>
-    <GoogleMap v-if="studios.length > 0" :api-key="config.public.googleMapKey" class="map" :center="center"
+    <GoogleMap  :api-key="config.public.googleMapKey" class="map" :center="center"
                :zoom="zoom">
-      <MarkerCluster :options="{ position: center }">
+      <MarkerCluster v-if="studios.length > 0" :options="{ position: center }">
         <MarkerList v-for="studio in studios" :key="studio.id" :logo="props.logo || '/logo.png'" :marker="studio"/>
       </MarkerCluster>
     </GoogleMap>
