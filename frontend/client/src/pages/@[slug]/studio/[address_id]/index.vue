@@ -14,6 +14,7 @@ import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue";
 import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer";
 import {usePhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
 import type {SlideData} from "photoswipe";
+import {useApi} from "~/src/lib/api";
 
 const route = useRoute();
 const addressId = ref(route.params.address_id);
@@ -43,8 +44,8 @@ const rentingForm = ref({
   address_id: '',
   date: '',
   anotherDate: '',
-  start_time: '09:00',
-  end_time: '19:00',
+  start_time: '',
+  end_time: '',
 })
 const today = new Date();
 const tomorrow = new Date();
@@ -85,6 +86,7 @@ onMounted(async () => {
   session.value = useSessionStore()
   rentingForm.value.date = rentingList[0].date
   window.addEventListener('scroll', handleScroll);
+  await getStartSlots();
 })
 
 onUnmounted(() => {
@@ -94,21 +96,25 @@ onUnmounted(() => {
 
 
 async function getStartSlots() {
-  const config = useRuntimeConfig()
-  const start_slots = await $axios.get(`${config.public.apiBaseClient}/address/reservation/start-time?address_id=1&date=${rentingForm.value.date}`);
-  if (start_slots.data.success) {
-    hoursAvailableStart.value = start_slots.data.data;
-  }
+  const {fetch: getStartSlots} = useApi({
+    url: `/address/reservation/start-time?address_id=${address?.value.id}&date=${rentingForm.value.date}`,
+  });
+
+  getStartSlots().then((response) => {
+    hoursAvailableStart.value = response.data;
+  });
+
 }
 
 async function getEndSlots(start_time: string) {
-  const config = useRuntimeConfig()
-  const end_slots = await $axios.get(`${config.public.apiBaseClient}/address/reservation/end-time?address_id=1&date=${rentingForm.value.date}&start_time=${start_time}`);
-  console.log('end_slots', end_slots.data.data)
-  if (end_slots.data.success) {
-    hoursAvailableEnd.value = end_slots.data.data;
-  }
-  console.log('availableHours', hoursAvailableEnd.value);
+  const {fetch: getEndSlots} = useApi({
+    url: `/address/reservation/end-time?address_id=${address?.value.id}&date=${rentingForm.value.date}&start_time=${start_time}`,
+  });
+
+  getEndSlots().then((response) => {
+    hoursAvailableEnd.value = response.data;
+  });
+
 
 }
 
@@ -364,8 +370,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
               <div class="relative w-full flex items-center">
                 <TimeSelect :available-hours="hoursAvailableStart" label="Start From" renting-form="rentingForm" @timeChanged="timeChanged($event, 'start_time')" />
               </div>
-
-              <div class="relative w-full flex items-center">
+              <div v-if="rentingForm['start_time']" class="relative w-full flex items-center">
                 <span class="absolute left-5 top-0 text-neutral-700 cursor-pointer">To</span>
                 <TimeSelect :available-hours="hoursAvailableEnd" label="To" renting-form="rentingForm" @timeChanged="timeChanged($event, 'end_time')" />
               </div>

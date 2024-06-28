@@ -3,40 +3,45 @@
     <div class="relative w-full flex items-center">
       <div class="flex items-center">
         <select @change="optionChanged" class="w-full border-double opacity-0 absolute top-0 px-3 h-[61px] outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
-          <option v-for="day in options" :value="day.name">
-            {{day.label}}
+          <option v-for="day in options" :value="day.name" :key="day.name">
+            {{ day.label }}
           </option>
         </select>
       </div>
       <div class="relative border-double w-full flex items-center pointer-events-none">
-        <input disabled :value="selectedOptionLabel" placeholder="Day" class="border-double w-full px-3 outline-none focus:border-white border border-white border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
+        <input disabled :value="selectedOptionLabel" placeholder="Day"
+               class="border-double w-full px-3 outline-none focus:border-white border border-white border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+               name="workday"/>
         <span class="absolute right-5 text-neutral-700 cursor-pointer">Day</span>
         <span class="absolute right-0 cursor-pointer">
-            <IconDown/>
+          <IconDown/>
         </span>
       </div>
     </div>
 
-    <div class="animate__animated animate__fadeInRight mt-5 w-full focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide" v-if="date === 'custom'">
-      <DatePicker :date="new Date()" @dateChange="customDateChanged" />
+    <div class="mt-5 w-full focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide" v-if="selectedOption === 'custom'">
+      <DatePicker :date="customDate" @dateChange="customDateChanged"/>
+      <input type="date" ref="systemDatePicker" @change="systemDateChanged" class="hidden"/>
+      <div @click="triggerSystemPicker" class="font-[BebasNeue] cursor-pointer">
+        Use system picker
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import {ref, computed, watch} from 'vue';
 import DatePicker from './DatePicker.vue';
-import {CustomWheel} from '~/src/features/CustomWheel';
-import {IconDown} from "~/src/shared/ui/common";
+import {IconDown} from '~/src/shared/ui/common';
 
 const today = new Date();
 const tomorrow = new Date();
 tomorrow.setDate(today.getDate() + 1);
 
 const options = ref([
-  { name: 'today', label: 'Today', date: today },
-  { name: 'tomorrow', label: 'Tomorrow', date: tomorrow },
-  { name: 'custom', label: 'Custom Date', date: null }
+  {name: 'today', label: 'Today', date: today},
+  {name: 'tomorrow', label: 'Tomorrow', date: tomorrow},
+  {name: 'custom', label: 'Custom Date', date: null}
 ]);
 
 const date = ref(today);
@@ -47,46 +52,46 @@ const selectedOptionIndex = ref(0);
 const selectedOptionLabel = computed(() => optionLabels.value[selectedOptionIndex.value]);
 
 const selectedOption = computed(() => options.value[selectedOptionIndex.value].name);
-const customDate = ref();
+const customDate = ref(new Date());
 
 const emit = defineEmits(['dateSelected']);
-const optionChanged = (select) => {
 
-  date.value = select.target.value;
-  console.log('date', select.target.value);
-
-  let newLabel = select.target.value;
+const optionChanged = (event) => {
+  const newLabel = event.target.value;
   const index = optionNames.value.indexOf(newLabel);
-
   selectedOptionIndex.value = index;
-  if (index !== -1 && newLabel !== 'custom') {
-    selectedOptionIndex.value = index;
+
+  if (newLabel !== 'custom') {
+    customDate.value = null;
     updateDate();
   }
 };
 
-
 const updateDate = () => {
   const selected = options.value[selectedOptionIndex.value];
-  if (selected.name === 'custom') {
-    emit('dateSelected', { date: customDate.value });
+  if (selected.name === 'custom' && customDate.value) {
+    emit('dateSelected', {date: customDate.value.toISOString().split('T')[0]});
   } else {
-    emit('dateSelected', { date: selected.date.toISOString().split('T')[0] });
+    emit('dateSelected', {date: selected.date.toISOString().split('T')[0]});
   }
 };
 
-const formatDateToYYYYMMDD = (date) => {
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const year = date.getFullYear();
-  return `${year}-${month}-${day}`;
-}
-
 const customDateChanged = (type, newDate) => {
-  // newDate is already a string in the format 'YYYY-MM-DD'
-  customDate.value = newDate;
-  emit('dateSelected', { date: newDate.toISOString().split('T')[0] });
+  customDate.value = new Date(newDate);
+  updateDate();
+};
 
+const systemDateChanged = (event) => {
+  const selectedDate = new Date(event.target.value);
+  selectedDate.setHours(selectedDate.getHours() + selectedDate.getTimezoneOffset() / 60);
+  customDate.value = selectedDate;
+  updateDate();
+};
+
+const systemDatePicker = ref(null);
+
+const triggerSystemPicker = () => {
+  systemDatePicker.value.showPicker();
 };
 
 watch(selectedOption, updateDate);
@@ -94,17 +99,17 @@ watch(selectedOption, updateDate);
 
 <style scoped>
 .select-container {
-   display: flex;
-   padding: 0px 20px;
-   overflow: hidden;
-   width: 100%;
+  display: flex;
+  padding: 0px 20px;
+  overflow: hidden;
+  width: 100%;
   color: #fff;
-   background: transparent;
- }
+  background: transparent;
+}
 
 .hour,
 .period,
-.option{
+.option {
   position: relative;
   height: 50px;
   margin: 0;
@@ -115,7 +120,7 @@ watch(selectedOption, updateDate);
 .period::before,
 .period::after,
 .option::before,
-.option::after{
+.option::after {
   content: '';
   position: absolute;
   left: 0;
@@ -149,10 +154,11 @@ li {
   user-select: none;
 }
 
-.border-double{
+.border-double {
   height: 61px;
 }
-.border-double::before{
+
+.border-double::before {
   content: '';
   position: absolute;
   bottom: 2px;
@@ -163,7 +169,8 @@ li {
   pointer-events: none;
   z-index: 1;
 }
-.border-double::after{
+
+.border-double::after {
   content: '';
   position: absolute;
   bottom: 4px;

@@ -2,7 +2,7 @@
   <div class="flex items-center w-full">
     <span class="absolute left-5 top-0 text-neutral-700 cursor-pointer">{{ label }}</span>
 
-    <TimePicker :available-hours="availableHours" :renting-form="rentingForm" :open="open" @dragging="open = !open" v-if="rentingForm" class="w-full border-double focus:border-white border border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" @timeChange="timeChanged($event, 'start_time')" />
+    <TimePicker :available-hours="availableHours" :renting-form="rentingForm" :open="open" @dragging="open = !open" v-if="rentingForm" class="w-full border-double focus:border-white border border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" @timeChange="timeChanged($event)" />
     <div class="border-l border-white h-full w-[1px] rotate-90"></div>
     <div @click="open = !open" class="absolute w-9 pl-1 border-white right-0 top-[45px] cursor-pointer">
       <IconDown :class="open ? 'rotate-180' : 'rotate-0'" :opacity="1"/>
@@ -32,8 +32,9 @@ const props = defineProps<{
 const open = ref(false)
 const emit = defineEmits(['timeChanged'])
 
-const timeChanged = (time: string, key: string) => {
-  emit('timeChanged', time, key)
+const timeChanged = (time: string) => {
+  console.log('timeCHanged', time)
+  emit('timeChanged', time)
 }
 
 </script>

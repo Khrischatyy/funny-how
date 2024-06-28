@@ -4,7 +4,6 @@
       <div class="container mx-auto px-2 md:px-4">
         <FilterBar />
         <div class="grid grid-cols-1 gap-6">
-          <AddStudioButton title="Book recent studio" :subtitle="`${recentStudio.address} at ${recentStudio.date}`"  @click="togglePopup" />
           <BookingRow v-for="booking in bookings" :key="booking.id" :booking="booking" />
         </div>
       </div>

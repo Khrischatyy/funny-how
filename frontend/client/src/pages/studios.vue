@@ -1,5 +1,5 @@
 <template>
-  <div class="py-10">
+  <div class="py-10 px-5">
     <Header />
     <div class="ease-in-out min-h-[100vh] mt-10 w-full h-full flex flex-col gap-10 items-center justify-start">
     <div class="flex flex-col gap-5 items-center justify-center">

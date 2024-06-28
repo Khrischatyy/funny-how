@@ -31,7 +31,7 @@ watch(() => props.modelValue, (newValue) => {
 </script>
 
 <template>
-  <div class="w-96 max-w-96 relative">
+  <div class="w-full min-w-64 sm:min-w-80 max-w-96 relative">
     <div class="flex items-center">
       <select @change="handleChange" v-model="value" class="opacity-0 absolute top-0 cursor-pointer h-full w-full outline-none focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
         <option value="" disabled>Choose {{ props.label }}</option>

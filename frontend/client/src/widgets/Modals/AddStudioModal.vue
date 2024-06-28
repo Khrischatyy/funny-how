@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {Popup} from "~/src/shared/ui/components";
-import {computed, inject, onMounted, provide, reactive, ref, watch} from "vue";
+import {computed, inject, onMounted, onUpdated, provide, reactive, ref, watch} from "vue";
 import { FInputClassic} from "~/src/shared/ui/common";
 import {HoursChoose} from "~/src/widgets/HoursChoose";
 import {PriceChoose} from "~/src/widgets/PriceChoose";
@@ -127,6 +127,37 @@ const handleFile = async (files: FileList) => {
 const togglePopup = () => {
   emit('togglePopup');
 }
+
+
+const updatePhotos = () => {
+  if (!studio.value) return;
+  studioForm.photos = studio?.value.photos.map((photo) => ({
+    url: photo.url,
+    id: photo.id,
+    index: photo.index,
+    file: null,
+  })).sort((a, b) => a.index - b.index); // Sort photos by index
+};
+
+const resetForm = () => {
+  Object.keys(studioForm).forEach(key => {
+    studioForm[key] = '';
+  });
+  studioForm.photos = [];
+};
+// Update photos when the component is mounted or updated
+onMounted(updatePhotos);
+onUpdated(updatePhotos);
+
+// Reset form and photos when the popup is closed
+watch(() => props.showPopup, (newVal) => {
+  if (!newVal) {
+    resetForm();
+  } else {
+    updatePhotos();
+  }
+});
+
 
 watch(
     () => studio.value,

@@ -1,13 +1,15 @@
 <template>
-  <div class="date-picker w-full">
+  <div @touchstart="preventTouch" @touchmove="preventTouch" @touchend="preventTouch" class="date-picker w-full justify-center items-center">
     <CustomWheel type="day" :data="days" :selected="date.getDate()" @dateChange="dateChanged" />
+    <div class="text-gray absolute opacity-20">
+      {{ todayLabel }}
+    </div>
     <CustomWheel type="month" :data="months" :selected="date.getMonth() + 1" @dateChange="dateChanged" />
-    <CustomWheel type="year" :data="years" :selected="date.getFullYear() - 1899" @dateChange="dateChanged" />
   </div>
 </template>
 
 <script setup>
-import { computed, watch, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { CustomWheel } from '~/src/features/CustomWheel';
 
 const props = defineProps({
@@ -17,19 +19,45 @@ const props = defineProps({
   }
 });
 
+const preventTouch = (event) => {
+  event.preventDefault();
+};
+
 const emit = defineEmits(['dateChange']);
 
 const days = computed(() => {
   return Array.from({ length: new Date(props.date.getFullYear(), props.date.getMonth() + 1, 0).getDate() }, (_, i) => i + 1);
 });
 
-const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const years = Array.from({ length: 201 }, (_, i) => 1900 + i);
+const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+const todayLabel = computed(() => {
+  const today = new Date();
+  const date = props.date;
+
+  const diffTime = date.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return 'Today';
+  } else if (diffDays === 1) {
+    return 'Tomorrow';
+  } else {
+    return dayNames[date.getDay()];
+  }
+});
 
 const currentDate = ref(props.date);
 
+watch(() => props.date, (newDate) => {
+  currentDate.value = newDate;
+  console.log('newDate', newDate);
+});
+
 const dateChanged = (type, changedData) => {
+  console.log('dateChanged', type, changedData);
   let newDate;
   if (type === 'day') {
     newDate = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), changedData);
@@ -37,13 +65,8 @@ const dateChanged = (type, changedData) => {
     const maxDayInSelectedMonth = new Date(currentDate.value.getFullYear(), months.indexOf(changedData), 0).getDate();
     const day = Math.min(currentDate.value.getDate(), maxDayInSelectedMonth);
     newDate = new Date(currentDate.value.getFullYear(), months.indexOf(changedData), day);
-  } else if (type === 'year') {
-    const maxDayInSelectedMonth = new Date(changedData, currentDate.value.getMonth(), 0).getDate();
-    const day = Math.min(currentDate.value.getDate(), maxDayInSelectedMonth);
-    newDate = new Date(changedData, currentDate.value.getMonth(), day);
   }
   currentDate.value = newDate;
-
   emit('dateChange', type, newDate);
 };
 </script>

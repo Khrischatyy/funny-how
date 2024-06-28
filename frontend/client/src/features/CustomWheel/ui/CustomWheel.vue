@@ -85,7 +85,7 @@ const onMouseUp = () => {
   document.removeEventListener('touchmove', onMouseMove);
   document.removeEventListener('touchend', onMouseUp);
 
-  const newSelected = props.type === 'hour' ? (-finalPosition / 50) + 1 : props.data[-finalPosition / 50];
+  const newSelected = props.type === 'hour' ? (-finalPosition / 50) : props.data[-finalPosition / 50];
   emit('dateChange', props.type, newSelected);
   emit('dragging', false);
 };
