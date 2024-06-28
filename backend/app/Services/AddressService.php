@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -147,16 +148,44 @@ class AddressService
     public function updatePhotoIndex(UpdatePhotoIndexRequest $request, int $photo_id): array
     {
         $photo = AddressPhoto::findOrFail($photo_id);
-
         $newIndex = $request->input('index');
+        $addressId = $photo->address_id;
+        $oldIndex = $photo->index;
 
-        // Логирование текущего и нового индекса
-        Log::info('Updating photo index', ['photo_id' => $photo_id, 'current_index' => $photo->index, 'new_index' => $newIndex]);
+        Log::info('Updating photo index', ['photo_id' => $photo_id, 'current_index' => $oldIndex, 'new_index' => $newIndex]);
 
-        $photo->index = $newIndex;
-        $photo->save();
+        DB::beginTransaction();
 
-        return $photo->toArray();
+        try {
+            // Check if the new index already exists for the address_id
+            $existingPhoto = AddressPhoto::where('address_id', $addressId)->where('index', $newIndex)->first();
+
+            if ($existingPhoto) {
+                // Use a temporary index to avoid unique constraint violation
+                $tempIndex = $newIndex + 1000; // Ensure this temp index doesn't conflict
+
+                // Assign temporary index to the existing photo
+                $existingPhoto->update(['index' => $tempIndex]);
+
+                // Update the photo to use the new index
+                $photo->update(['index' => $newIndex]);
+
+                // Update the existing photo to use the old index of the photo
+                $existingPhoto->update(['index' => $oldIndex]);
+            } else {
+                // If no conflict, simply update the index
+                $photo->update(['index' => $newIndex]);
+            }
+
+            DB::commit();
+
+            return $photo->toArray();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Failed to update photo index', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
 
