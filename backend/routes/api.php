@@ -107,6 +107,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/upload', [AddressController::class, 'uploadAddressPhotos']);
         Route::post('/update-index', [AddressController::class, 'updatePhotoIndex']);
     });
+    Route::prefix('user')->group(function () {
+        Route::post('set-role', [UserController::class, 'setRole']);
+        Route::get('me', [UserController::class, 'getMe']);
+        Route::put('update', [UserController::class, 'update']);
+    });
+
+
 
     Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');
     Route::post('history/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'history');
@@ -125,12 +132,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
     Route::get('{slug}/studios', [AddressController::class, 'getAddressesByCompanySlug']);
-    Route::post('set-role', [UserController::class, 'setRole']);
 
-    Route::get('/me', [UserController::class, 'getMe']);
+    //user
 
 
-    Route::put('user/update', [UserController::class, 'update']);
 
 });
 
