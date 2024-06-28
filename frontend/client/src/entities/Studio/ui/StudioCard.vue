@@ -101,19 +101,8 @@ const displayedPhotos = computed(() => {
     { url: defaultPhoto3_2 },
     { url: defaultPhoto3_3 }
   ];
-  let yelpPhotos = [
-    {url: 'https://s3-media0.fl.yelpcdn.com/bphoto/3rzbCcdBlgmmHOwwsaWB5g/o.jpg'},
-    {url: 'https://s3-media0.fl.yelpcdn.com/bphoto/zGA_lgsYRGXHofIHsPSs1g/o.jpg'},
-    {url: 'https://s3-media0.fl.yelpcdn.com/bphoto/h9D3QpnWeubUlwucVv_2Fg/o.jpg'},
-    {url: 'https://s3-media0.fl.yelpcdn.com/bphoto/vFWvXrnWdaRaFrACieFqpQ/o.jpg'},
-  ]
 
-  // let photos = props.studio.photos ? props.studio.photos.slice(currentIndex.value, currentIndex.value + 3) : [];
-  // if (photos.length < 3) {
-  //   photos = photos.concat(defaultPhotos);
-  // }
-  // return yelpPhotos;
-  return props.studio.photos ? props.studio.photos : yelpPhotos;
+  return props.studio.photos ? props.studio.photos.sort((a, b) => a.index - b.index) : defaultPhotos;
 });
 
 const displayedBadges = computed(() => {

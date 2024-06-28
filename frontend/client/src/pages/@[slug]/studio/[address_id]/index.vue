@@ -16,6 +16,7 @@ import {usePhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
 import type {SlideData} from "photoswipe";
 import {useApi} from "~/src/lib/api";
 import paymentSystems from '~/src/shared/assets/image/payment_systems.png';
+import {useSeoMeta} from "unhead";
 
 const route = useRoute();
 const addressId = ref(route.params.address_id);
@@ -23,9 +24,15 @@ const bookingError = ref('');
 const { address, pending, error } = useAddress(addressId.value);
 
 const pageTitle: Ref<string> = computed(() => {
-  return address.value ? `Studio | ${address.value.company.name}` : 'Loading...';
+  return address.value ? `${address.value.company.name} | Recording Studio` : 'Loading...';
 });
 
+const pageDescription: Ref<string> = computed(() => {
+  return address.value && address.value.prices.length > 0 ? `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com` : 'Book a session only at Funny-How.com';
+});
+const studioFirstPhoto: Ref<string> = computed(() => {
+  return address.value && address?.value?.photos.length > 0 ? address?.value?.photos[0].url : '/meta/open-graph-image.png';
+});
 const isLoading = ref(false)
 
 const session = ref()
@@ -59,12 +66,36 @@ rentingList[1].date = tomorrow.toISOString().split('T')[0];
 
 
 
+
+useSeoMeta({
+  title: pageTitle.value,
+  description: pageDescription.value,
+  ogTitle: pageTitle.value,
+  ogDescription: pageDescription.value,
+  ogImage: studioFirstPhoto.value,
+  ogUrl: route.fullPath,
+  twitterTitle: pageTitle.value,
+  twitterDescription: pageDescription.value,
+  twitterImage: studioFirstPhoto.value,
+  twitterCard: 'summary'
+})
+
 useHead({
   title: pageTitle,
   meta: [
-    { name: 'description', content: 'Dashboard for ' + pageTitle }
+    { name: 'description', content: pageDescription }
+  ],
+  htmlAttrs: {
+    lang: 'en'
+  },
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/png',
+      href: '/favicon.png'
+    }
   ]
-});
+})
 
 const photoContainer = ref<HTMLElement | null>(null);
 
@@ -286,7 +317,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
       <div ref="pswpElement" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
       </div>
       <ScrollContainer v-if="address?.photos.length > 0" class=" justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
-        <div v-for="(photo, index) in address?.photos" class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement">
+        <div v-for="(photo, index) in address?.photos.sort((a, b) => a.index - b.index)" class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement">
           <img :src="photo.url" @click.stop="() => openGallery(displayedPhotos, index)" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
         </div>
       </ScrollContainer>

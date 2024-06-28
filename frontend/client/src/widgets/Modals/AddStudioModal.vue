@@ -230,7 +230,7 @@ function handleDragEnd(event: DragEvent) {
   const newIndex = draggedItemIndex.value;
   console.log('photo', photo, 'newIndex', newIndex)
   // Send photo_id and new index to the server
-  updatePhotoOrder(photo.id, newIndex + 1);
+  updatePhotoOrder(photo.id, newIndex);
 
   draggedItemIndex.value = null;
 }

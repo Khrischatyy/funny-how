@@ -193,3 +193,8 @@ html {
 @keyframes spin {
 	to { transform: rotate(360deg); }
 }
+
+//Settings for the PhotoSwipe Gallery
+.pswp{
+	backdrop-filter: blur(5px);
+}
