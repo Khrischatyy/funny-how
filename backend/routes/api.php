@@ -129,6 +129,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/me', [UserController::class, 'getMe']);
 
+
+    Route::put('user/update', [UserController::class, 'update']);
+
 });
 
 Route::prefix('countries')->group(function () {

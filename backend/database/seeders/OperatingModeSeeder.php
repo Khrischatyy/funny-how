@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -16,52 +15,32 @@ class OperatingModeSeeder extends Seeder
     public function run()
     {
         DB::table('operating_modes')->updateOrInsert(
-            ['id' => 1],
+            ['id' => 1 ],
             [
                 'mode' => '24/7',
+                'label' => 'Always Open',
                 'description_registration' => 'Operates every day, no need to specify working hours.',
-                'description_customer' => '24/7 - Operates every day.',
-                // 'description' => '24/7 - Работает каждый день, рабочие часы проставлять не нужно, все остальные (everyday, weekdays,holidays) - недоступны',
+                'description_customer' => 'Open 24/7 - Operates every day.',
             ]
         );
 
         DB::table('operating_modes')->updateOrInsert(
-            ['id' => 2],
+            ['id' => 2 ],
             [
                 'mode' => 'everyday',
-                'description_registration' => 'Set working hours for each day of the week.',
-                'description_customer' => 'Working hours for whole week.',
-                // 'description' => 'Everyday - на все дни недели можно проставить время работы студии, при этом остальные (24/7, holidays, weekdays) опции не доступны',
+                'label' => 'Daily Fixed Hours',
+                'description_registration' => 'Set same working hours for each day of the week. One input for all 7 days.',
+                'description_customer' => 'Same working hours every day.',
             ]
         );
 
         DB::table('operating_modes')->updateOrInsert(
-            ['id' => 3],
+            ['id' => 3 ],
             [
-                'mode' => 'weekdays',
-                'description_registration' => 'Set working hours for all weekdays (5 days)',
-                'description_customer' => 'Working hours for weekdays',
-                // 'description' => 'Weekdays + Weekends - выставляются часы во все сразу будние (5 дней) выходные (2 дня), при выборе regular, 24/7 и everyday - недоступны',
-            ]
-        );
-
-        DB::table('operating_modes')->updateOrInsert(
-            ['id' => 4],
-            [
-                'mode' => 'weekends',
-                'description_registration' => 'Set working hours for all weekends (2 days).',
-                'description_customer' => 'Working hours for weekends.',
-                // 'description' => 'Weekdays + Weekends - выставляются часы во все сразу будние (5 дней) выходные (2 дня), при выборе regular, 24/7 и everyday - недоступны',
-            ]
-        );
-
-        DB::table('operating_modes')->updateOrInsert(
-            ['id' => 5],
-            [
-                'mode' => 'ondays',
-                'description_registration' => 'Set working hours for specific days.',
-                'description_customer' => 'Working hours for each day.',
-                // 'description' => 'On Days - выставляются дни отдельно, когда выбран ondays, то regular, 24/7 и everyday - недоступны',
+                'mode' => 'each_day',
+                'label' => 'Custom Hours For Each Day',
+                'description_registration' => 'Set different working hours for each day. Separate input for each day.',
+                'description_customer' => 'Different working hours for each day.',
             ]
         );
 

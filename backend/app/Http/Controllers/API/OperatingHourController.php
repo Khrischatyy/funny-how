@@ -134,8 +134,8 @@ class OperatingHourController extends BaseController
         $hours = match ($mode) {
             1 => $this->operatingHourService->permanent($address_id, $mode),
             2 => $this->operatingHourService->everyday($address_id, $mode, $open_time, $close_time),
-            3 => $this->operatingHourService->regular($address_id, $open_time, $close_time, $open_time_weekend, $close_time_weekend),
-//            4 => $this->operatingHourService->specificDay(),
+            3 => $this->operatingHourService->specificDay(),
+//            3 => $this->operatingHourService->regular($address_id, $open_time, $close_time, $open_time_weekend, $close_time_weekend),
         };
 
         return $this->sendResponse($hours, 'Hours were added');
