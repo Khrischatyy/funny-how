@@ -4,6 +4,7 @@
       <div class="container mx-auto px-2 md:px-4">
         <FilterBar />
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Spinner v-if="isLoading" class="spinner" />
           <AddStudioButton title="Book recent studio" :subtitle="`${recentStudio.address} at ${recentStudio.date}`" @click="togglePopup" />
           <BookingCard @onCancelBooking="handleCancelBooking" v-for="booking in bookings" :key="booking.id" :booking="booking" />
         </div>
@@ -72,6 +73,7 @@ import { navigateTo } from "nuxt/app";
 import { StudioCard } from "~/src/entities/Studio";
 import { BookingCard } from "~/src/entities/Booking/ui";
 import { useApi } from "~/src/lib/api";
+import {Spinner} from "~/src/shared/ui/common";
 
 const showPopup = ref(false);
 
@@ -104,6 +106,7 @@ const recentStudio = ref<BookingRecent>({
 const bookings = ref<Booking[]>([]);
 const currentPage = ref(1);
 const lastPage = ref(1);
+const isLoading = ref(false);
 
 onMounted(() => {
   getBookings();
@@ -111,8 +114,10 @@ onMounted(() => {
 
 const handleCancelBooking = (bookings) =>{
   bookings.value = bookings
+  getBookings()
 }
 const getBookings = async (page = 1) => {
+  isLoading.value = true;
   const { fetch: fetchBookings } = useApi({
     url: `/booking-management?page=${page}`,
     auth: true,
@@ -122,6 +127,7 @@ const getBookings = async (page = 1) => {
     bookings.value = response.data.data;
     currentPage.value = response.data.current_page;
     lastPage.value = response.data.last_page;
+    isLoading.value = false;
   }).catch((error) => {
     console.error('Error fetching bookings:', error);
   });
