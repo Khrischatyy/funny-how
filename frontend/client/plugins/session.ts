@@ -1,6 +1,6 @@
 import {
     useSessionStore, USER_INFO_KEY,
-    ROLE_INFO_KEY, ACCESS_TOKEN_KEY, RESERVES_KEY, PAYMENT_SESSION, BRAND_KEY
+    ACCESS_TOKEN_KEY, RESERVES_KEY, PAYMENT_SESSION, BRAND_KEY
 } from '~/src/entities/Session/model'
 import {defineNuxtPlugin, useCookie} from "#app";
 import {navigateTo} from "nuxt/app";
