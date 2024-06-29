@@ -46,7 +46,6 @@ class AddressService
         ]);
     }
 
-
     public function getMyAddresses(): Collection
     {
         $user = Auth::user();

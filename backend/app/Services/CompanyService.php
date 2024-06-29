@@ -53,4 +53,9 @@ class CompanyService
 
         return $company;
     }
+
+    public function getCompanyById($companyId)
+    {
+        return Company::findOrFail($companyId);
+    }
 }

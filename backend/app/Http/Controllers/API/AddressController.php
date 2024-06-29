@@ -303,8 +303,12 @@ class AddressController extends BaseController
     {
         try {
             $city = $this->cityService->findOrCreateCity($request->city, $request->country);
-            $this->authorize('update', )
-            $address = $this->addressService->createAddress($request, '');
+            $company = $this->companyService->getCompanyById($request->company_id);
+
+            $this->authorize('update', $company);
+
+            $address = $this->addressService->createAddress($request, $city, $company);
+
             return $this->sendResponse($address, 'Address created successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to create address.', 500, ['error' => $e->getMessage()]);
