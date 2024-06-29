@@ -215,10 +215,6 @@ class BookingController extends BaseController
             $userId = Auth::id();
             $bookings = $this->bookingService->getBookings($userId, $type);
 
-            if ($bookings->isEmpty()) {
-                return $this->sendError('No bookings found.', 404);
-            }
-
             return $this->sendResponse($bookings, 'Bookings retrieved successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to retrieve bookings.', 500, ['error' => $e->getMessage()]);

@@ -27,46 +27,43 @@ class OperatingHourRequest extends FormRequest
         return [
             'mode_id' => 'required|integer',
             'address_id' => 'required|integer|exists:addresses,id',
-            'is_closed' => 'sometimes|boolean',
-            'day_of_week' => 'sometimes|integer|between:0,6',
-
-            // Данные, когда необходимо проставить отдельно выходные дни, и отдельно будние
-            'open_time_weekend' => [
+            'hours' => [
+                Rule::requiredIf(function () {
+                    return (int) $this->input('mode_id') == 3;
+                }),
+                'array'
+            ],
+            'hours.*.day_of_week' => [
+                Rule::requiredIf(function () {
+                    return (int) $this->input('mode_id') == 3;
+                }),
+                'integer',
+                'between:0,6'
+            ],
+            'hours.*.open_time' => [
                 Rule::requiredIf(function () {
                     return (int) $this->input('mode_id') == 3;
                 }),
                 'date_format:H:i'
             ],
-            'close_time_weekend' => [
+            'hours.*.close_time' => [
                 Rule::requiredIf(function () {
                     return (int) $this->input('mode_id') == 3;
                 }),
-                'date_format:H:i',
-
+                'date_format:H:i'
             ],
-
+            'hours.*.is_closed' => 'sometimes|boolean',
             'open_time' => [
                 Rule::requiredIf(function () {
                     return (int) $this->input('mode_id') == 2;
                 }),
-                'date_format:H:i',
-
-                Rule::requiredIf(function () {
-                    return (int) $this->input('mode_id') == 3;
-                }),
-                'date_format:H:i',
+                'date_format:H:i'
             ],
             'close_time' => [
                 Rule::requiredIf(function () {
                     return (int) $this->input('mode_id') == 2;
                 }),
-                'date_format:H:i',
-
-                Rule::requiredIf(function () {
-                    return (int) $this->input('mode_id') == 3;
-                }),
-                'date_format:H:i',
-
+                'date_format:H:i'
             ],
         ];
     }

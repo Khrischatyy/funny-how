@@ -55,11 +55,10 @@ class OperatingHourController extends BaseController
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="mode_id", type="integer", example=3, description="Mode of operation: 1 for permanent, 2 for everyday, 3 for regular"),
+     *             @OA\Property(property="mode_id", type="integer", example=3, description="Mode of operation: 1 for permanent, 2 for everyday, 3 for specific days"),
      *             @OA\Property(property="address_id", type="integer", example=1, description="ID of the address"),
      *             @OA\Property(property="is_closed", type="boolean", example=false, description="Whether the address is closed"),
      *             @OA\Property(property="day_of_week", type="integer", example=1, description="Day of the week, required if setting specific day (0 for Sunday, 6 for Saturday)"),
-     *
      *             @OA\Property(
      *                 property="open_time",
      *                 type="string",
@@ -75,18 +74,15 @@ class OperatingHourController extends BaseController
      *                 description="Closing time (required if mode_id is 2 or 3)"
      *             ),
      *             @OA\Property(
-     *                 property="open_time_weekend",
-     *                 type="string",
-     *                 format="time",
-     *                 example="10:00",
-     *                 description="Weekend opening time (required if mode_id is 3)"
-     *             ),
-     *             @OA\Property(
-     *                 property="close_time_weekend",
-     *                 type="string",
-     *                 format="time",
-     *                 example="16:00",
-     *                 description="Weekend closing time (required if mode_id is 3)"
+     *                 property="hours",
+     *                 type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="day_of_week", type="integer", example=1),
+     *                     @OA\Property(property="open_time", type="string", format="time", example="09:00"),
+     *                     @OA\Property(property="close_time", type="string", format="time", example="18:00"),
+     *                     @OA\Property(property="is_closed", type="boolean", example=false)
+     *                 ),
+     *                 description="Array of specific days with open and close times (required if mode_id is 3)"
      *             )
      *         )
      *     ),
@@ -101,7 +97,8 @@ class OperatingHourController extends BaseController
      *                     @OA\Property(property="mode_id", type="integer", example=4),
      *                     @OA\Property(property="day_of_week", type="integer", example=1),
      *                     @OA\Property(property="open_time", type="string", example="09:00"),
-     *                     @OA\Property(property="close_time", type="string", example="18:00")
+     *                     @OA\Property(property="close_time", type="string", example="18:00"),
+     *                     @OA\Property(property="is_closed", type="boolean", example=false)
      *                 )
      *             ),
      *             @OA\Property(property="message", type="string", example="Hours were added"),
@@ -118,26 +115,62 @@ class OperatingHourController extends BaseController
         $mode = (int) $operatingHourRequest->input('mode_id');
         $open_time = $operatingHourRequest->input('open_time');
         $close_time = $operatingHourRequest->input('close_time');
+        $hours = $operatingHourRequest->input('hours', []);
 
         $company = $this->companyService->getCompanyByAddressId($address_id);
 
-        //проверка может ли studio_owner апдейтить студию
-        //TODO: если несколько компаний у owner, проверка не пройдет
-        //Но по логике, у нас owner не может иметь несколько компаний, поэтому думаю все ок
-        //TODO: запроещать создавать больше чем 1 компанию у owner
+        // Проверка, может ли studio_owner апдейтить студию
         $this->authorize('update', $company);
 
-
-        $open_time_weekend = $operatingHourRequest->input('open_time_weekend', null);
-        $close_time_weekend = $operatingHourRequest->input('close_time_weekend', null);
-
-        $hours = match ($mode) {
+        $result = match ($mode) {
             1 => $this->operatingHourService->permanent($address_id, $mode),
             2 => $this->operatingHourService->everyday($address_id, $mode, $open_time, $close_time),
-            3 => $this->operatingHourService->specificDay(),
-//            3 => $this->operatingHourService->regular($address_id, $open_time, $close_time, $open_time_weekend, $close_time_weekend),
+            3 => $this->operatingHourService->specificDay($address_id, $mode, $hours),
         };
 
-        return $this->sendResponse($hours, 'Hours were added');
+        return $this->sendResponse($result, 'Hours were added');
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/address/{address_id}/operating-hours",
+     *     summary="Get operating hours for an address",
+     *     tags={"Operating Hours"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the address",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Operating hours retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="address_id", type="integer", example=1),
+     *                     @OA\Property(property="mode_id", type="integer", example=4),
+     *                     @OA\Property(property="day_of_week", type="integer", example=1),
+     *                     @OA\Property(property="open_time", type="string", example="09:00"),
+     *                     @OA\Property(property="close_time", type="string", example="18:00"),
+     *                     @OA\Property(property="is_closed", type="boolean", example=false)
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Operating hours retrieved successfully"),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="400", description="Bad Request"),
+     *     @OA\Response(response="500", description="Internal Server Error")
+     * )
+     */
+    public function getOperatingHours($address_id): JsonResponse
+    {
+        $hours = $this->operatingHourService->getOperatingHours($address_id);
+
+        return $this->sendResponse($hours, 'Operating hours retrieved successfully');
     }
 }
