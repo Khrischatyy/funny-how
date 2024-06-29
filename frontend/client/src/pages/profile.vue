@@ -83,7 +83,7 @@ const saveUser = async () => {
   isLoading.value = true;
   const {put: saveUser} = useApi({ url: '/user/update', auth: true });
 
-  await saveUser({ data: userForm }).then((response) => {
+  await saveUser(userForm).then((response) => {
     console.log('response', response.data.user)
     isLoading.value = false;
   });
