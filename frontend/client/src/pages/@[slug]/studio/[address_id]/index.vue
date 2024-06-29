@@ -18,6 +18,7 @@ import {useApi} from "~/src/lib/api";
 import paymentSystems from '~/src/shared/assets/image/payment_systems.png';
 import {useSeoMeta} from "unhead";
 import {DisplayNumber} from "~/src/shared/ui/components";
+import {getRatingColor } from "~/src/shared/utils";
 
 const route = useRoute();
 const addressId = ref(route.params.address_id);
@@ -325,16 +326,6 @@ function timeChanged(newDate: string, input: keyof StudioFormValues) {
 
 }
 
-const getRatingColor = (rating: number) => {
-  if (rating >= 4) {
-    return 'text-green';
-  } else if (rating >= 3) {
-    return 'text-yellow';
-  } else {
-    return 'text-red';
-  }
-}
-
 const { pswpElement, openGallery } = usePhotoSwipe();
 const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(photo => ({
   src: photo.url,
@@ -405,7 +396,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
               </div>
               <div  class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center">
                 <div class="price-tag flex gap-2 font-[BebasNeue] text-4xl text-white justify-center items-center">
-                  Rating: <span :class="getRatingColor(address?.company.rating)">{{address?.company.rating}}</span>
+                  Rating: <span :class="getRatingColor(address?.rating)">{{address?.rating}}</span>
                 </div>
               </div>
             </div>
@@ -594,13 +585,4 @@ select {
   z-index: 1000; // Ensure the photo container is above other content
 }
 
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
 </style>

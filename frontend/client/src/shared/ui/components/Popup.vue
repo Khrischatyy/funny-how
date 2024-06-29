@@ -8,18 +8,21 @@ const closePopup = () => {
   emit('close');
 }
 
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    closePopup();
+  }
+}
+
 onMounted(() => {
   document.body.style.overflow = 'hidden';
-  window.onkeydown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && props.open) {
-      closePopup();
-    }
-  }
+  window.addEventListener('keydown', handleKeyDown);
+
 });
 
 onUnmounted(() => {
   document.body.style.overflow = 'auto';
-  window.onkeydown = null;
+  window.removeEventListener('keydown', handleKeyDown);
 });
 
 export type PopupType = 'default' | 'success' | 'error' | 'warning' | 'small';
@@ -40,10 +43,12 @@ const props = withDefaults(defineProps<{
     <div :class="{'max-w-lg mx-auto': props.type == 'small'}" class="modal-content flex flex-col gap-5 bg-[#171717] rounded-[10px] shadow-lg w-full p-6 relative z-20">
       <div class="modal-header flex justify-between items-center mb-4">
         <slot name="header" class="text-white text-[22px]/[26px] font-bold" />
-        <div @click="closePopup" class="flex flex-col justify-center items-center cursor-pointer">
-          <IconClose />
-          <span class="opacity-20">Close</span>
-        </div>
+        <slot name="action_header">
+          <div @click="closePopup" class="flex flex-col justify-center items-center cursor-pointer">
+            <IconClose />
+            <span class="opacity-20">Close</span>
+          </div>
+        </slot>
       </div>
       <div class="modal-body mb-10">
         <slot name="body" />

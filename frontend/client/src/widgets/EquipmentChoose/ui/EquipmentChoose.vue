@@ -16,6 +16,7 @@ import {Loader} from "@googlemaps/js-api-loader";
 import axios from "axios";
 import {Popup} from "~/src/shared/ui/components";
 import {useApi} from "~/src/lib/api";
+import { closePopup } from './closePopup';
 
 function isError(form: string, field: string): boolean {
   let formErrors: Record<string, any> = useCreateStudioFormStore().errors;
@@ -73,11 +74,6 @@ const equipment = ref<EquipmentType[]>([
 const showPopup = ref(false)
 const togglePopup = () => {
   showPopup.value = !showPopup.value
-}
-
-const closePopup = () => {
-  showPopup.value = false
-
 }
 
 const addEquipmentForm = ref({

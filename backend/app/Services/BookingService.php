@@ -31,7 +31,7 @@ class BookingService
             $query->where('date', '>=', now());
         }
 
-        return $query->with(['address.company', 'address.badges', 'status'])->paginate(self::BOOKING_PAGINATE_COUNT);
+        return $query->with(['address.company', 'address.photos', 'address.badges', 'status'])->paginate(self::BOOKING_PAGINATE_COUNT);
     }
 
     public function filterBookings($userId, $status, $date, $time, $search, $type)
