@@ -13,12 +13,8 @@ use Exception;
 
 class UserController extends BaseController
 {
-    protected $userService;
-
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
+    public function __construct(protected UserService $userService)
+    {}
 
     /**
      * @OA\Get(

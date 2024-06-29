@@ -28,7 +28,6 @@ class UserUpdateRequest extends FormRequest
             'lastname' => 'nullable|string|max:255',
             'username' => 'nullable|string|max:255|unique:users,username',
             'phone' => 'nullable|string|max:20',
-            'profile_photo' => 'nullable|string|max:255',
             'date_of_birth' => 'nullable|date',
         ];
     }
