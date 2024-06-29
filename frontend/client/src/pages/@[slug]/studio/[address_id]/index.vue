@@ -17,6 +17,7 @@ import type {SlideData} from "photoswipe";
 import {useApi} from "~/src/lib/api";
 import paymentSystems from '~/src/shared/assets/image/payment_systems.png';
 import {useSeoMeta} from "unhead";
+import {DisplayNumber} from "~/src/shared/ui/components";
 
 const route = useRoute();
 const addressId = ref(route.params.address_id);
@@ -99,16 +100,16 @@ const setSeoMeta = () => {
 
 useSeoMeta({
   title: () => `${address.value?.company.name} - Funny How`,
-  description: () => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+  description: () => `Book a session at ${address.value?.company.name} from $${address.value?.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
   ogTitle: `${address.value?.company.name} - Funny How`,
-  ogDescription:() => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+  ogDescription:() => `Book a session at ${address.value?.company.name} from $${address.value?.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
   ogImage: () => {
     const photos = address?.value?.photos;
     return photos && photos.length > 0 ? photos[0].url : '/meta/open-graph-image.png';
   },
   ogUrl: route.fullPath,
   twitterTitle: () => `${address.value?.company.name} - Funny How`,
-  twitterDescription:() => `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+  twitterDescription:() => `Book a session at ${address.value?.company.name} from $${address.value?.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
   twitterImage:() => {
     const photos = address?.value?.photos;
     return photos && photos.length > 0 ? photos[0].url : '/meta/open-graph-image.png';
@@ -246,12 +247,13 @@ watchEffect(() => {
     bookingError.value = ''
   }
 })
-function book(){
-  isLoading.value = true
-  const { post: bookTime} = useApi({
+function book() {
+  isLoading.value = true;
+  const { post: bookTime } = useApi({
     url: `/address/reservation`,
     auth: true,
   });
+
   bookTime({
     address_id: address.value?.id,
     date: rentingForm.value.date,
@@ -259,16 +261,14 @@ function book(){
     end_time: rentingForm.value.end_time,
   }).then((response) => {
     responseQuote.value = response.data;
-    isLoading.value = false
-    if(response.data?.payment_session?.status == 'open'){
-      pay(response.data?.payment_session?.url)
+    isLoading.value = false;
+    if (response.data?.payment_session?.status == 'open') {
+      window.location.href = response.data?.payment_session?.url;
     }
-    //session.value.setReservations(response.data?.booking)
-    //session.value.setPaymentSession(response.data?.payment_session)
   }).catch((error) => {
-    bookingError.value = error.message
-    isLoading.value = false
-  })
+    bookingError.value = error.message;
+    isLoading.value = false;
+  });
 }
 function pay(url: string) {
   const paymentWindow = window.open(url, '_blank', 'width=800,height=600,toolbar=0,location=0,menubar=0');
@@ -399,7 +399,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
                     {{price.hours}} HOUR{{price.hours > 1 ? 'S' : ''}}
                   </div>
                   <div class="font-['Montserrat']">
-                    ${{price.total_price}}
+                        ${{price.total_price}}
                   </div>
                 </div>
               </div>
@@ -473,8 +473,13 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
                 <div class="text-white text-4xl font-[BebasNeue]">
                   Price:
                 </div>
-                <div class="text-white text-4xl font-[BebasNeue]">
-                  ${{calculatedPrice}}
+                <div class="text-white text-4xl relative font-[BebasNeue]">
+<!--                  <Transition>-->
+<!--                      <span :key="calculatedPrice">-->
+<!--                        ${{calculatedPrice}}-->
+<!--                      </span>-->
+<!--                  </Transition>-->
+                  <DisplayNumber :value="calculatedPrice" />
                 </div>
               </div>
             </div>
@@ -587,5 +592,15 @@ select {
   top: 0; // Adjust this value based on your header or desired offset
   transition: height 0.1s ease-in-out; // Smooth transition for height change
   z-index: 1000; // Ensure the photo container is above other content
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
