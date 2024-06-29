@@ -20,7 +20,7 @@
         </div>
         <div class="flex gap-2 w-full p-5 max-w-2xl bg-black rounded-[10px]">
           <div class="flex flex-col gap-5 w-full">
-            <FInputClassic @blur="saveUser" label="Date Of Birth" placeholder="mm/dd/yy" :model-value="userForm.date_of_birth"/>
+            <FInputClassic type="date" @blur="saveUser" label="Date Of Birth" placeholder="mm/dd/yy" :model-value="userForm.date_of_birth"/>
             <FInputClassic @blur="saveUser" label="Username" placeholder="Visible to others" :model-value="userForm.username"/>
           </div>
         </div>
@@ -72,7 +72,7 @@ onMounted(async () => {
     userForm.profile_photo = response.data.user.profile_photo;
     userForm.email = response.data.user.email;
     userForm.phone = response.data.user.phone;
-    userForm.date_of_birth = response.user.data.date_of_birth;
+    userForm.date_of_birth = response.data.user.date_of_birth;
     userForm.username = response.user.data.username;
     isLoading.value = false;
     isLoading.value = false;
@@ -81,7 +81,7 @@ onMounted(async () => {
 
 const saveUser = async () => {
   isLoading.value = true;
-  const {post: saveUser} = useApi({ url: '/user/update', auth: true });
+  const {put: saveUser} = useApi({ url: '/user/update', auth: true });
 
   await saveUser({ data: userForm }).then((response) => {
     console.log('response', response.data.user)
