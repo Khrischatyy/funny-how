@@ -114,6 +114,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('set-role', [UserController::class, 'setRole']);
         Route::get('me', [UserController::class, 'getMe']);
         Route::put('update', [UserController::class, 'updateUser']);
+        Route::post('update-photo', [UserController::class, 'updatePhoto']);
     });
 
 
