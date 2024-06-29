@@ -8,6 +8,7 @@ export type StudioFormValues = {
     company: string;
     address: string;
     country: string;
+    zip: string;
     city: string;
     street: string;
     about: string;
@@ -35,6 +36,7 @@ export function useCreateStudio() {
             city: '',
             street: '',
             about: '',
+            zip: '',
             longitude: '',
             latitude: '',
             logo_preview: null,

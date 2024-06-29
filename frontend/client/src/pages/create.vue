@@ -37,6 +37,7 @@ watch(addressData, (newVal) => {
   formValues.latitude = newVal.location.lat.toString();
   formValues.longitude = newVal.location.lng.toString();
   formValues.country = newVal.addressComponents['country']?.longName || '';
+  formValues.zip = newVal.addressComponents['postal_code']?.longName || '';
   formValues.city = newVal.addressComponents['locality']?.longName || '';
   formValues.street = `${newVal.addressComponents['street_number']?.longName || ''} ${newVal.addressComponents['route']?.longName || ''}`;
 }, { deep: true });

@@ -4,7 +4,7 @@
       <div class="container mx-auto px-2 md:px-4">
         <FilterBar />
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Spinner v-if="isLoading" class="spinner" />
+          <Spinner :is-loading="isLoading" class="spinner" />
           <AddStudioButton title="Book recent studio" :subtitle="`${recentStudio.address} at ${recentStudio.date}`" @click="togglePopup" />
           <BookingCard @onCancelBooking="handleCancelBooking" v-for="booking in bookings" :key="booking.id" :booking="booking" />
         </div>
