@@ -38,7 +38,6 @@ class Booking extends Model
 
     public function getUserNameAttribute()
     {
-        return $this->user->name;
+        return $this->user->username;
     }
-
 }
