@@ -113,7 +113,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('user')->group(function () {
         Route::post('set-role', [UserController::class, 'setRole']);
         Route::get('me', [UserController::class, 'getMe']);
-        Route::put('update', [UserController::class, 'update']);
+        Route::put('update', [UserController::class, 'updateUser']);
     });
 
 
