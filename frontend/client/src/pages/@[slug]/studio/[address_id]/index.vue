@@ -19,6 +19,8 @@ import paymentSystems from '~/src/shared/assets/image/payment_systems.png';
 import {useSeoMeta} from "unhead";
 import {DisplayNumber} from "~/src/shared/ui/components";
 import {getRatingColor } from "~/src/shared/utils";
+import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue";
+import {Clipboard} from "~/src/shared/ui/common/Clipboard";
 
 const route = useRoute();
 const addressId = ref(route.params.address_id);
@@ -374,9 +376,18 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
                 <div class="text-white opacity-20 mb-3 text-lg font-['Montserrat'] font-normal tracking-wide">
                   Address
                 </div>
-                <div class="font-[BebasNeue]">
-                  Street: {{address?.street}}<br/>
-                </div>
+                <Clipboard :text-to-copy="address?.street">
+                  <div class="flex gap-5 w-full">
+                    <div>
+                      <IconAddress class="h-10 w-10 object-contain" />
+                    </div>
+                    <div class="font-[BebasNeue] w-full text-left">
+                       {{address?.street}}<br/>
+                    </div>
+                  </div>
+                </Clipboard>
+
+
               </div>
               <div class="max-w-full w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center">
                 <BadgesList class="justify-center-important" theme="default" :badges="address?.badges" />

@@ -308,6 +308,7 @@ class AddressController extends BaseController
             $this->authorize('update', $company);
 
             $address = $this->addressService->createAddress($request, $city, $company);
+            $address->company_slug = $company->slug;
 
             return $this->sendResponse($address, 'Address created successfully.');
         } catch (Exception $e) {

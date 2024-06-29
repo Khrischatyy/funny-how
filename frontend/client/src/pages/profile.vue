@@ -4,8 +4,11 @@
       <div class="container flex flex-col relative gap-10 mx-auto px-2 overflow-x-hidden md:px-4">
         <Spinner :is-loading="isLoading" />
         <div class="flex gap-2 w-full p-5 max-w-2xl bg-black rounded-[10px] justify-center items-center">
-          <div class="w-30 h-30 avatar rounded-full">
-            <img class="object-cover rounded-full" src="https://placeholder.com/120x120">
+          <div class="group relative min-w-32 cursor-pointer w-32 h-32 avatar rounded-full border border-white border-opacity-20 flex justify-center items-center">
+            <img v-if="userForm.profile_photo" class="object-cover rounded-full" :src="userForm.profile_photo">
+            <div class="absolute w-full h-full z-10">
+              <FInputClassic input-style="plain" type="file" class="opacity-20 w-full h-full rounded-full group-hover:opacity-100" v-model="uploadingPhoto" @change="updateProfilePhoto" />
+            </div>
           </div>
           <div class="flex flex-col gap-5 w-full">
             <FInputClassic @blur="saveUser" label="First Name" placeholder="First name" v-model="userForm.firstname"/>
@@ -30,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive, ref} from "vue";
-import {FInputClassic, Spinner} from "~/src/shared/ui/common";
+import {computed, onMounted, reactive, ref} from "vue";
+import {FInputClassic, IconUpload, Spinner} from "~/src/shared/ui/common";
 import {useApi} from "~/src/lib/api";
 
 
@@ -46,7 +49,7 @@ const userForm = reactive({
   username: '',
   profile_photo: '',
 });
-
+const uploadingPhoto = ref('');
 onMounted(async () => {
   const {fetch: fetchUser} = useApi({ url: '/user/me', auth: true });
   isLoading.value = true;
@@ -65,11 +68,32 @@ onMounted(async () => {
 const saveUser = async () => {
   isLoading.value = true;
   const {put: saveUser} = useApi({ url: '/user/update', auth: true });
-
-  await saveUser(userForm).then((response) => {
-    console.log('response', response.data.user)
+  try {
+    await saveUser(userForm).then((response) => {
+      isLoading.value = false;
+    });
+  } catch (error) {
+    console.error('Error saving user:', error);
     isLoading.value = false;
-  });
+  }
 };
 
+const updateProfilePhoto = async (event: Event) => {
+
+  const {post: updatePhoto} = useApi({ url: '/user/update-photo', auth: true });
+  const file = (event.target as HTMLInputElement).files?.[0];
+  const formData = new FormData();
+  formData.append('photo', file);
+  try {
+    isLoading.value = true;
+    await updatePhoto(formData).then((response) => {
+      userForm.profile_photo = response.data.photo_url;
+      uploadingPhoto.value = '';
+      isLoading.value = false;
+    });
+  } catch (error) {
+    console.error('Error updating photo:', error);
+    isLoading.value = false;
+  }
+};
 </script>

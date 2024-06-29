@@ -56,7 +56,7 @@ const getFirstPhoto = computed(() => {
 </script>
 
 <template>
-  <Popup type="small" :title="'Manage Booking'" :open="showPopup" @close="closePopup">
+  <Popup :scroll-to-close="true" type="small" :title="'Manage Booking'" :open="showPopup" @close="closePopup">
     <template #header>
       <div class="flex justify-start items-center gap-5">
         <div class="h-[35px] w-[35px]">

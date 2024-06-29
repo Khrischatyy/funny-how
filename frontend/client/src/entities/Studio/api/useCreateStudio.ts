@@ -86,6 +86,46 @@ export function useCreateStudio() {
             isLoading.value = false;
         }
     }
+    async function addStudio(data: StudioFormValues) {
+        const formData = new FormData();
+        Object.keys(data).forEach((key: any) => {
+            if (key in data) {
+                const value = data[key as keyof StudioFormValues];
+                if (value !== null) {
+                    formData.append(key, value as string | Blob);
+                }
+            }
+        });
 
-    return { createStudio, errors, isLoading, formValues };
+        const { post } = useApi<ResponseBrand>({
+            url: '/address/add-studio',
+            auth: true,
+        });
+
+        // Clear previous errors before a new submission
+        errors.value = {};
+
+        try {
+            const response = await post(formData);
+            console.log('Successful response:', response);
+            //response returns slug of the created brand and address_id
+            useSessionStore().setBrand(response?.data.slug || '');
+            navigateTo(`/@${response?.data?.company_slug}/setup/${response?.data?.id}/hours`)
+            return response;
+        } catch (error: any) {
+            console.error("Failed to create studio:", error);
+            if (error.errors) {
+                // Update UI or state with specific field errors
+                errors.value = error.errors;
+            } else {
+                // Handle general error message
+                errors.value.general = [error.message];
+            }
+            throw error; // Rethrow the error to allow further handling
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    return { createStudio, addStudio, errors, isLoading, formValues };
 }

@@ -20,7 +20,7 @@ definePageMeta({
   middleware: ["auth", "owner"],
 })
 
-const { createStudio, errors, isLoading, formValues } = useCreateStudio();
+const { createStudio, addStudio, errors, isLoading, formValues } = useCreateStudio();
 
 const route = useRoute();
 
@@ -64,10 +64,22 @@ function changeLogo() {
   }
 }
 
+async function addNewStudio() {
+  isLoading.value = true;
+  formValues.company_id = userInfo.value?.company.id;
+  try {
+    await addStudio(formValues); // Use composable to submit form
+    // Navigate or handle success as needed
+  } catch (error) {
+    console.error('Error submitting studio form:', error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 async function setupStudio() {
   isLoading.value = true;
-  // if(existedCompany)
-  //   formValues.company = existedCompany;
+
   try {
     await createStudio(formValues); // Use composable to submit form
     // Navigate or handle success as needed
@@ -86,6 +98,9 @@ const upperCase = (str: string) => {
 }
 const existedCompany = computed(() => {
   return session.value?.brand;
+});
+const userInfo = computed(() => {
+  return JSON.parse(session.value?.userInfo).user;
 });
 </script>
 
@@ -157,11 +172,10 @@ const existedCompany = computed(() => {
 <!--          </div>-->
 <!--        </div>-->
         <div class="justify-center items-center gap-2.5 inline-flex">
-          <button @click="setupStudio()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Save And Continue</button>
+          <button v-if="!existedCompany" @click="setupStudio()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Save And Continue</button>
+          <button v-else @click="addNewStudio()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Add studio</button>
         </div>
-        <div class="justify-center items-center gap-2.5 inline-flex">
-          <button @click="signOut()" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">Sign Out</button>
-        </div>
+
       </div>
     </div>
   </div>

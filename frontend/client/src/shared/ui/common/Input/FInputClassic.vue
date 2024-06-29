@@ -2,14 +2,18 @@
 import {onMounted, ref, useSlots, watch} from "vue";
 import {IconUpload} from "~/src/shared/ui/common";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   label?: string;
   placeholder?: string;
   modelValue: string | number | null;
   type?: string;
   size?: 'sm' | 'md' | 'lg';
   error?: string | boolean;
-}>()
+  inputStyle?: 'plain' | 'classic';
+}>(), {
+  size: 'md',
+  inputStyle: 'classic',
+});
 const slots = useSlots();
 const value = ref<string | number | null>(props.modelValue);
 const file = ref<File | null>(null);
@@ -55,7 +59,7 @@ watch(() => props.modelValue, (newValue) => {
         <slot name="action" />
       </div>
     </div>
-    <div class="relative flex items-center justify-center">
+    <div :class="{'w-full h-full': inputStyle == 'plain'}" class="relative flex items-center justify-center">
     <div class="absolute left-3">
       <slot name="icon" />
     </div>
@@ -70,7 +74,7 @@ watch(() => props.modelValue, (newValue) => {
         class="w-full flex justify-start items-center px-3 h-11 outline-none rounded-[10px] focus:border-white border border-opacity-20 focus:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
         :type="props.type || 'text'"
     />
-    <div v-else class="w-11 h-11 flex items-center justify-center border border-white border-opacity-20 rounded-[10px] bg-transparent text-white text-sm font-medium tracking-wide cursor-pointer" @click="handlePlaceholderClick">
+    <div v-else :class="{'border border-white border-opacity-20 rounded-[10px]': inputStyle == 'classic', 'rounded-full': inputStyle == 'plain'}" class="w-full h-full flex items-center justify-center rounded-[10px] bg-transparent text-white text-sm font-medium tracking-wide cursor-pointer" @click="handlePlaceholderClick">
       <input
           id="fileInput"
           v-bind="$attrs"
@@ -79,10 +83,10 @@ watch(() => props.modelValue, (newValue) => {
           :class="{ 'pl-10': slots?.icon, 'border-red': error, 'border-white': !error && !slots?.icon }"
           @change="handleInput"
       />
-      <span v-if="!imageUrl" class="opacity-20">
+      <span v-if="!imageUrl" :class="{'opacity-20': inputStyle == 'classic'}">
         <IconUpload/>
       </span>
-      <img v-if="imageUrl" :src="imageUrl" alt="Uploaded Image" class="w-full h-full object-cover rounded-[10px]" />
+      <img v-if="imageUrl" :src="imageUrl" :class="{'rounded-[10px]':inputStyle == 'classic', 'rounded-full': inputStyle == 'plain'}" alt="Uploaded Image" class="w-full h-full object-cover" />
     </div>
   </div>
   </div>

@@ -16,7 +16,12 @@
     </div>
     <div class="flex gap-3 justify-between items-center relative">
       <div class="w-full relative">
-        <p class="text-white">{{ booking.address.street }}</p>
+        <Clipboard :text-to-copy="booking.address.street">
+          <div class="flex items-center relative gap-2">
+            <IconAddress class="opacity-20" />
+            <p class="text-white">{{ booking.address.street }}</p>
+          </div>
+        </Clipboard>
       </div>
     </div>
 
@@ -48,6 +53,8 @@ import {IconCalendar, IconClock, IconLeft, IconLike, IconRight} from "~/src/shar
 import {ManageBookingModal} from "~/src/widgets/Modals";
 import {ref} from "vue";
 import {getStatus, getColor} from "~/src/shared/utils";
+import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue";
+import {Clipboard} from "~/src/shared/ui/common/Clipboard";
 const showPopup = ref(false);
 
 const emit = defineEmits<{

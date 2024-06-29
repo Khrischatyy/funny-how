@@ -24,3 +24,7 @@ export const getRatingColor = (rating: number) => {
         return 'red';
     }
 }
+
+export const phoneNormalizer = (phone: string) => {
+    return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+};

@@ -35,34 +35,10 @@
   </div>
 </template>
 
-<style scoped>
-.spinner {
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-left-color: #ffffff;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-</style>
 
 <style scoped>
-.spinner {
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-left-color: #ffffff;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 </style>
 
 <script setup lang="ts">

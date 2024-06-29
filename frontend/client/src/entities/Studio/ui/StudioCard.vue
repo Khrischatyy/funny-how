@@ -5,7 +5,9 @@
       <img :src="logoSrc" alt="Logo" class="h-[35px] w-[35px]" />
       <div>
         <h3 class="text-xl font-bold text-white">{{studio.company.name }}</h3>
-        <p class="text-white">{{ studio.street }}</p>
+        <Clipboard :text-to-copy="studio.street">
+          <p class="text-white">{{ studio.street }}</p>
+        </Clipboard>
       </div>
     </div>
     <div v-if="isDelete" class="flex items-center gap-3 cursor-pointer hover:opacity-70">
@@ -68,6 +70,7 @@ import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer";
 import {Tooltip} from "~/src/shared/ui/Tooltip";
 import {PhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
 import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue";
+import {Clipboard} from "~/src/shared/ui/common/Clipboard";
 
 const props = defineProps({
   studio: {
