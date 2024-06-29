@@ -81,7 +81,7 @@ onMounted(async () => {
 
 const saveUser = async () => {
   isLoading.value = true;
-  const {fetch: saveUser} = useApi({ url: '/user/update', auth: true });
+  const {post: saveUser} = useApi({ url: '/user/update', auth: true });
 
   await saveUser({ data: userForm }).then((response) => {
     console.log('response', response.data.user)
