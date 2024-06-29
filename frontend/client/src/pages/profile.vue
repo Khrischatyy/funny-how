@@ -8,20 +8,20 @@
             <img class="object-cover rounded-full" src="https://placeholder.com/120x120">
           </div>
           <div class="flex flex-col gap-5 w-full">
-            <FInputClassic @blur="saveUser" label="First Name" placeholder="First name" :model-value="userForm.firstname"/>
-            <FInputClassic @blur="saveUser" label="Last Name" placeholder="Last name" :model-value="userForm.lastname"/>
+            <FInputClassic @blur="saveUser" label="First Name" placeholder="First name" v-model="userForm.firstname"/>
+            <FInputClassic @blur="saveUser" label="Last Name" placeholder="Last name" v-model="userForm.lastname"/>
           </div>
         </div>
         <div class="flex gap-2 w-full p-5 max-w-2xl bg-black rounded-[10px]">
           <div class="flex flex-col gap-5 w-full">
-            <FInputClassic @blur="saveUser" label="Phone" placeholder="000-00-00" :model-value="userForm.phone"/>
-            <FInputClassic @blur="saveUser" label="E-mail" placeholder="E-mail address" :model-value="userForm.email"/>
+            <FInputClassic @blur="saveUser" label="Phone" placeholder="000-00-00" v-model="userForm.phone"/>
+            <FInputClassic @blur="saveUser" label="E-mail" placeholder="E-mail address" v-model="userForm.email"/>
           </div>
         </div>
         <div class="flex gap-2 w-full p-5 max-w-2xl bg-black rounded-[10px]">
           <div class="flex flex-col gap-5 w-full">
-            <FInputClassic type="date" @blur="saveUser" label="Date Of Birth" placeholder="mm/dd/yy" :model-value="userForm.date_of_birth"/>
-            <FInputClassic @blur="saveUser" label="Username" placeholder="Visible to others" :model-value="userForm.username"/>
+            <FInputClassic type="date" @blur="saveUser" label="Date Of Birth" placeholder="mm/dd/yy" v-model="userForm.date_of_birth"/>
+            <FInputClassic @blur="saveUser" label="Username" placeholder="Visible to others" v-model="userForm.username"/>
           </div>
         </div>
       </div>
@@ -38,8 +38,8 @@ import {useApi} from "~/src/lib/api";
 const isLoading = ref(false);
 
 const userForm = reactive({
-  firstname: 'John',
-  lastname: 'Doe',
+  firstname: '',
+  lastname: '',
   email: '',
   date_of_birth: '',
   phone: '',
