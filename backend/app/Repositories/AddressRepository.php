@@ -82,5 +82,4 @@ class AddressRepository implements AddressRepositoryInterface
 
         return $addresses;
     }
-
 }

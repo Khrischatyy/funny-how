@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddressRequest extends FormRequest
+class BrandRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,10 +27,11 @@ class AddressRequest extends FormRequest
             'longitude' => 'required|numeric|between:-180,180',
             'latitude' => 'required|numeric|between:-90,90',
             'street' => 'required|string',
-            'city' => 'required|string',
             'zip' => 'required|string|max:10',
+            'city' => 'required|string',
             'country' => 'required|string',
-            'company_id' => 'required|integer|exists:companies,id',
+            'logo' => 'sometimes|file',
+            'company' => 'required|string|unique:companies,name',
         ];
     }
 }

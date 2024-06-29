@@ -668,7 +668,7 @@ class BookingController extends BaseController
      *     @OA\Response(response="500", description="Internal Server Error")
      * )
      */
-    public function calculatePrice(CalculatePriceRequest $request)
+    public function calculatePrice(CalculatePriceRequest $request): JsonResponse
     {
         $addressId = $request->input('address_id');
         $startTime = $request->input('start_time');

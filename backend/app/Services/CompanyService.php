@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Http\Requests\AddressRequest;
+use App\Http\Requests\BrandRequest;
 use App\Http\Requests\CompanyRequest;
 use App\Models\Address;
 use App\Models\AdminCompany;
@@ -26,7 +26,7 @@ class CompanyService
         return Address::find($address_id)->company;
     }
 
-    public function createNewCompany(AddressRequest $companyRequest)
+    public function createNewCompany(BrandRequest $companyRequest)
     {
         $user = Auth::user();
 
