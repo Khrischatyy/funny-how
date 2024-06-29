@@ -17,7 +17,6 @@ const handleKeyDown = (event: KeyboardEvent) => {
 onMounted(() => {
   document.body.style.overflow = 'hidden';
   window.addEventListener('keydown', handleKeyDown);
-
 });
 
 onUnmounted(() => {

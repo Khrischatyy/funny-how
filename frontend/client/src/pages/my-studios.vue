@@ -8,7 +8,7 @@
             <StudioCard v-for="studio in myStudios" @click="editStudio(studio)" :key="studio.id" :studio="studio" />
           </div>
         </div>
-        <AddStudioModal :show-popup="showPopup" @closePopup="closePopup" @togglePopup="togglePopup" />
+        <AddStudioModal v-if="showPopup" :show-popup="showPopup" @closePopup="closePopup" @togglePopup="togglePopup" />
       </NuxtLayout>
     </div>
 </template>

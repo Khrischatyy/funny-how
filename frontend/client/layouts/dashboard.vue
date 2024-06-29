@@ -52,8 +52,8 @@ interface MenuItem {
 import {IconMic, IconBooking, IconUser, IconClients, IconHistory, IconClose} from "~/src/shared/ui/common";
 
 const sideMenuTemplate: MenuItem[] = [
-  { name: 'Profile', icon: IconUser, path: '/icons/profile.svg', link: '/settings/role', role: '' },
-  { name: 'Studios', icon: IconMic, path: '/icons/profile.svg', link: '/studios', role: USER_ROLE },
+  { name: 'Profile', icon: IconUser, path: '/icons/profile.svg', link: '/profile', role: '' },
+  { name: 'Studios', icon: IconMic, path: '/icons/my-studios.svg', link: '/studios', role: USER_ROLE },
   { name: 'Booking management', icon: IconBooking, path: '/icons/profile.svg', link: '/bookings', role: '' },
   { name: 'My Studios', icon: IconMic, path: '/icons/my-studios.svg', link: '/my-studios', role: STUDIO_OWNER_ROLE },
   { name: 'Clients', icon: IconClients, path: '/icons/settings.svg', link: '/history', role: STUDIO_OWNER_ROLE },

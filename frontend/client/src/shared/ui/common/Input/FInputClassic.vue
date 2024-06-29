@@ -17,6 +17,7 @@ const imageUrl = ref<string | null>(null);
 
 const emit = defineEmits({
   'update:modelValue': (value: string | number | File) => true,
+  'blur': (event: Event) => true,
 });
 
 const handleInput = (event: Event) => {
@@ -62,6 +63,7 @@ watch(() => props.modelValue, (newValue) => {
         v-if="props.type !== 'file'"
         v-bind="$attrs"
         @input="handleInput"
+        @blur="$emit('blur', $event)"
         v-model="value"
         :placeholder="props.placeholder"
         :class="{ 'pl-10': slots?.icon, 'border-red': error, 'border-white': !error && !slots?.icon, 'py-3': props.size === 'sm', 'py-5': props.size === 'md', 'py-7': props.size === 'lg'}"

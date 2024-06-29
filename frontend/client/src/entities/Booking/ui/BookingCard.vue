@@ -39,7 +39,7 @@
     <button v-if="booking.status.id !== 3" @click="manageBookingPopup" class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">
       Manage Booking
     </button>
-    <ManageBookingModal @on-cancel-booking="handleCancelBooking" :showPopup="showPopup" :booking="booking" @closePopup="closePopup" />
+    <ManageBookingModal v-if="showPopup" @on-cancel-booking="handleCancelBooking" :showPopup="showPopup" :booking="booking" @closePopup="closePopup" />
   </div>
 </template>
 

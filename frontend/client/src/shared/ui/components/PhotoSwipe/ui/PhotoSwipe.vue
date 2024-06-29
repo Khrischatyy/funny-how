@@ -21,9 +21,6 @@ const props = defineProps<{
 
 const { pswpElement, openGallery } = usePhotoSwipe();
 
-onMounted(() => {
-  console.log('mounted', props.photos);
-});
 const displayedPhotos: SlideData[] = props.photos.map(photo => ({
   src: photo.url,
   w: photo.w || 1200, // Default width if not specified
