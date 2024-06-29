@@ -1,7 +1,7 @@
 <template>
   <div>
     <NuxtLayout title="Profile" class="text-white flex flex-col min-h-screen" name="dashboard">
-      <div class="container flex flex-col relative gap-10 mx-auto px-2 md:px-4">
+      <div class="container flex flex-col relative gap-10 mx-auto px-2 overflow-x-hidden md:px-4">
         <Spinner :is-loading="isLoading" />
         <div class="flex gap-2 w-full p-5 max-w-2xl bg-black rounded-[10px] justify-center items-center">
           <div class="w-30 h-30 avatar rounded-full">
@@ -15,7 +15,7 @@
         <div class="flex gap-2 w-full p-5 max-w-2xl bg-black rounded-[10px]">
           <div class="flex flex-col gap-5 w-full">
             <FInputClassic @blur="saveUser" label="Phone" placeholder="000-00-00" v-model="userForm.phone"/>
-            <FInputClassic @blur="saveUser" label="E-mail" placeholder="E-mail address" v-model="userForm.email"/>
+            <FInputClassic @blur="saveUser" disabled label="E-mail" placeholder="E-mail address" v-model="userForm.email"/>
           </div>
         </div>
         <div class="flex gap-2 w-full p-5 max-w-2xl bg-black rounded-[10px]">
