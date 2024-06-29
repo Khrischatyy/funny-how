@@ -430,9 +430,9 @@ class BookingController extends BaseController
 
             $bookings = $this->bookingService->filterBookings($userId, $status, $date, $time, $search, $type);
 
-            if ($bookings->isEmpty()) {
-                return $this->sendError('No bookings found.', 404);
-            }
+//            if ($bookings->isEmpty()) {
+//                return $this->sendError('No bookings found.', 404);
+//            }
 
             return $this->sendResponse($bookings, 'Filtered bookings retrieved successfully.');
         } catch (Exception $e) {

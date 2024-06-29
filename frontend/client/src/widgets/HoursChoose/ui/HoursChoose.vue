@@ -173,7 +173,7 @@ function signOut() {
           <div class="flex items-center">
             <select :class="workHours.mode_id == 3 ? 'opacity-0 absolute' : ''" v-model="workHours.mode_id" class="w-full top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
               <optgroup v-for="mode in modes" :label="mode.description">
-                <option class="text-white" :value="mode.id">{{mode.mode}}</option>
+                <option class="text-white" :value="mode.id">{{mode.label}}</option>
               </optgroup>
             </select>
             <span v-if="workHours.mode_id != 3" class="absolute right-0 cursor-pointer">

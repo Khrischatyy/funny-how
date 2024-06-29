@@ -64,7 +64,7 @@ const getFirstPhoto = computed(() => {
         </div>
         <div>
           <h3 class="text-xl font-bold text-white">{{ booking.address.company.name }}</h3>
-          <p :class="getColor(booking.status.id)" class="font-['Montserrat']">{{ getStatus(booking.status.id) }}</p>
+          <p :class="`text-${getColor(booking.status.id)}`" class="font-['Montserrat']">{{ getStatus(booking.status.id) }}</p>
         </div>
       </div>
     </template>

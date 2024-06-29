@@ -69,8 +69,6 @@
 import { FilterBar  } from '~/src/shared/ui/components';
 import { AddStudioButton } from "~/src/features/addStudio";
 import { onMounted, ref } from "vue";
-import { navigateTo } from "nuxt/app";
-import { StudioCard } from "~/src/entities/Studio";
 import { BookingCard } from "~/src/entities/Booking/ui";
 import { useApi } from "~/src/lib/api";
 import {Spinner} from "~/src/shared/ui/common";

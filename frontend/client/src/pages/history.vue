@@ -28,12 +28,9 @@
 
 <script setup lang="ts">
 import { FilterBar  } from '~/src/shared/ui/components';
-import {AddStudioButton} from "~/src/features/addStudio";
-import {ref} from "vue";
-import {navigateTo} from "nuxt/app";
-import {StudioCard} from "~/src/entities/Studio";
-import {BookingCard} from "~/src/entities/Booking/ui";
+import {onMounted, ref} from "vue";
 import BookingRow from "~/src/entities/Booking/ui/BookingRow.vue";
+import {useApi} from "~/src/lib/api";
 const showPopup = ref(false);
 
 type BookingRecent = {
@@ -54,47 +51,32 @@ type Booking = {
   date: string;
 };
 
-const recentStudio = ref<BookingRecent>({
-  id: 1,
-  name: 'Studio 1',
-  isFavorite: true,
-  address: '123 Main St',
-  date: '04/07/2024',
+const bookings = ref<Booking[]>([]);
+const currentPage = ref(1);
+const lastPage = ref(1);
+const isLoading = ref(false);
+
+onMounted(() => {
+  getBookings();
 });
 
-const bookings = ref<Booking[]>([
-  {
-    id: 1,
-    name: 'Studio 1',
-    logo: '/logo.png',
-    status: 1,
-    isFavorite: true,
-    address: '123 Main St',
-    time: '10:00 AM - 12:00 PM',
-    date: '04/07/2024',
-  },
-  {
-    id: 2,
-    name: 'Studio 1',
-    logo: '/logo.png',
-    status: 3,
-    isFavorite: false,
-    address: '123 Main St',
-    time: '10:00 AM - 12:00 PM',
-    date: '04/07/2024',
-  },
-  {
-    id: 1,
-    name: 'Studio 2',
-    logo: '/meta/favicon.svg',
-    status: 2,
-    isFavorite: false,
-    address: '123 Main St',
-    time: '10:00 AM - 12:00 PM',
-    date: '04/07/2024',
-  },
-  ]
-);
+const getBookings = async (page = 1) => {
+  isLoading.value = true;
+  const { fetch: fetchBookings } = useApi({
+    url: `/booking-management?page=${page}`,
+    auth: true,
+  });
+
+  fetchBookings().then((response) => {
+    bookings.value = response.data.data;
+    currentPage.value = response.data.current_page;
+    lastPage.value = response.data.last_page;
+    isLoading.value = false;
+  }).catch((error) => {
+    console.error('Error fetching bookings:', error);
+  });
+};
+
 const togglePopup = () => {
   showPopup.value = !showPopup.value;
 };

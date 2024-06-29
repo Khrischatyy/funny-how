@@ -13,7 +13,7 @@ class Booking extends Model
         'address_id', 'start_time', 'end_time', 'user_id', 'total_cost', 'date', 'status_id',
     ];
 
-    protected $appends = ['isFavorite'];
+    protected $appends = ['isFavorite', 'userName'];
 
     public function status()
     {
@@ -29,6 +29,16 @@ class Booking extends Model
     {
         //TODO: implement logic to check if the address is favorite
         return $this->id % 2 == 0;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function getUserNameAttribute()
+    {
+        return $this->user->name;
     }
 
 }
