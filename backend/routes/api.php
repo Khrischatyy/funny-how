@@ -73,6 +73,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('{address_id}/badges', [BadgeController::class, 'getAddressBadges']);
         Route::post('{address_id}/badge', [BadgeController::class, 'setAddressBadge']);
 
+        Route::post('add-studio', [AddressController::class, 'createAddress']);
+
         //prices
         Route::post('{address_id}/prices', [AddressController::class, 'createOrUpdateAddressPrice']);
         Route::delete('prices', [AddressController::class, 'deleteAddressPrices']);

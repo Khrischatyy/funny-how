@@ -5,11 +5,13 @@ namespace App\Services;
 use App\Exceptions\OperatingHourException;
 use App\Http\Requests\AddressPhotosRequest;
 use App\Http\Requests\AddressRequest;
+use App\Http\Requests\BrandRequest;
 use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Models\Address;
 use App\Models\AddressPhoto;
 use App\Models\AdminCompany;
-use App\Models\OperatingHour;
+use App\Models\City;
+use App\Models\Company;
 use App\Repositories\AddressRepository;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -18,7 +20,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class AddressService
 {
@@ -34,16 +35,17 @@ class AddressService
         }
     }
 
-    public function createAddress(AddressRequest $addressRequest, $city, $company)
+    public function createAddress(BrandRequest|AddressRequest $request, City $city, Company $company): Address
     {
         return Address::create([
-            'street' => $addressRequest->street,
-            'longitude' => $addressRequest->longitude,
-            'latitude' => $addressRequest->latitude,
+            'street' => $request->input('street'),
+            'longitude' => $request->input('longitude'),
+            'latitude' => $request->input('latitude'),
             'city_id' => $city->id,
             'company_id' => $company->id,
         ]);
     }
+
 
     public function getMyAddresses(): Collection
     {
@@ -192,6 +194,4 @@ class AddressService
     {
         return $this->addressRepository->getAllStudios();
     }
-
-
 }

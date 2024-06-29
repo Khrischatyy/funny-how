@@ -128,8 +128,8 @@ class UserController extends BaseController
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string", example="John"),
-     *             @OA\Property(property="surname", type="string", example="Doe"),
+     *             @OA\Property(property="firstname", type="string", example="John"),
+     *             @OA\Property(property="lastname", type="string", example="Doe"),
      *             @OA\Property(property="username", type="string", example="johndoe"),
      *             @OA\Property(property="profile_photo", type="string", example="profile.jpg"),
      *             @OA\Property(property="date_of_birth", type="string", format="date", example="1990-01-01"),
@@ -159,7 +159,7 @@ class UserController extends BaseController
      *     @OA\Response(response="500", description="Failed to update user")
      * )
      */
-    public function update(UserUpdateRequest $request): JsonResponse
+    public function updateUser(UserUpdateRequest $request): JsonResponse
     {
         try {
             $user = Auth::user();

@@ -7,10 +7,10 @@ use App\Http\Requests\AddressPhotosRequest;
 use App\Http\Requests\AddressPriceDeleteRequest;
 use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
+use App\Http\Requests\BrandRequest;
 use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
-use App\Models\AdminCompany;
 use App\Models\Company;
 use App\Repositories\AddressRepository;
 use App\Services\AddressService;
@@ -243,23 +243,72 @@ class AddressController extends BaseController
      *     @OA\Response(response="422", description="Unprocessable Entity")
      * )
      */
-    public function createBrand(AddressRequest $addressRequest): JsonResponse
+    public function createBrand(BrandRequest $request): JsonResponse
     {
+        $city = $this->cityService->findOrCreateCity($request->city, $request->country);
 
-        $city = $this->cityService->findOrCreateCity($addressRequest->city, $addressRequest->country);
+        $company = $this->companyService->createNewCompany($request);
 
-        $company = $this->companyService->createNewCompany($addressRequest);
-
-        $address = $this->addressService->createAddress($addressRequest, $city, $company);
+        $address = $this->addressService->createAddress($request, $city, $company);
 
         $this->addDefaultHours($address->id);
-
-        // Return the company and address_id
 
        return $this->sendResponse([
             'slug' => $company->slug,
             'address_id' => $address->id
         ], 'Company and address added');
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/address",
+     *     summary="Create a new address",
+     *     tags={"Address"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"street", "city_id", "company_id", "latitude", "longitude"},
+     *             @OA\Property(property="street", type="string", example="Main St"),
+     *             @OA\Property(property="city_id", type="integer", example=100),
+     *             @OA\Property(property="company_id", type="integer", example=10),
+     *             @OA\Property(property="latitude", type="string", example="20.5320636"),
+     *             @OA\Property(property="longitude", type="string", example="44.792424")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Address created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="street", type="string", example="Main St"),
+     *                 @OA\Property(property="city_id", type="integer", example=100),
+     *                 @OA\Property(property="company_id", type="integer", example=10),
+     *                 @OA\Property(property="latitude", type="string", example="20.5320636"),
+     *                 @OA\Property(property="longitude", type="string", example="44.792424"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z")
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Address created successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="422", description="Unprocessable Entity"),
+     *     @OA\Response(response="500", description="Failed to create address")
+     * )
+     */
+    public function createAddress(AddressRequest $request): JsonResponse
+    {
+        try {
+            $city = $this->cityService->findOrCreateCity($request->city, $request->country);
+            $this->authorize('update', )
+            $address = $this->addressService->createAddress($request, '');
+            return $this->sendResponse($address, 'Address created successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to create address.', 500, ['error' => $e->getMessage()]);
+        }
     }
 
     /**
