@@ -1,9 +1,6 @@
 import { fileURLToPath, URL } from 'url'
 // @ts-ignore
 export default defineNuxtConfig({
-  experimental: {
-    viewTransition: true
-  },
   ssr: true,
   watchers: {
     webpack: {
