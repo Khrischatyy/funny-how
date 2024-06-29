@@ -729,7 +729,10 @@ class AddressController extends BaseController
         }
     }
 
-            /**
+
+
+
+    /**
      * Add a default price/hours (1hour/60$) to address
      *
      * @param int $address_id

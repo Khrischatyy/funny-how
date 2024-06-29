@@ -26,7 +26,7 @@ class UserUpdateRequest extends FormRequest
         return [
             'firstname' => 'nullable|string|max:255',
             'lastname' => 'nullable|string|max:255',
-            'username' => 'nullable|string|max:255|unique:users,username',
+            'username' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'date_of_birth' => 'nullable|date',
         ];
