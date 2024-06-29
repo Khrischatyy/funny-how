@@ -2,7 +2,6 @@
 import {definePageMeta, useRuntimeConfig} from '#imports'
 import { useSessionStore } from "~/src/entities/Session";
 import {inject, onMounted, ref, type UnwrapRef} from "vue";
-import {navigateTo, useRoute} from "nuxt/app";
 import {
 
   type StudioFormValues,
@@ -16,8 +15,10 @@ import {Loader} from "@googlemaps/js-api-loader";
 import axios from "axios";
 import {Popup} from "~/src/shared/ui/components";
 import {useApi} from "~/src/lib/api";
-import { closePopup } from './closePopup';
 
+const closePopup = () => {
+  showPopup.value = false
+}
 function isError(form: string, field: string): boolean {
   let formErrors: Record<string, any> = useCreateStudioFormStore().errors;
   return formErrors.hasOwnProperty(field) ? formErrors[field][0] : false;
