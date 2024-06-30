@@ -70,7 +70,7 @@ const getFirstPhoto = computed(() => {
     </template>
     <template #action_header>
       <div class="flex items-center gap-3 cursor-pointer hover:opacity-70">
-        <IconLike :icon-active="booking.isFavorite" :icon-color="booking.isFavorite ? '#FD9302' : 'white'" />
+        <IconLike :icon-active="booking?.address.isFavorite" :icon-color="booking?.address.isFavorite ? '#FD9302' : 'white'" />
       </div>
     </template>
     <template #body>

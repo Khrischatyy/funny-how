@@ -10,7 +10,7 @@
           <Clipboard :text-to-copy="phoneNormalizer(booking?.user?.phone)">
             <div @mouseenter="booking?.user?.phone && showTooltip($event, phoneNormalizer(booking?.user?.phone))" @mouseleave="hideTooltip" class="group flex relative gap-2 items-center justify-start">
               <img v-if="booking?.user?.profile_photo" :src="booking?.user?.profile_photo" class="h-5 w-5 object-contain rounded-full" />
-              <p class="font-['Montserrat']">{{booking?.userName || booking?.user.firstname}}</p>
+              <p class="font-['Montserrat']">{{booking?.user.username || booking?.user.firstname}}</p>
             </div>
           </Clipboard>
         </div>

@@ -36,6 +36,7 @@
 import {computed, onMounted, reactive, ref} from "vue";
 import {FInputClassic, IconUpload, Spinner} from "~/src/shared/ui/common";
 import {useApi} from "~/src/lib/api";
+import {filterUnassigned} from "~/src/shared/utils";
 
 
 const isLoading = ref(false);
@@ -69,6 +70,7 @@ const saveUser = async () => {
   isLoading.value = true;
   const {put: saveUser} = useApi({ url: '/user/update', auth: true });
   try {
+    let data = filterUnassigned(userForm);
     await saveUser(userForm).then((response) => {
       isLoading.value = false;
     });

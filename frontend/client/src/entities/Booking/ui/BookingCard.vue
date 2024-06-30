@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="flex items-center gap-3 cursor-pointer hover:opacity-70">
-        <IconLike :icon-active="booking.isFavorite" :icon-color="booking.isFavorite ? '#FD9302' : 'white'" />
+        <IconLike :icon-active="booking?.address.isFavorite" :icon-color="booking?.address.isFavorite ? '#FD9302' : 'white'" />
       </div>
     </div>
     <div class="flex gap-3 justify-between items-center relative">

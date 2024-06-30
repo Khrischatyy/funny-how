@@ -56,7 +56,7 @@ const sideMenuTemplate: MenuItem[] = [
   { name: 'Studios', icon: IconMic, path: '/icons/my-studios.svg', link: '/studios', role: USER_ROLE },
   { name: 'Booking management', icon: IconBooking, path: '/icons/profile.svg', link: '/bookings', role: '' },
   { name: 'My Studios', icon: IconMic, path: '/icons/my-studios.svg', link: '/my-studios', role: STUDIO_OWNER_ROLE },
-  { name: 'Clients', icon: IconClients, path: '/icons/settings.svg', link: '/history', role: STUDIO_OWNER_ROLE },
+  { name: 'Clients', icon: IconClients, path: '/icons/settings.svg', link: '/clients', role: STUDIO_OWNER_ROLE },
   { name: 'History', icon: IconHistory, path: '/icons/settings.svg', link: '/history', role: STUDIO_OWNER_ROLE },
   { name: 'Logout', icon: IconClose, path: '/icons/logout.svg', link: '/logout', role: '' }
 ];
