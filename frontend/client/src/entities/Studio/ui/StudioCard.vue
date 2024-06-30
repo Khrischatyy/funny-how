@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-black p-4 rounded-md shadow-lg flex flex-col justify-between max-w-[380px]">
+  <div class="bg-black p-4 rounded-md shadow-lg flex flex-col justify-between ">
     <div class="flex justify-between items-center mb-4">
     <div class="flex justify-start items-center gap-5">
       <img :src="logoSrc" alt="Logo" class="h-[35px] w-[35px]" />

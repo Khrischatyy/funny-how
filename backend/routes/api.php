@@ -118,9 +118,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('update-photo', [UserController::class, 'updatePhoto']);
     });
 
-
-
-
     Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');
     Route::post('history/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'history');
 
@@ -153,9 +150,5 @@ Route::middleware(['web'])->group(function () {
         Route::get('callback', [GoogleController::class, 'handleGoogleCallback']);
     });
 });
-
-
-
-
 
 Route::get('city/{city_id}/studios', [AddressController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');

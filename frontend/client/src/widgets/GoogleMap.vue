@@ -3,7 +3,7 @@ import {GoogleMap, MarkerCluster} from 'vue3-google-map';
 import {ref, computed, onMounted, watch, reactive} from 'vue';
 import MarkerList from "~/src/widgets/MarkerList.vue";
 import {useRuntimeConfig} from '#imports';
-
+import darkTheme from '~/src/shared/assets/maps/dark-theme.json';
 const config = useRuntimeConfig();
 
 const props = defineProps({
@@ -23,6 +23,25 @@ const props = defineProps({
     type: Array
   }
 });
+
+// const calculateCenter = (markers) => {
+//   if (markers.length === 0) {
+//     return { lat: defaultLat, lng: defaultLng };
+//   }
+//
+//   let totalLat = 0;
+//   let totalLng = 0;
+//
+//   markers.forEach(marker => {
+//     totalLat += parseFloat(marker.latitude);
+//     totalLng += parseFloat(marker.longitude);
+//   });
+//
+//   return {
+//     lat: totalLat / markers.length,
+//     lng: totalLng / markers.length
+//   };
+// };
 
 const defaultLat = 48.21888549557031;
 const defaultLng = 11.625109549171704;
@@ -67,9 +86,9 @@ watch(() => props.markers, (newMarkers) => {
 
 <template>
   <ClientOnly>
-    <GoogleMap  :api-key="config.public.googleMapKey" class="map" :center="center"
+    <GoogleMap  :api-key="config.public.googleMapKey" class="map" :center="center" :styles="darkTheme"
                :zoom="zoom">
-      <MarkerCluster v-if="studios.length > 0" :options="{ position: center }">
+      <MarkerCluster v-if="studios?.length > 0" :options="{ position: center }">
         <MarkerList v-for="studio in studios" :key="studio.id" :logo="props.logo || '/logo.png'" :marker="studio"/>
       </MarkerCluster>
     </GoogleMap>

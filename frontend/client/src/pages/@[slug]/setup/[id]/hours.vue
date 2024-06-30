@@ -34,11 +34,20 @@ definePageMeta({
 const isLoading = ref(false)
 const workHours = ref({
   mode_id: 1,
-  open_time: '',
-  close_time: '',
-  open_time_weekend: '',
-  close_time_weekend: '',
+  open_time: '10:00',
+  close_time: '18:00',
+  open_time_weekend: '10:00',
+  close_time_weekend: '18:00',
   address_id: '',
+  eachDay: [
+    {day_of_week: 0, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 1, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 2, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 3, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 4, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 5, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 6, open_time: '10:00', close_time: '18:00', is_closed: false}
+  ]
 })
 
 const modes = ref<Mode[] | undefined>([]);
@@ -55,7 +64,6 @@ onMounted(async () => {
   const config = useRuntimeConfig()
   session.value = useSessionStore()
   getModes()
-  getAddressId()
 })
 
 function filterUnassigned(obj) {
@@ -67,14 +75,27 @@ function setHours(){
     url: `/address/operating-hours`,
     auth: true
   });
-  post({
-    ...filterUnassigned(workHours.value),
-    address_id: route.params.id
-  }).then((response) => {
-    navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
-  }).catch(error => {
-    console.error('error', error);
-  });
+  if(workHours.value?.mode_id == 3){
+    let data = {
+      mode_id: workHours.value?.mode_id,
+      address_id: route.params.id,
+      hours: workHours.value?.eachDay
+    }
+    post(data).then((response) => {
+      navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
+    }).catch(error => {
+      console.error('error', error);
+    });
+  } else {
+    post({
+      ...filterUnassigned(workHours.value),
+      address_id: route.params.id
+    }).then((response) => {
+      navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
+    }).catch(error => {
+      console.error('error', error);
+    });
+  }
 }
 
 type Mode = {
@@ -93,14 +114,10 @@ function getModes() {
   });
 }
 
-function getAddressId(){
-  const api = useApi<ResponseDto<Company>>({ url: `/company/${route.params.slug}`, auth: true});
-  api.fetch().then((response) => {
-    workHours.value.address_id = response?.data.addresses.find(addr => addr.id == route.params.id)?.id
-  }).catch(error => {
-    console.error('error', error);
-  });
+function getOperatingHours(){
+
 }
+
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
 }
@@ -116,7 +133,26 @@ function routeNext(){
 function signOut() {
   session.value.logout()
 }
-
+const getDayMean = (day: number) => {
+  switch (day) {
+    case 0:
+      return 'Monday';
+    case 1:
+      return 'Tuesday';
+    case 2:
+      return 'Wednesday';
+    case 3:
+      return 'Thursday';
+    case 4:
+      return 'Friday';
+    case 5:
+      return 'Saturday';
+    case 6:
+      return 'Sunday';
+    default:
+      return '';
+  }
+}
 </script>
 
 <template>
@@ -181,19 +217,14 @@ function signOut() {
               <input v-model="workHours.close_time" step="3600" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To" />
             </div>
 
-            <div v-if="workHours.mode_id == 3" class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center">
-              <input v-model="workHours.open_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From (Weekday)" />
-              <input v-model="workHours.close_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To (Weekday)" />
-            </div>
-
           </div>
-          <div v-if="workHours.mode_id == 3"  class="w-96 justify-center items-center gap-2.5 inline-flex">
+          <div v-for="(hour, index) in 7" v-if="workHours.mode_id == 3"  class="w-96 justify-center items-center gap-2.5 inline-flex">
             <div class="w-96 max-w-96">
-              <input disabled placeholder="Weekend Hours" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
+              <input disabled :placeholder="getDayMean(index)" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
             </div>
             <div class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center">
-              <input v-model="workHours.open_time_weekend" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From (Weekend)" />
-              <input v-model="workHours.close_time_weekend" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To (Weekend)" />
+                <input v-model="workHours.eachDay[index].open_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From (Weekend)" />
+                <input v-model="workHours.eachDay[index].close_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To (Weekend)" />
             </div>
           </div>
 

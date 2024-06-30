@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useRuntimeConfig} from '#imports'
 import { useSessionStore } from "~/src/entities/Session";
-import {onMounted, ref, watch} from "vue";
+import {inject, onMounted, ref, watch} from "vue";
 import {navigateTo, useRoute} from "nuxt/app";
 import {
   type formValues,
@@ -14,18 +14,29 @@ import {Loader} from "@googlemaps/js-api-loader";
 import axios from "axios";
 import {useAsyncData} from "#app";
 import {getModes} from "~/src/widgets/HoursChoose/api";
+import {type ResponseDto, useApi} from "~/src/lib/api";
+import type {Company} from "~/src/entities/RegistrationForms/api";
 
 const workHours = ref({
   mode_id: 1,
-  open_time: '',
-  close_time: '',
-  open_time_weekend: '',
-  close_time_weekend: '',
-  address_id: '',//address_id when creating a new address? #todo #backend
-})
+  open_time: '10:00',
+  close_time: '18:00',
+  open_time_weekend: '10:00',
+  close_time_weekend: '18:00',
+  address_id: '',
+  eachDay: [
+    {day_of_week: 0, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 1, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 2, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 3, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 4, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 5, open_time: '10:00', close_time: '18:00', is_closed: false},
+    {day_of_week: 6, open_time: '10:00', close_time: '18:00', is_closed: false}
+  ]
+});
 
 const modes = ref([])
-
+const studio = inject('studioForPopup');
 const route = useRoute();
 
 function isError(form: string, field: string): boolean {
@@ -35,63 +46,7 @@ function isError(form: string, field: string): boolean {
 
 const session = ref()
 onMounted(async () => {
-  const config = useRuntimeConfig()
   session.value = useSessionStore()
-
-
-  const loader = new Loader({
-    apiKey: config.public.googlePlacesApi,
-    version: "weekly",
-
-  });
-
-  console.log('loader', loader);
-
-  const Places = await loader.importLibrary('places')
-
-  // the center, defaultbounds are not necessary but are best practices to limit/focus search results
-  const center = { lat: 34.082298, lng: -82.284777 };
-  // Create a bounding box with sides ~10km away from the center point
-  const defaultBounds = {
-    north: center.lat + 0.1,
-    south: center.lat - 0.1,
-    east: center.lng + 0.1,
-    west: center.lng - 0.1,
-  };
-
-  //this const will be the first arg for the new instance of the Places API
-
-  const input = document.getElementById("place"); //binds to our input element
-
-  console.log('input', input); //optional logging
-
-  //this object will be our second arg for the new instance of the Places API
-  const options = {
-    componentRestrictions: { country: ["us", "ca"] },
-    fields: ["address_components", "geometry"],
-    types: ["address"],
-  };
-
-  // per the Google docs create the new instance of the import above. I named it Places.
-  const autocomplete = new Places.Autocomplete(input, options);
-
-  console.log('autocomplete', autocomplete); //optional log but will show you the available methods and properties of the new instance of Places.
-
-  //add the place_changed listener to display results when inputs change
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-
-    getFormValues().address = input?.value;
-    getFormValues().country = place.address_components.find(item => item.types.includes('country'))?.short_name;
-    getFormValues().city = place.address_components.find(item => item.types.includes('locality'))?.short_name;
-    getFormValues().street = place.address_components.find(item => item.types.includes('route'))?.short_name;
-    getFormValues().longitude = place.geometry.viewport?.Gh?.hi;
-    getFormValues().latitude = place.geometry.viewport?.Wh?.hi;
-
-    console.log('place', place);
-  });
-
-
 })
 
 function filterUnassigned(obj) {
@@ -99,28 +54,31 @@ function filterUnassigned(obj) {
 }
 
 function setHours(){
-  const config = useRuntimeConfig()
-
-  let requestConfig = {
-    method: 'post',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/operating-hours`,
-    data: filterUnassigned(workHours.value),
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
+  const {post} = useApi<ResponseDto<Company>>({
+    url: `/address/operating-hours`,
+    auth: true
+  });
+  if(workHours.value?.mode_id == 3){
+    let data = {
+      mode_id: workHours.value?.mode_id,
+      address_id: studio?.value.id,
+      hours: workHours.value?.eachDay
     }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    post(data).then((response) => {
+      console.log('response', response.data)
+    }).catch(error => {
+      console.error('error', error);
+    });
+  } else {
+    post({
+      ...filterUnassigned(workHours.value),
+      address_id: route.params.id
+    }).then((response) => {
+      console.log('response', response.data)
+    }).catch(error => {
+      console.error('error', error);
+    });
+  }
 }
 
 const {data, error} = useAsyncData('operationModes', getModes);
@@ -149,6 +107,26 @@ function routeNext(){
 
 function signOut() {
   session.value.logout()
+}
+const getDayMean = (day: number) => {
+  switch (day) {
+    case 0:
+      return 'Monday';
+    case 1:
+      return 'Tuesday';
+    case 2:
+      return 'Wednesday';
+    case 3:
+      return 'Thursday';
+    case 4:
+      return 'Friday';
+    case 5:
+      return 'Saturday';
+    case 6:
+      return 'Sunday';
+    default:
+      return '';
+  }
 }
 
 </script>
@@ -192,20 +170,14 @@ function signOut() {
           <input v-model="workHours.open_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From" />
           <input v-model="workHours.close_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To" />
         </div>
-
-        <div v-if="workHours.mode_id == 3" class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center">
-          <input v-model="workHours.open_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From (Weekday)" />
-          <input v-model="workHours.close_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To (Weekday)" />
-        </div>
-
       </div>
-      <div v-if="workHours.mode_id == 3"  class="w-full justify-center items-center gap-2.5 inline-flex">
-        <div class="w-full max-w-full">
-          <input disabled placeholder="Weekend Hours" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
+      <div v-for="(hour, index) in 7" v-if="workHours.mode_id == 3"  class="w-96 justify-center items-center gap-2.5 inline-flex">
+        <div class="w-96 max-w-96">
+          <input disabled :placeholder="getDayMean(index)" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
         </div>
         <div class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center">
-          <input v-model="workHours.open_time_weekend" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From (Weekend)" />
-          <input v-model="workHours.close_time_weekend" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To (Weekend)" />
+          <input v-model="workHours.eachDay[index].open_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="From (Weekend)" />
+          <input v-model="workHours.eachDay[index].close_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To (Weekend)" />
         </div>
       </div>
 
