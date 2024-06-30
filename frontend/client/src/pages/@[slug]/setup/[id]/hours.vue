@@ -36,8 +36,6 @@ const workHours = ref({
   mode_id: 1,
   open_time: '10:00',
   close_time: '18:00',
-  open_time_weekend: '10:00',
-  close_time_weekend: '18:00',
   address_id: '',
   eachDay: [
     {day_of_week: 0, open_time: '10:00', close_time: '18:00', is_closed: false},
@@ -64,10 +62,45 @@ onMounted(async () => {
   const config = useRuntimeConfig()
   session.value = useSessionStore()
   getModes()
+  getOperationHours()
 })
 
 function filterUnassigned(obj) {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== ''));
+}
+const getOperationHours = () => {
+  const { fetch } = useApi<ResponseDto<Company>>({
+    url: `/address/operating-hours?address_id=${route.params.id}`,
+    auth: true
+  });
+
+  fetch().then((response) => {
+    const operationHours = response?.data;
+    const mode = operationHours[0]?.mode_id;
+    switch (mode) {
+      case 1:
+        workHours.value.mode_id = mode;
+        break;
+      case 2:
+        workHours.value.mode_id = mode;
+        workHours.value.open_time = operationHours[0]?.open_time;
+        workHours.value.close_time = operationHours[0]?.close_time;
+        break;
+      case 3:
+        workHours.value.mode_id = mode;
+        workHours.value.eachDay = operationHours.map((day) => {
+          return {
+            day_of_week: day.day_of_week,
+            open_time: day.open_time,
+            close_time: day.close_time,
+            is_closed: day.is_closed
+          }
+        })
+        break;
+    }
+  }).catch(error => {
+    console.error('error', error);
+  });
 }
 
 function setHours(){

@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import {useRuntimeConfig} from '#imports'
 import { useSessionStore } from "~/src/entities/Session";
 import {inject, onMounted, ref, watch} from "vue";
 import {navigateTo, useRoute} from "nuxt/app";
 import {
-  type formValues,
-  type inputValues,
   type StudioFormValues,
   useCreateStudioFormStore
 } from "~/src/entities/RegistrationForms";
-import {IconDown, IconElipse, IconLeft, IconLine, IconRight} from "~/src/shared/ui/common";
-import {Loader} from "@googlemaps/js-api-loader";
-import axios from "axios";
+import {IconDown, Spinner} from "~/src/shared/ui/common";
+
 import {useAsyncData} from "#app";
 import {getModes} from "~/src/widgets/HoursChoose/api";
 import {type ResponseDto, useApi} from "~/src/lib/api";
@@ -21,8 +17,6 @@ const workHours = ref({
   mode_id: 1,
   open_time: '10:00',
   close_time: '18:00',
-  open_time_weekend: '10:00',
-  close_time_weekend: '18:00',
   address_id: '',
   eachDay: [
     {day_of_week: 0, open_time: '10:00', close_time: '18:00', is_closed: false},
@@ -38,6 +32,7 @@ const workHours = ref({
 const modes = ref([])
 const studio = inject('studioForPopup');
 const route = useRoute();
+const isLoading = ref(false);
 
 function isError(form: string, field: string): boolean {
   let formErrors: Record<string, any> = useCreateStudioFormStore().errors;
@@ -47,6 +42,7 @@ function isError(form: string, field: string): boolean {
 const session = ref()
 onMounted(async () => {
   session.value = useSessionStore()
+  await getOperationHours();
 })
 
 function filterUnassigned(obj) {
@@ -54,6 +50,7 @@ function filterUnassigned(obj) {
 }
 
 function setHours(){
+  isLoading.value = true;
   const {post} = useApi<ResponseDto<Company>>({
     url: `/address/operating-hours`,
     auth: true
@@ -66,17 +63,21 @@ function setHours(){
     }
     post(data).then((response) => {
       console.log('response', response.data)
+      isLoading.value = false;
     }).catch(error => {
       console.error('error', error);
+      isLoading.value = false;
     });
   } else {
     post({
       ...filterUnassigned(workHours.value),
-      address_id: route.params.id
+      address_id: studio?.value.id
     }).then((response) => {
       console.log('response', response.data)
+      isLoading.value = false;
     }).catch(error => {
       console.error('error', error);
+      isLoading.value = false;
     });
   }
 }
@@ -93,21 +94,44 @@ watch(data, (newData) => {
   }
 }, { immediate: true });
 
-function getFormValues(): StudioFormValues {
-  return useCreateStudioFormStore().inputValues;
+const getOperationHours = async () => {
+  const { fetch } = useApi<ResponseDto<Company>>({
+    url: `/address/operating-hours?address_id=${studio?.value.id}`,
+    auth: true
+  });
+  isLoading.value = true;
+  fetch().then((response) => {
+
+    const operationHours = response?.data;
+    const mode = operationHours[0]?.mode_id;
+    switch (mode) {
+      case 1:
+        workHours.value.mode_id = mode;
+        break;
+      case 2:
+        workHours.value.mode_id = mode;
+        workHours.value.open_time = operationHours[0]?.open_time;
+        workHours.value.close_time = operationHours[0]?.close_time;
+        break;
+      case 3:
+        workHours.value.mode_id = mode;
+        workHours.value.eachDay = operationHours.map((day) => {
+          return {
+            day_of_week: day.day_of_week,
+            open_time: day.open_time,
+            close_time: day.close_time,
+            is_closed: day.is_closed
+          }
+        })
+        break;
+    }
+    isLoading.value = false;
+  }).catch(error => {
+    console.error('error', error);
+    isLoading.value = false;
+  });
 }
 
-function routeBack(){
-  navigateTo(`/create`)
-}
-
-function routeNext(){
-  navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
-}
-
-function signOut() {
-  session.value.logout()
-}
 const getDayMean = (day: number) => {
   switch (day) {
     case 0:
@@ -128,7 +152,6 @@ const getDayMean = (day: number) => {
       return '';
   }
 }
-
 </script>
 
 <template>
@@ -140,13 +163,11 @@ const getDayMean = (day: number) => {
             isError('setup', 'studio_name')
           }}</div>
       </div>
-
-
     </div>
 
-    <div class="flex-col w-full justify-center items-center gap-1.5 flex">
-
+    <div class="flex-col w-full justify-center items-center relative gap-1.5 flex">
       <div class="w-full justify-center items-center gap-2.5 inline-flex">
+        <Spinner :is-loading="isLoading" />
         <div class="w-full max-w-full relative">
           <div class="flex items-center">
             <select :class="workHours.mode_id == 3 ? 'opacity-0 absolute' : ''" v-model="workHours.mode_id" class="w-full top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
@@ -180,7 +201,7 @@ const getDayMean = (day: number) => {
           <input v-model="workHours.eachDay[index].close_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To (Weekend)" />
         </div>
       </div>
-
+      <button @click="setHours" class="w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-700 border-white border text-sm font-medium tracking-wide">Update</button>
     </div>
   </div>
 </template>
