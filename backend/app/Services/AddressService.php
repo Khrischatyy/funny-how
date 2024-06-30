@@ -189,6 +189,17 @@ class AddressService
         }
     }
 
+    public function deleteAddress(int $address_id): void
+    {
+        $address = Address::findOrFail($address_id);
+
+        if (Gate::denies('delete', $address)) {
+            abort(403, 'You are not authorized to delete this address.');
+        }
+
+        $address->delete();
+    }
+
     public function getAllStudios(): Collection
     {
         return $this->addressRepository->getAllStudios();

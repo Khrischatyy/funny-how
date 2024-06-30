@@ -66,7 +66,8 @@ class AddressPolicy
      */
     public function delete(User $user, Address $address)
     {
-        //
+        $company = $address->company;
+        return $user->adminCompany && $user->adminCompany->company_id === $company->id;
     }
 
     /**

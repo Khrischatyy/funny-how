@@ -8,6 +8,7 @@ use App\Http\Requests\AddressPriceDeleteRequest;
 use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
 use App\Http\Requests\BrandRequest;
+use App\Http\Requests\DeleteAddressRequest;
 use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
@@ -729,6 +730,49 @@ class AddressController extends BaseController
             return $this->sendError('Failed to retrieve studios.', 500, ['error' => $e->getMessage()]);
         }
     }
+
+    /**
+     * @OA\Post(
+     *     path="/delete-studio",
+     *     summary="Delete an address (studio)",
+     *     tags={"Address"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"address_id"},
+     *             @OA\Property(property="address_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Address deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Address deleted successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Address not found"),
+     *     @OA\Response(response="500", description="Failed to delete address")
+     * )
+     */
+    public function deleteAddress(DeleteAddressRequest $request): JsonResponse
+    {
+        $address_id = $request->input('address_id');
+
+        try {
+            $this->addressService->deleteAddress($address_id);
+            return $this->sendResponse([], 'Address deleted successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to delete address.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+
+
 
 
 
