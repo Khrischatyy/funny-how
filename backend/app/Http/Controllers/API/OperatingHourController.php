@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\getAddressRequest;
 use App\Http\Requests\OperatingHourRequest;
 use App\Services\CompanyService;
 use App\Services\OperatingHourService;
+use http\Env\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -167,8 +169,10 @@ class OperatingHourController extends BaseController
      *     @OA\Response(response="500", description="Internal Server Error")
      * )
      */
-    public function getOperatingHours($address_id): JsonResponse
+    public function getOperatingHours(getAddressRequest $request): JsonResponse
     {
+        $address_id = $request->input('address_id');
+
         $hours = $this->operatingHourService->getOperatingHours($address_id);
 
         return $this->sendResponse($hours, 'Operating hours retrieved successfully');
