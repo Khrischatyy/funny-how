@@ -23,7 +23,7 @@ class BookingService
 
     public function getBookings($userId, $type)
     {
-        $query = Booking::where('user_id', $userId);
+        $query = Booking::where('user_id', $userId)->with(['user']);
 
         if ($type === 'history') {
             $query->where('date', '<', now());

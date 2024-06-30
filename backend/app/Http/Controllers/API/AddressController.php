@@ -21,6 +21,7 @@ use App\Services\CompanyService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class AddressController extends BaseController
 {
@@ -32,7 +33,7 @@ class AddressController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/address/{address_id}",
+     *     path="/studio/{address_id}",
      *     summary="Get an address by its ID",
      *     tags={"Address"},
      *     security={{"sanctum":{}}},
@@ -65,10 +66,15 @@ class AddressController extends BaseController
      *     @OA\Response(response="404", description="Address not found")
      * )
      */
-    public function getAddressById(int $addressId): JsonResponse
+    public function getAddressById($addressId): JsonResponse
     {
         try {
-            $address = $this->addressService->getAddressById($addressId);
+            if (!is_numeric($addressId)) {
+                return $this->sendError('Invalid address ID format.', 400);
+            }
+
+            $address = $this->addressService->getAddressById((int)$addressId);
+
             return $this->sendResponse($address, 'Address retrieved successfully.');
         } catch (ModelNotFoundException $e) {
             return $this->sendError('Address not found.', 404);
@@ -814,6 +820,8 @@ class AddressController extends BaseController
             return $this->sendError('Failed to update address favorite status.', 500, ['error' => $e->getMessage()]);
         }
     }
+
+
 
 
 

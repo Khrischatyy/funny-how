@@ -32,6 +32,8 @@ class AddressService
             return $this->addressRepository->getAddressById($addressId);
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException("Address not found.");
+        } catch (Exception $e) {
+            throw new Exception('Failed to retrieve address.', 500, $e);
         }
     }
 
