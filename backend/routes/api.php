@@ -76,6 +76,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('add-studio', [AddressController::class, 'createAddress']);
         Route::post('delete-studio', [AddressController::class, 'deleteAddress']);
 
+        Route::post('set-favorite', [AddressController::class, 'setFavorite']);
+
         //prices
         Route::post('{address_id}/prices', [AddressController::class, 'createOrUpdateAddressPrice']);
         Route::delete('prices', [AddressController::class, 'deleteAddressPrices']);

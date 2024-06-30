@@ -9,6 +9,7 @@ use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
 use App\Http\Requests\BrandRequest;
 use App\Http\Requests\DeleteAddressRequest;
+use App\Http\Requests\SetFavoriteRequest;
 use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
@@ -768,6 +769,49 @@ class AddressController extends BaseController
             return $this->sendError('Address not found.', 404);
         } catch (Exception $e) {
             return $this->sendError('Failed to delete address.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/set-favorite",
+     *     summary="Set an address as favorite",
+     *     tags={"Address"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"address_id", "is_favorite"},
+     *             @OA\Property(property="address_id", type="integer", example=1),
+     *             @OA\Property(property="is_favorite", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Address favorite status updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Address favorite status updated successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="404", description="Address not found"),
+     *     @OA\Response(response="500", description="Failed to update address favorite status")
+     * )
+     */
+    public function setFavorite(SetFavoriteRequest $request): JsonResponse
+    {
+        $address_id = $request->input('address_id');
+        $is_favorite = $request->input('is_favorite');
+
+        try {
+            $address = $this->addressService->setFavorite($address_id, $is_favorite);
+            return $this->sendResponse($address, 'Address favorite status updated successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to update address favorite status.', 500, ['error' => $e->getMessage()]);
         }
     }
 

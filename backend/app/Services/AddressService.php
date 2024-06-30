@@ -204,4 +204,17 @@ class AddressService
     {
         return $this->addressRepository->getAllStudios();
     }
+
+    public function setFavorite(int $address_id, bool $is_favorite): Address
+    {
+        $address = Address::findOrFail($address_id);
+
+        if (Gate::denies('update', $address)) {
+            abort(403, 'You are not authorized to update this address.');
+        }
+
+        $address->update(['is_favorite' => $is_favorite]);
+
+        return $address;
+    }
 }

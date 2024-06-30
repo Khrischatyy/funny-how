@@ -16,7 +16,7 @@ class Address extends Model
 
     use HasFactory;
 
-    protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id'];
+    protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite'];
 
     public function equipments()
     {
@@ -33,8 +33,6 @@ class Address extends Model
     {
         return $this->hasMany(Booking::class);
     }
-
-
 
     public function badges()
     {
