@@ -29,10 +29,15 @@
         </button>
       </div>
     </div>
-    <div class="grid md:grid-cols-3 sm:grid-cols-1 gap-10 studio-cards">
-
-      <StudioCard @click="goToStudio(studio)" class="animate__animated animate__fadeInRight cursor-pointer" v-for="studio in filteredStudios" :studio="studio" :key="studio.id" />
-    </div>
+      <div :class="`grid ${gridColumns} gap-10 studio-cards`">
+        <StudioCard
+            @click="goToStudio(studio)"
+            :class="`animate__animated animate__fadeInRight max-w-96 cursor-pointer ${centeredClass}`"
+            v-for="studio in filteredStudios"
+            :studio="studio"
+            :key="studio.id"
+        />
+      </div>
   </div>
   </div>
 </template>
@@ -99,6 +104,23 @@ const filteredStudios = computed(() => {
       studio.name.toLowerCase().includes(term) ||
       studio.address.toLowerCase().includes(term)
   )
+})
+
+const gridColumns = computed(() => {
+  if (filteredStudios.value.length === 1) {
+    return 'md:grid-cols-3 sm:grid-cols-1';
+  } else if (filteredStudios.value.length === 2) {
+    return 'md:grid-cols-2 sm:grid-cols-1';
+  } else {
+    return 'md:grid-cols-3 sm:grid-cols-1';
+  }
+})
+
+const centeredClass = computed(() => {
+  if (filteredStudios.value.length === 1) {
+    return 'md:col-start-2';
+  }
+  return '';
 })
 
 const goToStudio = (studio) => {

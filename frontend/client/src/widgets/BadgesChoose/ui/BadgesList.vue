@@ -25,6 +25,7 @@ const ICON_MAP = {
   <div class="mt-4 flex gap-3 w-full justify-center items-center relative mb-5">
     <ScrollContainer v-bind="$attrs" :theme="theme">
       <div v-for="(badge, index) in badges" :key="badge.id"
+           @click.stop="showTooltip($event, badge.description)"
            @mouseenter="showTooltip($event, badge.description)"
            @mouseleave="hideTooltip"
            @touchstart="showTooltip($event, badge.description)"

@@ -1,9 +1,10 @@
 <script setup>
 import {GoogleMap, MarkerCluster} from 'vue3-google-map';
-import {ref, computed, onMounted, watch, reactive} from 'vue';
+import {ref, computed, onMounted, watch} from 'vue';
 import MarkerList from "~/src/widgets/MarkerList.vue";
 import {useRuntimeConfig} from '#imports';
 import darkTheme from '~/src/shared/assets/maps/dark-theme.json';
+
 const config = useRuntimeConfig();
 
 const props = defineProps({
@@ -24,25 +25,6 @@ const props = defineProps({
   }
 });
 
-// const calculateCenter = (markers) => {
-//   if (markers.length === 0) {
-//     return { lat: defaultLat, lng: defaultLng };
-//   }
-//
-//   let totalLat = 0;
-//   let totalLng = 0;
-//
-//   markers.forEach(marker => {
-//     totalLat += parseFloat(marker.latitude);
-//     totalLng += parseFloat(marker.longitude);
-//   });
-//
-//   return {
-//     lat: totalLat / markers.length,
-//     lng: totalLng / markers.length
-//   };
-// };
-
 const defaultLat = 48.21888549557031;
 const defaultLng = 11.625109549171704;
 
@@ -52,7 +34,8 @@ const center = computed(() => ({
 }));
 
 const zoom = ref(15);
-const studios = ref([]); // Using ref instead of reactive
+const studios = ref([]);
+
 const updateStudios = (markers) => {
   studios.value = markers.map((studio) => ({
     id: studio.id,
@@ -65,8 +48,20 @@ const updateStudios = (markers) => {
     photos: studio.photos.length > 0 ? studio.photos[0].url : '',
     url: `/@${studio.company.slug}/studio/${studio.id}`,
   }));
-  console.log('Updated studios:', studios.value);
 };
+
+function mapFitBounds(mapRef, markers) {
+  let bounds;
+  const api = mapRef.value.api;
+  const map = mapRef.value.map;
+
+  console.log('markers', markers)
+  bounds = new api.LatLngBounds();
+  for (let i = 0; i < markers.length; i++) {
+    bounds.extend(new api.LatLng(markers[i].lat, markers[i].lng));
+  }
+  map.fitBounds(bounds);
+}
 
 onMounted(() => {
   if (props.markers) {
@@ -74,21 +69,28 @@ onMounted(() => {
   }
 });
 
+const mapRef = ref(null);
+
+watch(
+    () => mapRef.value?.ready,
+    (ready) => {
+      if (!ready) return;
+      mapFitBounds(mapRef, studios.value);
+    }
+);
+
 watch(() => props.markers, (newMarkers) => {
   if (newMarkers) {
+    console.log('newMarkers', newMarkers)
     updateStudios(newMarkers);
   }
-}, {immediate: true}); // Add immediate to run the watch initially
-
-
-
+}, { immediate: true });
 </script>
 
 <template>
   <ClientOnly>
-    <GoogleMap  :api-key="config.public.googleMapKey" class="map" :center="center" :styles="darkTheme"
-               :zoom="zoom">
-      <MarkerCluster v-if="studios?.length > 0" :options="{ position: center }">
+    <GoogleMap ref="mapRef" :api-key="config.public.googleMapKey" class="map" :center="center" :zoom="zoom" :styles="darkTheme">
+      <MarkerCluster v-if="studios.length > 0" :options="{ position: center }">
         <MarkerList v-for="studio in studios" :key="studio.id" :logo="props.logo || '/logo.png'" :marker="studio"/>
       </MarkerCluster>
     </GoogleMap>

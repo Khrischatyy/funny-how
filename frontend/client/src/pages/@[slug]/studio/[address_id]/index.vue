@@ -345,7 +345,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
     <div v-if="address && address.photos.length > 0" ref="photoContainer" class="photo-container animate__animated animate__fadeInRight w-full max-h-[250px] max-w-full backdrop-blur p-0 py-5 md:p-10">
       <div ref="pswpElement" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
       </div>
-      <ScrollContainer v-if="address?.photos.length > 0" class=" justify-start-important rounded-[10px] h-full" theme="default" main-color="#171717">
+      <ScrollContainer v-if="address?.photos.length > 0" justify-content="center" class="rounded-[10px] h-full" theme="default" main-color="#171717">
         <div v-for="(photo, index) in address?.photos.sort((a, b) => a.index - b.index)" class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement">
           <img :src="photo.url" @click.stop="() => openGallery(displayedPhotos, index)" alt="cover photo" class="w-full h-full object-cover rounded-[10px]"/>
         </div>

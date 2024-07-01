@@ -11,10 +11,10 @@
     <div
         v-bind="$attrs"
         ref="scrollableContainer"
-        class="relative flex justify-base w-full h-auto overflow-x-auto overflow-y-visible scroll-smooth no-scrollbar gap-5"
+        :class="justifyContent == 'center' ? 'justify-start sm:justify-center' : 'justify-start'"
+        class="relative flex w-full h-auto sm:justify-center overflow-x-auto overflow-y-visible scroll-smooth no-scrollbar gap-5"
         @scroll="checkButtons"
     >
-      <!-- Slot for template items -->
       <slot></slot>
     </div>
     <button
@@ -34,10 +34,12 @@ import {IconLeft, IconRight} from "~/src/shared/ui/common";
 import {Tooltip} from "~/src/shared/ui/Tooltip";
 const props = withDefaults(defineProps<{
   theme?: string,
-  mainColor?: string
+  mainColor?: string,
+  justifyContent?: string
 }>(), {
   theme: 'default',
-  mainColor: 'black'
+  mainColor: 'black',
+  justifyContent: 'center',
 });
 const scrollContainer = ref(null);
 const scrollableContainer = ref(null);
@@ -70,19 +72,6 @@ watch(scrollableContainer, () => {
   checkButtons();
 });
 </script>
-
-<style>
-.justify-base {
-  justify-content: space-between;
-}
-.justify-center-important {
-  justify-content: center !important;
-}
-.justify-start-important {
-  justify-content: start !important;
-}
-</style>
-
 <style scoped lang="scss">
 
 .no-scrollbar::-webkit-scrollbar {
