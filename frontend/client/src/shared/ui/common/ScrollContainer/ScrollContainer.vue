@@ -12,7 +12,7 @@
         v-bind="$attrs"
         ref="scrollableContainer"
         :class="justifyContent == 'center' ? 'justify-start sm:justify-center' : 'justify-start'"
-        class="relative flex w-full h-auto sm:justify-center overflow-x-auto overflow-y-visible scroll-smooth no-scrollbar gap-5"
+        class="relative flex w-full h-auto overflow-x-auto overflow-y-visible scroll-smooth no-scrollbar gap-5"
         @scroll="checkButtons"
     >
       <slot></slot>

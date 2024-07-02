@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center">
       <div class="flex justify-start items-center gap-5">
         <div class="h-[35px] w-[35px]">
-          <img :src="booking.address.company.logo_url" alt="Logo" class="h-auto w-full object-cover" />
+          <img :src="booking.address.company.logo_url || defaultLogo" alt="Logo" class="h-auto w-full object-cover" />
         </div>
         <div>
           <h3 class="text-xl font-bold text-white">{{ booking.address.company.name }}</h3>
@@ -55,6 +55,7 @@ import {ref} from "vue";
 import {getStatus, getColor} from "~/src/shared/utils";
 import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue";
 import {Clipboard} from "~/src/shared/ui/common/Clipboard";
+import defaultLogo from '~/src/shared/assets/image/studio.png';
 const showPopup = ref(false);
 
 const emit = defineEmits<{

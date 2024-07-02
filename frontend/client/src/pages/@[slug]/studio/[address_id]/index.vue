@@ -362,7 +362,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
                   Studio name
                 </div>
                 <div class="flex gap-5 w-full">
-                  <div>
+                  <div v-if="address?.company?.logo_url">
                     <img :src="address?.company?.logo_url" class="h-10 w-10 object-contain" />
                   </div>
                   <div class="font-[BebasNeue] w-full text-left">
@@ -476,11 +476,6 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
                   Price:
                 </div>
                 <div class="text-white text-4xl relative font-[BebasNeue]">
-<!--                  <Transition>-->
-<!--                      <span :key="calculatedPrice">-->
-<!--                        ${{calculatedPrice}}-->
-<!--                      </span>-->
-<!--                  </Transition>-->
                   <DisplayNumber :value="calculatedPrice" />
                 </div>
               </div>

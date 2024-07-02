@@ -75,7 +75,8 @@ watch(
     () => mapRef.value?.ready,
     (ready) => {
       if (!ready) return;
-      mapFitBounds(mapRef, studios.value);
+      if(props.markers && props.markers.length > 0)
+        mapFitBounds(mapRef, studios.value);
     }
 );
 

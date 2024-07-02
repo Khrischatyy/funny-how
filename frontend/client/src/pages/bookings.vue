@@ -2,9 +2,9 @@
   <div>
     <NuxtLayout title="Booking management" class="text-white flex flex-col min-h-screen" name="dashboard">
       <div class="container mx-auto px-2 md:px-4">
-        <FilterBar />
+        <FilterBar :filters-show="filterShow" @update:filters="handleFiltersChange" />
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Spinner :is-loading="isLoading" class="spinner" />
+          <Spinner :is-loading="isLoading" />
           <AddStudioButton title="Book recent studio" :subtitle="`${recentStudio.address} at ${recentStudio.date}`" @click="togglePopup" />
           <BookingCard @onCancelBooking="handleCancelBooking" v-for="booking in bookings" :key="booking.id" :booking="booking" />
         </div>
@@ -44,12 +44,18 @@
 <script setup lang="ts">
 import { FilterBar  } from '~/src/shared/ui/components';
 import { AddStudioButton } from "~/src/features/addStudio";
-import { onMounted, ref } from "vue";
+import {onMounted, reactive, ref} from "vue";
 import { BookingCard } from "~/src/entities/Booking/ui";
 import { useApi } from "~/src/lib/api";
 import {Spinner} from "~/src/shared/ui/common";
+import {filterUnassigned} from "~/src/shared/utils";
 
 const showPopup = ref(false);
+const filterShow = reactive([
+  {key: 'search', options:'', value: ''},
+  {key: 'status', options: [{id: 1, name: 'Status 1'}, {id: 2, name: 'Status 2'}], value: ''},
+  {key: 'date', options:'', value: ''},
+  {key: 'time', options:'', value: ''}]);
 
 type BookingRecent = {
   id: number;
@@ -77,6 +83,13 @@ const recentStudio = ref<BookingRecent>({
   date: '04/07/2024',
 });
 
+const handleFiltersChange = (newFilters) => {
+  filterShow.forEach((filter) => {
+    filter.value = newFilters[filter.key];
+  });
+  getBookings(1); // Reset to page 1 with new filters
+};
+
 const bookings = ref<Booking[]>([]);
 const currentPage = ref(1);
 const lastPage = ref(1);
@@ -92,12 +105,17 @@ const handleCancelBooking = (bookings) =>{
 }
 const getBookings = async (page = 1) => {
   isLoading.value = true;
-  const { fetch: fetchBookings } = useApi({
-    url: `/booking-management?page=${page}`,
+  const { post: fetchBookings } = useApi({
+    url: `/booking-management/filter?page=${page}`,
     auth: true,
   });
 
-  fetchBookings().then((response) => {
+  const body = filterShow.reduce((acc, filter) => {
+    acc[filter.key] = filter.value;
+    return acc;
+  }, {});
+
+  fetchBookings(filterUnassigned(body)).then((response) => {
     bookings.value = response.data.data;
     currentPage.value = response.data.current_page;
     lastPage.value = response.data.last_page;
@@ -106,7 +124,6 @@ const getBookings = async (page = 1) => {
     console.error('Error fetching bookings:', error);
   });
 };
-
 const togglePopup = () => {
   showPopup.value = !showPopup.value;
 };

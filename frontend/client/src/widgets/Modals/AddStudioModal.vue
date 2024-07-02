@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<{
   showPopup: false
 });
 
-const emit = defineEmits(['togglePopup', 'closePopup']);
+const emit = defineEmits(['togglePopup', 'closePopup', 'update-studios']);
 
 type Studio = {
   id: number,
@@ -114,7 +114,7 @@ const handleFile = async (files: FileList) => {
     const response = await uploadPhoto(formData);
     console.log('Upload successful:', response.data);
     studioForm.photos = response.data
-
+    emit('update-studios');
     // Handle response, possibly updating UI to reflect the uploaded state
   } catch (error) {
     console.error('Upload failed:', error);

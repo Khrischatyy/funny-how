@@ -70,8 +70,8 @@ watch(() => props.modelValue, (newValue) => {
         @blur="$emit('blur', $event)"
         v-model="value"
         :placeholder="props.placeholder"
-        :class="{ 'pl-10': slots?.icon, 'border-red': error, 'border-white': !error && !slots?.icon, 'py-3': props.size === 'sm', 'py-5': props.size === 'md', 'py-7': props.size === 'lg'}"
-        class="w-full flex justify-start items-center px-3 h-11 outline-none rounded-[10px] focus:border-white border border-opacity-20 focus:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+        :class="{ 'pl-10': slots?.icon, 'border-red': error, 'border-white': !error && !slots?.icon, 'py-3 h-[44px]': props.size === 'sm', 'py-5': props.size === 'md', 'py-7': props.size === 'lg'}"
+        class="w-full flex justify-start items-center px-3 h-11 outline-none rounded-[10px] focus:border-white border border-opacity-20 border-white focus:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
         :type="props.type || 'text'"
     />
     <div v-else :class="{'border border-white border-opacity-20 rounded-[10px]': inputStyle == 'classic', 'rounded-full': inputStyle == 'plain'}" class="w-full h-full flex items-center justify-center rounded-[10px] bg-transparent text-white text-sm font-medium tracking-wide cursor-pointer" @click="handlePlaceholderClick">

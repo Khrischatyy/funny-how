@@ -5,10 +5,10 @@
           <FilterBar />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <AddStudioButton @click="navigateTo('/create')" />
-            <StudioCard v-for="studio in myStudios" @click="editStudio(studio)" :key="studio.id" :studio="studio" />
+            <StudioCard @update-studios="fetchStudios" :is-delete="true" v-for="studio in myStudios" @click="editStudio(studio)" :key="studio.id" :studio="studio" />
           </div>
         </div>
-        <AddStudioModal v-if="showPopup" :show-popup="showPopup" @closePopup="closePopup" @togglePopup="togglePopup" />
+        <AddStudioModal v-if="showPopup" :show-popup="showPopup" @update-studios="fetchStudios" @closePopup="closePopup" @togglePopup="togglePopup" />
       </NuxtLayout>
     </div>
 </template>

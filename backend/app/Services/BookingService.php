@@ -71,7 +71,7 @@ class BookingService
             });
         }
 
-        return $query->with(['address.company', 'address.badges', 'status'])->paginate(self::BOOKING_PAGINATE_COUNT);
+        return $query->with(['address.company', 'address.badges', 'status', 'user'])->paginate(self::BOOKING_PAGINATE_COUNT);
     }
 
     public function getAvailableStartTime(string $date, int $addressId): array

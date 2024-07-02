@@ -10,7 +10,7 @@
         </Clipboard>
       </div>
     </div>
-    <div v-if="isDelete" class="flex items-center gap-3 cursor-pointer hover:opacity-70">
+    <div v-if="isDelete" @click.stop="openPopup()" class="flex items-center gap-3 cursor-pointer hover:opacity-70">
       <IconTrash/>
     </div>
     </div>
@@ -23,7 +23,9 @@
       <BadgesList class="justify-center-important" :badges="displayedBadges" />
     </div>
     <div class="mt-4 flex gap-3 justify-between items-center">
-      <div @mouseenter="showTooltip($event, generateTooltipContent('hours'))" @mouseleave="hideTooltip" class="flex items-center relative group-hours-block group">
+      <div @mouseenter="showTooltip($event, generateTooltipContent('hours'))"
+           @click.stop="showTooltip($event, generateTooltipContent('hours'))"
+           @mouseleave="hideTooltip" class="flex items-center relative group-hours-block group">
         <IconClock class="opacity-20 group-hover:opacity-100" />
         <div class="flex flex-col group-hover:opacity-100">
           <span class="text-white opacity-20 group-hover:opacity-100">Working Hours</span>
@@ -31,7 +33,9 @@
         </div>
       </div>
 
-      <div @mouseenter="showTooltip($event, generateTooltipContent('price'))" @mouseleave="hideTooltip" class="flex items-center gap-2 relative group-price group">
+      <div @mouseenter="showTooltip($event, generateTooltipContent('price'))"
+           @click.stop="showTooltip($event, generateTooltipContent('price'))"
+           @mouseleave="hideTooltip" class="flex items-center gap-2 relative group-price group">
         <IconPrice class="opacity-20 group-hover:opacity-100" />
         <div class="flex flex-col group-hover:opacity-100">
           <span class="text-white opacity-20 group-hover:opacity-100">Price</span>
@@ -43,6 +47,24 @@
     <Tooltip>
       {{ tooltipData.content }}
     </Tooltip>
+    <Teleport to="body">
+      <Popup :title="'Delete Studio'" type="small" :open="showPopup" @close="closePopup">
+        <template #header>
+          <h1 class="text-white text-[22px]/[26px]">You sure you want to delete the studio by {{studio.street}}?</h1>
+        </template>
+        <template #body>
+          <div class="equipment w-full flex flex-col gap-2">
+            <FInputClassic label="Type in Delete studio to confirm" placeholder="Type in Delete studio" v-model="deleteConfirmation"/>
+          </div>
+        </template>
+        <template #footer>
+          <div class="flex justify-between items-center gap-2 w-full">
+            <button @click="closePopup" class="w-full h-11 p-3.5 hover:opacity-90 bg-transparent rounded-[10px] text-white border-white border text-sm font-medium tracking-wide">Cancel</button>
+            <button :disabled="deleteConfirmation.toLowerCase() !== 'delete studio'" :class="{'opacity-80': deleteConfirmation.toLowerCase() !== 'delete studio'}" @click="deleteStudio()" class="w-full h-11 p-3.5 hover:opacity-80 bg-white rounded-[10px] text-neutral-700 border-white border text-sm font-medium tracking-wide">Delete</button>
+          </div>
+        </template>
+      </Popup>
+    </Teleport>
   </div>
 </template>
 
@@ -50,6 +72,7 @@
 import {computed, inject, ref} from 'vue';
 import IconPrice from "~/src/shared/ui/common/Icon/Filter/IconPrice.vue";
 import {
+  FInputClassic, FSelectClassic,
   IconBooking,
   IconClock,
   IconLeft,
@@ -71,6 +94,8 @@ import {Tooltip} from "~/src/shared/ui/Tooltip";
 import {PhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe";
 import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue";
 import {Clipboard} from "~/src/shared/ui/common/Clipboard";
+import {Popup} from "~/src/shared/ui/components";
+import {useApi} from "~/src/lib/api";
 
 const props = defineProps({
   studio: {
@@ -83,6 +108,17 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(['update-studios']);
+
+const showPopup = ref(false)
+const openPopup = () => {
+  showPopup.value = true
+}
+const closePopup = () => {
+  showPopup.value = false
+}
+
+const deleteConfirmation = ref('');
 const ICON_MAP = {
   'mixing': IconMonitor,
   'record': IconMic,
@@ -135,31 +171,17 @@ function generateTooltipContent(type) {
   }
 
 }
+const deleteStudio = () => {
+  const {post: deleteAddress} = useApi({
+    url: `/address/delete-studio`,
+    auth: true
+  });
 
-const nextPhoto = () => {
-  if (currentIndex.value + 3 < (props.studio.photos ? props.studio.photos.length : 0)) {
-    currentIndex.value += 1;
-  }
+  deleteAddress({address_id: props.studio.id}).then(() => {
+    emit('update-studios');
+    closePopup();
+  });
 };
-
-const prevPhoto = () => {
-  if (currentIndex.value > 0) {
-    currentIndex.value -= 1;
-  }
-};
-
-const nextBadge = () => {
-  if (badgeIndex.value + 5 < props.studio.badges.length) {
-    badgeIndex.value += 1;
-  }
-};
-
-const prevBadge = () => {
-  if (badgeIndex.value > 0) {
-    badgeIndex.value -= 1;
-  }
-};
-
 
 const todayWorkingHours = computed(() => {
   const today = new Date().getDay();

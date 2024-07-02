@@ -71,7 +71,7 @@ const saveUser = async () => {
   const {put: saveUser} = useApi({ url: '/user/update', auth: true });
   try {
     let data = filterUnassigned(userForm);
-    await saveUser(userForm).then((response) => {
+    await saveUser(data).then((response) => {
       isLoading.value = false;
     });
   } catch (error) {
