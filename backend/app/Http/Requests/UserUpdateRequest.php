@@ -27,7 +27,7 @@ class UserUpdateRequest extends FormRequest
             'firstname' => 'nullable|string|max:255',
             'lastname' => 'nullable|string|max:255',
             'username' => 'nullable|string|max:255',
-            'phone' => 'required|string|regex:/^\+?[1-9]\d{1,14}$/',
+            'phone' => 'nullable|string|regex:/^\+?[1-9]\d{1,14}$/',
             'date_of_birth' => 'nullable|date',
         ];
     }
