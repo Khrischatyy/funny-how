@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\GetClientsRequest;
 use App\Http\Requests\RoleRequest;
 use App\Http\Requests\UserPhotoUpdateRequest;
 use App\Http\Requests\UserUpdateRequest;
@@ -116,7 +117,6 @@ class UserController extends BaseController
         return $this->sendResponse($user->roleName(), 'Role updated successfully.');
     }
 
-
     /**
      * @OA\Put(
      *     path="/user",
@@ -175,7 +175,6 @@ class UserController extends BaseController
         }
     }
 
-
     /**
      * @OA\Post(
      *     path="/user/update-photo",
@@ -220,6 +219,53 @@ class UserController extends BaseController
             return $this->sendResponse(['photo_url' => $photoUrl], 'Photo updated successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to update photo.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/clients",
+     *     summary="Get list of clients by company slug with their booking count",
+     *     tags={"User"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"company_slug"},
+     *             @OA\Property(property="company_slug", type="string", example="your-company-slug")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Clients retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="firstname", type="string", example="John"),
+     *                     @OA\Property(property="username", type="string", example="johndoe"),
+     *                     @OA\Property(property="phone", type="string", example="+1234567890"),
+     *                     @OA\Property(property="email", type="string", example="john.doe@example.com"),
+     *                     @OA\Property(property="booking_count", type="integer", example=5)
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Clients retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="401", description="Unauthenticated")
+     * )
+     */
+    public function getClients(GetClientsRequest $request): JsonResponse
+    {
+        try {
+            $companySlug = $request->input('company_slug');
+            $clients = $this->userService->getClientsByCompanySlug($companySlug);
+
+            return $this->sendResponse($clients, 'Clients retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError($e->getMessage(), $e->getCode() ?: 500);
         }
     }
 }

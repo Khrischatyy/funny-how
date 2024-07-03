@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //prices
         Route::post('{address_id}/prices', [AddressController::class, 'createOrUpdateAddressPrice']);
         Route::delete('prices', [AddressController::class, 'deleteAddressPrices']);
+        Route::post('clients', [UserController::class, 'getClients']);
         Route::get('{address_id}/prices', [AddressController::class, 'getAddressPrices'])->where('address_id', '[0-9]+');
 
         //booking routes
