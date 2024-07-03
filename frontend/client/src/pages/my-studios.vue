@@ -1,8 +1,9 @@
 <template>
     <div>
       <NuxtLayout @toggleSideMenu="toggleSideMenu" title="Studios" class="text-white flex flex-col min-h-screen" name="dashboard">
+        <Spinner :is-loading="isLoading" />
         <div class="container mx-auto px-2 md:px-4">
-          <FilterBar />
+          <FilterBar :filters-show="filterShow" @update:filters="handleFiltersChange" />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <AddStudioButton @click="navigateTo('/create')" />
             <StudioCard @update-studios="fetchStudios" :is-delete="true" v-for="studio in myStudios" @click="editStudio(studio)" :key="`${studio.id}_${updateKey}`" :studio="studio" />
@@ -29,18 +30,16 @@
 </style>
 
 <script setup lang="ts">
-import {ref, watch, onMounted, type Component, inject, provide} from 'vue';
-import { AddStudioButton } from '~/src/features/addStudio';
-import { StudioCard } from '~/src/entities/Studio';
-import { Header, Footer, FilterBar, Popup } from '~/src/shared/ui/components';
-import { SideMenu } from '~/src/widgets/navigation';
-import { getSideMenu } from '~/src/widgets/navigation/api/useSideMenu';
-import { useAsyncData } from '#app';
-import { AddStudioModal } from "~/src/widgets/Modals";
-import { getMyStudios } from '~/src/entities/RegistrationForms/api/getMyStudios';
-import {IconBooking, IconClients, IconClose, IconHistory, IconMic, IconUser} from "~/src/shared/ui/common";
-import {STUDIO_OWNER_ROLE, USER_ROLE} from "~/src/entities/Session";
+import {computed, onMounted, provide, reactive, ref} from 'vue';
+import {AddStudioButton} from '~/src/features/addStudio';
+import {StudioCard} from '~/src/entities/Studio';
+import {FilterBar} from '~/src/shared/ui/components';
+import {getSideMenu} from '~/src/widgets/navigation/api/useSideMenu';
+import {useAsyncData} from '#app';
+import {AddStudioModal} from "~/src/widgets/Modals";
+import {getMyStudiosFilter, getCities} from '~/src/entities/RegistrationForms/api/getMyStudios';
 import {navigateTo} from "nuxt/app";
+import {Spinner} from "~/src/shared/ui/common";
 
 const sideMenuRef = ref();
 const sideMenuArray = ref([]);
@@ -58,11 +57,37 @@ type Studio = {
   badges: string[],
   equipment: string[]
 }
+const cities = ref([]);
+
+const citiesOptions = computed(() => {
+  return cities.value.map((city) => ({id: city.id, name: city.name}));
+});
+
+const filterShow = reactive([
+  {key: 'search', options:'', value: ''},
+  {key: 'city', options: citiesOptions, value: ''},
+  {key: 'price', options:[{id: 1, name: 'Price 1'}, {id: 2, name: 'Price 2'}], value: ''},
+  {key: 'rating', options:[{id: 1, name: 'Rating 1'}, {id: 2, name: 'Rating 2'}], value: ''}]);
+
 const updateKey = ref(0);
 const fetchStudios = async () => {
-  const studios = await getMyStudios();
-  myStudios.value = studios;
+  isLoading.value = true;
+  myStudios.value = await getMyStudiosFilter(filterShow);
+
+  isLoading.value = false;
+
   updateKey.value += 1;
+};
+
+const fetchCities = async () => {
+  cities.value = await getCities();
+};
+
+const handleFiltersChange = (newFilters) => {
+  filterShow.forEach((filter) => {
+    filter.value = newFilters[filter.key];
+  });
+  fetchStudios(); // Reset to page 1 with new filters
 };
 
 const { data, error } = await useAsyncData('sideMenu', getSideMenu);
@@ -96,6 +121,7 @@ const toggleSideMenu = () => {
 };
 
 onMounted(() => {
+  fetchCities();
   fetchStudios();
 });
 </script>

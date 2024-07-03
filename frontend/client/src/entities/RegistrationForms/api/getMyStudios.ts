@@ -1,4 +1,5 @@
 import {useApi} from "~/src/lib/api";
+import {filterUnassigned} from "~/src/shared/utils";
 
 export interface Badge {
     id: number;
@@ -44,6 +45,32 @@ interface GetStudiosResponse {
 export const getMyStudios = async () => {
     const { fetch } = useApi<GetStudiosResponse>({
         url: `my-studios`,
+        auth: true
+    })
+
+    const response = await fetch()
+    return response ? response.data : []
+}
+
+export const getMyStudiosFilter = async (filterShow) => {
+    const body = filterShow.reduce((acc, filter) => {
+        acc[filter.key] = filter.value;
+        return acc;
+    }, {});
+
+    const { post } = useApi<GetStudiosResponse>({
+        url: `my-studios/filter`,
+        auth: true
+    })
+
+    const response = await post(filterUnassigned(body))
+    return response ? response.data : []
+}
+
+export const getCities = async () => {
+
+    const { fetch } = useApi<GetStudiosResponse>({
+        url: `my-studios/cities`,
         auth: true
     })
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col lg:grid lg:grid-cols-3 lg:justify-between items-center gap-2 md:gap-6 mb-6 space-y-4 lg:space-y-0 w-full">
+  <div class="flex flex-col lg:grid lg:grid-cols-4 lg:justify-between items-center gap-2 md:gap-2 mb-6 space-y-4 lg:space-y-0 w-full">
     <!-- Search and IconButton on the first line -->
     <div class="flex items-center w-full">
       <FInputClassic placeholder="Search" v-model="filters.search" class="w-full">
@@ -15,6 +15,11 @@
       <div class="flex items-center w-full flex-col lg:flex-row gap-6">
 
         <div class="flex w-full h-full gap-2">
+          <FSelectClassic v-if="getFilterShow('city')" placeholder="City" :options="getFilterShow('city')?.options" v-model="filters.city" class="w-full h-full">
+            <template #icon>
+              <IconStatus class="h-5 w-5 text-gray-400" />
+            </template>
+          </FSelectClassic>
           <FSelectClassic v-if="getFilterShow('status')" placeholder="Status" :options="[{id: 1, name: 'Status 1'}, {id: 2, name: 'Status 2'}]" v-model="filters.status" class="w-full h-full">
             <template #icon>
               <IconStatus class="h-5 w-5 text-gray-400" />
@@ -27,33 +32,35 @@
             </template>
           </FInputClassic>
 
-          <FInputClassic v-if="getFilterShow('time')" type="time" placeholder="Time" v-model="filters.time" size="sm" class="w-full h-full">
-            <template #icon>
-              <IconClock class="h-5 w-5 text-gray-400" />
-            </template>
-          </FInputClassic>
 
-          <FSelectClassic v-if="getFilterShow('price')" placeholder="Price" :options="[{id: 1, name: 'Price 1'}, {id: 2, name: 'Price 2'}]" v-model="filters.price" class="w-full h-full">
+
+          <FInputClassic v-if="getFilterShow('price')" placeholder="Price up to" size="sm" v-model="filters.price" class="w-full h-full">
             <template #icon>
               <IconPrice class="h-5 w-5 text-gray-400" />
             </template>
-          </FSelectClassic>
+          </FInputClassic>
 
         </div>
       </div>
 
       <!-- Rating, Filter, Clear Filter on the third line -->
       <div class="flex w-full justify-end items-center gap-6">
-        <FSelectClassic v-if="getFilterShow('rating')" placeholder="Rating" :options="[{id: 1, name: 'Rating 1'}, {id: 2, name: 'Rating 2'}]" v-model="filters.rating" class="w-full h-full">
+        <FInputClassic v-if="getFilterShow('time')" type="time" placeholder="Time" v-model="filters.time" size="sm" class="w-full h-full">
+          <template #icon>
+            <IconClock class="h-5 w-5 text-gray-400" />
+          </template>
+        </FInputClassic>
+        <FInputClassic v-if="getFilterShow('rating')" placeholder="Rating from" size="sm" v-model="filters.rating" class="w-full h-full">
           <template #icon>
             <IconRating class="h-5 w-5 text-gray-400" />
           </template>
-        </FSelectClassic>
-
-        <button class="bg-white text-black p-2 rounded-[10px] max-w-[127px] w-full h-full flex items-center justify-center">
+        </FInputClassic>
+      </div>
+      <div class="flex w-full justify-between items-center gap-2">
+        <button class="bg-white text-black p-2 rounded-[10px]  w-full h-full flex items-center justify-center">
           <i class="fas fa-filter mr-1"></i> Filter
         </button>
-        <button @click="clearFilters" class="border border-red-500 p-2 rounded-[10px] max-w-[127px] w-full h-full flex items-center justify-center text-red-500">
+        <button @click="clearFilters" class="border border-red-500 p-2 rounded-[10px]  w-full h-full flex items-center justify-center text-red-500">
           <i class="fas fa-times mr-1"></i> Clear filter
         </button>
       </div>
@@ -91,6 +98,7 @@ const filters = ref({
   rating: null,
   date: null,
   time: null,
+  city: null,
 })
 const dateInput = ref(null)
 const isFiltersOpen = ref(false)

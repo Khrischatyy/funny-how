@@ -49,7 +49,7 @@ watch(() => props.modelValue, (newValue) => {
 </script>
 
 <template>
-  <div class="w-full flex-col flex">
+  <div class="w-full max-w-96 flex-col flex">
     <div class="label-action flex justify-between items-center w-full">
       <div v-if="label"
            :class="{ 'opacity-20': props.size === 'sm', 'opacity-100': props.size === 'md' || props.size === 'lg' }"

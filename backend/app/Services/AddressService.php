@@ -237,7 +237,8 @@ class AddressService
 
     public function filterMyAddresses(int $companyId, array $filters): Collection
     {
-        $query = Address::where('company_id', $companyId);
+        $query = Address::where('company_id', $companyId)
+            ->with(['badges', 'photos', 'prices', 'company', 'operatingHours']);
 
         if (!empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
@@ -252,7 +253,11 @@ class AddressService
         }
 
         if (!empty($filters['price'])) {
-            $query->where('price', '<=', $filters['price']);
+            $query->where(function ($q) use ($filters) {
+                $q->whereHas('prices', function ($q2) use ($filters) {
+                    $q2->where('total_price', '<=', $filters['price']);
+                });
+            });
         }
 
         if (!empty($filters['rating'])) {
