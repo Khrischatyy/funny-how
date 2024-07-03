@@ -45,6 +45,11 @@ class Address extends Model
         return $this->hasMany(AddressPrice::class);
     }
 
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
     public function photos()
     {
         return $this->hasMany(AddressPhoto::class, 'address_id', 'id');

@@ -9,6 +9,7 @@ use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
 use App\Http\Requests\BrandRequest;
 use App\Http\Requests\DeleteAddressRequest;
+use App\Http\Requests\FilterAddressRequest;
 use App\Http\Requests\SetFavoriteRequest;
 use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Models\Address;
@@ -822,12 +823,97 @@ class AddressController extends BaseController
     }
 
 
+    /**
+     * @OA\Post(
+     *     path="/my-studios/filter",
+     *     summary="Filter addresses based on criteria",
+     *     tags={"Addresses"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="search", type="string", example="Studio Name"),
+     *             @OA\Property(property="city", type="integer", example=1),
+     *             @OA\Property(property="price", type="number", example=100),
+     *             @OA\Property(property="rating", type="number", example=4.5)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Filtered addresses retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Studio Name"),
+     *                     @OA\Property(property="city", type="string", example="City Name"),
+     *                     @OA\Property(property="price", type="number", example=100),
+     *                     @OA\Property(property="rating", type="number", example=4.5)
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Filtered addresses retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="400", description="Bad Request"),
+     *     @OA\Response(response="500", description="Internal Server Error")
+     * )
+     */
+    public function filterMyAddresses(FilterAddressRequest $request): JsonResponse
+    {
+        try {
+            $user = auth()->user();
+            $company = $user->adminCompany->company;
 
+            $this->authorize('update', $company);
 
+            $addresses = $this->addressService->filterMyAddresses($company->id, $request->validated());
 
+            return $this->sendResponse($addresses, 'Filtered addresses retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve addresses.', 500, ['error' => $e->getMessage()]);
+        }
+    }
 
+    /**
+     * @OA\Get(
+     *     path="/my-studios/cities",
+     *     summary="Get list of cities where user's studios are located",
+     *     tags={"Addresses"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Cities retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="City Name")
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Cities retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="400", description="Bad Request"),
+     *     @OA\Response(response="500", description="Internal Server Error")
+     * )
+     */
+    public function getMyCities(): JsonResponse
+    {
+        try {
+            $user = auth()->user();
+            $company = $user->adminCompany->company;
 
+            $this->authorize('update', $company);
 
+            $cities = $this->addressService->getCitiesByCompany($company->id);
+
+            return $this->sendResponse($cities, 'Cities retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve cities.', 500, ['error' => $e->getMessage()]);
+        }
+    }
 
     /**
      * Add a default price/hours (1hour/60$) to address

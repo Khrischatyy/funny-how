@@ -121,11 +121,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('update-photo', [UserController::class, 'updatePhoto']);
     });
 
-    Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');
-    Route::post('history/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'history');
 
-    Route::get('booking-management', [BookingController::class, 'getBookings'])->defaults('type', 'future');
+    //filters
+
+    Route::post('my-studios/filter', [AddressController::class, 'filterMyAddresses']);
+    Route::post('history/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'history');
     Route::post('booking-management/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'future');
+
+    Route::get('history', [BookingController::class, 'getBookings'])->defaults('type', 'history');
+    Route::get('booking-management', [BookingController::class, 'getBookings'])->defaults('type', 'future');
+    Route::get('my-studios/cities', [AddressController::class, 'getMyCities']);
 
     Route::get('menu', [MenuController::class, 'getMenu']);
 

@@ -224,4 +224,41 @@ class AddressService
 
         return $address;
     }
+
+    public function getCitiesByCompany(int $companyId)
+    {
+        return Address::where('company_id', $companyId)
+            ->with('city:id,name')
+            ->get()
+            ->pluck('city')
+            ->unique('id')
+            ->values();
+    }
+
+    public function filterMyAddresses(int $companyId, array $filters): Collection
+    {
+        $query = Address::where('company_id', $companyId);
+
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->whereHas('company', function ($q2) use ($filters) {
+                    $q2->where('name', 'like', '%' . $filters['search'] . '%');
+                })->orWhere('street', 'like', '%' . $filters['search'] . '%');
+            });
+        }
+
+        if (!empty($filters['city'])) {
+            $query->where('city_id', $filters['city']);
+        }
+
+        if (!empty($filters['price'])) {
+            $query->where('price', '<=', $filters['price']);
+        }
+
+        if (!empty($filters['rating'])) {
+            $query->where('rating', '>=', $filters['rating']);
+        }
+
+        return $query->with(['city', 'company'])->get();
+    }
 }
