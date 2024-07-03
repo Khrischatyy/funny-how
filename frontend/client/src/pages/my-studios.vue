@@ -5,7 +5,7 @@
           <FilterBar />
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <AddStudioButton @click="navigateTo('/create')" />
-            <StudioCard @update-studios="fetchStudios" :is-delete="true" v-for="studio in myStudios" @click="editStudio(studio)" :key="studio.id" :studio="studio" />
+            <StudioCard @update-studios="fetchStudios" :is-delete="true" v-for="studio in myStudios" @click="editStudio(studio)" :key="`${studio.id}_${updateKey}`" :studio="studio" />
           </div>
         </div>
         <AddStudioModal v-if="showPopup" :show-popup="showPopup" @update-studios="fetchStudios" @closePopup="closePopup" @togglePopup="togglePopup" />
@@ -58,10 +58,11 @@ type Studio = {
   badges: string[],
   equipment: string[]
 }
-
+const updateKey = ref(0);
 const fetchStudios = async () => {
   const studios = await getMyStudios();
   myStudios.value = studios;
+  updateKey.value += 1;
 };
 
 const { data, error } = await useAsyncData('sideMenu', getSideMenu);

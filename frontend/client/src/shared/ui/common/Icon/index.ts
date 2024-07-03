@@ -28,3 +28,7 @@ export { default as IconPricetag } from './IconPricetag.vue'
 export { default as IconNav } from './IconNav.vue'
 export { default as IconCopy } from './IconCopy.vue'
 export { default as IconCheckmark } from './IconCheckmark.vue'
+
+export { default as IconPhone } from './IconPhone.vue'
+export { default as IconEmail } from './IconEmail.vue'
+export { default as IconStat } from './IconStat.vue'

@@ -44,7 +44,6 @@ watch(addressData, (newVal) => {
 
 onMounted(async () => {
   const config = useRuntimeConfig();
-  // session.value = useSessionStore();
 
   //Init google map and autocomplete on ref place.value that is InputElement
   await initGoogleMaps(place?.value);
@@ -159,18 +158,6 @@ const userInfo = computed(() => {
             <input id="place" ref="place" :class="errors.hasOwnProperty('street') && !formValues.street ? 'border border-red border-opacity-80 placeholder-red' : 'border border-white border-opacity-20'" class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide" type="text" placeholder="Enter Your Address" />
           </div>
         </div>
-
-<!--        <div class="flex-col justify-start items-start gap-1.5 flex">-->
-<!--          <div class="w-96 justify-between items-start inline-flex">-->
-<!--            <div class="text-white text-sm font-normal tracking-wide">About</div>-->
-<!--            <div v-if="isError('about')" class="text-right text-red-500 text-sm font-normal tracking-wide">-->
-<!--              {{ isError('about') }}-->
-<!--            </div>-->
-<!--          </div>-->
-<!--          <div class="justify-start items-center gap-2.5 inline-flex">-->
-<!--            <textarea name="about" v-model="formValues.about" :class="{ 'border-red': isError('about') }" class="w-96 h-20 no-scrollbar px-3.5 py-3.5 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"></textarea>-->
-<!--          </div>-->
-<!--        </div>-->
         <div class="justify-center items-center gap-2.5 inline-flex">
           <button v-if="!existedCompany" @click="setupStudio()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Save And Continue</button>
           <button v-else @click="addNewStudio()" class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide">Add studio</button>

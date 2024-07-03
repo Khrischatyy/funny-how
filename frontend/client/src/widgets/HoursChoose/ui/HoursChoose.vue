@@ -55,31 +55,36 @@ function setHours(){
     url: `/address/operating-hours`,
     auth: true
   });
-  if(workHours.value?.mode_id == 3){
-    let data = {
-      mode_id: workHours.value?.mode_id,
-      address_id: studio?.value.id,
-      hours: workHours.value?.eachDay
-    }
-    post(data).then((response) => {
-      console.log('response', response.data)
-      isLoading.value = false;
-    }).catch(error => {
-      console.error('error', error);
-      isLoading.value = false;
-    });
-  } else {
-    post({
-      ...filterUnassigned(workHours.value),
-      address_id: studio?.value.id
-    }).then((response) => {
-      console.log('response', response.data)
-      isLoading.value = false;
-    }).catch(error => {
-      console.error('error', error);
-      isLoading.value = false;
-    });
+  let data;
+  switch (workHours.value.mode_id) {
+    case 1:
+      data = {
+        mode_id: workHours.value.mode_id,
+        address_id: studio?.value.id
+      }
+      break;
+    case 2:
+      data = {
+        mode_id: workHours.value.mode_id,
+        address_id: studio?.value.id,
+        open_time: workHours.value.open_time,
+        close_time: workHours.value.close_time
+      }
+      break;
+    case 3:
+      data = {
+        mode_id: workHours.value.mode_id,
+        address_id: studio?.value.id,
+        hours: workHours.value.eachDay
+      }
+      break;
   }
+  post(data).then((response) => {
+    isLoading.value = false;
+  }).catch(error => {
+    console.error('error', error);
+    isLoading.value = false;
+  });
 }
 
 const {data, error} = useAsyncData('operationModes', getModes);
@@ -180,7 +185,7 @@ const getDayMean = (day: number) => {
                 </span>
           </div>
           <div v-if="workHours.mode_id == 3" class="relative flex items-center pointer-events-none">
-            <input disabled placeholder="Weekday Hours" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
+            <input disabled placeholder="Custom Hours For Each Day" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
             <span class="absolute right-0 cursor-pointer">
                   <IconDown/>
                 </span>

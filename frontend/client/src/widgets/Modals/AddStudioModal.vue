@@ -244,6 +244,7 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
       address_photo_id: photoId,
       index: newIndex
     });
+    emit('update-studios');
     console.log('Update successful:', response.data);
     // Handle response, possibly updating UI to reflect the uploaded state
   } catch (error) {

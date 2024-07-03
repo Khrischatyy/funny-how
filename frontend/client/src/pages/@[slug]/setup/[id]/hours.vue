@@ -108,27 +108,35 @@ function setHours(){
     url: `/address/operating-hours`,
     auth: true
   });
-  if(workHours.value?.mode_id == 3){
-    let data = {
-      mode_id: workHours.value?.mode_id,
-      address_id: route.params.id,
-      hours: workHours.value?.eachDay
-    }
-    post(data).then((response) => {
-      navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
-    }).catch(error => {
-      console.error('error', error);
-    });
-  } else {
-    post({
-      ...filterUnassigned(workHours.value),
-      address_id: route.params.id
-    }).then((response) => {
-      navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
-    }).catch(error => {
-      console.error('error', error);
-    });
+  let data;
+  switch (workHours.value.mode_id) {
+    case 1:
+      data = {
+        mode_id: workHours.value.mode_id,
+        address_id: route.params.id
+      }
+      break;
+    case 2:
+      data = {
+        mode_id: workHours.value.mode_id,
+        address_id: route.params.id,
+        open_time: workHours.value.open_time,
+        close_time: workHours.value.close_time
+      }
+      break;
+    case 3:
+      data = {
+        mode_id: workHours.value.mode_id,
+        address_id: route.params.id,
+        hours: workHours.value.eachDay
+      }
+      break;
   }
+  post(data).then((response) => {
+    routeNext()
+  }).catch(error => {
+    console.error('error', error);
+  });
 }
 
 type Mode = {
