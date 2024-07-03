@@ -252,8 +252,6 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
     // Handle errors, show user feedback
   }
 }
-
-
 </script>
 
 <template>

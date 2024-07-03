@@ -41,6 +41,7 @@ const handleTouchEnd = () => {
 
 
 onMounted(() => {
+  if (!props.open) return;
   document.body.style.overflow = 'hidden';
   window.addEventListener('keydown', handleKeyDown);
   if(props.scrollToClose) {

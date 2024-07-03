@@ -47,7 +47,7 @@
     <Tooltip>
       {{ tooltipData.content }}
     </Tooltip>
-    <Teleport to="body">
+    <Teleport v-if="showPopup" to="body">
       <Popup :title="'Delete Studio'" type="small" :open="showPopup" @close="closePopup">
         <template #header>
           <h1 class="text-white text-[22px]/[26px]">You sure you want to delete the studio by {{studio.street}}?</h1>
