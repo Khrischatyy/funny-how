@@ -122,15 +122,15 @@ class BookingService
 
     public function getAvailableEndTime(string $date, int $addressId, string $startTime): array
     {
-        $date = Carbon::parse($date);
+        $date = Carbon::parse($date)->startOfDay();
         $startTime = Carbon::parse($startTime);
 
         $operatingHours = $this->getOperatingHours($addressId, $date);
 
         // Extract the time portion only
-        $openTime = Carbon::createFromFormat('H:i:s', $operatingHours->open_time);
-        $closeTime = Carbon::createFromFormat('H:i:s', $operatingHours->close_time);
-        $startTimeOnly = Carbon::createFromFormat('H:i:s', $startTime->format('H:i:s'));
+        $openTime = Carbon::parse($operatingHours->open_time);
+        $closeTime = $operatingHours->close_time === '24:00' ? Carbon::parse('23:59:59') : Carbon::parse($operatingHours->close_time);
+        $startTimeOnly = Carbon::parse($startTime->format('H:i:s'));
 
         // Compare times without date
         if ($startTimeOnly->lt($openTime) || $startTimeOnly->gte($closeTime)) {
