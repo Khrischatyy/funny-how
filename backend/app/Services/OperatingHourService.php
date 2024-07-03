@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\OperatingHour;
+use Carbon\Carbon;
 
 class OperatingHourService
 {
@@ -13,8 +14,8 @@ class OperatingHourService
         return OperatingHour::create([
             'address_id' => $address_id,
             'mode_id' => $mode,
-            'open_time' => $open_time,
-            'close_time' => $close_time,
+            'open_time' => Carbon::createFromFormat('H:i', $open_time)->toTimeString(),
+            'close_time' => Carbon::createFromFormat('H:i', $close_time)->toTimeString(),
         ]);
     }
 
@@ -25,8 +26,8 @@ class OperatingHourService
         return OperatingHour::create([
             'address_id' => $address_id,
             'mode_id' => $mode,
-            'open_time' => '00:00',
-            'close_time' => '24:00'
+            'open_time' => Carbon::now()->startOfDay()->toTimeString(), // 00:00
+            'close_time' => '23:59:59', // представляем 24:00 как 23:59:59
         ]);
     }
 
@@ -38,12 +39,15 @@ class OperatingHourService
         $inserts = [];
 
         foreach ($hours as $dayData) {
+            $open_time = Carbon::parse($dayData['open_time'])->toTimeString();
+            $close_time = $dayData['close_time'] === '24:00' ? '23:59:59' : Carbon::parse($dayData['close_time'])->toTimeString();
+
             $inserts[] = [
                 'address_id' => $address_id,
                 'mode_id' => $mode,
                 'day_of_week' => $dayData['day_of_week'],
-                'open_time' => $dayData['open_time'],
-                'close_time' => $dayData['close_time'],
+                'open_time' => $open_time,
+                'close_time' => $close_time,
                 'is_closed' => $dayData['is_closed'] ?? false,
             ];
         }
