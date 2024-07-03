@@ -770,7 +770,7 @@ class AddressController extends BaseController
 
         try {
             $this->addressService->deleteAddress($address_id);
-            return $this->sendResponse([], 'Address deleted successfully.');
+            return $this->sendResponse([], 'Address and operating hours deleted successfully.');
         } catch (ModelNotFoundException $e) {
             return $this->sendError('Address not found.', 404);
         } catch (Exception $e) {

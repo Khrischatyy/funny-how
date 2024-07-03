@@ -199,6 +199,11 @@ class AddressService
             abort(403, 'You are not authorized to delete this address.');
         }
 
+        $address->operatingHours()->delete();
+
+        //TODO if we don't need any info about previous prices, badges, photos (maybe even bookings
+        //then i can delete them too, now left it.
+
         $address->delete();
     }
 
