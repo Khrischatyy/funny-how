@@ -197,8 +197,8 @@ const getDayMean = (day: number) => {
           <input v-model="workHours.close_time" class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" type="time" placeholder="To" />
         </div>
       </div>
-      <div v-for="(hour, index) in 7" v-if="workHours.mode_id == 3"  class="w-96 justify-center items-center gap-2.5 inline-flex">
-        <div class="w-96 max-w-96">
+      <div v-for="(hour, index) in 7" v-if="workHours.mode_id == 3"  class="max-w-96 justify-center items-center gap-2.5 inline-flex">
+        <div class="w-full max-w-96">
           <input disabled :placeholder="getDayMean(index)" class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday"/>
         </div>
         <div class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center">
