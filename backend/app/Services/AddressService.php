@@ -28,10 +28,10 @@ class AddressService
     public function __construct(public AddressRepository $addressRepository,
                                 public BookingService $bookingService) {}
 
-    public function getAddressById(int $addressId): Address
+    public function getAddressBySlug(string $addressSlug): Address
     {
         try {
-            return $this->addressRepository->getAddressById($addressId);
+            return $this->addressRepository->getAddressBySlug($addressSlug);
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException("Address not found.");
         } catch (Exception $e) {
@@ -39,15 +39,20 @@ class AddressService
         }
     }
 
-    public function createAddress(BrandRequest|AddressRequest $request, City $city, Company $company): Address
+    public function createAddress(AddressRequest $request, City $city, Company $company): Address
     {
-        return Address::create([
+        $address = Address::create([
             'street' => $request->input('street'),
             'longitude' => $request->input('longitude'),
             'latitude' => $request->input('latitude'),
             'city_id' => $city->id,
             'company_id' => $company->id,
         ]);
+
+        // Slug будет установлен автоматически при создании модели благодаря методу boot
+        $address->save();
+
+        return $address;
     }
 
     public function getMyAddresses(): Collection

@@ -102,7 +102,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('reservation/end-time', [BookingController::class, 'getReservationAvailableEndTime']);
             //get address
             Route::get('/equipment-type', [EquipmentController::class, 'getEquipmentType']);
-            Route::get('{address_id}', [AddressController::class, 'getAddressById']);
+            Route::get('/studio/{address_slug}', [AddressController::class, 'getAddressBySlug']);
 
 
 

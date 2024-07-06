@@ -6,6 +6,7 @@ use App\Services\BookingService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 /**
  * @method static findOrFail(int $addressId)
@@ -16,7 +17,7 @@ class Address extends Model
 
     use HasFactory;
 
-    protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite'];
+    protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug'];
 
     protected $appends = ['is_favorite'];
 
@@ -71,5 +72,30 @@ class Address extends Model
     public function favoriteByUsers()
     {
         return $this->belongsToMany(User::class, 'favorite_studios', 'address_id', 'user_id');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($address) {
+            $address->slug = $address->generateUniqueSlug();
+        });
+    }
+
+    public function generateUniqueSlug()
+    {
+        $company = $this->company()->first();
+        $city = $this->city()->first();
+        $slugBase = Str::slug($company->name . ' ' . $city->name);
+        $slug = $slugBase;
+        $counter = 1;
+
+        while (self::where('slug', $slug)->exists()) {
+            $slug = $slugBase . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 }

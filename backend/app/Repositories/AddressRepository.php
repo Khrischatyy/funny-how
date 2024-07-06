@@ -53,12 +53,13 @@ class AddressRepository implements AddressRepositoryInterface
             ->get();
     }
 
-    public function getAddressById(int $addressId): Address
+    public function getAddressBySlug(string $slug): Address
     {
         $address = Address::with(['badges', 'photos', 'prices' => function ($query) {
             $query->where('is_enabled', true);
         }, 'company', 'operatingHours'])
-            ->findOrFail($addressId);
+            ->where('slug', $slug)
+            ->firstOrFail();
 
         if ($address->company->logo) {
             $address->company->logo_url = Storage::disk('s3')->url($address->company->logo);

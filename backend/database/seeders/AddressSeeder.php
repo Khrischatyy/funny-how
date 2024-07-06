@@ -23,6 +23,7 @@ class AddressSeeder extends Seeder
                 'latitude' => 55.7578375,
                 'longitude' => 37.6064895,
                 'city_id' => 2,
+                'slug' => 'section-moscow',
                 'company_id' => 1,
             ],
             [
@@ -30,6 +31,7 @@ class AddressSeeder extends Seeder
                 'street' => 'Mirijevski Venac 4',
                 'latitude' => 20.5320636,
                 'company_id' => 1,
+                'slug' => 'test-moscow',
                 'longitude' => 44.792424,
                 'city_id' => 1,
             ],
@@ -38,6 +40,7 @@ class AddressSeeder extends Seeder
                 'street' => 'Nikolic',
                 'latitude' => 20.386438,
                 'longitude' => 44.8018983,
+                'slug' => 'damn-moscow',
                 'company_id' => 2,
                 'city_id' => 3,
             ],

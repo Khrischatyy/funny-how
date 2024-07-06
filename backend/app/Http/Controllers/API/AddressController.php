@@ -33,16 +33,16 @@ class AddressController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/studio/{address_id}",
-     *     summary="Get an address by its ID",
+     *     path="/studio/{address_slug}",
+     *     summary="Get an address by its slug",
      *     tags={"Address"},
      *     security={{"sanctum":{}}},
      *     @OA\Parameter(
-     *         name="address_id",
+     *         name="address_slug",
      *         in="path",
      *         required=true,
-     *         @OA\Schema(type="integer"),
-     *         description="The ID of the address"
+     *         @OA\Schema(type="string"),
+     *         description="The slug of the address"
      *     ),
      *     @OA\Response(
      *         response="200",
@@ -56,6 +56,7 @@ class AddressController extends BaseController
      *                 @OA\Property(property="company_id", type="integer", example=10),
      *                 @OA\Property(property="latitude", type="string", example="20.5320636"),
      *                 @OA\Property(property="longitude", type="string", example="44.792424"),
+     *                 @OA\Property(property="slug", type="string", example="company-name-city-name"),
      *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
      *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z")
      *             ),
@@ -66,14 +67,10 @@ class AddressController extends BaseController
      *     @OA\Response(response="404", description="Address not found")
      * )
      */
-    public function getAddressById($addressId): JsonResponse
+    public function getAddressBySlug($addressSlug): JsonResponse
     {
         try {
-            if (!is_numeric($addressId)) {
-                return $this->sendError('Invalid address ID format.', 400);
-            }
-
-            $address = $this->addressService->getAddressById((int)$addressId);
+            $address = $this->addressService->getAddressBySlug($addressSlug);
 
             return $this->sendResponse($address, 'Address retrieved successfully.');
         } catch (ModelNotFoundException $e) {
@@ -296,6 +293,7 @@ class AddressController extends BaseController
      *                 @OA\Property(property="company_id", type="integer", example=10),
      *                 @OA\Property(property="latitude", type="string", example="20.5320636"),
      *                 @OA\Property(property="longitude", type="string", example="44.792424"),
+     *                 @OA\Property(property="slug", type="string", example="company-name-city-name-1"),
      *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
      *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z")
      *             ),
