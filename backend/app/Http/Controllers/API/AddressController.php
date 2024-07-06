@@ -12,6 +12,7 @@ use App\Http\Requests\DeleteAddressRequest;
 use App\Http\Requests\FilterAddressRequest;
 use App\Http\Requests\ToggleFavoriteStudioRequest;
 use App\Http\Requests\UpdatePhotoIndexRequest;
+use App\Http\Requests\UpdateSlugRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
 use App\Repositories\AddressRepository;
@@ -909,6 +910,68 @@ class AddressController extends BaseController
             return $this->sendResponse($result, 'Favorite status toggled successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to toggle favorite status.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/studio/{address_slug}/update-slug",
+     *     summary="Update the slug of an address",
+     *     tags={"Address"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="address_slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string"),
+     *         description="The current slug of the address"
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"new_slug"},
+     *             @OA\Property(property="new_slug", type="string", example="new-company-name-city-name")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Slug updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="street", type="string", example="Main St"),
+     *                 @OA\Property(property="city_id", type="integer", example=100),
+     *                 @OA\Property(property="company_id", type="integer", example=10),
+     *                 @OA\Property(property="latitude", type="string", example="20.5320636"),
+     *                 @OA\Property(property="longitude", type="string", example="44.792424"),
+     *                 @OA\Property(property="slug", type="string", example="new-company-name-city-name"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z")
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Slug updated successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="422", description="Unprocessable Entity"),
+     *     @OA\Response(response="404", description="Address not found"),
+     *     @OA\Response(response="500", description="Failed to update slug")
+     * )
+     */
+    public function updateSlug(UpdateSlugRequest $request, $addressSlug): JsonResponse
+    {
+        try {
+            $address = $this->addressService->getAddressBySlug($addressSlug);
+
+            $this->authorize('update', $address);
+
+            $updatedAddress = $this->addressService->updateSlug($address, $request->input('new_slug'));
+
+            return $this->sendResponse($updatedAddress, 'Slug updated successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to update slug.', 500, ['error' => $e->getMessage()]);
         }
     }
 

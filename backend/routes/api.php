@@ -92,6 +92,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('payment-success', [BookingController::class, 'paymentSuccess']);
         Route::post('calculate-price', [BookingController::class, 'calculatePrice']);
 
+        Route::put('/{address_slug}/update-slug', [AddressController::class, 'updateSlug']);
+
 
         Route::delete('{address_id}/equipment', [EquipmentController::class, 'deleteEquipment'])->where('address_id', '[0-9]+');
         Route::post('{address_id}/equipment', [EquipmentController::class, 'setEquipment'])->where('address_id', '[0-9]+');
@@ -103,6 +105,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             //get address
             Route::get('/equipment-type', [EquipmentController::class, 'getEquipmentType']);
             Route::get('/studio/{address_slug}', [AddressController::class, 'getAddressBySlug']);
+
 
 
 

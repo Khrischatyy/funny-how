@@ -258,6 +258,18 @@ class AddressService
         }
     }
 
+    public function updateSlug(Address $address, string $newSlug): Address
+    {
+        try {
+            $address->slug = $newSlug;
+            $address->save();
+
+            return $address;
+        } catch (Exception $e) {
+            throw new Exception('Failed to update slug.', 500, $e);
+        }
+    }
+
     public function filterMyAddresses(int $companyId, array $filters): Collection
     {
         $query = Address::where('company_id', $companyId)
