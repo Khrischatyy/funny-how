@@ -12,6 +12,8 @@ use App\Models\AddressPhoto;
 use App\Models\AdminCompany;
 use App\Models\City;
 use App\Models\Company;
+use App\Models\FavoriteStudio;
+use App\Models\User;
 use App\Repositories\AddressRepository;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -233,6 +235,22 @@ class AddressService
             ->pluck('city')
             ->unique('id')
             ->values();
+    }
+
+    public function toggleFavorite(int $userId, int $addressId)
+    {
+        $favoriteStudio = FavoriteStudio::where('user_id', $userId)->where('address_id', $addressId)->first();
+
+        if ($favoriteStudio) {
+            $favoriteStudio->delete();
+            return ['is_favorite' => false];
+        } else {
+            FavoriteStudio::create([
+                'user_id' => $userId,
+                'address_id' => $addressId,
+            ]);
+            return ['is_favorite' => true];
+        }
     }
 
     public function filterMyAddresses(int $companyId, array $filters): Collection

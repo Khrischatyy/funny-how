@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Services\BookingService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * @method static findOrFail(int $addressId)

@@ -10,11 +10,10 @@ use App\Http\Requests\AddressRequest;
 use App\Http\Requests\BrandRequest;
 use App\Http\Requests\DeleteAddressRequest;
 use App\Http\Requests\FilterAddressRequest;
-use App\Http\Requests\SetFavoriteRequest;
+use App\Http\Requests\ToggleFavoriteStudioRequest;
 use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Models\Address;
 use App\Models\AddressPrice;
-use App\Models\Company;
 use App\Repositories\AddressRepository;
 use App\Services\AddressService;
 use App\Services\CityService;
@@ -22,7 +21,7 @@ use App\Services\CompanyService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class AddressController extends BaseController
 {
@@ -779,50 +778,6 @@ class AddressController extends BaseController
         }
     }
 
-
-    /**
-     * @OA\Post(
-     *     path="/set-favorite",
-     *     summary="Set an address as favorite",
-     *     tags={"Address"},
-     *     security={{"sanctum":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"address_id", "is_favorite"},
-     *             @OA\Property(property="address_id", type="integer", example=1),
-     *             @OA\Property(property="is_favorite", type="boolean", example=true)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Address favorite status updated successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Address favorite status updated successfully."),
-     *             @OA\Property(property="code", type="integer", example=200)
-     *         )
-     *     ),
-     *     @OA\Response(response="404", description="Address not found"),
-     *     @OA\Response(response="500", description="Failed to update address favorite status")
-     * )
-     */
-    public function setFavorite(SetFavoriteRequest $request): JsonResponse
-    {
-        $address_id = $request->input('address_id');
-        $is_favorite = $request->input('is_favorite');
-
-        try {
-            $address = $this->addressService->setFavorite($address_id, $is_favorite);
-            return $this->sendResponse($address, 'Address favorite status updated successfully.');
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError('Address not found.', 404);
-        } catch (Exception $e) {
-            return $this->sendError('Failed to update address favorite status.', 500, ['error' => $e->getMessage()]);
-        }
-    }
-
-
     /**
      * @OA\Post(
      *     path="/my-studios/filter",
@@ -912,6 +867,50 @@ class AddressController extends BaseController
             return $this->sendResponse($cities, 'Cities retrieved successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to retrieve cities.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/user/toggle-favorite-studio",
+     *     summary="Toggle favorite studio for user",
+     *     tags={"User"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"address_id"},
+     *             @OA\Property(property="address_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Favorite studio toggled successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="user_id", type="integer", example=1),
+     *                 @OA\Property(property="address_id", type="integer", example=1),
+     *                 @OA\Property(property="favorite", type="boolean", example=true)
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Favorite studio toggled successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="400", description="Bad Request"),
+     *     @OA\Response(response="500", description="Internal Server Error")
+     * )
+     */
+    public function toggleFavorite(ToggleFavoriteStudioRequest $request): JsonResponse
+    {
+        $addressId = $request->input('address_id');
+        $userId = Auth::id();
+
+        try {
+            $result = $this->addressService->toggleFavorite($userId, $addressId);
+            return $this->sendResponse($result, 'Favorite status toggled successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to toggle favorite status.', 500, ['error' => $e->getMessage()]);
         }
     }
 

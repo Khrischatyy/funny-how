@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('addresses', function (Blueprint $table) {
+        Schema::create('favorite_studios', function (Blueprint $table) {
             $table->id();
-            $table->float('latitude', 8, 6);
-            $table->float('longitude', 8,6);
-            $table->string('street');
-            $table->float('rating')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('address_id')->constrained()->onDelete('cascade');
             $table->timestamps();
+
+            $table->unique(['user_id', 'address_id']);
         });
     }
 
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('addresses');
+        Schema::dropIfExists('favorite_studios');
     }
 };
