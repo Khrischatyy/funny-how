@@ -46,7 +46,7 @@ const updateStudios = (markers) => {
     price: studio.prices.length > 0 ? studio.prices[0].total_price : 'N/A',
     operatingHours: studio.operating_hours.length > 0 ? `${studio.operating_hours[0].open_time} - ${studio.operating_hours[0].close_time}` : 'N/A',
     photos: studio.photos.length > 0 ? studio.photos[0].url : '',
-    url: `/@${studio.company.slug}/studio/${studio.id}`,
+    url: `/@${studio?.slug}}`,
   }));
 };
 

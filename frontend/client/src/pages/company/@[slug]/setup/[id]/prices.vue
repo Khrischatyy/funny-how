@@ -17,6 +17,7 @@ import axios from "axios";
 import {isBadgeTaken} from "~/src/shared/utils/checkBadge";
 import {useRouter} from "vue-router";
 import FormData from "form-data";
+import {useApi} from "~/src/lib/api";
 definePageMeta({
   middleware: ["auth"],
 })
@@ -191,29 +192,18 @@ function getPrices(){
         console.log(error);
       });
 }
-
+const addressSlug = ref('')
 function getAddressId(){
-  const config = useRuntimeConfig()
+  const {fetch: getCompany} = useApi({
+    url: `/company/${route.params.slug}`,
+    auth: true,
 
-  let requestConfig = {
-    method: 'get',
-    credentials: true,
-    url: `${config.public.apiBaseClient}/company/${route.params.slug}`,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + useSessionStore().accessToken
-    }
-  };
-  axios.defaults.headers.common['X-Api-Client'] = `web`
-  axios.request(requestConfig)
-      .then((response) => {
-        console.log('response', response.data.data)
-        workHours.value.address_id = response?.data?.data.addresses.find(addr => addr.id == route.params.id)?.id
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  })
+
+  getCompany().then((response) => {
+    workHours.value.address_id = response?.data.addresses.find(addr => addr.id == route.params.id)?.id
+    addressSlug.value = response?.data.addresses.find(addr => addr.id == route.params.id)?.slug
+  })
 }
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
@@ -225,11 +215,12 @@ function isBadge(badgeId: number, badges): boolean {
 }
 
 function routeBack(){
-  navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
+  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/badges`)
 }
 
 function routeNext(){
-  navigateTo(`/@${route.params.slug}/studio/${route.params.id}`)
+  console.log('addressSlug', addressSlug.value)
+  navigateTo(`/my-studios`)
 }
 
 function signOut() {
@@ -246,17 +237,17 @@ function signOut() {
         <div class="animate__animated animate__fadeInRight">
           <div class="breadcrumbs mb-10 text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center">
             <icon-elipse :class="'opacity-20'" class="h-4"/>
-            <router-link :class="'opacity-20'" :to="`/@${route.params.slug}/setup/${route.params.id}/hours`">
+            <router-link :class="'opacity-20'" :to="`/company/@${route.params.slug}/setup/${route.params.id}/hours`">
               Setup Hours
             </router-link>
             <icon-line :class="'opacity-20'" class="h-2 only-desktop"/>
             <icon-elipse :class="'opacity-20'" class="h-4"/>
-            <router-link :class="'opacity-20'" :to="`/@${route.params.slug}/setup/${route.params.id}/badges`">
+            <router-link :class="'opacity-20'" :to="`/company/@${route.params.slug}/setup/${route.params.id}/badges`">
               Setup Badges
             </router-link>
             <icon-line :class="'opacity-100'" class="h-2 only-desktop"/>
             <icon-elipse :class="'opacity-100'" class="h-4"/>
-            <router-link :class="'opacity-100'" :to="`/@${route.params.slug}/setup/${route.params.id}/prices`">
+            <router-link :class="'opacity-100'" :to="`/company/@${route.params.slug}/setup/${route.params.id}/prices`">
               Setup Prices
             </router-link>
           </div>

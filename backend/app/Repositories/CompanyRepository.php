@@ -12,7 +12,7 @@ class CompanyRepository
         $company = Company::where('slug', mb_strtolower($slug))
             ->with(['addresses.badges' => function ($query) {
                 $query->select(['badges.*']);
-            }])
+            }, 'addresses.prices', 'addresses.badges', 'addresses.photos', 'addresses.operatingHours'])
             ->firstOrFail();
 
         $company->addresses->each(function ($address) {

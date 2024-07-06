@@ -124,8 +124,7 @@ const centeredClass = computed(() => {
 })
 
 const goToStudio = (studio) => {
-  console.log('studio', `/@${studio?.company_slug}/studio/${studio.id}`)
-  navigateTo(`/@${studio?.company_slug}/studio/${studio.id}`)
+  navigateTo(`/@${studio?.slug}`)
 }
 
 const handleCountryChange = async (countryId: string) => {
@@ -155,6 +154,7 @@ const handleCityChange = async (cityId: string) => {
     photos: studio.photos,
     badges: studio.badges,
     prices: studio.prices,
+    slug: studio.slug,
     operating_hours: studio.operating_hours,
     company_slug: studio.company.slug,
     price: studio.prices.length > 0 ? studio.prices[0].total_price : 0

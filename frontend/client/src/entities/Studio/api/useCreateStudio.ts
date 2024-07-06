@@ -70,7 +70,7 @@ export function useCreateStudio() {
             console.log('Successful response:', response);
             //response returns slug of the created brand and address_id
             useSessionStore().setBrand(response?.data.slug || '');
-            navigateTo(`/@${response?.data?.slug}/setup/${response?.data?.address_id}/hours`)
+            navigateTo(`/company/@${response?.data?.slug}/setup/${response?.data?.address_id}/hours`)
             return response;
         } catch (error: any) {
             console.error("Failed to create studio:", error);
@@ -110,7 +110,7 @@ export function useCreateStudio() {
             console.log('Successful response:', response);
             //response returns slug of the created brand and address_id
             useSessionStore().setBrand(response?.data.slug || '');
-            navigateTo(`/@${response?.data?.company_slug}/setup/${response?.data?.id}/hours`)
+            navigateTo(`/company/@${response?.data?.company_slug}/setup/${response?.data?.id}/hours`)
             return response;
         } catch (error: any) {
             console.error("Failed to create studio:", error);

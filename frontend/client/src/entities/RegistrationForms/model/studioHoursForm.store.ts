@@ -89,7 +89,7 @@ export const useCreateStudioFormStore = defineStore({
                 .then((response) => {
                     //function that redirect to route /@[slug]
 
-                    navigateTo('/@' + response.data?.data?.slug)
+                    navigateTo('/company/@' + response.data?.data?.slug)
                     console.log('response', response)
                 })
                 .catch((error) => {

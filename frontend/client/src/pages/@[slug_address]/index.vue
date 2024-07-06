@@ -23,10 +23,11 @@ import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue";
 import {Clipboard} from "~/src/shared/ui/common/Clipboard";
 
 const route = useRoute();
-const addressId = ref(route.params.address_id);
+const addressSlug = ref(route.params.slug_address);
 const bookingError = ref('');
-const { address, pending, error } = useAddress(addressId.value);
+const { address, pending, error } = useAddress(addressSlug.value);
 
+const addressId = computed(() => address.value?.id);
 const pageTitle: Ref<string> = computed(() => {
   return address.value ? `${address.value.company.name} | Recording Studio` : 'Loading...';
 });
@@ -156,10 +157,10 @@ const handleScroll = () => {
 
 onMounted(async () => {
   session.value = useSessionStore();
+  console.log('route.params.slug_address', route.params)
   rentingForm.value.date = rentingList[0].date;
   window.addEventListener('scroll', handleScroll);
   window.addEventListener('message', handlePaymentStatus);
-  await getStartSlots();
 });
 
 onUnmounted(() => {
@@ -217,6 +218,12 @@ const calculatePrice = () => {
     calculatedPrice.value = response.data;
   });
 }
+
+watch(()=> address.value, async (newVal) => {
+  if (newVal) {
+    await getStartSlots();
+  }
+});
 
 watch(() => rentingForm.value.start_time, (newVal) => {
   if(newVal && rentingForm.value.end_time){

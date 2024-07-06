@@ -168,7 +168,7 @@ function routeBack(){
 }
 
 function routeNext(){
-  navigateTo(`/@${route.params.slug}/setup/${route.params.id}/badges`)
+  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/badges`)
 }
 
 function signOut() {
@@ -207,12 +207,12 @@ const getDayMean = (day: number) => {
             <button :class="'opacity-100'"> Setup Hours</button>
             <icon-line :class="'opacity-100'" class="h-2 only-desktop"/>
             <icon-elipse :class="'opacity-20'" class="h-4"/>
-            <router-link :class="'opacity-20'" :to="`/@${route.params.slug}/setup/${route.params.id}/badges`">
+            <router-link :class="'opacity-20'" :to="`/company/@${route.params.slug}/setup/${route.params.id}/badges`">
               Setup Badges
             </router-link>
             <icon-line :class="'opacity-20'" class="h-2 only-desktop"/>
             <icon-elipse :class="'opacity-20'" class="h-4"/>
-            <router-link :class="'opacity-20'" :to="`/@${route.params.slug}/setup/${route.params.id}/prices`">
+            <router-link :class="'opacity-20'" :to="`/company/@${route.params.slug}/setup/${route.params.id}/prices`">
               Setup Prices
             </router-link>
           </div>

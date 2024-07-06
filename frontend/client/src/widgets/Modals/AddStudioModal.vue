@@ -38,6 +38,7 @@ const studioForm = reactive({
   name: '',
   address: '',
   description: '',
+  slug: '',
   hours: '',
   price: 0,
   logo: '',
@@ -169,6 +170,8 @@ watch(
         index: photo.index,
         file: null,
       })).sort((a, b) => a.index - b.index); // Sort photos by index
+
+      studioForm.slug = studio.value.slug;
     },
     { immediate: true }
 );
@@ -233,6 +236,20 @@ function handleDragEnd(event: DragEvent) {
   updatePhotoOrder(photo.id, newIndex);
 
   draggedItemIndex.value = null;
+}
+
+const updateSlug = () => {
+  const {put: updateSlug} = useApi({
+    url: `/address/${studio.value?.slug}/update-slug`,
+    auth: true
+  });
+
+  updateSlug({new_slug: studioForm.slug}).then((response) => {
+    console.log('Update successful:', response.data);
+    emit('update-studios');
+  }).catch((error) => {
+    console.error('Update failed:', error);
+  })
 }
 const updatePhotoOrder = async (photoId: number, newIndex: number) => {
   const {post: updatePhotoOrder} = useApi({
@@ -323,10 +340,14 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
             <div class="text-white text-sm font-normal tracking-wide opacity-20">Address</div>
             <FInputClassic disabled="" placeholder="Address" v-model="studio.street"/>
           </div>
-<!--          <div class="description w-full flex-col flex gap-1.5">-->
-<!--            <div class="text-white text-sm font-normal tracking-wide opacity-20">Description</div>-->
-<!--            <FInputClassic placeholder="Description" v-model="studioForm.description"/>-->
-<!--          </div>-->
+          <div class="slug w-full flex-col flex gap-1.5">
+            <div class="text-white text-sm font-normal tracking-wide opacity-20">Short name for url</div>
+            <FInputClassic @blur="updateSlug" :placeholder="studio.slug" v-model="studioForm.slug">
+              <template #icon>
+                <div class="text-white text-xl font-normal tracking-wide opacity-20">@</div>
+              </template>
+            </FInputClassic>
+          </div>
           <div class="price w-full flex-col flex gap-1.5">
             <PriceChoose v-model="studioForm.price"/>
           </div>
