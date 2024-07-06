@@ -56,6 +56,7 @@ class BookingController extends BaseController
      *                         @OA\Property(property="address", type="object",
      *                             @OA\Property(property="id", type="integer", example=1),
      *                             @OA\Property(property="latitude", type="string", example="37.609337"),
+     *                             @OA\Property(property="is_favorite", type="boolean", example="true"),
      *                             @OA\Property(property="longitude", type="string", example="55.758972"),
      *                             @OA\Property(property="street", type="string", example="Газетный переулок"),
      *                             @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
@@ -147,6 +148,7 @@ class BookingController extends BaseController
      *                         @OA\Property(property="address", type="object",
      *                             @OA\Property(property="id", type="integer", example=1),
      *                             @OA\Property(property="latitude", type="string", example="37.609337"),
+     *                             @OA\Property(property="is_favorite", type="boolean", example="true"),
      *                             @OA\Property(property="longitude", type="string", example="55.758972"),
      *                             @OA\Property(property="street", type="string", example="Газетный переулок"),
      *                             @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-03T09:39:52.000000Z"),
@@ -429,10 +431,6 @@ class BookingController extends BaseController
             $search = $request->input('search');
 
             $bookings = $this->bookingService->filterBookings($userId, $status, $date, $time, $search, $type);
-
-//            if ($bookings->isEmpty()) {
-//                return $this->sendError('No bookings found.', 404);
-//            }
 
             return $this->sendResponse($bookings, 'Filtered bookings retrieved successfully.');
         } catch (Exception $e) {

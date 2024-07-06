@@ -23,7 +23,7 @@ class BookingService
 
     public function getBookings($userId, $type)
     {
-        $query = Booking::where('user_id', $userId)->with(['user']);
+        $query = Booking::where('user_id', $userId)->with(['user', 'address.company', 'address.photos', 'address.badges', 'status']);
 
         if ($type === 'history') {
             $query->where('date', '<', now());
@@ -31,7 +31,9 @@ class BookingService
             $query->where('date', '>=', now());
         }
 
-        return $query->with(['address.company', 'address.photos', 'address.badges', 'status'])->paginate(self::BOOKING_PAGINATE_COUNT);
+        $bookings = $query->paginate(self::BOOKING_PAGINATE_COUNT);
+
+        return $bookings;
     }
 
     public function filterBookings($userId, $status, $date, $time, $search, $type)

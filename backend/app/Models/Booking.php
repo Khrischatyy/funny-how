@@ -13,8 +13,6 @@ class Booking extends Model
         'address_id', 'start_time', 'end_time', 'user_id', 'total_cost', 'date', 'status_id',
     ];
 
-//    protected $appends = ['userName'];
-
     public function status()
     {
         return $this->belongsTo(BookingStatus::class);
@@ -29,9 +27,4 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-//    public function getUserNameAttribute()
-//    {
-//        return $this->user->username;
-//    }
 }

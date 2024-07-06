@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\BookingService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @method static findOrFail(int $addressId)
@@ -16,6 +17,8 @@ class Address extends Model
     use HasFactory;
 
     protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite'];
+
+    protected $appends = ['is_favorite'];
 
     public function equipments()
     {
@@ -57,5 +60,16 @@ class Address extends Model
     public function operatingHours()
     {
         return $this->hasMany(OperatingHour::class);
+    }
+
+    public function getIsFavoriteAttribute()
+    {
+        $userId = Auth::id();
+        return $this->favoriteByUsers()->where('user_id', $userId)->exists();
+    }
+
+    public function favoriteByUsers()
+    {
+        return $this->belongsToMany(User::class, 'favorite_studios', 'address_id', 'user_id');
     }
 }
