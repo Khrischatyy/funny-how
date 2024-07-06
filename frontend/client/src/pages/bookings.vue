@@ -6,7 +6,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <Spinner :is-loading="isLoading" />
           <AddStudioButton title="Book recent studio" :subtitle="`${recentStudio.address} at ${recentStudio.date}`" @click="togglePopup" />
-          <BookingCard @onCancelBooking="handleCancelBooking" v-for="booking in bookings" :key="booking.id" :booking="booking" />
+          <BookingCard @on-favorite-change="onFavoriteChange" @onCancelBooking="handleCancelBooking" v-for="booking in bookings" :key="booking.id" :booking="booking" />
         </div>
         <div class="flex justify-center mt-4">
           <button
@@ -99,6 +99,14 @@ onMounted(() => {
   getBookings();
 });
 
+const onFavoriteChange = (bookingId) => {
+  bookings.value = bookings.value.map((booking) => {
+    if (booking.id === bookingId) {
+      booking.address.is_favorite = !booking.address.is_favorite;
+    }
+    return booking;
+  });
+};
 const handleCancelBooking = (bookings) =>{
   bookings.value = bookings
   getBookings()

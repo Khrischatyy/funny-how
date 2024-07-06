@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="flex items-center gap-3 cursor-pointer hover:opacity-70">
-        <IconLike :icon-active="booking?.address.isFavorite" :icon-color="booking?.address.isFavorite ? '#FD9302' : 'white'" />
+        <IconLike @click="toggleFavorite" :icon-active="booking?.address.is_favorite" :icon-color="booking?.address.is_favorite ? '#FD9302' : 'white'" />
       </div>
     </div>
     <div class="flex gap-3 justify-between items-center relative">
@@ -56,10 +56,12 @@ import {getStatus, getColor} from "~/src/shared/utils";
 import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue";
 import {Clipboard} from "~/src/shared/ui/common/Clipboard";
 import defaultLogo from '~/src/shared/assets/image/studio.png';
+import {useApi} from "~/src/lib/api";
 const showPopup = ref(false);
 
 const emit = defineEmits<{
   (e: 'onCancelBooking'): void;
+  (e: 'onFavoriteChange', bookingId: number): void;
 }>();
 
 const closePopup = () => {
@@ -70,6 +72,18 @@ const manageBookingPopup = () => {
 };
 const handleCancelBooking = (bookings) => {
   emit('onCancelBooking', bookings);
+};
+
+const toggleFavorite = () => {
+  const {post: setFavorite} = useApi({
+    url: `/address/toggle-favorite-studio`,
+    auth: true,
+  });
+
+  setFavorite({address_id: props.booking?.address.id}).then(() => {
+    emit('onFavoriteChange', props.booking.id);
+  })
+
 };
 
 type Booking = {

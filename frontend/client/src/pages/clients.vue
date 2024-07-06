@@ -2,7 +2,6 @@
   <div>
     <NuxtLayout title="Clients" class="text-white flex flex-col min-h-screen" name="dashboard">
       <div class="container mx-auto px-2 md:px-4">
-        <FilterBar />
         <div class="grid grid-cols-1 gap-6">
           <ClientRow v-for="client in clients" :key="client.id" :client="client" />
         </div>
