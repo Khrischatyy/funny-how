@@ -16,10 +16,20 @@ use Doctrine\DBAL\Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Stripe\Refund;
+use Stripe\Stripe;
 
 class BookingService
 {
     private const BOOKING_PAGINATE_COUNT = 15;
+
+    protected $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
 
     public function getBookings($userId, $type)
     {
@@ -214,7 +224,7 @@ class BookingService
         return $totalPrice;
     }
 
-    public function bookAddress(BookingRequest $request): Booking
+    public function bookAddress(BookingRequest $request)
     {
         $addressId = $request->input('address_id');
         $bookingDate = Carbon::parse($request->input('date'));
@@ -224,7 +234,8 @@ class BookingService
 
         $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime);
 
-        return Booking::create([
+        // Создание бронирования
+        $booking = Booking::create([
             'address_id' => $addressId,
             'start_time' => $startTime,
             'end_time' => $endTime,
@@ -233,6 +244,15 @@ class BookingService
             'date' => $bookingDate->format('Y-m-d'),
             'status_id' => 1, // studio is on pending after booking
         ]);
+
+        // Создание платежной сессии
+        $paymentSession = $this->paymentService->createPaymentSession($booking);
+
+        return [
+            'booking' => $booking,
+            'session_id' => $paymentSession['session_id'],
+            'payment_url' => $paymentSession['payment_url'],
+        ];
     }
 
     public function updateBookingStatus($bookingId, $statusId)
@@ -244,7 +264,7 @@ class BookingService
         }
     }
 
-    private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime)
+    private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime): void
     {
         // Check if booking date and time are in the past
         $currentDateTime = now();
@@ -308,13 +328,20 @@ class BookingService
         try {
             $booking = Booking::findOrFail($bookingId);
 
-            $booking->status_id = 3;
-            $booking->save();
+            if ($booking->status_id == 2) { // Проверяем, что бронирование оплачено
+                $booking->status_id = 3; // Статус "cancelled"
+                $booking->save();
 
-            $user = Auth::user();
+                // Логика возврата денег
+                $this->paymentService->refundPayment($booking);
 
-            // Возвращаем все активные бронирования
-            return Booking::where('user_id', $user->id)->get();
+                $user = Auth::user();
+
+                // Возвращаем все активные бронирования пользователя
+                return Booking::where('user_id', $user->id)->get();
+            } else {
+                throw new Exception("Booking cannot be cancelled.");
+            }
 
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException("Booking not found.");

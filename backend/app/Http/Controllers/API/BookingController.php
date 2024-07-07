@@ -563,9 +563,8 @@ class BookingController extends BaseController
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="booking", type="object",
-     *                 ),
-     *                 @OA\Property(property="payment_session", type="string", example="payment_session_id")
+     *                 @OA\Property(property="booking", type="object"),
+     *                 @OA\Property(property="payment_url", type="string", example="https://checkout.stripe.com/pay/cs_live_a1Tm4kDG5a4cbU3lfeVOpfGoMbFYCzMYnVKBCJneJWOrzw5KkwAwEfN0mw")
      *             ),
      *             @OA\Property(property="message", type="string", example="Studio booked successfully"),
      *             @OA\Property(property="code", type="integer", example=200)
@@ -577,18 +576,15 @@ class BookingController extends BaseController
      */
     public function bookAddress(BookingRequest $bookingRequest): JsonResponse
     {
-        $booking = $this->bookingService->bookAddress($bookingRequest);
+        try {
+            $bookingData = $this->bookingService->bookAddress($bookingRequest);
 
-        $totalCost = $this->bookingService->getTotalCost(
-            $bookingRequest->input('start_time'),
-            $bookingRequest->input('end_time'),
-            $bookingRequest->input('address_id')
-        );
-
-
-        $session = $this->paymentService->makePayment($totalCost, $booking->id);
-
-        return $this->sendResponse(['booking' => $booking, 'payment_session' => $session], 'Studio booked successfully');
+            return $this->sendResponse($bookingData, 'Studio booked successfully');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to book address.', 500, ['error' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -705,9 +701,9 @@ class BookingController extends BaseController
     public function cancelBooking(CancelBookingRequest $request): JsonResponse
     {
         try {
-            $result = $this->bookingService->cancelBooking($request->input('booking_id'));
+            $cancellationData = $this->bookingService->cancelBooking($request->input('booking_id'));
 
-            return $this->sendResponse($result, 'Booking cancelled successfully.');
+            return $this->sendResponse($cancellationData, 'Booking cancelled successfully.');
         } catch (ModelNotFoundException $e) {
             return $this->sendError('Booking not found.', 404);
         } catch (Exception $e) {

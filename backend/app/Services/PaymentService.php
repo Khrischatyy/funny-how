@@ -2,71 +2,63 @@
 
 namespace App\Services;
 
-use App\Http\Requests\PaymentRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Booking;
+use App\Models\Charge;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Refund;
 use Stripe\Stripe;
+use Stripe\Charge as StripeCharge;
 
 class PaymentService
 {
 
     private const MINUTE_TO_PAY = 30;
 
-//    //create subscribe session
-//    public function subscribe(): Session
-//    {
-//        Stripe::setApiKey(env('STRIPE_SECRET'));
-//
-//        $user = Auth::user();
-//
-//        return Session::create([
-//            'payment_method_types' => ['card'],
-//            'line_items' => [[
-//                'price_data' => [
-//                    'currency' => 'usd',
-//                    'product_data' => [
-//                        'name' => 'Studio Subscription',
-//                    ],
-//                    'unit_amount' => 10,
-//                ],
-//                'quantity' => 1,
-//            ]],
-//            'mode' => 'subscription',
-//            'success_url' => route('checkout.success'),
-//            'cancel_url' => route('checkout.cancel'),
-//        ]);
-//    }
-
-
-    public function makePayment($totalPrice, $bookingId)
+    public function createPaymentSession(Booking $booking)
     {
-        $amountInCents = $totalPrice * 100;
-
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        $expiresAt = now()->addMinutes(self::MINUTE_TO_PAY)->timestamp;
-        $successUrl = env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $bookingId;
+        try {
+            $expiresAt = now()->addMinutes(30)->timestamp; // Сессия истекает через 30 минут
 
-        return Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => 'Studio Booking',
+            $session = Session::create([
+                'payment_method_types' => ['card'],
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'product_data' => [
+                            'name' => 'Studio Booking',
+                        ],
+                        'unit_amount' => 50,
                     ],
-                    'unit_amount' => 50,
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => $successUrl,
-            'cancel_url' => env('APP_URL') . '/cancel-booking',
-            'expires_at' => $expiresAt
-        ]);
+                    'quantity' => 1,
+                ]],
+                'mode' => 'payment',
+                'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
+                'cancel_url' => env('APP_URL') . '/cancel-booking',
+                'expires_at' => $expiresAt,
+            ]);
+
+            // Сохранение информации о платеже в таблицу charges
+            Charge::create([
+                'booking_id' => $booking->id,
+                'stripe_charge_id' => $session->id,
+                'amount' => $booking->total_cost,
+                'currency' => 'usd',
+                'status' => 'pending',
+            ]);
+
+            return [
+                'session_id' => $session->id,
+                'payment_url' => $session->url,
+            ];
+
+        } catch (Exception $e) {
+            throw new Exception("Payment failed: " . $e->getMessage());
+        }
     }
 
     public function verifyPaymentSession($sessionId)
@@ -105,5 +97,31 @@ class PaymentService
         $bookingService->updateBookingStatus($bookingId, 2);
 
         return ['success' => 'Payment successful and booking status updated.'];
+    }
+
+    public function refundPayment(Booking $booking)
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            // Получение информации о платеже из базы данных
+            $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
+
+            $refund = Refund::create([
+                'charge' => $charge->stripe_charge_id,
+                'amount' => $booking->total_cost * 100, // Сумма возврата в центах
+            ]);
+
+            // Обновление информации о возврате в таблице charges
+            $charge->update([
+                'refund_id' => $refund->id,
+                'refund_status' => $refund->status,
+                'status' => 'refunded',
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('Refund failed: ' . $e->getMessage());
+            throw new Exception("Failed to process refund: " . $e->getMessage());
+        }
     }
 }
