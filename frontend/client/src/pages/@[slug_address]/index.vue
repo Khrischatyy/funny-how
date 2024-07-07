@@ -272,7 +272,7 @@ function book() {
   }).then((response) => {
     responseQuote.value = response.data;
     isLoading.value = false;
-    if (response.data?.payment_session?.status == 'open') {
+    if (response.data?.payment_url) {
       window.location.href = response.data?.payment_url;
     }
   }).catch((error) => {
