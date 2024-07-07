@@ -276,7 +276,8 @@ function book() {
       window.location.href = response.data?.payment_url;
     }
   }).catch((error) => {
-    bookingError.value = error.message;
+    console.log('Error:', error)
+    bookingError.value = error.errors.error;
     isLoading.value = false;
   });
 }
