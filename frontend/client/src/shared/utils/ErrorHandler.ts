@@ -7,9 +7,27 @@ interface ApiResponse {
     errors?: Record<string, any>;
 }
 
+function safeStringify(obj: any, space: number = 2) {
+    const cache = new Set();
+    return JSON.stringify(obj, (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.has(value)) {
+                return; // Duplicate reference found, discard key
+            }
+            cache.add(value);
+        }
+        return value;
+    }, space);
+}
+
 export class ErrorHandler {
     public static async handleApiError(error: any): Promise<Awaited<{ message: string; status: any }>> {
-        console.error("API Error:", error);
+        // Log the error without causing a circular reference issue
+        try {
+            console.error("API Error:", safeStringify(error));
+        } catch (e) {
+            console.error("Error logging failed:", e);
+        }
 
         // Extract the error response
         const response: ApiResponse = error.response?._data || error.response;
@@ -65,7 +83,7 @@ export class ErrorHandler {
         }
 
         // Default error handling if no specific messages are found
-        const message = nativeMessages[status] || `Unknown error: ${status}`;
+        const message = nativeMessages[status] || errorData;
         return Promise.reject({ status, message });
     }
 }

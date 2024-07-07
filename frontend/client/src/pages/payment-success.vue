@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
-import { useRuntimeConfig } from '#imports';
+import {definePageMeta, useRuntimeConfig} from '#imports';
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, computed} from 'vue';
+import {useApi} from "~/src/lib/api";
+import {navigateTo, useRoute} from "nuxt/app";
+import {Spinner} from "~/src/shared/ui/common";
 
 // Meta tags for the page
 useHead({
@@ -11,49 +14,68 @@ useHead({
     { name: 'description', content: 'Processing Payment' }
   ],
 });
+definePageMeta({
+  layout: 'error',
+})
 
+const route = useRoute();
 const isLoading = ref(true);
 const errorMessage = ref('');
+const sessionId = computed(() => route.query.session_id);
+const bookingId = computed(() => route.query.booking_id);
+const processPayment = async () => {
+  const {post: paymentSuccess} = useApi({
+    url: '/address/payment-success',
+    auth: true,
+  })
 
-onMounted(async () => {
-  const config = useRuntimeConfig();
-  const query = new URLSearchParams(window.location.search);
-  const sessionId = query.get('session_id');
-  const bookingId = query.get('booking_id');
-
-  if (!sessionId || !bookingId) {
+  if (!sessionId.value || !bookingId.value) {
     errorMessage.value = 'Invalid request parameters.';
     isLoading.value = false;
     return;
   }
 
-  try {
-    const response = await axios.post(`${config.public.apiBaseClient}/address/payment-success`, {
-      session_id: sessionId,
-      booking_id: bookingId,
-    });
-
-    if (response.data.success) {
-      window.location.href = `${config.public.frontendUrl}/bookings`;
+  paymentSuccess({
+    session_id: sessionId.value,
+    booking_id: bookingId.value,
+  }).then((response) => {
+    console.log('responseinside', response)
+    if (response.code == 200) {
+     navigateTo('/bookings');
     } else {
-      errorMessage.value = response.data.message;
+      errorMessage.value = response.message;
     }
-  } catch (error) {
-    errorMessage.value = error.response.data.message || 'Payment verification failed.';
-  } finally {
+  }).catch((error) => {
+    errorMessage.value = error.message.error || 'Payment verification failed.';
+  }).finally(() => {
     isLoading.value = false;
-  }
+  })
+}
+
+onMounted(async () => {
+  await processPayment();
 });
 </script>
 
+
 <template>
-  <div class="container">
-    <div v-if="isLoading" class="loading">
-      <h1>Processing Payment...</h1>
-    </div>
-    <div v-else class="error" v-if="errorMessage">
-      <h1>Error</h1>
-      <p>{{ errorMessage }}</p>
+  <div>
+    <Spinner :is-loading="isLoading" />
+    <div class="error flex flex-col gap-10">
+      <div v-if="isLoading" class="text-center">
+        <h1 class="text-5xl font-bold">Processing Payment...</h1>
+      </div>
+      <div v-else-if="errorMessage" class="flex flex-col gap-5">
+        <div class="text-center">
+          <h1 class="text-5xl font-bold">Error</h1>
+          <p class="text-xl">{{ errorMessage }}</p>
+        </div>
+        <div class="flex justify-center items-center gap-2.5">
+          <button @click="navigateTo('/bookings')" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">
+            Go To My Bookings
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -69,11 +91,5 @@ onMounted(async () => {
   text-align: center;
 }
 
-.loading {
-  font-size: 1.5em;
-}
 
-.error {
-  color: red;
-}
 </style>

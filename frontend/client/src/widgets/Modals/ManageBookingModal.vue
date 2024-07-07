@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import defaultLogo from '~/src/shared/assets/image/studio.png';
 import {Popup} from "~/src/shared/ui/components";
 import {getStatus, getColor, getRatingColor} from "~/src/shared/utils";
 import {computed, onMounted, onUnmounted, ref} from "vue";
@@ -60,7 +60,7 @@ const getFirstPhoto = computed(() => {
     <template #header>
       <div class="flex justify-start items-center gap-5">
         <div class="h-[35px] w-[35px]">
-          <img :src="booking.address.company.logo_url" alt="Logo" class="h-auto w-full object-cover" />
+          <img :src="booking.address.company.logo_url || defaultLogo" alt="Logo" class="h-auto w-full object-cover" />
         </div>
         <div>
           <h3 class="text-xl font-bold text-white">{{ booking.address.company.name }}</h3>
