@@ -39,7 +39,7 @@ class AddressService
         }
     }
 
-    public function createAddress(AddressRequest $request, City $city, Company $company): Address
+    public function createAddress(AddressRequest|BrandRequest $request, City $city, Company $company): Address
     {
         $address = Address::create([
             'street' => $request->input('street'),
