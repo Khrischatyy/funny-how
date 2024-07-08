@@ -42,10 +42,16 @@ class PaymentService
                 'expires_at' => $expiresAt,
             ]);
 
+            // Получение информации о сессии для извлечения payment_intent
+            $session = Session::retrieve($session->id);
+
+            // Логирование значения payment_intent
+            Log::info('Payment Intent: ' . $session->payment_intent);
+
             // Сохранение информации о платеже в таблицу charges
             Charge::create([
                 'booking_id' => $booking->id,
-                'stripe_charge_id' => $session->id,
+                'stripe_charge_id' => $session->payment_intent,
                 'amount' => $booking->total_cost,
                 'currency' => 'usd',
                 'status' => 'pending',
@@ -107,8 +113,9 @@ class PaymentService
             // Получение информации о платеже из базы данных
             $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
 
+            // Использование payment_intent для создания возврата
             $refund = Refund::create([
-                'charge' => $charge->stripe_charge_id,
+                'payment_intent' => $charge->stripe_charge_id,
                 'amount' => $booking->total_cost * 100, // Сумма возврата в центах
             ]);
 
