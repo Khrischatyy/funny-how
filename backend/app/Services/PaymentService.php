@@ -47,8 +47,10 @@ class PaymentService
                 ]],
                 'mode' => 'payment',
                 'payment_intent_data' => [
+                    'description' => 'Оплата бронирования студии',
                     'metadata' => [
                         'booking_id' => $booking->id,
+                        'payment_intent_id' => $paymentIntent->id,
                     ],
                 ],
                 'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
@@ -124,12 +126,32 @@ class PaymentService
         try {
             $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
 
+            // Получаем PaymentIntent и проверяем его статус
+            $paymentIntent = PaymentIntent::retrieve($charge->stripe_charge_id);
+            Log::info('PaymentIntent status: ' . $paymentIntent->status);
+
+            if ($paymentIntent->status !== 'succeeded' || empty($paymentIntent->charges->data)) {
+                throw new Exception("This PaymentIntent does not have a successful charge to refund.");
+            }
+
+            // Проверяем наличие успешного charge
+            $successfulCharge = null;
+            foreach ($paymentIntent->charges->data as $charge) {
+                if ($charge->paid && !$charge->refunded) {
+                    $successfulCharge = $charge->id;
+                    break;
+                }
+            }
+
+            if (!$successfulCharge) {
+                throw new Exception("No successful charge found for this PaymentIntent.");
+            }
+
             $refund = Refund::create([
-                'payment_intent' => $charge->stripe_charge_id,
+                'charge' => $successfulCharge,
                 'amount' => $booking->total_cost * 100, // Сумма возврата в центах
             ]);
 
-            // Обновление информации о возврате в таблице charges
             $charge->update([
                 'refund_id' => $refund->id,
                 'refund_status' => $refund->status,
