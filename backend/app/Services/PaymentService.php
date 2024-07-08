@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentIntent;
 use Stripe\Refund;
 use Stripe\Stripe;
 use Stripe\Charge as StripeCharge;
@@ -22,6 +23,14 @@ class PaymentService
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         try {
+            // Создаем PaymentIntent с описанием
+            $paymentIntent = PaymentIntent::create([
+                'amount' => $booking->total_cost * 100, // сумма в центах
+                'currency' => 'usd',
+                'payment_method_types' => ['card'],
+                'description' => 'Оплата бронирования студии', // Описание
+            ]);
+
             $expiresAt = now()->addMinutes(30)->timestamp; // Сессия истекает через 30 минут
 
             $session = Session::create([
@@ -37,21 +46,23 @@ class PaymentService
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
+                'payment_intent_data' => [
+                    'metadata' => [
+                        'booking_id' => $booking->id,
+                    ],
+                ],
                 'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
                 'cancel_url' => env('APP_URL') . '/cancel-booking',
                 'expires_at' => $expiresAt,
             ]);
 
-            // Получение информации о сессии для извлечения payment_intent
-            $session = Session::retrieve($session->id);
-
-            // Логирование значения payment_intent
-            Log::info('Payment Intent: ' . $session->payment_intent);
+            // Логирование информации о сессии
+            Log::info('Stripe Session created: ' . json_encode($session));
 
             // Сохранение информации о платеже в таблицу charges
             Charge::create([
                 'booking_id' => $booking->id,
-                'stripe_charge_id' => $session->payment_intent,
+                'stripe_charge_id' => $paymentIntent->id,
                 'amount' => $booking->total_cost,
                 'currency' => 'usd',
                 'status' => 'pending',
@@ -63,6 +74,7 @@ class PaymentService
             ];
 
         } catch (Exception $e) {
+            Log::error("Payment failed: " . $e->getMessage());
             throw new Exception("Payment failed: " . $e->getMessage());
         }
     }
@@ -110,10 +122,8 @@ class PaymentService
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         try {
-            // Получение информации о платеже из базы данных
             $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
 
-            // Использование payment_intent для создания возврата
             $refund = Refund::create([
                 'payment_intent' => $charge->stripe_charge_id,
                 'amount' => $booking->total_cost * 100, // Сумма возврата в центах
