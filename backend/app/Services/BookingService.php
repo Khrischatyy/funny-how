@@ -92,10 +92,6 @@ class BookingService
 
         $operatingHours = $this->getOperatingHours($addressId, $date);
 
-        if ($operatingHours->is_closed) {
-            return [];
-        }
-
         $openTime = $date->copy()->setTimeFromTimeString($operatingHours->open_time);
         $closeTime = $date->copy()->setTimeFromTimeString($operatingHours->close_time);
 
@@ -108,7 +104,19 @@ class BookingService
             ->orderBy('start_time', 'asc')
             ->get();
 
-        return $this->calculateAvailableStartTimes($bookings, $openTime, $closeTime);
+        $availableStartTimes = $this->calculateAvailableStartTimes($bookings, $openTime, $closeTime);
+
+        // Форматируем доступные временные слоты
+        $formattedTimes = array_map(function ($time) use ($date) {
+            $timeInstance = $date->copy()->setTimeFromTimeString($time);
+            return [
+                'time' => $time,
+                'date' => $timeInstance->format('d M Y H:i'),
+                'iso_string' => $timeInstance->toIso8601String()
+            ];
+        }, $availableStartTimes);
+
+        return $formattedTimes;
     }
 
     private function calculateAvailableStartTimes($bookings, $openTime, $closeTime): array
@@ -129,7 +137,7 @@ class BookingService
             $isAvailable = true;
             foreach ($occupiedIntervals as [$start, $end]) {
                 // Проверяем, не попадает ли текущий слот в занятый интервал
-                if ($current->between($start, $end) || $current->eq($start) || ($current->addHour()->gt($start) && $current->copy()->subHour()->lt($end))) {
+                if ($current->between($start, $end) || $current->eq($start)) {
                     $isAvailable = false;
                     break;
                 }
@@ -161,17 +169,33 @@ class BookingService
         }
 
         $bookings = Booking::where('address_id', $addressId)
-            ->where('date', $date->toDateString())
+            ->where(function ($query) use ($date, $startTime) {
+                $query->whereDate('date', '>=', $date->toDateString())
+                    ->whereTime('start_time', '>=', $startTime->toTimeString());
+            })
+            ->whereHas('status', function ($query) {
+                $query->whereNotIn('name', ['cancel', 'pending', 'expired']);
+            })
             ->orderBy('start_time', 'asc')
             ->get();
 
-        return $this->calculateAvailableEndTimes($bookings, $startTime, $closeTime);
+        if ($operatingHours->mode_id == 1) {
+            $date->addDays(3);
+        }
+
+        return $this->calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $operatingHours->mode_id);
     }
 
-    private function calculateAvailableEndTimes($bookings, $startTime, $closeTime): array
+    private function calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $mode): array
     {
         $availableEndTimes = [];
         $current = $startTime->copy()->addHour();
+
+        if ($mode == 1) { // 24/7 mode
+            $maxHours = 72 * 24; // 72 часа вперед
+        } else {
+            $maxHours = $closeTime->diffInHours($startTime);
+        }
 
         foreach ($bookings as $booking) {
             $bookingStart = Carbon::parse($booking->start_time);
@@ -179,13 +203,18 @@ class BookingService
 
             // If the start time is before the booking start
             if ($startTime->lt($bookingStart)) {
-                while ($current->lte($bookingStart) && $current->lt($closeTime)) {
-                    $availableEndTimes[] = $current->format('H:i');
+                while ($current->lte($bookingStart) && $maxHours > 0) {
+                    $availableEndTimes[] = [
+                        'time' => $current->format('H:i'),
+                        'date' => $current->format('d M Y H:i'),
+                        'iso_string' => $current->toIso8601String()
+                    ];
                     if ($current->eq($bookingStart)) {
                         // Stop adding end times if we reach the booking start time
                         return $availableEndTimes;
                     }
                     $current->addHour();
+                    $maxHours--;
                 }
             }
 
@@ -195,10 +224,14 @@ class BookingService
             }
         }
 
-        // If no bookings block the remaining time, add the rest of the hours until close time
-        while ($current->lt($closeTime)) {
-            $availableEndTimes[] = $current->format('H:i');
+        while ($maxHours > 0) {
+            $availableEndTimes[] = [
+                'time' => $current->format('H:i'),
+                'date' => $current->format('d M Y H:i'),
+                'iso_string' => $current->toIso8601String()
+            ];
             $current->addHour();
+            $maxHours--;
         }
 
         return $availableEndTimes;
@@ -245,7 +278,8 @@ class BookingService
 
         $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime);
 
-        // Создание бронирования
+        $endDate = $bookingDate->copy()->addDays(3);
+
         $booking = Booking::create([
             'address_id' => $addressId,
             'start_time' => $startTime,
@@ -253,10 +287,10 @@ class BookingService
             'user_id' => $userWhoBooks->id,
             'total_cost' => $this->getTotalCost($startTime, $endTime, $addressId),
             'date' => $bookingDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'), // Сохраняем end_date
             'status_id' => 1, // studio is on pending after booking
         ]);
 
-        // Создание платежной сессии
         $paymentSession = $this->paymentService->createPaymentSession($booking);
 
         return [

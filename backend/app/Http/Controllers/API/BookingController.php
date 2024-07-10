@@ -480,9 +480,9 @@ class BookingController extends BaseController
     {
         $date = $request->query('date');
         $addressId = $request->query('address_id');
-        $availableStartTime = $this->bookingService->getAvailableStartTime($date, $addressId);
+        $availableStartTimes = $this->bookingService->getAvailableStartTime($date, $addressId);
 
-        return $this->sendResponse($availableStartTime, 'Available start time retrieved successfully.');
+        return $this->sendResponse($availableStartTimes, 'Available start time retrieved successfully.');
     }
 
     /**

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->time('start_time');
             $table->time('end_time');
             $table->date('date');
+            $table->date('end_date')->nullable()->after('date');
 
             $table->unsignedBigInteger('address_id');
 
