@@ -1,7 +1,7 @@
 <template>
   <div @touchstart="preventTouch" @touchmove="preventTouch" @touchend="preventTouch" class="date-picker w-full justify-center items-center">
     <CustomWheel type="day" :data="days" :selected="date.getDate()" @dateChange="dateChanged" />
-    <div class="text-gray absolute opacity-20">
+    <div class="text-gray absolute opacity-20 text-2xl font-[BebasNeue]">
       {{ todayLabel }}
     </div>
     <CustomWheel type="month" :data="months" :selected="date.getMonth() + 1" @dateChange="dateChanged" />

@@ -2,7 +2,7 @@
   <div :class="`dragdealer ${type}`" @mousedown="onMouseDown" @touchstart="onMouseDown">
     <ul class="handle w-full text-center" :style="inlineStyle">
       <li
-          class="w-full text-center"
+          class="w-full text-center text-2xl font-[BebasNeue]"
           v-for="(item, index) in data"
           :key="index"
           :class="{'magnified': index === centerIndex}"
@@ -123,14 +123,14 @@ li {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 50px;
+  height: 50.9px;
   user-select: none;
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), font-size 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .magnified {
   transform: scale(1.2);
-  font-size: 1.2em;
+  font-size: 2.2em;
 }
 </style>
 

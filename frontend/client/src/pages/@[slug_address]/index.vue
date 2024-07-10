@@ -21,6 +21,7 @@ import {DisplayNumber} from "~/src/shared/ui/components";
 import {getRatingColor } from "~/src/shared/utils";
 import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue";
 import {Clipboard} from "~/src/shared/ui/common/Clipboard";
+import FSelect from "~/src/shared/ui/common/Input/FSelect.vue";
 
 const route = useRoute();
 const addressSlug = ref(route.params.slug_address);
@@ -431,7 +432,7 @@ const displayedPhotos: SlideData[] = computed(() => address?.value.photos.map(ph
             </div>
             <div v-if="address && hoursAvailableStart" class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center">
               <div class="relative w-full flex items-center mt-10">
-                <div class="flex items-center w-full">
+                <div class="flex items-center flex-col w-full">
                   <SelectPicker class="w-full" @dateSelected="dateChanged($event, 'date')" />
                 </div>
               </div>

@@ -1,31 +1,10 @@
 <template>
   <div>
-    <div class="relative w-full flex items-center">
-      <div class="flex items-center">
-        <select @change="optionChanged" class="w-full border-double opacity-0 absolute top-0 px-3 h-[61px] outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide" name="workday">
-          <option disabled>Choose Date</option>
-          <option v-for="day in options" :value="day.name" :key="day.name">
-            {{ day.label }}
-          </option>
-        </select>
-      </div>
-      <div class="relative border-double w-full flex items-center pointer-events-none">
-        <input disabled :value="selectedOptionLabel" placeholder="Day"
-               class="border-double w-full px-3 outline-none focus:border-white border border-white border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
-               name="workday"/>
-        <span class="absolute right-5 text-neutral-700 cursor-pointer">Day</span>
-        <span class="absolute right-0 cursor-pointer">
-          <IconDown/>
-        </span>
-      </div>
-    </div>
+    <FSelect @change="optionChanged" placeholder="Choose Day" :options="options" />
 
     <div class="mt-5 w-full focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide" v-if="selectedOption === 'custom'">
       <DatePicker :date="customDate" @dateChange="customDateChanged"/>
       <input type="date" ref="systemDatePicker" @change="systemDateChanged" class="hidden"/>
-      <div @click="triggerSystemPicker" class="font-[BebasNeue] cursor-pointer">
-        Use system picker
-      </div>
     </div>
   </div>
 </template>
@@ -34,15 +13,16 @@
 import {ref, computed, watch} from 'vue';
 import DatePicker from './DatePicker.vue';
 import {IconDown} from '~/src/shared/ui/common';
+import FSelect from "../../../shared/ui/common/Input/FSelect.vue";
 
 const today = new Date();
 const tomorrow = new Date();
 tomorrow.setDate(today.getDate() + 1);
 
 const options = ref([
-  {name: 'today', label: 'Today', date: today},
-  {name: 'tomorrow', label: 'Tomorrow', date: tomorrow},
-  {name: 'custom', label: 'Custom Date', date: null}
+  {id:1, name: 'today', label: 'Today', date: today},
+  {id: 2, name: 'tomorrow', label: 'Tomorrow', date: tomorrow},
+  {id: 3, name: 'custom', label: 'Another Date', date: new Date()}
 ]);
 
 const date = ref(today);
@@ -57,15 +37,30 @@ const customDate = ref(new Date());
 
 const emit = defineEmits(['dateSelected']);
 
-const optionChanged = (event) => {
-  const newLabel = event.target.value;
+const optionChanged = (value) => {
+  const newLabel = value.name;
   const index = optionNames.value.indexOf(newLabel);
   selectedOptionIndex.value = index;
+console.log('newLabel', newLabel)
 
-  if (newLabel !== 'custom') {
-    customDate.value = null;
-    updateDate();
+  if(newLabel === 'today') {
+    customDateChanged('date', today);
   }
+  else if(newLabel === 'tomorrow') {
+    customDateChanged('date', tomorrow);
+  }
+  else if(newLabel === 'custom') {
+    customDateChanged('date', new Date());
+  }
+  else {
+    customDateChanged('date', new Date());
+  }
+
+
+  // if (newLabel !== 'custom') {
+  //   customDate.value = null;
+  //   updateDate();
+  // }
 };
 
 const updateDate = () => {

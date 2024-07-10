@@ -50,7 +50,7 @@ const timeChanged = (time: string) => {
   left: 0;
   width: 100%;
   height: 100%;
-  border-bottom: 1px solid white;
+  //border-bottom: 1px solid white;
   pointer-events: none;
   z-index: 1;
 }
