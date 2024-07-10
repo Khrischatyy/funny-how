@@ -92,11 +92,19 @@ class BookingService
 
         $operatingHours = $this->getOperatingHours($addressId, $date);
 
+        if ($operatingHours->is_closed) {
+            return [];
+        }
+
         $openTime = $date->copy()->setTimeFromTimeString($operatingHours->open_time);
         $closeTime = $date->copy()->setTimeFromTimeString($operatingHours->close_time);
 
+        // Исключаем бронирования со статусами cancel, pending и expired
         $bookings = Booking::where('address_id', $addressId)
             ->where('date', $date->toDateString())
+            ->whereHas('status', function ($query) {
+                $query->whereNotIn('name', ['cancel', 'pending', 'expired']);
+            })
             ->orderBy('start_time', 'asc')
             ->get();
 
@@ -106,27 +114,30 @@ class BookingService
     private function calculateAvailableStartTimes($bookings, $openTime, $closeTime): array
     {
         $availableStartTimes = [];
-        $possibleStartTimes = [];
         $current = $openTime->copy();
 
-        while ($current->lt($closeTime)) {
-            $possibleStartTimes[] = $current->copy();
-            $current->addHour();
-        }
-
+        // Создаем массив занятых временных интервалов
+        $occupiedIntervals = [];
         foreach ($bookings as $booking) {
             $bookingStart = Carbon::parse($booking->start_time);
             $bookingEnd = Carbon::parse($booking->end_time);
-
-            foreach ($possibleStartTimes as $key => $startTime) {
-                if ($startTime->gte($bookingStart) && $startTime->lt($bookingEnd)) {
-                    unset($possibleStartTimes[$key]);
-                }
-            }
+            $occupiedIntervals[] = [$bookingStart, $bookingEnd];
         }
 
-        foreach ($possibleStartTimes as $startTime) {
-            $availableStartTimes[] = $startTime->format('H:i');
+        // Проходимся по всем возможным временным слотам в течение рабочего времени
+        while ($current->lt($closeTime)) {
+            $isAvailable = true;
+            foreach ($occupiedIntervals as [$start, $end]) {
+                // Проверяем, не попадает ли текущий слот в занятый интервал
+                if ($current->between($start, $end) || $current->eq($start) || ($current->addHour()->gt($start) && $current->copy()->subHour()->lt($end))) {
+                    $isAvailable = false;
+                    break;
+                }
+            }
+            if ($isAvailable) {
+                $availableStartTimes[] = $current->format('H:i');
+            }
+            $current->addHour();
         }
 
         return $availableStartTimes;
@@ -313,12 +324,11 @@ class BookingService
         $firstLineOperatingHours = $operatingHours->first();
 
         //1,2 mode - имеют только одну запись в базе об operating hours
-        //3,4 это моды weekdays и weekends
-        //надо будет переделать, че то тут хуйня какая-то
+        //3, each_days - 7 записей в базе на каждый день недели
 
         return match ($firstLineOperatingHours->mode_id) {
             1, 2 => $firstLineOperatingHours,
-            3, 4 => $this->regular($operatingHours, $bookingDate->dayOfWeek)->firstOrFail(),
+            3 => $this->regular($operatingHours, $bookingDate->dayOfWeek)->firstOrFail(),
             default => throw new OperatingHourException("Invalid operating hours mode", 400),
         };
     }

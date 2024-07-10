@@ -155,10 +155,6 @@ function getModes() {
   });
 }
 
-function getOperatingHours(){
-
-}
-
 function getFormValues(): StudioFormValues {
   return useCreateStudioFormStore().inputValues;
 }
