@@ -23,6 +23,7 @@ use Stripe\Stripe;
 class BookingService
 {
     private const BOOKING_PAGINATE_COUNT = 15;
+    private const BOOKING_DAY_SLOT_FORWARD = 3;
 
     protected $paymentService;
 
@@ -192,7 +193,7 @@ class BookingService
         $current = $startTime->copy()->addHour();
 
         if ($mode == 1) { // 24/7 mode
-            $maxHours = 72 * 24; // 72 часа вперед
+            $maxHours = self::BOOKING_DAY_SLOT_FORWARD * 24; // 72 часа вперед
         } else {
             $maxHours = $closeTime->diffInHours($startTime);
         }
@@ -206,7 +207,7 @@ class BookingService
                 while ($current->lte($bookingStart) && $maxHours > 0) {
                     $availableEndTimes[] = [
                         'time' => $current->format('H:i'),
-                        'date' => $current->format('d M Y H:i'),
+                        'date' => $current->format('d M'),
                         'iso_string' => $current->toIso8601String()
                     ];
                     if ($current->eq($bookingStart)) {
@@ -227,7 +228,7 @@ class BookingService
         while ($maxHours > 0) {
             $availableEndTimes[] = [
                 'time' => $current->format('H:i'),
-                'date' => $current->format('d M Y H:i'),
+                'date' => $current->format('d M'),
                 'iso_string' => $current->toIso8601String()
             ];
             $current->addHour();
