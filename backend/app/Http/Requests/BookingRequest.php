@@ -26,7 +26,7 @@ class BookingRequest extends FormRequest
         return [
             'address_id' => 'required|int|exists:addresses,id',
             'date' => 'required|date_format:Y-m-d',
-            'end_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'required|date_format:Y-m-d',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
         ];

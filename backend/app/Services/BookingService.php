@@ -105,6 +105,8 @@ class BookingService
             ->orderBy('start_time', 'asc')
             ->get();
 
+        Log::info('Bookings: ', $bookings->toArray());
+
         $availableStartTimes = $this->calculateAvailableStartTimes($bookings, $openTime, $closeTime);
 
         // Форматируем доступные временные слоты
@@ -127,11 +129,19 @@ class BookingService
 
         // Создаем массив занятых временных интервалов
         $occupiedIntervals = [];
+
+        Log::info('Calculating available start times');
+        Log::info('Open Time: ' . $openTime);
+        Log::info('Close Time: ' . $closeTime);
+
         foreach ($bookings as $booking) {
-            $bookingStart = Carbon::parse($booking->start_time);
-            $bookingEnd = Carbon::parse($booking->end_time);
+            $bookingStart = Carbon::parse($booking->date . ' ' . $booking->start_time);
+            $bookingEnd = Carbon::parse($booking->date . ' ' . $booking->end_time);
             $occupiedIntervals[] = [$bookingStart, $bookingEnd];
+            Log::info('Booking Interval: ', ['start' => $bookingStart, 'end' => $bookingEnd]);
         }
+
+        Log::info('Occupied Intervals: ', $occupiedIntervals);
 
         // Проходимся по всем возможным временным слотам в течение рабочего времени
         while ($current->lt($closeTime)) {
@@ -155,7 +165,7 @@ class BookingService
     public function getAvailableEndTime(string $date, int $addressId, string $startTime): array
     {
         $date = Carbon::parse($date)->startOfDay();
-        $startTime = Carbon::parse($startTime);
+        $startTime = Carbon::parse($date->toDateString() . ' ' . $startTime);
 
         $operatingHours = $this->getOperatingHours($addressId, $date);
 
@@ -181,26 +191,31 @@ class BookingService
             ->get();
 
         if ($operatingHours->mode_id == 1) {
-            $date->addDays(3);
+            $date->addDays(3); // Добавляем 3 дня для режима 24/7
         }
 
         return $this->calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $operatingHours->mode_id);
     }
 
+
     private function calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $mode): array
     {
         $availableEndTimes = [];
         $current = $startTime->copy()->addHour();
+        $closeDateTime = $date->copy()->setTimeFrom($closeTime);
 
         if ($mode == 1) { // 24/7 mode
             $maxHours = self::BOOKING_DAY_SLOT_FORWARD * 24; // 72 часа вперед
         } else {
-            $maxHours = $closeTime->diffInHours($startTime);
+            $maxHours = $closeDateTime->diffInHours($startTime);
         }
 
+        // Добавляем 3 дня к дате
+        $endDate = $date->copy()->addDays(3);
+
         foreach ($bookings as $booking) {
-            $bookingStart = Carbon::parse($booking->start_time);
-            $bookingEnd = Carbon::parse($booking->end_time);
+            $bookingStart = Carbon::parse($booking->date . ' ' . $booking->start_time);
+            $bookingEnd = Carbon::parse($booking->date . ' ' . $booking->end_time);
 
             // If the start time is before the booking start
             if ($startTime->lt($bookingStart)) {
@@ -225,7 +240,8 @@ class BookingService
             }
         }
 
-        while ($maxHours > 0) {
+        // Обрабатываем максимальное время до конечной даты
+        while ($maxHours > 0 && $current->lte($endDate)) {
             $availableEndTimes[] = [
                 'time' => $current->format('H:i'),
                 'date' => $current->format('d M'),
@@ -275,11 +291,12 @@ class BookingService
         $bookingDate = Carbon::parse($request->input('date'));
         $startTime = Carbon::parse($request->input('start_time'));
         $endTime = Carbon::parse($request->input('end_time'));
+        $endDate = Carbon::parse($request->input('end_date'));
         $userWhoBooks = Auth::user();
 
         $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime);
 
-        $endDate = $bookingDate->copy()->addDays(3);
+//        $endDate = $bookingDate->copy()->addDays(3);
 
         $booking = Booking::create([
             'address_id' => $addressId,
