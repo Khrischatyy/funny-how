@@ -14,7 +14,8 @@
         "laravel/socialite": "^5.14",
         "laravel/tinker": "^2.7",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "spatie/laravel-permission": "6.7.0"
+        "spatie/laravel-permission": "6.7.0",
+        "vladimir-yuldashev/laravel-queue-rabbitmq": "^13.3"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",

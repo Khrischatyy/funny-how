@@ -10,7 +10,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'address_id', 'start_time', 'end_time', 'user_id', 'total_cost', 'date', 'status_id', 'end_date',
+        'address_id', 'start_time', 'end_time', 'user_id', 'date', 'status_id', 'end_date',
     ];
 
     public function status()
@@ -26,5 +26,10 @@ class Booking extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function charge()
+    {
+        return $this->hasOne(Charge::class, 'booking_id');
     }
 }

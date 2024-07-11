@@ -18,17 +18,17 @@ class PaymentService
 
     private const MINUTE_TO_PAY = 30;
 
-    public function createPaymentSession(Booking $booking)
+    public function createPaymentSession(Booking $booking, int $amountOfMoney): array
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         try {
             // Создаем PaymentIntent с описанием
             $paymentIntent = PaymentIntent::create([
-                'amount' => $booking->total_cost * 100, // сумма в центах
+                'amount' => $amountOfMoney * 100, // сумма в центах
                 'currency' => 'usd',
                 'payment_method_types' => ['card'],
-                'description' => 'Оплата бронирования студии', // Описание
+                'description' => 'Оплата бронирования студии',
             ]);
 
             $expiresAt = now()->addMinutes(30)->timestamp; // Сессия истекает через 30 минут
@@ -41,7 +41,7 @@ class PaymentService
                         'product_data' => [
                             'name' => 'Studio Booking',
                         ],
-                        'unit_amount' => 50,
+                        'unit_amount' => $amountOfMoney * 100,
                     ],
                     'quantity' => 1,
                 ]],
@@ -65,7 +65,7 @@ class PaymentService
             Charge::create([
                 'booking_id' => $booking->id,
                 'stripe_charge_id' => $paymentIntent->id,
-                'amount' => $booking->total_cost,
+                'amount' => $amountOfMoney,
                 'currency' => 'usd',
                 'status' => 'pending',
             ]);

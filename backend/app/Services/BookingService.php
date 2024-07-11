@@ -6,6 +6,8 @@ use App\Exceptions\BookingException;
 use App\Exceptions\OperatingHourException;
 use App\Http\Requests\BookingRequest;
 use App\Http\Requests\ReservationRequest;
+use App\Jobs\BookingConfirmationJob;
+use App\Jobs\SendEmailJob;
 use App\Models\Booking;
 use App\Models\BookingStatus;
 use App\Models\OperatingHour;
@@ -285,37 +287,47 @@ class BookingService
         return $totalPrice;
     }
 
-    public function bookAddress(BookingRequest $request)
+    public function bookAddress(BookingRequest $request): array
     {
-        $addressId = $request->input('address_id');
-        $bookingDate = Carbon::parse($request->input('date'));
-        $startTime = Carbon::parse($request->input('start_time'));
-        $endTime = Carbon::parse($request->input('end_time'));
-        $endDate = Carbon::parse($request->input('end_date'));
-        $userWhoBooks = Auth::user();
+        try {
+            $addressId = $request->input('address_id');
+            $bookingDate = Carbon::parse($request->input('date'));
+            $startTime = Carbon::parse($request->input('start_time'));
+            $endTime = Carbon::parse($request->input('end_time'));
+            $endDate = Carbon::parse($request->input('end_date'));
+            $userWhoBooks = Auth::user();
 
-        $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime);
+            $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime);
 
-//        $endDate = $bookingDate->copy()->addDays(3);
+            $booking = Booking::create([
+                'address_id' => $addressId,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'user_id' => $userWhoBooks->id,
+                'date' => $bookingDate->format('Y-m-d'),
+                'end_date' => $endDate->format('Y-m-d'),
+                'status_id' => 1, // studio is on pending after booking
+            ]);
 
-        $booking = Booking::create([
-            'address_id' => $addressId,
-            'start_time' => $startTime,
-            'end_time' => $endTime,
-            'user_id' => $userWhoBooks->id,
-            'total_cost' => $this->getTotalCost($startTime, $endTime, $addressId),
-            'date' => $bookingDate->format('Y-m-d'),
-            'end_date' => $endDate->format('Y-m-d'), // Сохраняем end_date
-            'status_id' => 1, // studio is on pending after booking
-        ]);
+            $amount = $this->getTotalCost($startTime, $endTime, $addressId);
 
-        $paymentSession = $this->paymentService->createPaymentSession($booking);
+            $paymentSession = $this->paymentService->createPaymentSession($booking, $amount);
 
-        return [
-            'booking' => $booking,
-            'session_id' => $paymentSession['session_id'],
-            'payment_url' => $paymentSession['payment_url'],
-        ];
+            // Dispatch the email job
+            dispatch(new BookingConfirmationJob([
+                'email' => $userWhoBooks->email,
+                'booking' => $booking
+            ]));
+
+            return [
+                'booking' => $booking,
+                'session_id' => $paymentSession['session_id'],
+                'payment_url' => $paymentSession['payment_url'],
+            ];
+        } catch (Exception $e) {
+            Log::error("Booking failed: " . $e->getMessage());
+            throw new Exception("Failed to book address: " . $e->getMessage());
+        }
     }
 
     public function updateBookingStatus($bookingId, $statusId)

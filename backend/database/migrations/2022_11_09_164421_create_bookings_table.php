@@ -30,8 +30,6 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')
                 ->onDelete('cascade');
 
-            $table->decimal('total_cost', 10, 2);
-
             $table->timestamps();
         });
     }
