@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -13,14 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
@@ -39,5 +41,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no $HOST_USER@$HOST_IP "
             cd /home/ubuntu/funny-how &&
+            sudo chown -R $HOST_USER:$HOST_USER /home/ubuntu/funny-how &&
             git pull &&
             make update-prod-container"
