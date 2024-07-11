@@ -103,7 +103,7 @@ stop-prod:
 restart-prod: stop-prod start-prod
 
 clean-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml down
+	@docker-compose -f docker-compose.yml -f prod.yml down --remove-orphans
 
 npm-install-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm frontend sh -c "npm i"
