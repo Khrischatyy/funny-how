@@ -10,6 +10,7 @@
 | Nuxt.js    | 3.10.2  |
 | Vue.js     | 3.4.19  |
 | Cashier    | 14.14   |
+| RabbitMQ   | 3.13.4  |
 
 Swagger documentation is available in a dev environment **after** launch containers: [http://127.0.0.1:8080](http://127.0.0.1:8080)
 ----

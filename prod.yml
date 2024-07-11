@@ -30,6 +30,7 @@ services:
       - './backend:/app/'
     depends_on:
       - db
+      - rabbitmq
     networks:
       - funny
 
@@ -47,6 +48,17 @@ services:
 #    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 #    networks:
 #      - funny
+
+  rabbitmq:
+    image: rabbitmq:3.13.4-management-alpine
+    ports:
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    command: [ "sh", "-c", "rabbitmq-plugins enable rabbitmq_management && rabbitmq-server" ]
+    networks:
+      - funny
 
   frontend:
     container_name: frontend

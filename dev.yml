@@ -62,18 +62,6 @@ services:
     networks:
       - funny
 
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
-    networks:
-      - funny
-
   swagger:
     image: swaggerapi/swagger-ui
     container_name: swagger
@@ -83,6 +71,18 @@ services:
       SWAGGER_JSON: /app/storage/api-docs/documentation.json
     volumes:
       - ./backend:/app
+    networks:
+      - funny
+
+  rabbitmq:
+    image: rabbitmq:3.13.4-management-alpine
+    ports:
+      - "5672:5672"  # Основной порт RabbitMQ для клиентов
+      - "15672:15672"  # Порт для веб-интерфейса RabbitMQ Management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    command: ["sh", "-c", "rabbitmq-plugins enable rabbitmq_management && rabbitmq-server"]
     networks:
       - funny
 
