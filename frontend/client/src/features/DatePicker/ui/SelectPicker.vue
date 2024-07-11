@@ -13,7 +13,7 @@
 import {ref, computed, watch} from 'vue';
 import DatePicker from './DatePicker.vue';
 import {IconDown} from '~/src/shared/ui/common';
-import FSelect from "../../../shared/ui/common/Input/FSelect.vue";
+import {FSelect} from "~/src/shared/ui/common";
 
 const today = new Date();
 const tomorrow = new Date();

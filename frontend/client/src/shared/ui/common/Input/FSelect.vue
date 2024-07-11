@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {IconDown} from "~/src/shared/ui/common";
-import { ref, watch } from "vue";
+import {computed, ref, watch} from "vue";
 
 const props = defineProps<{
   label?: string;
@@ -9,6 +9,7 @@ const props = defineProps<{
   modelValue: string | number | null;
   size?: 'sm' | 'md' | 'lg';
   error?: string | boolean;
+  modelKey?: string;
 }>();
 
 const value = ref<string | number | null>(props.modelValue);
@@ -19,7 +20,12 @@ const emit = defineEmits({
 });
 
 const handleChange = (option) => {
-  value.value = option;
+
+  if(props.modelKey) {
+    value.value = option[props.modelKey];
+  } else {
+    value.value = option;
+  }
   emit('change', value.value);
   emit('update:modelValue', value.value);
   showOptions.value = false;
@@ -31,8 +37,24 @@ const toggleDropdown = () => {
 };
 
 watch(() => props.modelValue, (newValue) => {
-  value.value = newValue;
+  if(props.modelKey) {
+    value.value = newValue[props.modelKey];
+  } else {
+    value.value = newValue;
+  }
 });
+
+const valueShow = computed(() => {
+  console.log('value', value.value)
+  console.log('props.modelKey', props.modelKey)
+  console.log('props.options', props.options)
+  if(props.modelKey) {
+    return props.options.find(option => option[props.modelKey] == value.value)?.label || props.placeholder;
+  }
+
+  return value.value?.label || props.placeholder;
+});
+
 const optionsContainer = ref<HTMLElement | null>(null);
 const optionsChoose = ref<HTMLElement | null>(null);
 watch(showOptions, (newValue) => {
@@ -85,7 +107,7 @@ watch(showOptions, (newValue) => {
           class="h-[61px] cursor-pointer border-white border-double border-t border-l border-r" @click="toggleDropdown">
         <div class="w-full flex justify-start items-center gap-2 px-3 min-h-[61px] h-full outline-none bg-transparent text-white font-[BebasNeue] text-2xl font-medium tracking-wide">
           <slot name="icon" />
-          {{ value?.label || props.placeholder }}
+          {{ valueShow }}
         </div>
         <span class="absolute right-0 cursor-pointer">
         <IconDown />
@@ -103,8 +125,8 @@ watch(showOptions, (newValue) => {
               :key="option.name"
               class="option cursor-pointer font-[BebasNeue] text-2xl hover:opacity-60 py-4"
           >
-            <div class="w-full h-full flex items-center justify-center">
-              <span class="text-white font-medium tracking-wide">{{ option.label }}</span>
+            <div class="w-full h-full flex items-center justify-center px-5">
+              <div class="text-white font-medium tracking-wide w-full border-b border-white ">{{ option.label }}</div>
             </div>
           </li>
         </ul>

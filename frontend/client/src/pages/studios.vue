@@ -2,18 +2,20 @@
   <div class="py-10 px-5">
     <Header />
     <div class="ease-in-out min-h-[100vh] mt-10 w-full h-full flex flex-col gap-10 items-center justify-start">
-    <div class="flex flex-col gap-5 items-center justify-center">
+    <div class="flex flex-col gap-5 w-full items-center justify-center">
       <FSelect
-          class="font-[BebasNeue] animate__animated animate__fadeInRight"
-          label="Country"
+          class="font-[BebasNeue] z-50 animate__animated animate__fadeInRight"
+          placeholder="Country"
+          model-key="id"
           v-model="selectedCountry"
           @change="handleCountryChange"
           :options="countryOptions"
       />
       <FSelect
           v-if="cityOptions.length > 0"
-          class="font-[BebasNeue] animate__animated animate__fadeInRight"
-          label="City"
+          class="font-[BebasNeue] z-40 animate__animated animate__fadeInRight"
+          placeholder="City"
+          model-key="id"
           v-model="selectedCity"
           @change="handleCityChange"
           :options="cityOptions"
@@ -45,7 +47,8 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue'
 import { ref, computed, watch, onMounted, type Ref } from 'vue'
-import { FSelect } from '~/src/entities/RegistrationForms/ui'
+// import { FSelect } from '~/src/entities/RegistrationForms/ui'
+import {FSelect} from "~/src/shared/ui/common";
 import { StudioCard } from '~/src/entities/Studio'
 import { getStudios, type Studio } from '~/src/entities/RegistrationForms/api/getStudios'
 import { useAsyncData } from '#app'
@@ -91,7 +94,7 @@ const selectedCity = ref<string | null>(null)
 const { data: countriesData } = await useAsyncData('countries', getCountries)
 const countries = ref(countriesData.value ? countriesData.value : [])
 
-const countryOptions = ref(countries.value.map(country => ({ id: country.id, name: country.name })))
+const countryOptions = ref(countries.value.map(country => ({ id: country.id, name: country.name, label: country.name.toUpperCase()})))
 const cityOptions: Ref<City[]> = ref([])
 const studios: Ref<SimpleStudio[]> = ref([])
 
@@ -132,7 +135,7 @@ const handleCountryChange = async (countryId: string) => {
   localStorage.setItem('selectedCountry', countryId.toString())
   updateURL()
   const cities = await getCities(countryId)
-  cityOptions.value = cities.map(city => ({ id: city.id, name: city.name }))
+  cityOptions.value = cities.map(city => ({ id: city.id, name: city.name, label: city.name.toUpperCase()}))
   if (cityOptions.value.length === 0) {
     selectedCity.value = null // Reset city selection only if there are no cities
     studios.value = [] // Clear studios when there are no cities

@@ -21,31 +21,22 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {ref, computed, watch, onMounted, watchEffect} from 'vue';
 import { CustomWheel } from '~/src/features/CustomWheel';
 import { useRoute } from "nuxt/app";
 
-const props = defineProps({
-  time: {
-    type: String,
-    required: false
-  },
-  open: {
-    type: Boolean,
-    required: false,
-    default: false
-  },
-  rentingForm: {
-    type: Object,
-    required: false
-  },
-  availableHours: {
-    type: Array,
-    required: false,
-    default: []
-  }
-});
+const props = defineProps<{
+  time?: string;
+  open?: boolean;
+  rentingForm?: Record<string, any>; // Adjust the type according to your actual rentingForm structure
+  availableHours?: availableHourType[];
+}>();
+
+
+type availableHourType = {time: string, date: string, iso_string: string}
+
+
 const processedHour = ref(0);
 const preventTouch = (event) => {
   event.preventDefault();
@@ -81,7 +72,7 @@ function processAvailableHours() {
   const pmHours = new Set();
 
   props.availableHours.forEach(time => {
-    const hour = parseInt(time.split(':')[0]);
+    const hour = parseInt(time.time.split(':')[0]);
     if (hour < 12) {
       amHours.add(hour % 12 || 12);
     } else {
@@ -112,7 +103,7 @@ watch(() => props.availableHours, (newHours) => {
   if (hours.value.length > 0) {
     selectedHour.value = hours.value[0];
     selectedPeriod.value = periods.value.includes('AM') ? (parseInt(hours.value[0]) < 12 ? 'AM' : 'PM') : 'PM';
-    emit('timeChange', props.availableHours[0]);
+    emit('timeChange', props.availableHours[0].time);
   }
   console.log('selectedHour', selectedHour.value);
   console.log('hours', hours.value);
@@ -120,7 +111,7 @@ watch(() => props.availableHours, (newHours) => {
 
 const hourChanged = (type, changedDataIndex) => {
   console.log('changedDataIndex', changedDataIndex)
-  const hour = props.availableHours[changedDataIndex];
+  const hour = props.availableHours[changedDataIndex].time;
   const hourPart = parseInt(hour.split(':')[0]);
 
   // Ensure processedHour is in 12-hour format
