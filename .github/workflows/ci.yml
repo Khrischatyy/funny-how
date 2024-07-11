@@ -42,5 +42,4 @@ jobs:
           ssh -o StrictHostKeyChecking=no $HOST_USER@$HOST_IP "
             cd /home/ubuntu/funny-how &&
             sudo chown -R $HOST_USER:$HOST_USER /home/ubuntu/funny-how &&
-            git pull &&
             make update-prod-container"
