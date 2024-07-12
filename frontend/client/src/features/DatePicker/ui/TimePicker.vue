@@ -1,147 +1,153 @@
 <template>
   <div :class="open ? 'py-51' : ''" class="time-picker gap-2">
     <CustomWheel
-        @touchstart="preventTouch"
-        @touchmove="preventTouch"
-        @touchend="preventTouch"
-        type="hour"
-        :data="hours"
-        :selected="selectedHour"
-        @dateChange="hourChanged"
+      @touchstart="preventTouch"
+      @touchmove="preventTouch"
+      @touchend="preventTouch"
+      type="hour"
+      :data="hours"
+      :selected="selectedHour"
+      @dateChange="hourChanged"
     />
     <CustomWheel
-        @touchstart="preventTouch"
-        @touchmove="preventTouch"
-        @touchend="preventTouch"
-        type="period"
-        :data="periods"
-        :selected="selectedPeriod"
-        @dateChange="periodChanged"
+      @touchstart="preventTouch"
+      @touchmove="preventTouch"
+      @touchend="preventTouch"
+      type="period"
+      :data="periods"
+      :selected="selectedPeriod"
+      @dateChange="periodChanged"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import {ref, computed, watch, onMounted, watchEffect} from 'vue';
-import { CustomWheel } from '~/src/features/CustomWheel';
-import { useRoute } from "nuxt/app";
+import { ref, computed, watch, onMounted, watchEffect } from "vue"
+import { CustomWheel } from "~/src/features/CustomWheel"
+import { useRoute } from "nuxt/app"
 
 const props = defineProps<{
-  time?: string;
-  open?: boolean;
-  rentingForm?: Record<string, any>; // Adjust the type according to your actual rentingForm structure
-  availableHours?: availableHourType[];
-}>();
+  time?: string
+  open?: boolean
+  rentingForm?: Record<string, any> // Adjust the type according to your actual rentingForm structure
+  availableHours?: availableHourType[]
+}>()
 
+type availableHourType = { time: string; date: string; iso_string: string }
 
-type availableHourType = {time: string, date: string, iso_string: string}
-
-
-const processedHour = ref(0);
+const processedHour = ref(0)
 const preventTouch = (event) => {
-  event.preventDefault();
-};
-
-const emit = defineEmits(['timeChange']);
-const periods = ref(['AM', 'PM']);
-const selectedHour = ref(0);
-const selectedPeriod = ref('AM');
-const dragging = (isDragging) => {
-  emit('dragging', isDragging);
-};
-
-watch(() => props.time, (newTime) => {
-  console.log('newTime', newTime);
-  const hour = parseInt(newTime?.split(':')[0]);
-  selectedHour.value = hour % 12 || 12;
-  selectedPeriod.value = hour >= 12 ? 'PM' : 'AM';
-
-});
-
-watchEffect(() => {
-  console.log('props.availableHours', props.availableHours)
-  console.log('selectedHour', selectedHour.value);
-  console.log('selectedPeriod', selectedPeriod.value);
-  console.log('periods.value', periods.value);
-});
-
-const hours = computed(() => processAvailableHours());
-
-function processAvailableHours() {
-  const amHours = new Set();
-  const pmHours = new Set();
-
-  props.availableHours.forEach(time => {
-    const hour = parseInt(time.time.split(':')[0]);
-    if (hour < 12) {
-      amHours.add(hour % 12 || 12);
-    } else {
-      pmHours.add(hour % 12 || 12);
-    }
-  });
-console.log('amHours', amHours.size === 0, 'pmHours',pmHours.size === 0);
-  // Update periods based on available hours
-  if (amHours.size === 0) periods.value = ['PM']
-  else if (pmHours.size === 0) periods.value = ['AM']
-  else periods.value = ['AM', 'PM']
-
-  return Array.from(new Set([...amHours, ...pmHours])).map(hour => hour.toString().padStart(2, '0'));
+  event.preventDefault()
 }
 
-// onMounted(() => {
-//   console.log('props.availableHours', props.availableHours)
-//   // Initialize selected hour and period based on available hours
-//   if (hours.value.length > 0) {
-//     selectedHour.value = parseInt(hours.value[0]);
-//     selectedPeriod.value = periods.value.includes('AM') ? (parseInt(hours.value[0]) < 12 ? 'AM' : 'PM') : 'PM';
-//   }
-//   console.log('selectedHour', selectedHour.value);
-//   console.log('hours', hours.value);
-// });
+const emit = defineEmits(["timeChange"])
+const periods = ref(["AM", "PM"])
+const selectedHour = ref(0)
+const selectedPeriod = ref("AM")
+const dragging = (isDragging) => {
+  emit("dragging", isDragging)
+}
 
-watch(() => props.availableHours, (newHours) => {
-  if (hours.value.length > 0) {
-    selectedHour.value = hours.value[0];
-    selectedPeriod.value = periods.value.includes('AM') ? (parseInt(hours.value[0]) < 12 ? 'AM' : 'PM') : 'PM';
-    emit('timeChange', props.availableHours[0].time);
-  }
-  console.log('selectedHour', selectedHour.value);
-  console.log('hours', hours.value);
-});
+watch(
+  () => props.time,
+  (newTime) => {
+    console.log("newTime", newTime)
+    const hour = parseInt(newTime?.split(":")[0])
+    selectedHour.value = hour % 12 || 12
+    selectedPeriod.value = hour >= 12 ? "PM" : "AM"
+  },
+)
+
+watchEffect(() => {
+  console.log("props.availableHours", props.availableHours)
+  console.log("selectedHour", selectedHour.value)
+  console.log("selectedPeriod", selectedPeriod.value)
+  console.log("periods.value", periods.value)
+})
+
+const hours = computed(() => processAvailableHours())
+
+function processAvailableHours() {
+  const amHours = new Set()
+  const pmHours = new Set()
+
+  props.availableHours.forEach((time) => {
+    const hour = parseInt(time.time.split(":")[0])
+    if (hour < 12) {
+      amHours.add(hour % 12 || 12)
+    } else {
+      pmHours.add(hour % 12 || 12)
+    }
+  })
+  console.log("amHours", amHours.size === 0, "pmHours", pmHours.size === 0)
+  // Update periods based on available hours
+  if (amHours.size === 0) periods.value = ["PM"]
+  else if (pmHours.size === 0) periods.value = ["AM"]
+  else periods.value = ["AM", "PM"]
+
+  return Array.from(new Set([...amHours, ...pmHours])).map((hour) =>
+    hour.toString().padStart(2, "0"),
+  )
+}
+
+watch(
+  () => props.availableHours,
+  (newHours) => {
+    if (hours.value.length > 0) {
+      selectedHour.value = hours.value[0]
+      selectedPeriod.value = periods.value.includes("AM")
+        ? parseInt(hours.value[0]) < 12
+          ? "AM"
+          : "PM"
+        : "PM"
+      emit("timeChange", props.availableHours[0].time)
+    }
+    console.log("selectedHour", selectedHour.value)
+    console.log("hours", hours.value)
+  },
+)
 
 const hourChanged = (type, changedDataIndex) => {
-  console.log('changedDataIndex', changedDataIndex)
-  const hour = props.availableHours[changedDataIndex].time;
-  const hourPart = parseInt(hour.split(':')[0]);
+  console.log("changedDataIndex", changedDataIndex)
+  const hour = props.availableHours[changedDataIndex].time
+  const hourPart = parseInt(hour.split(":")[0])
 
   // Ensure processedHour is in 12-hour format
-  processedHour.value = hourPart % 12 || 12;
-  console.log('hourChanged.selectedPeriod', selectedPeriod.value, processedHour.value);
-  emit('timeChange', formatTime(processedHour.value, selectedPeriod.value));
-};
+  processedHour.value = hourPart % 12 || 12
+  console.log(
+    "hourChanged.selectedPeriod",
+    selectedPeriod.value,
+    processedHour.value,
+  )
+  emit("timeChange", formatTime(processedHour.value, selectedPeriod.value))
+}
 
 const periodChanged = (type, changedData) => {
-  selectedPeriod.value = changedData;
-  console.log('periodChanged.selectedPeriod', selectedPeriod.value, processedHour.value);
-  emit('timeChange', formatTime(processedHour.value, selectedPeriod.value));
-};
+  selectedPeriod.value = changedData
+  console.log(
+    "periodChanged.selectedPeriod",
+    selectedPeriod.value,
+    processedHour.value,
+  )
+  emit("timeChange", formatTime(processedHour.value, selectedPeriod.value))
+}
 
 const formatTime = (hour, period) => {
-  console.log('formatTime.hour', hour);
-  let formattedHour;
-  let [hourPart] = hour.toString().split(':').map(Number);
+  console.log("formatTime.hour", hour)
+  let formattedHour
+  let [hourPart] = hour.toString().split(":").map(Number)
 
-  if (period === 'AM') {
+  if (period === "AM") {
     // If it's 12 AM (midnight), set the formattedHour to 0
-    formattedHour = hourPart === 12 ? 0 : hourPart;
+    formattedHour = hourPart === 12 ? 0 : hourPart
   } else {
     // If it's 12 PM (noon), keep the formattedHour as 12
     // For other PM hours, add 12 to convert to 24-hour format
-    formattedHour = hourPart === 12 ? 12 : hourPart + 12;
+    formattedHour = hourPart === 12 ? 12 : hourPart + 12
   }
 
-  return `${formattedHour.toString().padStart(2, '0')}:00`;
-};
+  return `${formattedHour.toString().padStart(2, "0")}:00`
+}
 </script>
 
 <style scoped>
@@ -169,7 +175,7 @@ const formatTime = (hour, period) => {
 .period::before,
 .period::after,
 .option::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   width: 100%;
