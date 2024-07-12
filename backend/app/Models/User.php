@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\SendVerifyEmailJob;
 use App\Mail\CustomVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -75,12 +76,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->getRoleNames()->first();
     }
 
-//    public function sendEmailVerificationNotification()
-//    {
-//        $verificationUrl = URL::temporarySignedRoute(
-//            'verification.verify', now()->addMinutes(60), ['id' => $this->id, 'hash' => sha1($this->email)]
-//        );
-//
-//        Mail::to($this->email)->queue(new CustomVerifyEmail($this, $verificationUrl));
-//    }
+    public function sendEmailVerificationNotification()
+    {
+        // Генерация URL для верификации email
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify', now()->addMinutes(60), ['id' => $this->id, 'hash' => sha1($this->email)]
+        );
+
+        // Отправка кастомного письма
+        SendVerifyEmailJob::dispatch($this, $verificationUrl);
+    }
 }

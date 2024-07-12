@@ -48,12 +48,6 @@ class CreateNewUser implements CreatesNewUsers
             'verification.verify', now()->addMinutes(60), ['id' => $user->id, 'hash' => sha1($user->email)]
         );
 
-        try {
-            SendVerifyEmailJob::dispatch($user, $verificationUrl);
-        } catch (\Exception $e) {
-            Log::error('Failed to send verification email: ' . $e->getMessage());
-        }
-
         return $user;
     }
 }
