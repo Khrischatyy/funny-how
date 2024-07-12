@@ -313,7 +313,6 @@ class BookingService
 
             $paymentSession = $this->paymentService->createPaymentSession($booking, $amount);
 
-            // Dispatch the email job
             dispatch(new BookingConfirmationJob([
                 'email' => $userWhoBooks->email,
                 'booking' => $booking
@@ -403,20 +402,16 @@ class BookingService
             $booking = Booking::findOrFail($bookingId);
 
             if ($booking->status_id == 2) { // Проверяем, что бронирование оплачено
+                $this->paymentService->refundPayment($booking); // Вызываем метод refundPayment
+
                 $booking->status_id = 3; // Статус "cancelled"
                 $booking->save();
 
-                // Логика возврата денег
-                $this->paymentService->refundPayment($booking);
-
                 $user = Auth::user();
-
-                // Возвращаем все активные бронирования пользователя
                 return Booking::where('user_id', $user->id)->get();
             } else {
                 throw new Exception("Booking cannot be cancelled.");
             }
-
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException("Booking not found.");
         } catch (Exception $e) {

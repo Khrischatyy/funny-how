@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('stripe_charge_id')->nullable();
             $table->decimal('amount', 10, 2);
             $table->string('currency', 3);
-            $table->string('status');
             $table->string('refund_id')->nullable();
             $table->string('refund_status')->nullable();
             $table->timestamps();

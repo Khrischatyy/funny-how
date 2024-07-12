@@ -65,6 +65,9 @@ composer:
 artisan:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan ${c}"
 
+queue:
+	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan queue:work"
+
 optimize:
 	@docker-compose -f docker-compose.yml -f dev.yml run --rm backend sh -c "php artisan optimize:clear"
 
@@ -122,6 +125,10 @@ nginx-reload-prod:
 
 seeds-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan db:seed --class=DatabaseSeederProd --force"
+
+queue-prod:
+	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan queue:work"
+
 
 # CAUTION: This will remove all Docker containers, volumes, and networks.
 clean-all:
