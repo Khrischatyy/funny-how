@@ -2,11 +2,14 @@
 
 namespace App\Actions\Fortify;
 
+use App\Jobs\SendVerifyEmailJob;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use Illuminate\Support\Facades\URL;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -39,6 +42,17 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         $user->assignRole($input['role']);
+
+        // Генерация URL для верификации email
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify', now()->addMinutes(60), ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+
+        try {
+            SendVerifyEmailJob::dispatch($user, $verificationUrl);
+        } catch (\Exception $e) {
+            Log::error('Failed to send verification email: ' . $e->getMessage());
+        }
 
         return $user;
     }

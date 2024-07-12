@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\BaseController;
-use App\Http\Controllers\Controller;
+use App\Jobs\SendWelcomeEmailJob;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Laravel\Fortify\Contracts\LoginResponse;
 
 class GoogleController extends BaseController
 {
@@ -49,6 +48,9 @@ class GoogleController extends BaseController
                     'profile_photo' => $googleUser->avatar,
                     'date_of_birth' => null, // Дата рождения не возвращается Google API, устанавливаем null
                 ]);
+
+                // Отправка email при создании нового пользователя
+                SendWelcomeEmailJob::dispatch($user);
             }
 
             Auth::login($user);

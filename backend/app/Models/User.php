@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Mail\CustomVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -71,4 +74,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->getRoleNames()->first();
     }
+
+//    public function sendEmailVerificationNotification()
+//    {
+//        $verificationUrl = URL::temporarySignedRoute(
+//            'verification.verify', now()->addMinutes(60), ['id' => $this->id, 'hash' => sha1($this->email)]
+//        );
+//
+//        Mail::to($this->email)->queue(new CustomVerifyEmail($this, $verificationUrl));
+//    }
 }

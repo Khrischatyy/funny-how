@@ -1,10 +1,8 @@
 <?php
 
-
 use App\Http\Controllers\API\{AddressController,
     BadgeController,
     BookingController,
-    CityController,
     CompanyController,
     CountryController,
     EquipmentController,
@@ -13,14 +11,11 @@ use App\Http\Controllers\API\{AddressController,
     UserController};
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\VerifyEmailController;
-use App\Services\PaymentService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
     EmailVerificationNotificationController,
     PasswordResetLinkController,
     RegisteredUserController};
-use Laravel\Socialite\Facades\Socialite;
 
 /*
 |--------------------------------------------------------------------------
