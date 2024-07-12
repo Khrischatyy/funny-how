@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\{AddressController,
     BadgeController,
     BookingController,
+    CityController,
     CompanyController,
     CountryController,
     EquipmentController,
