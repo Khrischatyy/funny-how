@@ -5,22 +5,17 @@ namespace App\Services;
 use App\Exceptions\BookingException;
 use App\Exceptions\OperatingHourException;
 use App\Http\Requests\BookingRequest;
-use App\Http\Requests\ReservationRequest;
 use App\Jobs\BookingConfirmationJob;
 use App\Jobs\SendEmailJob;
 use App\Models\Booking;
-use App\Models\BookingStatus;
 use App\Models\OperatingHour;
 use App\Models\StudioClosure;
-use App\Models\User;
 use Carbon\Carbon;
 use Doctrine\DBAL\Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Stripe\Refund;
-use Stripe\Stripe;
 
 class BookingService
 {
@@ -336,6 +331,8 @@ class BookingService
             $booking->status_id = $statusId;
             $booking->save();
         }
+
+        return $booking;
     }
 
     private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime): void

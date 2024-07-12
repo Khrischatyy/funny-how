@@ -85,8 +85,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('operating-hours', [OperatingHourController::class, 'getOperatingHours']);
         Route::post('reservation', [BookingController::class, 'bookAddress']);
         Route::post('cancel-booking', [BookingController::class, 'cancelBooking']);
-        Route::post('payment-success', [BookingController::class, 'paymentSuccess']);
-        Route::post('calculate-price', [BookingController::class, 'calculatePrice']);
 
         Route::put('/{address_slug}/update-slug', [AddressController::class, 'updateSlug']);
 
@@ -95,6 +93,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('{address_id}/equipment', [EquipmentController::class, 'setEquipment'])->where('address_id', '[0-9]+');
 
         Route::withoutMiddleware('auth:sanctum')->group(function () {
+            Route::post('payment-success', [BookingController::class, 'paymentSuccess']);
+            Route::post('calculate-price', [BookingController::class, 'calculatePrice']);
             //reservation start, end time
             Route::get('reservation/start-time', [BookingController::class, 'getReservationAvailableStartTime']);
             Route::get('reservation/end-time', [BookingController::class, 'getReservationAvailableEndTime']);

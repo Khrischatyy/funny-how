@@ -11,7 +11,8 @@ class Charge extends Model
 
     protected $fillable = [
         'booking_id',
-        'stripe_charge_id',
+        'stripe_session_id',
+        'stripe_payment_intent',
         'amount',
         'currency',
         'status',

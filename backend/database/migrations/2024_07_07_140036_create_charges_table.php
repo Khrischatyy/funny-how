@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('charges', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('booking_id');
-            $table->string('stripe_charge_id')->nullable();
+            $table->string('stripe_session_id')->nullable();
+            $table->string('stripe_payment_intent')->nullable();
             $table->decimal('amount', 10, 2);
             $table->string('currency', 3);
             $table->string('refund_id')->nullable();
