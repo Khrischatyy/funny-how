@@ -26,7 +26,7 @@ const bookingId = computed(() => route.query.booking_id);
 const processPayment = async () => {
   const {post: paymentSuccess} = useApi({
     url: '/address/payment-success',
-    auth: true,
+    // auth: true,
   })
 
   if (!sessionId.value || !bookingId.value) {

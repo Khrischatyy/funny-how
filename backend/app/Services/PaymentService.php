@@ -7,7 +7,9 @@ use App\Models\Charge;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Stripe;
 
 class PaymentService
 {
@@ -19,7 +21,8 @@ class PaymentService
         try {
             $user = Auth::user();
 
-            $session = $user->checkoutCharge(50, 'Payment for studio reservation', 1, [
+//            $session = $user->checkoutCharge($amountOfMoney * 100, 'Payment for studio reservation', 1, [
+                $session = $user->checkoutCharge(50, 'Payment for studio reservation', 1, [
                 'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
                 'cancel_url' => env('APP_URL') . '/cancel-booking',
                 'metadata' => [
@@ -27,19 +30,12 @@ class PaymentService
                 ],
             ]);
 
-//            $session = $user->checkoutCharge($amountOfMoney * 100, 'Payment for studio reservation', 1, [
-//                'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
-//                'cancel_url' => env('APP_URL') . '/cancel-booking',
-//                'metadata' => [
-//                    'booking_id' => $booking->id,
-//                ],
-//            ]);
 
-            Log::info('Stripe Session created: ' . json_encode($session));
-
-            // Сохранение начальной информации о платеже
+            // Создание начальной записи о платеже
 //            $this->createCharge($booking, $session->id, $amountOfMoney, 'usd');
             $this->createCharge($booking, $session->id, 50, 'usd');
+
+            Log::info('Charge created in DB with session ID: ' . $session->id);
 
             return [
                 'session_id' => $session->id,
@@ -52,16 +48,16 @@ class PaymentService
         }
     }
 
-    public function saveCharge(Booking $booking, string $paymentIntent, string $sessionId, int $amount, string $currency): void
+    public function createCharge(Booking $booking, string $sessionId, int $amount, string $currency): void
     {
         Charge::create([
             'booking_id' => $booking->id,
             'stripe_session_id' => $sessionId,
-            'stripe_payment_intent' => $paymentIntent,
             'amount' => $amount,
             'currency' => $currency,
         ]);
     }
+
 
     public function refundPayment(Booking $booking)
     {
@@ -84,7 +80,10 @@ class PaymentService
     public function verifyPaymentSession($sessionId)
     {
         try {
-            return \Stripe\Checkout\Session::retrieve($sessionId);
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+            $session = Session::retrieve($sessionId);
+            Log::info('Stripe Session retrieved: ' . json_encode($session));
+            return $session;
         } catch (ApiErrorException $e) {
             Log::error('Stripe API error: ' . $e->getMessage());
             return null;
@@ -97,25 +96,45 @@ class PaymentService
         $session = $this->verifyPaymentSession($sessionId);
 
         if (!$session) {
-            return ['error' => 'Payment verification failed.'];
+            Log::error('Payment verification failed: Session is null.');
+            return [
+                'success' => false,
+                'code' => 400,
+                'error' => 'Payment verification failed.',
+            ];
         }
 
         // Check if the session has expired
         if ($session->expires_at < time()) {
-            return ['error' => 'Payment session has expired.'];
+            Log::error('Payment session has expired.');
+            return [
+                'success' => false,
+                'code' => 400,
+                'error' => 'Payment session has expired.',
+            ];
         }
 
         // Check the payment status
         if ($session->payment_status !== 'paid') {
-            return ['error' => 'Payment not completed.'];
+            Log::error('Payment not completed.');
+            return [
+                'success' => false,
+                'code' => 400,
+                'error' => 'Payment not completed.',
+            ];
         }
 
         // Update the booking status to paid status
         $bookingService->updateBookingStatus($bookingId, 2);
 
+        // Update the charge information
         $this->updateCharge($session->id, $session->payment_intent);
 
-        return ['success' => 'Payment successful and booking status updated.'];
+        return [
+            'success' => true,
+            'code' => 200,
+            'message' => 'Payment successful and booking status updated.',
+        ];
     }
 
     public function updateCharge(string $sessionId, string $paymentIntent): void
@@ -126,13 +145,4 @@ class PaymentService
         ]);
     }
 
-    public function createCharge(Booking $booking, string $sessionId, int $amount, string $currency): void
-    {
-        Charge::create([
-            'booking_id' => $booking->id,
-            'stripe_session_id' => $sessionId,
-            'amount' => $amount,
-            'currency' => $currency,
-        ]);
-    }
 }
