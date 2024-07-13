@@ -17,9 +17,33 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
 const startY = ref(0)
 const endY = ref(0)
+const modalElement = ref<HTMLElement | null>(null) // Reference to the modal element
+
+const disableOverflow = () => {
+  if (!modalElement.value) return
+  document.body.style.overflow = "hidden"
+  modalElement.value.style.overflow = "hidden"
+  let element = modalElement.value.parentElement
+  while (element) {
+    element.style.overflow = "hidden"
+    element = element.parentElement
+  }
+}
+
+const restoreOverflow = () => {
+  if (!modalElement.value) return
+  document.body.style.overflow = ""
+  modalElement.value.style.overflow = ""
+  let element = modalElement.value.parentElement
+  while (element) {
+    element.style.overflow = ""
+    element = element.parentElement
+  }
+}
 
 const handleTouchStart = (event: TouchEvent) => {
   startY.value = event.touches[0].clientY
+  disableOverflow()
 }
 
 const handleTouchMove = (event: TouchEvent) => {
@@ -29,9 +53,8 @@ const handleTouchMove = (event: TouchEvent) => {
 }
 
 const handleTouchEnd = () => {
-  console.log("endY", endY.value, startY.value, endY.value > startY.value) // This should now reflect the correct end position
-
-  if (endY.value > startY.value + 50) {
+  restoreOverflow()
+  if (endY.value > startY.value + 150) {
     // Check if the swipe down is sufficient to close
     closePopup()
   } else {
@@ -88,6 +111,7 @@ const props = withDefaults(
 <template>
   <div
     v-if="open"
+    ref="modalElement"
     class="modal backdrop-blur-[10px] overflow-hidden fixed inset-0 flex items-center justify-center p-0 sm:p-10 overflow-y-auto z-[1001]"
   >
     <div

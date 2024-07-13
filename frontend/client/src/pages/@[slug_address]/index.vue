@@ -270,14 +270,14 @@ const calculatePrice = () => {
   })
 }
 
-watch(
-  () => address.value,
-  async (newVal) => {
-    if (newVal) {
-      await getStartSlots()
-    }
-  },
-)
+// watch(
+//   () => address.value,
+//   async (newVal) => {
+//     if (newVal) {
+//       await getStartSlots()
+//     }
+//   },
+// )
 
 watch(
   () => rentingForm.value.start_time,
@@ -430,7 +430,12 @@ const displayedPhotos: SlideData[] = computed(() =>
     h: photo.file?.height || 900, // Default height if not specified
   })),
 )
-
+const mainContainer = ref<HTMLElement | null>(null)
+onMounted(() => {
+  photoContainer.value?.addEventListener("animationend", () => {
+    mainContainer.value.style.overflow = "inherit"
+  })
+})
 const showPopup = ref(false)
 const openEquipmentsPopup = () => {
   showPopup.value = true
@@ -441,7 +446,10 @@ const closePopup = () => {
 </script>
 
 <template>
-  <div class="grid min-h-[100vh] pb-[400px] h-full bg-black">
+  <div
+    ref="mainContainer"
+    class="grid min-h-[100vh] pb-[400px] overflow-hidden h-full bg-black"
+  >
     <div v-if="!address" class="spinner-container">
       <div class="spinner"></div>
       <!-- Replace with a proper loading indicator -->
