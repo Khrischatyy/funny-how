@@ -52,8 +52,8 @@ const toggleDropdown = () => {
 watch(
   () => props.modelValue,
   (newValue) => {
+    //possible could be deleted at all
     if (props.modelKey) {
-      value.value = newValue[props.modelKey]
     } else {
       value.value = newValue
     }
@@ -112,9 +112,6 @@ watch(showOptions, (newValue) => {
       >
         {{ error }}
       </div>
-      <div v-if="slots?.action" class="action mb-1.5">
-        <slot name="action" />
-      </div>
     </div>
     <div class="flex items-center">
       <select
@@ -138,17 +135,17 @@ watch(showOptions, (newValue) => {
       <div
         ref="optionsChoose"
         :class="['relative w-full flex items-center', showOptions ? '' : '']"
-        class="h-[61px] cursor-pointer border-white border-double border-t border-l border-r"
+        class="h-[61px] cursor-pointer border-white border-double border-t border-l border-r pr-9"
         @click="toggleDropdown"
       >
         <div
-          class="w-full flex justify-start items-center gap-2 px-3 min-h-[61px] h-full outline-none bg-transparent text-white font-[BebasNeue] text-2xl font-medium tracking-wide"
+          class="w-full whitespace-nowrap overflow-hidden flex border-right justify-start items-center gap-2 px-3 min-h-[61px] h-full outline-none bg-transparent text-white font-[BebasNeue] text-2xl font-medium tracking-wide"
         >
           <slot name="icon" />
           {{ valueShow }}
         </div>
-        <span class="absolute right-0 cursor-pointer">
-          <IconDown />
+        <span class="absolute -right-[1px] mr-2 mb-1 cursor-pointer">
+          <IconDown :rotation="showOptions ? 180 : 0" />
         </span>
       </div>
       <div
@@ -161,20 +158,24 @@ watch(showOptions, (newValue) => {
         class="select-options custom-transition absolute top-full left-0 border-l border-r border-b border-white h-auto w-full z-10 bg-black"
       >
         <ul class="w-full h-full">
-          <li
-            @click="handleChange(option)"
-            v-for="(option, index) in props.options"
-            :key="option.name"
-            class="option cursor-pointer font-[BebasNeue] text-2xl hover:opacity-60 py-4"
-          >
-            <div class="w-full h-full flex items-center justify-center px-5">
-              <div
-                class="text-white font-medium tracking-wide w-full border-b border-white"
-              >
-                {{ option.label }}
+          <template :key="option.name" v-for="(option, index) in props.options">
+            <li
+              @click="handleChange(option)"
+              class="option cursor-pointer text-2xl hover:opacity-60 py-4"
+            >
+              <div class="w-full h-full flex items-center justify-center px-5">
+                <div
+                  class="text-white text-left font-[BebasNeue] font-medium tracking-wide w-full"
+                >
+                  {{ option.label }}
+                </div>
               </div>
-            </div>
-          </li>
+            </li>
+            <div
+              v-if="index != props.options.length - 1"
+              class="border-b border-white mx-5"
+            ></div>
+          </template>
         </ul>
       </div>
     </div>
@@ -184,5 +185,17 @@ watch(showOptions, (newValue) => {
 <style scoped lang="scss">
 .custom-transition {
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.border-right {
+  position: relative;
+}
+.border-right::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  margin-bottom: 7px;
+  width: 1px;
+  height: 50%;
+  background-color: rgb(255, 255, 255);
 }
 </style>

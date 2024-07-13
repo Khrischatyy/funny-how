@@ -23,10 +23,11 @@ class CalculatePriceRequest extends FormRequest
      */
     public function rules()
     {
+        //TODO: Add validation rules for start_time and end_time because I send them in the ISO format
         return [
             'address_id' => 'required|integer|exists:address_prices,address_id',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            // 'start_time' => 'required|date_format:H:i',
+            // 'end_time' => 'required|date_format:H:i|after:start_time',
         ];
     }
 

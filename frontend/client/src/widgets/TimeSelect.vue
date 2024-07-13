@@ -1,7 +1,8 @@
 <template>
   <div class="relative w-full">
     <FSelect
-      placeholder="Select Time"
+      :key="props.availableHours[0].iso_string"
+      :placeholder="placeholder"
       :options="structuredHours"
       :value="time"
       @change="timeChanged($event)"
@@ -12,8 +13,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed } from "vue"
+import { defineEmits, computed, watch } from "vue"
 import FSelect, { type OptionType } from "../shared/ui/common/Input/FSelect.vue"
+import { isoToHumanReadable } from "../shared/utils"
 
 type AvailbleHourType = {
   date: string
@@ -25,12 +27,14 @@ const props = withDefaults(
   defineProps<{
     rentingForm: any
     label: string
+    placeholder: string
     time: string
     availableHours?: AvailbleHourType[]
   }>(),
   {
     label: "Time",
     time: "09:00",
+    placeholder: "Choose Time",
     rentingForm: {},
   },
 )
@@ -48,35 +52,7 @@ const structuredHours = computed(() => {
 })
 
 const timeChanged = (value: OptionType) => {
-  // Parse the provided ISO string without converting to local time
-  let time = new Date(value.name)
-  console.log("value", value)
-
-  // Function to pad single digit numbers with a leading zero
-  const padZero = (number: number) => (number < 10 ? "0" : "") + number
-
-  // Extract date and time components from the provided ISO string
-  const [datePart, timePart] = value.name.split("T")
-  const [year, month, day] = datePart.split("-")
-  const [hour, minute] = timePart.split(":")
-
-  // Format date as YYYY-MM-DD
-  const formattedDate = `${year}-${padZero(parseInt(month))}-${padZero(
-    parseInt(day),
-  )}`
-
-  // Format time as H:i
-  const formattedTime = `${padZero(parseInt(hour))}:${padZero(
-    parseInt(minute),
-  )}`
-
-  const formattedResponse = {
-    date: formattedDate,
-    time: formattedTime,
-  }
-  console.log("formattedTime", formattedResponse)
-
-  emit("timeChanged", formattedResponse)
+  emit("timeChanged", isoToHumanReadable(value.name))
 }
 </script>
 

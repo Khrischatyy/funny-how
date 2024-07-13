@@ -44,7 +44,7 @@ function signOut() {
           class="text-4xl text-white uppercase hover:opacity-70"
         >
           <div class="flex gap-3 justify-center items-center">
-            <div>Find Some Here</div>
+            <div class="font-['BebasNeue']">Find Some Here</div>
             <img
               class="h-[25px] relative -translate-y-[2px]"
               src="../shared/assets/image/map.svg"
@@ -56,7 +56,7 @@ function signOut() {
           to="/studios"
           class="text-4xl text-white uppercase hover:opacity-70 flex justify-center"
         >
-          <div class="">Lock In Your Session</div>
+          <div class="font-['BebasNeue']">Lock In Your Session</div>
           <div
             class="flex items-center justify-center relative -translate-y-1 translate-x-2"
           >
@@ -72,14 +72,7 @@ function signOut() {
       <div
         v-if="useCookie(ACCESS_TOKEN_KEY).value"
         class="justify-center w-full max-w-96 p-5 items-center gap-2.5 inline-flex mt-10"
-      >
-        <button
-          @click="signOut()"
-          class="w-full h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide"
-        >
-          Sign Out
-        </button>
-      </div>
+      ></div>
     </div>
     <Footer />
   </div>

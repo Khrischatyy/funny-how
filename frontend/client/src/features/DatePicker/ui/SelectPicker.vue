@@ -171,32 +171,4 @@ li {
   height: 61px;
   user-select: none;
 }
-
-.border-double {
-  height: 61px;
-}
-
-.border-double::before {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-bottom: 1px solid white;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.border-double::after {
-  content: "";
-  position: absolute;
-  bottom: 4px;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-bottom: 1px solid white;
-  pointer-events: none;
-  z-index: 1;
-}
 </style>

@@ -111,7 +111,7 @@ class BookingService
             $timeInstance = $date->copy()->setTimeFromTimeString($time);
             return [
                 'time' => $time,
-                'date' => $timeInstance->format('d M Y H:i'),
+                'date' => $timeInstance->format('h:i A j M'),
                 'iso_string' => $timeInstance->toIso8601String()
             ];
         }, $availableStartTimes);
@@ -219,7 +219,7 @@ class BookingService
                 while ($current->lte($bookingStart) && $maxHours > 0) {
                     $availableEndTimes[] = [
                         'time' => $current->format('H:i'),
-                        'date' => $current->format('d M'),
+                        'date' => $current->format('h:i A j M'),
                         'iso_string' => $current->toIso8601String()
                     ];
                     if ($current->eq($bookingStart)) {
@@ -241,7 +241,7 @@ class BookingService
         while ($maxHours > 0 && $current->lte($endDate)) {
             $availableEndTimes[] = [
                 'time' => $current->format('H:i'),
-                'date' => $current->format('d M'),
+                'date' => $current->format('h:i A j M'),
                 'iso_string' => $current->toIso8601String()
             ];
             $current->addHour();

@@ -1,100 +1,124 @@
 <template>
-  <div class="py-10 px-5">
-    <Header />
-    <div class="ease-in-out min-h-[100vh] mt-10 w-full h-full flex flex-col gap-10 items-center justify-start">
-    <div class="flex flex-col gap-5 w-full items-center justify-center">
-      <FSelect
-          class="font-[BebasNeue] z-50 animate__animated animate__fadeInRight"
-          placeholder="Country"
-          model-key="id"
-          v-model="selectedCountry"
-          @change="handleCountryChange"
-          :options="countryOptions"
-      />
-      <FSelect
-          v-if="cityOptions.length > 0"
-          class="font-[BebasNeue] z-40 animate__animated animate__fadeInRight"
-          placeholder="City"
-          model-key="id"
-          v-model="selectedCity"
-          @change="handleCityChange"
-          :options="cityOptions"
-      />
-      <FInput
-          v-if="selectedCity"
-          v-model="searchTerm"
-          label="Search by name or address"
-      />
-      <div v-if="selectedCountry || selectedCity || searchTerm" class="relative flex items-center cursor-pointer input border-double">
-        <button @click="clearFilters" class="w-full px-3 h-11 flex justify-start items-center outline-none focus:border-white border border-white border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide">
-          Clear Filters
-        </button>
-      </div>
-    </div>
-      <div :class="`grid ${gridColumns} gap-10 studio-cards`">
-        <StudioCard
+  <Suspense>
+    <div class="py-10 px-5">
+      <Header />
+      <div
+        class="ease-in-out min-h-[100vh] mt-10 w-full h-full flex flex-col gap-10 items-center justify-start"
+      >
+        <div class="flex flex-col gap-5 w-full items-center justify-center">
+          <FSelect
+            class="font-[BebasNeue] z-50 animate__animated animate__fadeInRight"
+            placeholder="Country"
+            model-key="id"
+            v-model="selectedCountry"
+            @change="handleCountryChange"
+            :options="countryOptions"
+          />
+          <FSelect
+            v-if="cityOptions.length > 0"
+            class="font-[BebasNeue] z-40 animate__animated animate__fadeInRight"
+            placeholder="City"
+            model-key="id"
+            v-model="selectedCity"
+            @change="handleCityChange"
+            :options="cityOptions"
+          />
+          <FInput
+            v-if="selectedCity"
+            v-model="searchTerm"
+            label="Search by name or address"
+          />
+          <div
+            v-if="
+              (selectedCountry || selectedCity || searchTerm) &&
+              cityOptions.length > 100000000000
+            "
+            class="relative flex items-center cursor-pointer input border border-white border-double"
+          >
+            <button
+              @click="clearFilters"
+              class="w-full px-3 h-11 flex justify-start items-center outline-none bg-transparent text-white text-sm font-medium tracking-wide"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+        <div :class="`grid ${gridColumns} gap-10 studio-cards`">
+          <StudioCard
             @click="goToStudio(studio)"
             :class="`animate__animated animate__fadeInRight max-w-96 cursor-pointer ${centeredClass}`"
             v-for="studio in filteredStudios"
             :studio="studio"
             :key="studio.id"
-        />
+          />
+        </div>
       </div>
-  </div>
-  </div>
+    </div>
+  </Suspense>
 </template>
 
 <script setup lang="ts">
-import { useHead } from '@unhead/vue'
-import { ref, computed, watch, onMounted, type Ref } from 'vue'
+import { useHead } from "@unhead/vue"
+import { ref, computed, watch, onMounted, type Ref } from "vue"
 // import { FSelect } from '~/src/entities/RegistrationForms/ui'
-import {FSelect} from "~/src/shared/ui/common";
-import { StudioCard } from '~/src/entities/Studio'
-import { getStudios, type Studio } from '~/src/entities/RegistrationForms/api/getStudios'
-import { useAsyncData } from '#app'
-import { useRouter, useRoute } from 'vue-router'
-import { getCountries, getCities, type City } from '~/src/entities/RegistrationForms/api'
-import {Header} from "~/src/shared/ui/components";
-import {FInput} from "~/src/shared/ui/common";
-import {navigateTo} from "nuxt/app";
+import { FSelect } from "~/src/shared/ui/common"
+import { StudioCard } from "~/src/entities/Studio"
+import {
+  getStudios,
+  type Studio,
+} from "~/src/entities/RegistrationForms/api/getStudios"
+import { useAsyncData } from "#app"
+import { useRouter, useRoute } from "vue-router"
+import {
+  getCountries,
+  getCities,
+  type City,
+} from "~/src/entities/RegistrationForms/api"
+import { Header } from "~/src/shared/ui/components"
+import { FInput } from "~/src/shared/ui/common"
+import { navigateTo } from "nuxt/app"
 
 useHead({
-  title: 'Funny How – Book a Session Time',
-  meta: [
-    { name: 'Funny How', content: 'Book A Studio Time' }
-  ]
+  title: "Funny How – Book a Session Time",
+  meta: [{ name: "Funny How", content: "Book A Studio Time" }],
 })
 
 type SimpleStudio = {
   id: number
   logo: string
   name: string
-  address: string
+  street: string
   hours: string
   price: number
   photos: {
-    address_id: number,
-    path: string,
-    index: number,
-    url: string,
+    address_id: number
+    path: string
+    index: number
+    url: string
   }
   company?: {
     name: string
     address: string
-    logo: string,
-    slug: string,
+    logo: string
+    slug: string
   }
 }
 
 const session = ref()
-const searchTerm = ref('')
+const searchTerm = ref("")
 const selectedCountry = ref<string | null>(null)
 const selectedCity = ref<string | null>(null)
 
-const { data: countriesData } = await useAsyncData('countries', getCountries)
+const { data: countriesData } = await useAsyncData("countries", getCountries)
 const countries = ref(countriesData.value ? countriesData.value : [])
 
-const countryOptions = ref(countries.value.map(country => ({ id: country.id, name: country.name, label: country.name.toUpperCase()})))
+const countryOptions = ref(
+  countries.value.map((country) => ({
+    id: country.id,
+    name: country.name,
+    label: country.name.toUpperCase(),
+  })),
+)
 const cityOptions: Ref<City[]> = ref([])
 const studios: Ref<SimpleStudio[]> = ref([])
 
@@ -103,27 +127,28 @@ const filteredStudios = computed(() => {
     return studios.value
   }
   const term = searchTerm.value.toLowerCase()
-  return studios.value.filter(studio =>
-      studio.name.toLowerCase().includes(term) ||
-      studio.address.toLowerCase().includes(term)
+  return studios.value.filter(
+    (studio) =>
+      studio.company?.name.toLowerCase().includes(term) ||
+      studio.street.toLowerCase().includes(term),
   )
 })
 
 const gridColumns = computed(() => {
   if (filteredStudios.value.length === 1) {
-    return 'md:grid-cols-3 sm:grid-cols-1';
+    return "md:grid-cols-3 sm:grid-cols-1"
   } else if (filteredStudios.value.length === 2) {
-    return 'md:grid-cols-2 sm:grid-cols-1';
+    return "md:grid-cols-2 sm:grid-cols-1"
   } else {
-    return 'md:grid-cols-3 sm:grid-cols-1';
+    return "md:grid-cols-3 sm:grid-cols-1"
   }
 })
 
 const centeredClass = computed(() => {
   if (filteredStudios.value.length === 1) {
-    return 'md:col-start-2';
+    return "md:col-start-2"
   }
-  return '';
+  return ""
 })
 
 const goToStudio = (studio) => {
@@ -132,10 +157,14 @@ const goToStudio = (studio) => {
 
 const handleCountryChange = async (countryId: string) => {
   selectedCountry.value = countryId
-  localStorage.setItem('selectedCountry', countryId.toString())
+  localStorage.setItem("selectedCountry", countryId.toString())
   updateURL()
   const cities = await getCities(countryId)
-  cityOptions.value = cities.map(city => ({ id: city.id, name: city.name, label: city.name.toUpperCase()}))
+  cityOptions.value = cities.map((city) => ({
+    id: city.id,
+    name: city.name,
+    label: city.name.toUpperCase(),
+  }))
   if (cityOptions.value.length === 0) {
     selectedCity.value = null // Reset city selection only if there are no cities
     studios.value = [] // Clear studios when there are no cities
@@ -143,12 +172,12 @@ const handleCountryChange = async (countryId: string) => {
 }
 
 const handleCityChange = async (cityId: string) => {
-  selectedCity.value = cityId;
-  localStorage.setItem('selectedCity', cityId.toString());
-  updateURL();
-  const studiosData = await getStudios(cityId);
+  selectedCity.value = cityId
+  localStorage.setItem("selectedCity", cityId.toString())
+  updateURL()
+  const studiosData = await getStudios(cityId)
 
-  studios.value = studiosData.map(studio => ({
+  studios.value = studiosData.map((studio) => ({
     id: studio.id,
     logo: studio.company.logo_url,
     company: studio.company,
@@ -160,33 +189,37 @@ const handleCityChange = async (cityId: string) => {
     slug: studio.slug,
     operating_hours: studio.operating_hours,
     company_slug: studio.company.slug,
-    price: studio.prices.length > 0 ? studio.prices[0].total_price : 0
-  }));
+    price: studio.prices.length > 0 ? studio.prices[0].total_price : 0,
+  }))
 }
 
 const handleSearch = () => {
-  localStorage.setItem('searchTerm', searchTerm.value)
+  localStorage.setItem("searchTerm", searchTerm.value)
   updateURL()
 }
 
 const updateURL = () => {
   const params = new URLSearchParams()
   if (selectedCountry.value) {
-    params.append('country', selectedCountry.value.toString())
+    params.append("country", selectedCountry.value.toString())
   }
   if (selectedCity.value) {
-    params.append('city', selectedCity.value.toString())
+    params.append("city", selectedCity.value.toString())
   }
   if (searchTerm.value) {
-    params.append('search', searchTerm.value)
+    params.append("search", searchTerm.value)
   }
-  window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`)
+  window.history.replaceState(
+    {},
+    "",
+    `${window.location.pathname}?${params.toString()}`,
+  )
 }
 
 const loadFromLocalStorage = () => {
-  const savedCountry = localStorage.getItem('selectedCountry')
-  const savedCity = localStorage.getItem('selectedCity')
-  const savedSearchTerm = localStorage.getItem('searchTerm')
+  const savedCountry = localStorage.getItem("selectedCountry")
+  const savedCity = localStorage.getItem("selectedCity")
+  const savedSearchTerm = localStorage.getItem("searchTerm")
   if (savedCountry) {
     selectedCountry.value = savedCountry
     handleCountryChange(selectedCountry.value)
@@ -205,32 +238,35 @@ onMounted(() => {
 })
 
 const clearFilters = () => {
-  localStorage.removeItem('selectedCountry')
-  localStorage.removeItem('selectedCity')
-  localStorage.removeItem('searchTerm')
+  localStorage.removeItem("selectedCountry")
+  localStorage.removeItem("selectedCity")
+  localStorage.removeItem("searchTerm")
   selectedCountry.value = null
   selectedCity.value = null
-  searchTerm.value = ''
+  searchTerm.value = ""
   cityOptions.value = []
   studios.value = []
   updateURL()
 }
 
-
 const route = useRoute()
-watch(route, (newRoute) => {
-  if (newRoute.query.country) {
-    selectedCountry.value = newRoute.query.country as string
-    handleCountryChange(selectedCountry.value)
-  }
-  if (newRoute.query.city) {
-    selectedCity.value = newRoute.query.city as string
-    handleCityChange(selectedCity.value)
-  }
-  if (newRoute.query.search) {
-    searchTerm.value = newRoute.query.search as string
-  }
-}, { immediate: true })
+watch(
+  route,
+  (newRoute) => {
+    if (newRoute.query.country) {
+      selectedCountry.value = newRoute.query.country as string
+      handleCountryChange(selectedCountry.value)
+    }
+    if (newRoute.query.city) {
+      selectedCity.value = newRoute.query.city as string
+      handleCityChange(selectedCity.value)
+    }
+    if (newRoute.query.search) {
+      searchTerm.value = newRoute.query.search as string
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped lang="scss">

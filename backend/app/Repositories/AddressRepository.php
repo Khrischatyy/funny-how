@@ -57,7 +57,7 @@ class AddressRepository implements AddressRepositoryInterface
     {
         $address = Address::with(['badges', 'photos', 'prices' => function ($query) {
             $query->where('is_enabled', true);
-        }, 'company', 'operatingHours'])
+        }, 'company', 'operatingHours', 'equipments.type'])
             ->where('slug', $slug)
             ->firstOrFail();
 

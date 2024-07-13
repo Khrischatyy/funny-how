@@ -2,25 +2,33 @@
 import { useHead } from "@unhead/vue"
 import { definePageMeta, useRuntimeConfig } from "#imports"
 import { useSessionStore } from "~/src/entities/Session"
+import { EquipmentsModal } from "~/src/widgets/Modals"
 import {
   computed,
   onMounted,
   onUnmounted,
+  provide,
   type Ref,
   ref,
   watch,
   watchEffect,
 } from "vue"
-import { useRoute } from "nuxt/app"
+import { navigateTo, useRoute } from "nuxt/app"
 import {
   type StudioFormValues,
   useCreateStudioFormStore,
 } from "~/src/entities/RegistrationForms"
 import {
   IconDown,
+  IconMastercard,
+  IconApplePay,
+  IconVisa,
+  IconGooglePay,
   IconMic,
+  IconBackDraw,
   IconNav,
   IconPricetag,
+  Spinner,
 } from "~/src/shared/ui/common"
 import GoogleMap from "~/src/widgets/GoogleMap.vue"
 import { SelectPicker } from "~/src/features/DatePicker"
@@ -44,6 +52,8 @@ const addressSlug = ref(route.params.slug_address)
 const bookingError = ref("")
 const { address, pending, error } = useAddress(addressSlug.value)
 
+provide("address", address)
+
 const addressId = computed(() => address.value?.id)
 const pageTitle: Ref<string> = computed(() => {
   return address.value
@@ -53,7 +63,7 @@ const pageTitle: Ref<string> = computed(() => {
 
 const pageDescription: Ref<string> = computed(() => {
   return address.value && address.value.prices.length > 0
-    ? `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`
+    ? `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`
     : "Book a session only at Funny-How.com"
 })
 const studioFirstPhoto: Ref<string> = computed(() => {
@@ -105,15 +115,15 @@ const setSeoMeta = () => {
   useSeoMeta({
     title: () => `${address.value?.company.name} - Funny How`,
     description: () =>
-      `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+      `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
     ogTitle: `${address.value?.company.name} - Funny How`,
     ogDescription: () =>
-      `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+      `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
     ogImage: () => `${address?.value?.photos[0].url}`,
     ogUrl: route.fullPath,
     twitterTitle: () => `${address.value?.company.name} - Funny How`,
     twitterDescription: () =>
-      `Book a session at ${address.value.company.name} from $${address.value.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+      `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
     twitterImage: `${address?.value?.photos[0].url}`,
     twitterCard: "summary",
   })
@@ -137,10 +147,10 @@ const setSeoMeta = () => {
 useSeoMeta({
   title: () => `${address.value?.company.name} - Funny How`,
   description: () =>
-    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
   ogTitle: `${address.value?.company.name} - Funny How`,
   ogDescription: () =>
-    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
   ogImage: () => {
     const photos = address?.value?.photos
     return photos && photos.length > 0
@@ -150,7 +160,7 @@ useSeoMeta({
   ogUrl: route.fullPath,
   twitterTitle: () => `${address.value?.company.name} - Funny How`,
   twitterDescription: () =>
-    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0].price_per_hour}/hour. Only at Funny-How.com`,
+    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
   twitterImage: () => {
     const photos = address?.value?.photos
     return photos && photos.length > 0
@@ -248,8 +258,12 @@ const calculatePrice = () => {
 
   getPrice({
     address_id: addressId.value,
-    start_time: rentingForm.value.start_time.time,
-    end_time: rentingForm.value.end_time.time,
+    start_time:
+      rentingForm.value.start_time.date +
+      "T" +
+      rentingForm.value.start_time.time,
+    end_time:
+      rentingForm.value.end_time.date + "T" + rentingForm.value.end_time.time,
   }).then((response) => {
     console.log("Price:", response.data)
     calculatedPrice.value = response.data
@@ -269,14 +283,18 @@ watch(
   () => rentingForm.value.start_time,
   (newVal) => {
     if (newVal && rentingForm.value.end_time) {
-      calculatePrice()
+      calculatedPrice.value = 0
+      rentingForm.value.end_time = {
+        time: "",
+        date: "",
+      }
     }
   },
 )
 watch(
   () => rentingForm.value.end_time,
   (newVal) => {
-    if (newVal) {
+    if (newVal && rentingForm.value.end_time.time) {
       calculatePrice()
     }
   },
@@ -285,6 +303,11 @@ watch(
   () => rentingForm.value.date,
   (newVal) => {
     if (newVal) {
+      calculatedPrice.value = 0
+      rentingForm.value.end_time = {
+        time: "",
+        date: "",
+      }
       getStartSlots()
     }
   },
@@ -322,6 +345,7 @@ function book() {
     date: rentingForm.value.date,
     start_time: rentingForm.value.start_time.time,
     end_time: rentingForm.value.end_time.time,
+    end_date: rentingForm.value.end_time.date,
   })
     .then((response) => {
       responseQuote.value = response.data
@@ -406,6 +430,14 @@ const displayedPhotos: SlideData[] = computed(() =>
     h: photo.file?.height || 900, // Default height if not specified
   })),
 )
+
+const showPopup = ref(false)
+const openEquipmentsPopup = () => {
+  showPopup.value = true
+}
+const closePopup = () => {
+  showPopup.value = false
+}
 </script>
 
 <template>
@@ -463,7 +495,13 @@ const displayedPhotos: SlideData[] = computed(() =>
               class="text-white w-full flex flex-col justify-center items-center text-5xl font-bold"
             >
               <div
-                class="text-white w-full opacity-20 mb-3 text-lg font-['Montserrat'] font-normal tracking-wide"
+                @click="navigateTo('/studios')"
+                class="text-white cursor-pointer w-full opacity-20 hover:opacity-100 mb-3 flex gap-3 justify-end items-center text-xs font-['Montserrat'] font-normal tracking-wide"
+              >
+                <IconBackDraw class="w-3" /> All Studios
+              </div>
+              <div
+                class="text-white w-full opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
               >
                 Studio name
               </div>
@@ -487,7 +525,7 @@ const displayedPhotos: SlideData[] = computed(() =>
               class="text-white mb-10 text-5xl font-light text-left tracking-wide"
             >
               <div
-                class="text-white opacity-20 mb-3 text-lg font-['Montserrat'] font-normal tracking-wide"
+                class="text-white opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
               >
                 Address
               </div>
@@ -496,7 +534,7 @@ const displayedPhotos: SlideData[] = computed(() =>
                   <div>
                     <IconAddress class="h-10 w-10 object-contain" />
                   </div>
-                  <div class="font-[BebasNeue] w-full text-left">
+                  <div class="font-[BebasNeue] text-4xl w-full text-left">
                     {{ address?.street }}<br />
                   </div>
                 </div>
@@ -541,6 +579,17 @@ const displayedPhotos: SlideData[] = computed(() =>
                 }}</span>
               </div>
             </div>
+            <div
+              v-if="address?.equipments.length > 0"
+              @click="openEquipmentsPopup"
+              class="relative flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
+            >
+              <button
+                class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
+              >
+                Equipments
+              </button>
+            </div>
           </div>
           <div
             class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
@@ -567,7 +616,7 @@ const displayedPhotos: SlideData[] = computed(() =>
           </div>
           <div
             v-if="address && hoursAvailableStart"
-            class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+            class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
             <div class="relative w-full flex items-center mt-10">
               <div class="flex items-center flex-col w-full">
@@ -640,23 +689,21 @@ const displayedPhotos: SlideData[] = computed(() =>
                 </span>
               </div>
             </div>
-
-            <div
-              class="max-w-96 w-full justify-between gap-1.5 items-center inline-flex mt-10 mb-10 text-center"
-            >
-              <h2
-                class="text-white text-xxl font-bold text-center tracking-wide"
-              >
-                Choose Hours
-              </h2>
-            </div>
             <div
               v-if="rentingForm.date && hoursAvailableStart.length > 0"
-              class="relative w-full flex items-center"
+              class="relative w-full max-w-[212px] flex flex-col items-center"
             >
+              <div
+                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+              >
+                Start From
+              </div>
               <TimeSelect
+                :key="rentingForm.date"
+                class="z-40"
                 :available-hours="hoursAvailableStart"
                 label="Start From"
+                placeholder="Choose Start Time"
                 renting-form="rentingForm"
                 @timeChanged="timeChanged($event, 'start_time')"
               />
@@ -667,39 +714,54 @@ const displayedPhotos: SlideData[] = computed(() =>
                 rentingForm.date &&
                 hoursAvailableEnd.length > 0
               "
-              class="relative w-full flex items-center"
+              class="relative w-full flex flex-col max-w-[212px] mb-10 items-center"
             >
-              <span
-                class="absolute left-5 top-0 text-neutral-700 cursor-pointer"
-                >To</span
+              <div
+                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
               >
+                To
+              </div>
               <TimeSelect
+                class="z-30"
+                :key="rentingForm.start_time.time && rentingForm.date"
                 :available-hours="hoursAvailableEnd"
                 label="To"
+                placeholder="Choose End Time"
                 renting-form="rentingForm"
                 @timeChanged="timeChanged($event, 'end_time')"
               />
             </div>
-            <div
-              v-if="calculatedPrice"
-              class="relative w-full max-w-48 mx-auto flex justify-between items-center animate__animated animate__fadeInRight"
-            >
-              <div class="text-white text-4xl font-[BebasNeue]">Price:</div>
-              <div class="text-white text-4xl relative font-[BebasNeue]">
-                <DisplayNumber :value="calculatedPrice" />
-              </div>
-            </div>
           </div>
           <div
+            :key="rentingForm.start_time.time"
             v-if="calculatedPrice"
             class="flex-col mb-14 relative justify-center items-center gap-1.5 flex animate__animated animate__fadeInRight"
           >
+            <div
+              class="relative w-full max-w-48 mx-auto mb-5 flex justify-between items-center animate__animated animate__fadeInRight"
+            >
+              <div class="text-white text-4xl font-[BebasNeue]">Price:</div>
+              <div class="text-white text-4xl relative font-[BebasNeue]">
+                $<DisplayNumber :value="calculatedPrice" />
+              </div>
+            </div>
             <div v-if="isLoading" class="spinner-container">
               <div class="spinner"></div>
-              <!-- Replace with a proper loading indicator -->
             </div>
-            <div class="justify-center items-center flex mb-10">
-              <img :src="paymentSystems" />
+            <Spinner :is-loading="isLoading" />
+            <div class="flex justify-center items-center flex-col gap-2">
+              <div
+                class="text-white opacity-70 text-sm font-normal font-['Montserrat'] tracking-wide"
+              >
+                We accept
+              </div>
+              <div class="justify-center items-center flex gap-5 mb-10">
+                <!-- <img :src="paymentSystems" /> -->
+                <IconApplePay />
+                <IconGooglePay />
+                <IconVisa />
+                <IconMastercard />
+              </div>
             </div>
             <div v-if="bookingError" class="errors mb-5">
               <div class="text-red-500 text-sm">{{ bookingError }}</div>
@@ -718,12 +780,19 @@ const displayedPhotos: SlideData[] = computed(() =>
         </div>
       </div>
     </div>
+    <EquipmentsModal
+      v-if="showPopup"
+      @on-cancel-booking="handleCancelBooking"
+      :showPopup="showPopup"
+      :booking="booking"
+      @closePopup="closePopup"
+    />
   </div>
 </template>
 
-<style lang="scss">
-body,
-html {
+<style scoped lang="scss">
+:deep(body),
+:deep(html) {
   background-color: rgb(15 14 14);
 }
 .shadow-text {
