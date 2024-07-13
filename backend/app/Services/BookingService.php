@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\BookingException;
 use App\Exceptions\OperatingHourException;
 use App\Http\Requests\BookingRequest;
+use App\Jobs\BookingCancellationJob;
 use App\Jobs\BookingConfirmationJob;
 use App\Jobs\SendEmailJob;
 use App\Models\Booking;
@@ -193,7 +194,6 @@ class BookingService
 
         return $this->calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $operatingHours->mode_id);
     }
-
 
     private function calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $mode): array
     {
@@ -398,13 +398,22 @@ class BookingService
         try {
             $booking = Booking::findOrFail($bookingId);
 
-            if ($booking->status_id == 2) { // Проверяем, что бронирование оплачено
-                $this->paymentService->refundPayment($booking); // Вызываем метод refundPayment
+            $startTime = Carbon::parse($booking->date . ' ' . $booking->start_time);
 
-                $booking->status_id = 3; // Статус "cancelled"
+            if ($startTime->diffInHours(Carbon::now()) < 6) {
+                throw new BookingException("Booking cannot be cancelled less than 6 hours before the start time.");
+            }
+
+            if ($booking->status_id == 2) { // Check if the booking is paid
+                 $this->paymentService->refundPayment($booking); // Call refundPayment method
+
+                $booking->status_id = 3; // Status "cancelled"
                 $booking->save();
 
                 $user = Auth::user();
+
+                dispatch(new BookingCancellationJob($user, $booking));
+
                 return Booking::where('user_id', $user->id)->get();
             } else {
                 throw new Exception("Booking cannot be cancelled.");

@@ -2,31 +2,32 @@
 
 namespace App\Mail;
 
+use App\Models\Booking;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class CustomVerifyEmail extends Mailable
+class BookingCancelledMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+
     public $user;
-    public $url;
+    public $booking;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user, $url)
+    public function __construct(User $user, Booking $booking)
     {
         $this->user = $user;
-        $this->url = $url;
+        $this->booking = $booking;
     }
-
-
     /**
      * Get the message envelope.
      *
@@ -35,10 +36,9 @@ class CustomVerifyEmail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Verify Email Address',
+            subject: 'Booking Cancelled Mail',
         );
     }
-
 
     /**
      * Get the message content definition.
@@ -48,11 +48,7 @@ class CustomVerifyEmail extends Mailable
     public function content()
     {
         return new Content(
-            markdown: 'emails.verify_email',
-            with: [
-                'user' => $this->user,
-                'url' => $this->url,
-            ],
+            markdown: 'emails.booking_cancel',
         );
     }
 

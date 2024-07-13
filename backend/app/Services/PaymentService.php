@@ -13,7 +13,6 @@ use Stripe\Stripe;
 
 class PaymentService
 {
-
     private const MINUTE_TO_PAY = 30;
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney): array
@@ -57,7 +56,6 @@ class PaymentService
             'currency' => $currency,
         ]);
     }
-
 
     public function refundPayment(Booking $booking)
     {
@@ -144,5 +142,4 @@ class PaymentService
             'stripe_payment_intent' => $paymentIntent,
         ]);
     }
-
 }
