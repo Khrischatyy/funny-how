@@ -6,7 +6,7 @@ import {
 import BrandingLogo from "~/src/shared/ui/branding/BrandingLogo.vue"
 import { useHead } from "@unhead/vue"
 import Particles from "~/src/shared/ui/components/Particles/Particles.vue"
-import { definePageMeta } from "#imports"
+import { definePageMeta, navigateTo } from "#imports"
 import { onBeforeMount, reactive, ref } from "vue"
 import {
   IconElipse,
@@ -101,7 +101,10 @@ async function authForm() {
         class="w-full mt-10 h-full flex-col justify-between items-start gap-7 inline-flex"
       >
         <div class="description">
-          <BrandingLogo />
+          <BrandingLogo
+            class="cursor-pointer hover:opacity-80"
+            @click="navigateTo('/')"
+          />
           <div
             class="description mt-10 font-bold text-base text-wide leading-7"
           >

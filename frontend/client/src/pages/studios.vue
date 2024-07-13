@@ -1,15 +1,38 @@
 <template>
   <Suspense>
-    <div class="py-10 px-5">
-      <Header />
+    <div class="py-0 px-5 pd-0 md:pt-5 bg-black">
+      <Header logo-size="large" />
+
       <div
-        class="ease-in-out min-h-[100vh] mt-10 w-full h-full flex flex-col gap-10 items-center justify-start"
+        class="ease-in-out min-h-[100vh] max-w-7xl m-auto mt-10 w-full h-full flex flex-col gap-10 items-center justify-start"
       >
-        <div class="flex flex-col gap-5 w-full items-center justify-center">
+        <FilterBar
+          :filters-show="filterShow"
+          @update:filters="handleFiltersChange"
+        />
+        <div
+          class="flex flex-col gap-5 w-full max-w-72 items-center justify-center"
+        >
+          <div class="font-[BebasNeue] flex flex-col text-center gap-5">
+            <RouterLink
+              to="/map"
+              class="text-4xl text-white uppercase hover:opacity-70"
+            >
+              <div class="flex gap-3 justify-center items-center">
+                <div class="font-['BebasNeue']">Pick on the map</div>
+                <img
+                  class="h-[30px] relative -translate-y-[2px]"
+                  src="../shared/assets/image/map.svg"
+                  alt="Funny How"
+                />
+              </div>
+            </RouterLink>
+          </div>
           <FSelect
             class="font-[BebasNeue] z-50 animate__animated animate__fadeInRight"
             placeholder="Country"
             model-key="id"
+            size="sm"
             v-model="selectedCountry"
             @change="handleCountryChange"
             :options="countryOptions"
@@ -19,15 +42,19 @@
             class="font-[BebasNeue] z-40 animate__animated animate__fadeInRight"
             placeholder="City"
             model-key="id"
+            size="sm"
             v-model="selectedCity"
             @change="handleCityChange"
             :options="cityOptions"
           />
-          <FInput
-            v-if="selectedCity"
-            v-model="searchTerm"
-            label="Search by name or address"
-          />
+          <div
+            class="text-white text-4xl leading-1 mt-3 text-center font-[BebasNeue]"
+          >
+            Found studios <DisplayNumber :value="filteredStudios.length" />
+            <br />
+            in
+            {{ cityOptions.find((city) => city.id == selectedCity)?.name }}:
+          </div>
           <div
             v-if="
               (selectedCountry || selectedCity || searchTerm) &&
@@ -44,13 +71,18 @@
           </div>
         </div>
         <div :class="`grid ${gridColumns} gap-10 studio-cards`">
-          <StudioCard
-            @click="goToStudio(studio)"
-            :class="`animate__animated animate__fadeInRight max-w-96 cursor-pointer ${centeredClass}`"
+          <div
+            class="animate__animated animate__fadeInRight"
+            :class="centeredClass"
             v-for="studio in filteredStudios"
-            :studio="studio"
             :key="studio.id"
-          />
+            @click="goToStudio(studio)"
+          >
+            <StudioCard
+              :class="`border border-white border-opacity-50 hover:border-opacity-100 max-w-[22rem] cursor-pointer zoom-effect`"
+              :studio="studio"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -59,7 +91,8 @@
 
 <script setup lang="ts">
 import { useHead } from "@unhead/vue"
-import { ref, computed, watch, onMounted, type Ref } from "vue"
+import { ref, computed, watch, onMounted, type Ref, reactive } from "vue"
+import { DisplayNumber, FilterBar } from "~/src/shared/ui/components"
 // import { FSelect } from '~/src/entities/RegistrationForms/ui'
 import { FSelect } from "~/src/shared/ui/common"
 import { StudioCard } from "~/src/entities/Studio"
@@ -155,6 +188,21 @@ const goToStudio = (studio) => {
   navigateTo(`/@${studio?.slug}`)
 }
 
+const handleFiltersChange = (newFilters) => {
+  searchTerm.value = newFilters.search
+
+  if (newFilters.city) {
+    selectedCity.value = newFilters.city
+    handleCityChange(selectedCity.value)
+  }
+  if (newFilters.price) {
+    // handlePriceChange(newFilters.price)
+  }
+  if (newFilters.rating) {
+    // handleRatingChange(newFilters.rating)
+  }
+}
+
 const handleCountryChange = async (countryId: string) => {
   selectedCountry.value = countryId
   localStorage.setItem("selectedCountry", countryId.toString())
@@ -215,6 +263,28 @@ const updateURL = () => {
     `${window.location.pathname}?${params.toString()}`,
   )
 }
+
+const filterShow = reactive([
+  { key: "search", options: "", value: "" },
+  {
+    key: "status",
+    options: [
+      { id: 1, name: "Price 1" },
+      { id: 2, name: "Price 2" },
+    ],
+    value: "",
+  },
+  {
+    key: "price",
+    options: [],
+    value: "",
+  },
+  {
+    key: "rating",
+    options: [],
+    value: "",
+  },
+])
 
 const loadFromLocalStorage = () => {
   const savedCountry = localStorage.getItem("selectedCountry")

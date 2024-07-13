@@ -1,7 +1,21 @@
 <template>
   <img
-      class="h-[60px] md:h-[70px]"
-      src="./assets/funny-how-logo.svg"
-      alt="Funny How"
-  >
+    :class="{
+      'h-[60px] md:h-[70px]': props.size === 'default',
+      'h-[40px] md:h-[50px]': props.size === 'small',
+      'h-[80px] md:h-[90px]': props.size === 'large',
+    }"
+    src="./assets/funny-how-logo.svg"
+    alt="Funny How"
+  />
 </template>
+<script setup lang="ts">
+const props = withDefaults(
+  defineProps<{
+    size: "default" | "small" | "large"
+  }>(),
+  {
+    size: "default",
+  },
+)
+</script>

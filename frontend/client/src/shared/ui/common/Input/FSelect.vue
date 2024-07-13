@@ -92,9 +92,15 @@ watch(showOptions, (newValue) => {
   }
 })
 </script>
-
 <template>
-  <div class="w-full max-w-96 relative">
+  <div
+    :class="{
+      'w-full': props.size === 'lg',
+      'w-72': props.size === 'md',
+      'w-52': props.size === 'sm',
+    }"
+    class="w-full max-w-96 relative"
+  >
     <div class="label-action flex justify-between items-center w-full">
       <div
         v-if="label"

@@ -225,3 +225,15 @@ html {
 .pswp {
   backdrop-filter: blur(5px);
 }
+
+svg {
+  box-sizing: content-box;
+}
+
+.zoom-effect {
+  transition: transform 0.3s;
+}
+
+.zoom-effect:hover {
+  transform: scale(1.02);
+}

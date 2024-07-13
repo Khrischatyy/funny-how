@@ -32,7 +32,7 @@ function signOut() {
 
 <template>
   <div
-    class="ease-in-out min-h-[100vh] w-full h-full flex flex-col gap-10 items-center justify-between"
+    class="ease-in-out min-h-[100vh] w-full h-full flex flex-col gap-10 pt-0 md:pt-5 items-center justify-between"
   >
     <Header />
     <div
@@ -46,7 +46,7 @@ function signOut() {
           <div class="flex gap-3 justify-center items-center">
             <div class="font-['BebasNeue']">Find Some Here</div>
             <img
-              class="h-[25px] relative -translate-y-[2px]"
+              class="h-[30px]"
               src="../shared/assets/image/map.svg"
               alt="Funny How"
             />

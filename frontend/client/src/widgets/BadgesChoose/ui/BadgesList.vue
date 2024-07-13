@@ -23,7 +23,7 @@ const ICON_MAP = {
 </script>
 
 <template>
-  <div class="mt-4 flex gap-3 w-full justify-center items-center relative mb-5">
+  <div class="flex gap-3 w-full justify-center items-center relative">
     <ScrollContainer v-bind="$attrs" :theme="theme">
       <div
         v-for="(badge, index) in badges"
