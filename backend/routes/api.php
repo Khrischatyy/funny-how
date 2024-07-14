@@ -11,6 +11,7 @@ use App\Http\Controllers\API\{AddressController,
     OperatingHourController,
     UserController};
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
@@ -50,7 +51,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify']);
 //                ->middleware('guest:' . config('fortify.guard'));  // Only guests (non-authenticated users) are allowed
 
-            Route::post('/forgot-password', [PasswordResetLinkController::class, 'store']);
+            Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
+            Route::post('/reset-password', [UserController::class, 'resetPassword']);
 //                ->middleware('guest:'.config('fortify.guard'));  // Only guests (non-authenticated users) are allowed
 //                ->name('password.email');
         });

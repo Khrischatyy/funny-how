@@ -7,11 +7,18 @@ use App\Http\Requests\GetClientsRequest;
 use App\Http\Requests\RoleRequest;
 use App\Http\Requests\UserPhotoUpdateRequest;
 use App\Http\Requests\UserUpdateRequest;
+use App\Jobs\SendResetPasswordJob;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AdminCompany;
 use Exception;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Fortify;
 
 class UserController extends BaseController
 {
@@ -267,5 +274,52 @@ class UserController extends BaseController
         } catch (Exception $e) {
             return $this->sendError($e->getMessage(), $e->getCode() ?: 500);
         }
+    }
+
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        if ($status == Password::RESET_LINK_SENT) {
+            return response()->json(['status' => __($status)]);
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [__($status)],
+        ]);
+    }
+
+    public function resetPassword(Request $request): Responsable
+    {
+        $request->validate([
+            'token' => 'required',
+            Fortify::email() => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $status = Password::reset(
+            $request->only(Fortify::email(), 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                Validator::make($request->all(), [
+                    'password' => 'required|string|min:8|confirmed',
+                ])->validate();
+
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                ])->save();
+
+                $token = app('auth.password.broker')->createToken($user);
+
+                SendResetPasswordJob::dispatch($user->email, $token);
+            }
+        );
+
+        return $status == Password::PASSWORD_RESET
+            ? app(PasswordResetResponse::class, ['status' => $status])
+            : app(FailedPasswordResetResponse::class, ['status' => $status]);
     }
 }
