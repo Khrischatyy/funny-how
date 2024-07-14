@@ -778,12 +778,11 @@ function verifyUser() {
       <div
         v-if="!session?.isAuthorized"
         class="fixed left-0 bottom-0 w-full pointer-events-none"
-      >
-        <client-only>
-          <Particles />
-        </client-only>
-      </div>
+      ></div>
     </div>
+    <client-only>
+      <Particles />
+    </client-only>
   </div>
 </template>
 

@@ -103,10 +103,10 @@ const handleRoleUpdate = async (role: string) => {
               class="translate-x-[0px] duration-[700ms] relative w-full flex-col justify-start items-center gap-2.5 flex max-w-96"
             />
           </div>
-          <Particles />
         </div>
       </div>
     </div>
+    <Particles />
   </div>
 </template>
 
