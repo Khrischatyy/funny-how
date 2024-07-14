@@ -88,9 +88,9 @@ const isAuth = useCookie(ACCESS_TOKEN_KEY).value
 const emit = defineEmits(["toggleSideMenu"])
 const navigateToProfile = () => {
   if (isAuth && session.userRole === "studio_owner") {
-    navigateTo("/profile")
+    navigateTo("/my-studios")
   } else {
-    navigateTo("/studios")
+    navigateTo("/profile")
   }
 }
 </script>

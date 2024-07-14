@@ -29,7 +29,6 @@
             </RouterLink>
           </div>
           <FSelect
-            v-if="countryOptions.length > 0"
             class="font-[BebasNeue] z-50 animate__animated animate__fadeInRight"
             placeholder="Country"
             model-key="id"
