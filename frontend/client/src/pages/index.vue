@@ -32,7 +32,7 @@ function signOut() {
 
 <template>
   <div
-    class="ease-in-out min-h-screen pb-[env(safe-area-inset-bottom)] w-full h-full flex flex-col gap-10 pt-0 md:pt-5 items-center justify-between bg-black"
+    class="ease-in-out min-h-screen pb-[env(safe-area-inset-bottom)] px-5 w-full h-full flex flex-col gap-10 pt-0 md:pt-5 items-center justify-between bg-black"
   >
     <Header />
     <div

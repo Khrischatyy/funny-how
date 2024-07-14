@@ -1,5 +1,5 @@
 <template>
-  <div class="text-white flex flex-col pt-0 md:pt-5 min-h-screen">
+  <div class="text-white flex flex-col pt-0 md:pt-5 min-h-screen px-5">
     <Header
       :subhead="true"
       :show-menu="true"

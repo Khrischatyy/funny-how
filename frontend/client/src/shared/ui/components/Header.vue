@@ -9,7 +9,7 @@
         @click="$emit('toggleSideMenu')"
       >
         <IconBurger />
-        <span class="ml-2 text-white">Menu</span>
+        <span class="hidden md:block ml-2 text-white">Menu</span>
       </button>
       <div
         @click="navigateTo('/')"
