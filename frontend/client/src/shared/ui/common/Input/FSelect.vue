@@ -27,10 +27,11 @@ const emit = defineEmits({
 })
 
 onMounted(() => {
+  //Подумать над тем как дефолтное значение передавать.
   //Assign default value if needed
-  if (props.defaultOptionIndex) {
-    handleChange(props.options[parseInt(props.defaultOptionIndex)])
-  }
+  // if (props.defaultOptionIndex) {
+  //   handleChange(props.options[parseInt(props.defaultOptionIndex)])
+  // }
 })
 
 const handleChange = (option) => {

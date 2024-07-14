@@ -79,7 +79,7 @@ const props = withDefaults(
   }>(),
   {
     subhead: false,
-    logoSize: "default",
+    logoSize: "large",
   },
 )
 const sideMenuArray = ref([])

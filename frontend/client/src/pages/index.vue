@@ -32,11 +32,11 @@ function signOut() {
 
 <template>
   <div
-    class="ease-in-out min-h-[100vh] w-full h-full flex flex-col gap-10 pt-0 md:pt-5 items-center justify-between"
+    class="ease-in-out min-h-screen w-full h-full flex flex-col gap-10 pt-0 md:pt-5 items-center justify-between bg-black"
   >
     <Header />
     <div
-      class="h-full min-h-[50vh] w-full justify-center items-center flex flex-col gap-2"
+      class="h-full min-h-[50vh] w-full flex-1 justify-center items-center flex flex-col gap-2"
     >
       <div class="font-[BebasNeue] flex flex-col text-center gap-5">
         <RouterLink

@@ -29,6 +29,7 @@
             </RouterLink>
           </div>
           <FSelect
+            v-if="countryOptions.length > 0"
             class="font-[BebasNeue] z-50 animate__animated animate__fadeInRight"
             placeholder="Country"
             model-key="id"
@@ -48,6 +49,7 @@
             :options="cityOptions"
           />
           <div
+            v-if="filteredStudios.length > 0"
             class="text-white text-4xl leading-1 mt-3 text-center font-[BebasNeue]"
           >
             Found studios <DisplayNumber :value="filteredStudios.length" />

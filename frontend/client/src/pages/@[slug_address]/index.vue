@@ -554,6 +554,7 @@ const closePopup = () => {
               <BadgesList
                 class="justify-center-important"
                 theme="default"
+                size="lg"
                 :badges="address?.badges"
               />
             </div>
@@ -774,12 +775,13 @@ const closePopup = () => {
             <div v-if="bookingError" class="errors mb-5">
               <div class="text-red-500 text-sm">{{ bookingError }}</div>
             </div>
+
             <div
-              class="relative flex items-center cursor-pointer input border-double"
+              @click="book()"
+              class="relative w-full flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
             >
               <button
-                @click="book()"
-                class="w-full px-16 py-3 font-[BebasNeue] min-h-14 flex justify-start items-center outline-none focus:border-white border border-white border-opacity-100 bg-transparent text-white text-4xl font-medium tracking-wide"
+                class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
               >
                 Rent
               </button>

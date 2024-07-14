@@ -8,8 +8,15 @@
     />
 
     <div
-      class="mt-5 w-full focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide"
-      v-if="selectedOption === 'custom'"
+      class="w-full focus:border-white border border-white bg-transparent text-white text-sm font-medium tracking-wide custom-transition"
+      :class="[
+        {
+          'max-h-0 overflow-hidden opacity-0 pointer-events-none':
+            selectedOption !== 'custom',
+          'max-h-96 pointer-events-auto': selectedOption == 'custom',
+        },
+        selectedOption == 'custom' ? 'mt-5' : 'mt-0',
+      ]"
     >
       <DatePicker :date="customDate" @dateChange="customDateChanged" />
       <input

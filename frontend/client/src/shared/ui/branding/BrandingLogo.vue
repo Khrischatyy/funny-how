@@ -15,7 +15,7 @@ const props = withDefaults(
     size: "default" | "small" | "large"
   }>(),
   {
-    size: "default",
+    size: "large",
   },
 )
 </script>

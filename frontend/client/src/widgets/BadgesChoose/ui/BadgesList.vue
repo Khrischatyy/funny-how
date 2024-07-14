@@ -8,9 +8,11 @@ const props = withDefaults(
   defineProps<{
     badges: { id: number; name: string; description: string }[]
     theme?: string
+    size?: "default" | "sm" | "lg"
   }>(),
   {
     theme: "default",
+    size: "default",
   },
 )
 
@@ -35,11 +37,21 @@ const ICON_MAP = {
         @touchend="hideTooltip"
         class="relative w-8 h-full group scrollElement"
       >
-        <Component
+        <!-- <Component
           :is="ICON_MAP[badge.name as typeof ICON_MAP]"
-          class="w-full h-8 object-fit group-hover:opacity-70"
+          
+          class="w-full object-fit group-hover:opacity-70"
+        /> -->
+        <img
+          :src="badge.image"
+          :alt="badge.name"
+          :class="[
+            { 'h-8': size === 'default' },
+            { 'h-6': size === 'sm' },
+            { 'h-10': size === 'lg' },
+          ]"
+          class="w-full object-contain"
         />
-        <!--                  <img :src="badge.image" :alt="badge.name" class="w-full h-full object-contain" />-->
         <div
           class="text-white text-xs text-center mt-1 group-hover:opacity-70 font-[BebasNeue]"
         >
