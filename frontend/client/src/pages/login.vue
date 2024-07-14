@@ -87,7 +87,8 @@ async function authForm() {
         ? 'lg:grid-cols-[486px_1fr] duration-700'
         : 'lg:grid-cols-[0px_1fr] duration-[700ms]'
     "
-    class="ease-in-out grid min-h-[100vh] h-full"
+    class="ease-in-out grid min-h-screen h-[100vh]"
+    style="min-height: -webkit-fill-available"
   >
     <div
       :class="
@@ -95,7 +96,8 @@ async function authForm() {
           ? 'w-full translate-x-[0px] duration-[700ms]'
           : 'translate-x-[-486px] duration-300'
       "
-      class="z-10 ease-in-out bg-black hidden lg:block text-white px-[50px] py-[60px] min-h-[100vh]"
+      class="z-10 ease-in-out bg-black hidden lg:block text-white px-[50px] py-[60px] min-h-screen h-[100vh]"
+      style="min-height: -webkit-fill-available"
     >
       <div
         class="w-full mt-10 h-full flex-col justify-between items-start gap-7 inline-flex"
@@ -206,7 +208,7 @@ async function authForm() {
 
     <div class="auth-panel bg-[#000000] relative overflow-hidden">
       <div
-        class="w-full h-full flex sm:grid items-start lg:items-center justify-center mb-10"
+        class="w-full h-full flex sm:grid items-start lg:items-center justify-center mb-0 md:md-10"
       >
         <div
           class="relative w-full flex-col justify-start items-center gap-7 inline-flex"
@@ -364,12 +366,11 @@ async function authForm() {
       <div
         v-if="!session?.isAuthorized"
         class="fixed left-0 bottom-0 w-full pointer-events-none"
-      >
-        <client-only>
-          <Particles />
-        </client-only>
-      </div>
+      ></div>
     </div>
+    <client-only>
+      <Particles />
+    </client-only>
   </div>
 </template>
 

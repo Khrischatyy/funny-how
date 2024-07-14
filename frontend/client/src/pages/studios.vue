@@ -4,7 +4,8 @@
       <Header logo-size="large" />
 
       <div
-        class="ease-in-out min-h-[100vh] max-w-7xl m-auto mt-10 w-full h-full flex flex-col gap-10 items-center justify-start"
+        class="ease-in-out min-h-screen h-full max-w-7xl m-auto mt-10 w-full flex flex-col gap-10 items-center justify-start"
+        style="min-height: -webkit-fill-available"
       >
         <FilterBar
           :filters-show="filterShow"

@@ -448,7 +448,8 @@ const closePopup = () => {
 <template>
   <div
     ref="mainContainer"
-    class="grid min-h-[100vh] pb-[400px] overflow-hidden h-full bg-black"
+    class="grid min-h-screen pb-[400px] overflow-hidden h-full bg-black"
+    style="min-height: -webkit-fill-available"
   >
     <div v-if="!address" class="spinner-container">
       <div class="spinner"></div>

@@ -1,38 +1,47 @@
 <script setup lang="ts">
-import GoogleMap from "~/src/widgets/GoogleMap.vue";
-import {useHead} from "@unhead/vue";
-import {useNuxtApp} from "#app";
-import {useRoute} from "nuxt/app";
-import {onMounted, ref} from "vue";
-import {Header, Footer} from "~/src/shared/ui/components";
-import {useApi} from "~/src/lib/api";
+import GoogleMap from "~/src/widgets/GoogleMap.vue"
+import { useHead } from "@unhead/vue"
+import { useNuxtApp } from "#app"
+import { useRoute } from "nuxt/app"
+import { onMounted, ref } from "vue"
+import { Header, Footer } from "~/src/shared/ui/components"
+import { useApi } from "~/src/lib/api"
 
-const route = useRoute();
-const { $axios } = useNuxtApp();
+const route = useRoute()
+const { $axios } = useNuxtApp()
 
 useHead({
-  title: 'Dashboard | Map',
-  meta: [
-    { name: 'Funny How', content: 'Dashboard' }
-  ],
+  title: "Dashboard | Map",
+  meta: [{ name: "Funny How", content: "Dashboard" }],
 })
 
-const studios = ref([]);
+const studios = ref([])
 onMounted(async () => {
-  const {fetch:getStudios} = useApi({
-    'url': '/map/studios',
-  });
+  const { fetch: getStudios } = useApi({
+    url: "/map/studios",
+  })
   getStudios().then((response) => {
-    studios.value = response.data;
-    console.log(studios.value.map((studio) => studio.company.name));
-  });
-});
+    studios.value = response.data
+    console.log(studios.value.map((studio) => studio.company.name))
+  })
+})
 </script>
 
 <template>
-  <div class="grid min-h-[100vh] h-full animate__animated animate__fadeInRight">
-    <Header :hide-login-button="true" class="absolute z-50 bottom-0 left-0 md:bottom-[unset] md:left-[unset]" />
-    <GoogleMap :lat="'34.0199732'" v-if="studios.length>0" :markers="studios" :lng="'-118.266289'"/>
+  <div
+    class="grid min-h-screen h-full animate__animated animate__fadeInRight"
+    style="min-height: -webkit-fill-available"
+  >
+    <Header
+      :hide-login-button="true"
+      class="absolute z-50 bottom-0 left-0 md:bottom-[unset] md:left-[unset]"
+    />
+    <GoogleMap
+      :lat="'34.0199732'"
+      v-if="studios.length > 0"
+      :markers="studios"
+      :lng="'-118.266289'"
+    />
   </div>
 </template>
 
@@ -43,7 +52,7 @@ a {
   color: var(--color-gold);
   text-shadow: 2px 2px 4px var(--color-dark-orange); /* Shadow effect */
 }
-.shadow-text{
+.shadow-text {
   text-shadow: 2px 3px 1px rgba(0, 0, 0, 0.8), 12px 14px 1px rgba(0, 0, 0, 0.8);
 }
 .checkbox-wrapper {
@@ -57,7 +66,7 @@ a {
     position: relative;
 
     &:after {
-      content: '';
+      content: "";
       position: absolute;
       display: none;
     }
@@ -79,7 +88,7 @@ a {
         width: 100%;
         height: 100%;
         border: solid white;
-        background: #F3F5FD;
+        background: #f3f5fd;
         border-radius: 2px;
       }
     }
@@ -89,8 +98,7 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   text-indent: 1px;
-  text-overflow: '';
+  text-overflow: "";
   cursor: pointer;
 }
-
 </style>
