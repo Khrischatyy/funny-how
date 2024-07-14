@@ -20,7 +20,8 @@
 }
 html {
   @apply text-black;
-  background-color: #000;
+  @apply bg-black;
+  // background-color: #000;
   font-family: "Montserrat", sans-serif; /* Default to sans-serif */
   letter-spacing: 0.04em;
 }

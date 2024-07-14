@@ -72,7 +72,7 @@
             </button>
           </div>
         </div>
-        <div :class="`grid ${gridColumns} gap-10 studio-cards`">
+        <div :class="`grid ${gridColumns} gap-10 studio-cards mb-10`">
           <div
             class="animate__animated animate__fadeInRight"
             :class="centeredClass"
@@ -205,6 +205,28 @@ const handleFiltersChange = (newFilters) => {
   }
 }
 
+const filterShow = reactive([
+  { key: "search", options: "", value: "" },
+  {
+    key: "badges",
+    options: [
+      { id: 1, name: "Recoring" },
+      { id: 2, name: "Rent" },
+    ],
+    value: "",
+  },
+  {
+    key: "price",
+    options: [],
+    value: "",
+  },
+  {
+    key: "rating",
+    options: [],
+    value: "",
+  },
+])
+
 const handleCountryChange = async (countryId: string) => {
   selectedCountry.value = countryId
   localStorage.setItem("selectedCountry", countryId.toString())
@@ -241,6 +263,22 @@ const handleCityChange = async (cityId: string) => {
     company_slug: studio.company.slug,
     price: studio.prices.length > 0 ? studio.prices[0].total_price : 0,
   }))
+
+  //set unique badges
+
+  if (filterShow.find((filter) => filter.key == "badges")) {
+    filterShow.find((filter) => filter.key == "badges").options = studiosData
+      .map((studio) => studio.badges)
+      .flat()
+      .filter(
+        (badge, index, self) =>
+          index === self.findIndex((b) => b.name === badge.name),
+      )
+      .map((badge) => ({
+        id: badge.id,
+        name: badge.name.charAt(0).toUpperCase() + badge.name.slice(1),
+      }))
+  }
 }
 
 const handleSearch = () => {
@@ -265,28 +303,6 @@ const updateURL = () => {
     `${window.location.pathname}?${params.toString()}`,
   )
 }
-
-const filterShow = reactive([
-  { key: "search", options: "", value: "" },
-  {
-    key: "status",
-    options: [
-      { id: 1, name: "Price 1" },
-      { id: 2, name: "Price 2" },
-    ],
-    value: "",
-  },
-  {
-    key: "price",
-    options: [],
-    value: "",
-  },
-  {
-    key: "rating",
-    options: [],
-    value: "",
-  },
-])
 
 const loadFromLocalStorage = () => {
   const savedCountry = localStorage.getItem("selectedCountry")

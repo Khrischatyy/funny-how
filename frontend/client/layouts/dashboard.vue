@@ -1,7 +1,7 @@
 <template>
   <div
     class="text-white flex flex-col pt-0 md:pt-5 min-h-screen px-5"
-    style="min-height: -webkit-fill-available"
+    style="height: -webkit-fill-available"
   >
     <Header
       :subhead="true"

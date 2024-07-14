@@ -1,17 +1,39 @@
 <template>
-    <div>
-      <NuxtLayout @toggleSideMenu="toggleSideMenu" title="Studios" class="text-white flex flex-col min-h-screen" name="dashboard">
-        <Spinner :is-loading="isLoading" />
-        <div class="container mx-auto px-2 md:px-4">
-          <FilterBar :filters-show="filterShow" @update:filters="handleFiltersChange" />
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AddStudioButton @click="navigateTo('/create')" />
-            <StudioCard @update-studios="fetchStudios" :is-delete="true" v-for="studio in myStudios" @click="editStudio(studio)" :key="`${studio.id}_${updateKey}`" :studio="studio" />
-          </div>
+  <div>
+    <NuxtLayout
+      @toggleSideMenu="toggleSideMenu"
+      title="Studios"
+      class="text-white flex flex-col min-h-screen"
+      name="dashboard"
+    >
+      <Spinner :is-loading="isLoading" />
+      <div class="container mx-auto px-2 md:px-4">
+        <FilterBar
+          :filters-show="filterShow"
+          @update:filters="handleFiltersChange"
+        />
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AddStudioButton @click="navigateTo('/create')" />
+          <StudioCard
+            class="border border-white border-opacity-50 hover:border-opacity-100 cursor-pointer"
+            @update-studios="fetchStudios"
+            :is-delete="true"
+            v-for="studio in myStudios"
+            @click="editStudio(studio)"
+            :key="`${studio.id}_${updateKey}`"
+            :studio="studio"
+          />
         </div>
-        <AddStudioModal v-if="showPopup" :show-popup="showPopup" @update-studios="fetchStudios" @closePopup="closePopup" @togglePopup="togglePopup" />
-      </NuxtLayout>
-    </div>
+      </div>
+      <AddStudioModal
+        v-if="showPopup"
+        :show-popup="showPopup"
+        @update-studios="fetchStudios"
+        @closePopup="closePopup"
+        @togglePopup="togglePopup"
+      />
+    </NuxtLayout>
+  </div>
 </template>
 
 <style scoped>
@@ -25,103 +47,122 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
 
 <script setup lang="ts">
-import {computed, onMounted, provide, reactive, ref} from 'vue';
-import {AddStudioButton} from '~/src/features/addStudio';
-import {StudioCard} from '~/src/entities/Studio';
-import {FilterBar} from '~/src/shared/ui/components';
-import {getSideMenu} from '~/src/widgets/navigation/api/useSideMenu';
-import {useAsyncData} from '#app';
-import {AddStudioModal} from "~/src/widgets/Modals";
-import {getMyStudiosFilter, getCities} from '~/src/entities/RegistrationForms/api/getMyStudios';
-import {navigateTo} from "nuxt/app";
-import {Spinner} from "~/src/shared/ui/common";
+import { computed, onMounted, provide, reactive, ref } from "vue"
+import { AddStudioButton } from "~/src/features/addStudio"
+import { StudioCard } from "~/src/entities/Studio"
+import { FilterBar } from "~/src/shared/ui/components"
+import { getSideMenu } from "~/src/widgets/navigation/api/useSideMenu"
+import { useAsyncData } from "#app"
+import { AddStudioModal } from "~/src/widgets/Modals"
+import {
+  getMyStudiosFilter,
+  getCities,
+} from "~/src/entities/RegistrationForms/api/getMyStudios"
+import { navigateTo } from "nuxt/app"
+import { Spinner } from "~/src/shared/ui/common"
 
-const sideMenuRef = ref();
-const sideMenuArray = ref([]);
-const isLoading = ref(true);
-const myStudios = ref([]);
-const showPopup = ref(false);
+const sideMenuRef = ref()
+const sideMenuArray = ref([])
+const isLoading = ref(true)
+const myStudios = ref([])
+const showPopup = ref(false)
 
 type Studio = {
-  name: string,
-  address: string,
-  description: string,
-  hours: string,
-  price: number,
-  logo: string,
-  badges: string[],
+  name: string
+  address: string
+  description: string
+  hours: string
+  price: number
+  logo: string
+  badges: string[]
   equipment: string[]
 }
-const cities = ref([]);
+const cities = ref([])
 
 const citiesOptions = computed(() => {
-  return cities.value.map((city) => ({id: city.id, name: city.name}));
-});
+  return cities.value.map((city) => ({ id: city.id, name: city.name }))
+})
 
 const filterShow = reactive([
-  {key: 'search', options:'', value: ''},
-  {key: 'city', options: citiesOptions, value: ''},
-  {key: 'price', options:[{id: 1, name: 'Price 1'}, {id: 2, name: 'Price 2'}], value: ''},
-  {key: 'rating', options:[{id: 1, name: 'Rating 1'}, {id: 2, name: 'Rating 2'}], value: ''}]);
+  { key: "search", options: "", value: "" },
+  { key: "city", options: citiesOptions, value: "" },
+  {
+    key: "price",
+    options: [
+      { id: 1, name: "Price 1" },
+      { id: 2, name: "Price 2" },
+    ],
+    value: "",
+  },
+  {
+    key: "rating",
+    options: [
+      { id: 1, name: "Rating 1" },
+      { id: 2, name: "Rating 2" },
+    ],
+    value: "",
+  },
+])
 
-const updateKey = ref(0);
+const updateKey = ref(0)
 const fetchStudios = async () => {
-  isLoading.value = true;
-  myStudios.value = await getMyStudiosFilter(filterShow);
+  isLoading.value = true
+  myStudios.value = await getMyStudiosFilter(filterShow)
 
-  isLoading.value = false;
+  isLoading.value = false
 
-  updateKey.value += 1;
-};
+  updateKey.value += 1
+}
 
 const fetchCities = async () => {
-  cities.value = await getCities();
-};
+  cities.value = await getCities()
+}
 
 const handleFiltersChange = (newFilters) => {
   filterShow.forEach((filter) => {
-    filter.value = newFilters[filter.key];
-  });
-  fetchStudios(); // Reset to page 1 with new filters
-};
+    filter.value = newFilters[filter.key]
+  })
+  fetchStudios() // Reset to page 1 with new filters
+}
 
-const { data, error } = await useAsyncData('sideMenu', getSideMenu);
-
+const { data, error } = await useAsyncData("sideMenu", getSideMenu)
 
 const togglePopup = () => {
-  showPopup.value = !showPopup.value;
-};
-
-const studioForPopup = ref<Studio | null>(null);
-
-const editStudio = (studio:any) => {
-  studioForPopup.value = studio;
-  showPopup.value = true;
+  showPopup.value = !showPopup.value
 }
-provide('studioForPopup', studioForPopup);
+
+const studioForPopup = ref<Studio | null>(null)
+
+const editStudio = (studio: any) => {
+  studioForPopup.value = studio
+  showPopup.value = true
+}
+provide("studioForPopup", studioForPopup)
 
 const closePopup = () => {
-  showPopup.value = false;
-};
+  showPopup.value = false
+}
 
 if (error.value) {
-  console.error('Failed to fetch side menu:', error.value);
-  isLoading.value = false; // Set loading to false in case of error
+  console.error("Failed to fetch side menu:", error.value)
+  isLoading.value = false // Set loading to false in case of error
 }
 
 const toggleSideMenu = () => {
   if (sideMenuRef.value) {
-    sideMenuRef.value.toggleMenu();
+    sideMenuRef.value.toggleMenu()
   }
-};
+}
 
 onMounted(() => {
-  fetchCities();
-  fetchStudios();
-});
+  fetchCities()
+  fetchStudios()
+})
 </script>

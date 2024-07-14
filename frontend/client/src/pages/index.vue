@@ -32,8 +32,8 @@ function signOut() {
 
 <template>
   <div
-    class="ease-in-out min-h-screen px-5 w-full h-full flex flex-col gap-10 pt-0 md:pt-5 items-center justify-between bg-black"
-    style="min-height: -webkit-fill-available"
+    class="ease-in-out min-h-screen px-5 w-full flex flex-col gap-10 pt-0 md:pt-5 items-center justify-between bg-black"
+    style="height: -webkit-fill-available"
   >
     <Header />
     <div
