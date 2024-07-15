@@ -339,10 +339,11 @@ async function authForm() {
                 <GoogleSignInButton />
               </div>
               <div
-                class="w-full h-11 p-3.5 justify-center items-center gap-2.5 inline-flex"
+                  class="w-full h-11 p-3.5 justify-center items-center gap-2.5 inline-flex"
               >
                 <button
-                  class="w-full h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white text-sm font-medium tracking-wide"
+                    @click="navigateTo('/forgot-password')"
+                    class="w-full h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white text-sm font-medium tracking-wide"
                 >
                   Forgot password?
                 </button>

@@ -45,7 +45,7 @@ const forgotPassword = async () => {
     alert('Password reset link sent! Check your email.');
     router.push('/login');
   } catch (error) {
-    alert('Failed to send reset link. Please try again.');
+    alert('Failed to send reset link. Please try again., скорее всего не тпользователя, look at console, надо обработать как-то клево');
   }
 };
 </script>
