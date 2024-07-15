@@ -60,7 +60,7 @@ const handleRoleUpdate = async (role: string) => {
 <template>
   <div
     class="duration-[700ms] ease-in-out grid min-h-screen h-full animate__animated animate__fadeInRight"
-    style="min-height: -webkit-fill-available"
+    style="height: -webkit-fill-available"
   >
     <div class="auth-panel bg-[#000000] relative overflow-hidden">
       <div
@@ -106,7 +106,6 @@ const handleRoleUpdate = async (role: string) => {
         </div>
       </div>
     </div>
-    <Particles />
   </div>
 </template>
 
