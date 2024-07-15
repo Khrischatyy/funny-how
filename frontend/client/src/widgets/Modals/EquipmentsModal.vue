@@ -18,7 +18,6 @@ import type { AddressFull } from "~/src/entities/Studio/api"
 const props = withDefaults(
   defineProps<{
     showPopup: boolean
-    booking: object
   }>(),
   {
     showPopup: false,
@@ -29,7 +28,6 @@ const address = inject("address") as AddressFull | undefined
 const emit = defineEmits<{
   (e: "togglePopup"): void
   (e: "closePopup"): void
-  (e: "onCancelBooking"): void
 }>()
 
 const categorizedEquipments = computed(() => {

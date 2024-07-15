@@ -256,15 +256,18 @@ function handleDragEnd(event: DragEvent) {
   draggedItemIndex.value = null
 }
 
+const updatedSlug = ref<string>("")
 const updateSlug = () => {
+  let slug = updatedSlug.value ? updatedSlug.value : studio.value?.slug
   const { put: updateSlug } = useApi({
-    url: `/address/${studio.value?.slug}/update-slug`,
+    url: `/address/${slug}/update-slug`,
     auth: true,
   })
 
   updateSlug({ new_slug: studioForm.slug })
     .then((response) => {
       console.log("Update successful:", response.data)
+      updatedSlug.value = response.data?.slug
       emit("update-studios")
     })
     .catch((error) => {
@@ -347,18 +350,16 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
             />
           </div>
           <div class="grid grid-cols-1 grid-rows-2 gap-5 max-h-60">
-            <div class="mt-5 sm:mt-0">
+            <div class="mt-5 sm:mt-0 w-auto md:w-[fit-content]">
               <ScrollContainer
                 v-if="studioForm?.photos.length > 1"
-                class="justify-start-important rounded-[10px] h-full"
+                justify-content="start"
+                class="rounded-[10px] h-full"
                 theme="default"
                 main-color="#171717"
               >
                 <div
-                  v-for="(photo, index) in studioForm?.photos.slice(
-                    1,
-                    Math.ceil(studioForm?.photos.length / 2),
-                  )"
+                  v-for="(photo, index) in studioForm?.photos.slice(1, 3)"
                   draggable="true"
                   @dragstart="
                     handleDragStart($event, findRealIndexByUrl(photo.url))
@@ -368,7 +369,7 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
                     handleDragEnter($event, findRealIndexByUrl(photo.url))
                   "
                   @dragend="handleDragEnd"
-                  class="drag-item max-h-30 w-[250px] bg-white shadow rounded-[10px] scrollElement"
+                  class="drag-item max-h-30 w-[250px] bg-white shadow rounded-[10px] scrollElement no-margin"
                 >
                   <img
                     :src="photo.url"
@@ -385,16 +386,25 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
                 </div>
               </ScrollContainer>
             </div>
-            <div class="mt-5 sm:mt-0">
+            <div
+              :class="{
+                'w-[fit-content]':
+                  studioForm?.photos.slice(3, studioForm?.photos.length)
+                    .length == 1,
+              }"
+              class="mt-5 sm:mt-0"
+            >
               <ScrollContainer
                 v-if="studioForm?.photos.length > 1"
-                class="justify-start-important rounded-[10px] h-full"
+                justify-content="start"
+                class="rounded-[10px] h-full"
                 theme="default"
                 main-color="#171717"
               >
                 <div
                   v-for="(photo, index) in studioForm?.photos.slice(
-                    Math.ceil(studioForm?.photos.length / 2),
+                    3,
+                    studioForm?.photos.length,
                   )"
                   draggable="true"
                   @dragstart="
@@ -405,7 +415,7 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
                     handleDragEnter($event, findRealIndexByUrl(photo.url))
                   "
                   @dragend="handleDragEnd"
-                  class="drag-item max-h-30 w-[250px] bg-white shadow rounded-[10px] scrollElement"
+                  class="drag-item max-h-30 w-[250px] bg-white shadow rounded-[10px] scrollElement no-margin"
                 >
                   <img
                     :src="photo.url"

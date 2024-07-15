@@ -5,14 +5,16 @@
 
       <div
         class="ease-in-out min-h-screen h-full max-w-7xl m-auto mt-10 w-full flex flex-col gap-10 items-center justify-start"
-        style="min-height: -webkit-fill-available"
+        style="min-height: -webkit-fill-available; width: "
       >
         <FilterBar
+          class="animate__animated animate__fadeInDown"
           :filters-show="filterShow"
           @update:filters="handleFiltersChange"
         />
         <div
           class="flex flex-col gap-5 w-full max-w-72 items-center justify-center"
+          style="width: -webkit-fill-available"
         >
           <div class="font-[BebasNeue] flex flex-col text-center gap-5">
             <RouterLink
@@ -31,7 +33,7 @@
           </div>
           Selected: {{ selectedCountry }}
           <FSelect
-            class="font-[BebasNeue] z-50 animate__animated animate__fadeInRight"
+            class="font-[BebasNeue] z-50 animate__animated animate__fadeInDown"
             placeholder="Country"
             model-key="id"
             size="sm"
@@ -41,7 +43,7 @@
           />
           <FSelect
             v-if="cityOptions.length > 0"
-            class="font-[BebasNeue] z-40 animate__animated animate__fadeInRight"
+            class="font-[BebasNeue] z-40 animate__animated animate__fadeInDown"
             placeholder="City"
             model-key="id"
             size="sm"
@@ -75,9 +77,9 @@
         </div>
         <div :class="`grid ${gridColumns} gap-10 studio-cards mb-10`">
           <div
-            class="animate__animated animate__fadeInRight"
             :class="centeredClass"
             v-for="studio in filteredStudios"
+            class="animate__animated animate__fadeInUp"
             :key="studio.id"
             @click="goToStudio(studio)"
           >
@@ -159,15 +161,44 @@ const cityOptions: Ref<City[]> = ref([])
 const studios: Ref<SimpleStudio[]> = ref([])
 
 const filteredStudios = computed(() => {
-  if (!searchTerm.value) {
-    return studios.value
-  }
-  const term = searchTerm.value.toLowerCase()
-  return studios.value.filter(
+  const term = searchTerm.value ? searchTerm.value.toLowerCase() : ""
+
+  const filters = filterShow.reduce((acc, filter) => {
+    acc[filter.key] = filter.value
+    return acc
+  }, {})
+
+  let filteredValues = studios.value.filter(
     (studio) =>
       studio.company?.name.toLowerCase().includes(term) ||
       studio.street.toLowerCase().includes(term),
   )
+
+  if (filters.badges) {
+    filteredValues = filteredValues.filter((studio) =>
+      studio.badges.some((badge) => badge.id == filters.badges),
+    )
+  }
+
+  if (filters.price) {
+    filteredValues = filteredValues.filter((studio) => {
+      const smallestPrice = Math.min(
+        ...studio.prices.map((price) => parseFloat(price.total_price)),
+      )
+      return smallestPrice <= parseFloat(filters.price)
+    })
+  }
+
+  if (filters.rating) {
+    filteredValues = filteredValues.filter((studio) => {
+      if (!studio.rating) {
+        return true
+      }
+      return studio.rating > filters.rating
+    })
+  }
+
+  return filteredValues
 })
 
 const gridColumns = computed(() => {
@@ -194,16 +225,9 @@ const goToStudio = (studio) => {
 const handleFiltersChange = (newFilters) => {
   searchTerm.value = newFilters.search
 
-  if (newFilters.city) {
-    selectedCity.value = newFilters.city
-    handleCityChange(selectedCity.value)
-  }
-  if (newFilters.price) {
-    // handlePriceChange(newFilters.price)
-  }
-  if (newFilters.rating) {
-    // handleRatingChange(newFilters.rating)
-  }
+  filterShow.find((filter) => filter.key === "price").value = newFilters.price
+  filterShow.find((filter) => filter.key === "rating").value = newFilters.rating
+  filterShow.find((filter) => filter.key === "badges").value = newFilters.badges
 }
 
 const filterShow = reactive([
@@ -298,11 +322,11 @@ const updateURL = () => {
   if (searchTerm.value) {
     params.append("search", searchTerm.value)
   }
-  window.history.replaceState(
-    {},
-    "",
-    `${window.location.pathname}?${params.toString()}`,
-  )
+
+  router.replace({
+    path: window.location.pathname,
+    query: Object.fromEntries(params),
+  })
 }
 
 const loadFromLocalStorage = () => {
@@ -339,6 +363,7 @@ const clearFilters = () => {
 }
 
 const route = useRoute()
+const router = useRouter()
 watch(
   route,
   (newRoute) => {

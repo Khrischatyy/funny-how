@@ -80,7 +80,6 @@
         </div>
       </div>
     </div>
-
     <Tooltip>
       {{ tooltipData.content }}
     </Tooltip>
@@ -234,14 +233,15 @@ function generateTooltipContent(type) {
     // Map over the sorted hours to create formatted strings
     return hours
       .map((hour) => {
-        const dayName = daysOfWeek[hour.day_of_week]
+        const dayName =
+          hour.day_of_week === null ? "Everyday" : daysOfWeek[hour.day_of_week]
         const timeString = hour.is_closed
           ? "Closed"
           : `${hour.open_time.substring(0, 5)} - ${hour.close_time.substring(
               0,
               5,
             )}`
-        return `${dayName}: ${timeString}`
+        return `${dayName}:\n ${timeString}`
       })
       .join("\n")
   } else if (type === "price") {

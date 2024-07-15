@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScrollContainer } from "~/src/shared/ui/common/ScrollContainer"
-import { computed, inject } from "vue"
+import { computed, inject, ref } from "vue"
 import { defineProps } from "vue"
 import { IconBooking, IconMic, IconMonitor } from "~/src/shared/ui/common"
 import { Tooltip } from "~/src/shared/ui/Tooltip"
@@ -15,7 +15,16 @@ const props = withDefaults(
     size: "default",
   },
 )
+const isTooltipVisible = ref(false)
 
+const showTooltipHandler = (event, content) => {
+  isTooltipVisible.value = true
+  showTooltip(event, content)
+}
+const hideTooltipHandler = () => {
+  isTooltipVisible.value = false
+  hideTooltip()
+}
 const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
 const ICON_MAP = {
   mixing: IconMonitor,
@@ -25,23 +34,18 @@ const ICON_MAP = {
 </script>
 
 <template>
-  <div class="flex gap-3 w-full justify-center items-center relative">
+  <div>
     <ScrollContainer v-bind="$attrs" :theme="theme">
       <div
         v-for="(badge, index) in badges"
         :key="badge.id"
-        @click.stop="showTooltip($event, badge.description)"
-        @mouseenter="showTooltip($event, badge.description)"
-        @mouseleave="hideTooltip"
-        @touchstart="showTooltip($event, badge.description)"
-        @touchend="hideTooltip"
-        class="relative w-8 h-full group scrollElement"
+        @click.stop="showTooltipHandler($event, badge.description)"
+        @mouseenter="showTooltipHandler($event, badge.description)"
+        @mouseleave="hideTooltipHandler"
+        @touchstart="showTooltipHandler($event, badge.description)"
+        @touchend="hideTooltipHandler"
+        class="scrollElement"
       >
-        <!-- <Component
-          :is="ICON_MAP[badge.name as typeof ICON_MAP]"
-          
-          class="w-full object-fit group-hover:opacity-70"
-        /> -->
         <img
           :src="badge.image"
           :alt="badge.name"
@@ -59,9 +63,11 @@ const ICON_MAP = {
         </div>
       </div>
     </ScrollContainer>
-    <Tooltip>
-      {{ tooltipData.content }}
-    </Tooltip>
+    <Teleport to="body">
+      <Tooltip v-if="isTooltipVisible">
+        {{ tooltipData.content }}
+      </Tooltip>
+    </Teleport>
   </div>
 </template>
 

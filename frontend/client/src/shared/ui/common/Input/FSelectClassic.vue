@@ -35,20 +35,23 @@ watch(
 
 <template>
   <div class="w-full max-w-96 relative">
-    <div class="label-action grid justify-between items-center w-full">
+    <div
+      :class="label ? 'mb-1.5' : 'mb-0'"
+      class="label-action grid grid-cols-[max-content,max-content] justify-between items-center w-full"
+    >
       <div
         v-if="label"
         :class="{
           'opacity-20': props.size === 'sm',
           'opacity-100': props.size === 'md' || props.size === 'lg',
         }"
-        class="text-white mb-1.5 text-sm font-normal tracking-wide"
+        class="text-white text-sm font-normal tracking-wide"
       >
         {{ label }}
       </div>
       <div
         v-if="error"
-        class="text-right mb-1.5 text-red-500 text-sm font-normal tracking-wide"
+        class="text-right text-red-500 text-sm font-normal tracking-wide"
       >
         {{ error }}
       </div>

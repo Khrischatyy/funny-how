@@ -57,24 +57,30 @@ watch(
 
 <template>
   <div :class="wide ? 'max-w-full' : 'max-w-96'" class="w-full flex-col flex">
-    <div class="label-action grid justify-between items-center w-full">
+    <div
+      :class="label ? 'mb-1.5' : 'mb-0'"
+      class="label-action grid grid-cols-[max-content,max-content] justify-between items-center w-full"
+    >
       <div
         v-if="label"
         :class="{
           'opacity-20': props.size === 'sm',
           'opacity-100': props.size === 'md' || props.size === 'lg',
         }"
-        class="text-white mb-1.5 text-sm font-normal tracking-wide"
+        class="text-white text-sm font-normal tracking-wide"
       >
         {{ label }}
       </div>
       <div
         v-if="error"
-        class="text-right mb-1.5 text-red-500 text-sm font-normal tracking-wide"
+        class="text-right text-red-500 text-sm font-normal tracking-wide"
       >
         {{ error }}
       </div>
-      <div v-if="slots?.action" class="action mb-1.5">
+      <div
+        v-if="slots?.action"
+        class="action flex justify-end items-center w-full"
+      >
         <slot name="action" />
       </div>
     </div>

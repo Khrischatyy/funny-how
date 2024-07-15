@@ -34,12 +34,9 @@ onMounted(() => {
   // }
 })
 
-const handleChange = (option) => {
-  if (props.modelKey) {
-    value.value = option[props.modelKey]
-  } else {
-    value.value = option
-  }
+const handleChange = (option: OptionType) => {
+  // Use option.id for value if modelKey is provided, otherwise use the entire option object
+  value.value = props.modelKey ? option[props.modelKey] : option
   emit("change", value.value)
   emit("update:modelValue", value.value)
   showOptions.value = false
@@ -53,11 +50,7 @@ const toggleDropdown = () => {
 watch(
   () => props.modelValue,
   (newValue) => {
-    //possible could be deleted at all
-    if (props.modelKey) {
-    } else {
-      value.value = newValue
-    }
+    value.value = newValue
   },
 )
 
@@ -69,7 +62,15 @@ const valueShow = computed(() => {
     )
   }
 
-  return value.value?.label || props.placeholder
+  // If value is an object, compare option.id with value.id
+  if (typeof value.value === "object" && value.value !== null) {
+    return value.value.label || props.placeholder
+  }
+
+  return (
+    props.options.find((option) => option.id == value.value)?.label ||
+    props.placeholder
+  )
 })
 
 const optionsContainer = ref<HTMLElement | null>(null)
@@ -102,42 +103,27 @@ watch(showOptions, (newValue) => {
     }"
     class="w-full max-w-96 relative"
   >
-    <div class="label-action grid justify-between items-center w-full">
+    <div
+      :class="label ? 'mb-1.5' : 'mb-0'"
+      class="label-action grid grid-cols-[max-content,max-content] justify-between items-center w-full"
+    >
       <div
         v-if="label"
         :class="{
           'opacity-20': props.size === 'sm',
           'opacity-100': props.size === 'md' || props.size === 'lg',
         }"
-        class="text-white mb-1.5 text-sm font-normal tracking-wide"
+        class="text-white text-sm font-normal tracking-wide"
       >
         {{ label }}
       </div>
       <div
         v-if="error"
-        class="text-right mb-1.5 text-red-500 text-sm font-normal tracking-wide"
+        class="text-right text-red-500 text-sm font-normal tracking-wide"
       >
         {{ error }}
       </div>
     </div>
-    <div class="flex items-center">
-      <select
-        @change="handleChange"
-        v-model="value"
-        class="opacity-0 absolute top-0 cursor-pointer h-full w-full outline-none focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"
-        name="workday"
-      >
-        <option value="" disabled>Choose {{ props.label }}</option>
-        <option
-          v-for="option in props.options"
-          :key="option.id"
-          :value="option.id"
-        >
-          {{ option.name }}
-        </option>
-      </select>
-    </div>
-
     <div class="relative">
       <div
         ref="optionsChoose"

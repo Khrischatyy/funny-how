@@ -53,7 +53,7 @@
             v-if="getFilterShow('badges')"
             placeholder="Badges"
             :options="getFilterShow('badges')?.options"
-            v-model="filters.status"
+            v-model="filters.badges"
             class="w-full h-full"
           >
             <template #icon>
@@ -188,6 +188,7 @@ const filters = ref({
   date: null,
   time: null,
   city: null,
+  badges: null,
 })
 const dateInput = ref(null)
 const isFiltersOpen = ref(false)

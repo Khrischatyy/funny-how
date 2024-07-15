@@ -1,3 +1,356 @@
+<template>
+  <div
+    ref="mainContainer"
+    class="grid min-h-screen pb-[400px] overflow-hidden h-full bg-black"
+    style="min-height: -webkit-fill-available"
+  >
+    <Spinner :is-loading="!address" />
+    <div
+      v-if="address && address.photos.length > 0"
+      ref="photoContainer"
+      style="width: -webkit-fill-available"
+      class="photo-container animate__animated animate__fadeInDown w-full max-h-[250px] max-w-full backdrop-blur p-0 py-5 md:p-10"
+    >
+      <div
+        ref="pswpElement"
+        class="pswp"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      ></div>
+      <ScrollContainer
+        v-if="address?.photos.length > 0"
+        justify-content="center"
+        class="rounded-[10px] h-full"
+        theme="default"
+        main-color="#171717"
+      >
+        <div
+          v-for="(photo, index) in address?.photos.sort(
+            (a, b) => a.index - b.index,
+          )"
+          class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement"
+        >
+          <img
+            :src="photo.url"
+            @click.stop="() => openGallery(displayedPhotos, index)"
+            alt="cover photo"
+            class="w-full h-full object-cover rounded-[10px]"
+          />
+        </div>
+      </ScrollContainer>
+    </div>
+    <div
+      class="info-container w-full animate__animated animate__fadeInRight h-full flex-col justify-between items-start gap-7 inline-flex"
+    >
+      <div
+        v-if="address"
+        class="relative w-full flex-col justify-start items-center gap-2.5 flex"
+      >
+        <div class="p-5 md:p-0 max-w-96">
+          <div
+            class="max-w-96 w-full flex items-center justify-center gap-2 mt-5 mb-5"
+          >
+            <div
+              class="text-white w-full flex flex-col justify-center items-center text-5xl font-bold"
+            >
+              <div
+                @click="navigateTo('/studios')"
+                class="text-white cursor-pointer w-full opacity-20 hover:opacity-100 mb-3 flex gap-3 justify-end items-center text-xs font-['Montserrat'] font-normal tracking-wide"
+              >
+                <IconBackDraw class="w-3" /> All Studios
+              </div>
+              <div
+                class="text-white w-full opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
+              >
+                Studio name
+              </div>
+              <div class="flex gap-5 w-full">
+                <div v-if="address?.company?.logo_url">
+                  <img
+                    :src="address?.company?.logo_url"
+                    class="h-10 w-10 object-contain"
+                  />
+                </div>
+                <div class="font-[BebasNeue] w-full text-left">
+                  {{ address?.company.name }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+          >
+            <div
+              class="text-white mb-10 text-5xl font-light text-left tracking-wide"
+            >
+              <div
+                class="text-white opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
+              >
+                Address
+              </div>
+              <Clipboard :text-to-copy="address?.street">
+                <div class="flex gap-5 w-full">
+                  <div>
+                    <IconAddress class="h-10 w-10 object-contain" />
+                  </div>
+                  <div class="font-[BebasNeue] text-4xl w-full text-left">
+                    {{ address?.street }}<br />
+                  </div>
+                </div>
+              </Clipboard>
+            </div>
+            <div
+              class="max-w-[300px] w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center"
+              style="width: -webkit-fill-available"
+            >
+              <BadgesList
+                class="justify-center-important"
+                theme="default"
+                size="lg"
+                style="width: -webkit-fill-available"
+                :badges="address?.badges"
+              />
+            </div>
+            <div
+              class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
+            >
+              <div
+                v-for="price in address.prices"
+                class="price-tag flex flex-col gap-1 text-white justify-center items-center"
+              >
+                <div class="mb-2">
+                  <IconPricetag />
+                </div>
+                <div
+                  class="font-[BebasNeue] text-3xl flex justify-center items-center"
+                >
+                  {{ price.hours }} HOUR{{ price.hours > 1 ? "S" : "" }}
+                </div>
+                <div class="font-['Montserrat']">${{ price.total_price }}</div>
+              </div>
+            </div>
+            <div
+              class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
+            >
+              <div
+                class="price-tag flex gap-2 font-[BebasNeue] text-4xl text-white justify-center items-center"
+              >
+                Rating:
+                <span :class="getRatingColor(address?.rating)">{{
+                  address?.rating
+                }}</span>
+              </div>
+            </div>
+            <div
+              v-if="address?.equipments.length > 0"
+              @click="openEquipmentsPopup"
+              class="relative flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
+            >
+              <button
+                class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
+              >
+                Equipments
+              </button>
+            </div>
+          </div>
+          <div
+            class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+          >
+            <div class="w-full max-w-[514px] h-[313px] relative">
+              <a
+                :href="`https://www.google.com/maps?q=${address?.latitude},${address?.longitude}`"
+                target="_blank"
+                class="nav group absolute z-10 w-full h-full group bg-black cursor-pointer bg-opacity-70 hover:bg-opacity-90 transition duration-300 flex justify-center items-center"
+              >
+                <div
+                  class="navigate-button font-[BebasNeue] group-hover:scale-115 transition duration-300 text-2xl text-white flex gap-3 justify-center items-center"
+                >
+                  <IconNav class="w-[20px] h-[20px]" /> Direction
+                </div>
+              </a>
+              <GoogleMap
+                class=""
+                :logo="address?.company.logo_url"
+                :lat="address?.latitude"
+                :lng="address?.longitude"
+              />
+            </div>
+          </div>
+          <div
+            v-if="address"
+            class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+          >
+            <div class="relative w-full flex items-center mt-10">
+              <div class="flex items-center flex-col w-full">
+                <SelectPicker
+                  class="w-full z-50"
+                  @dateSelected="dateChanged($event, 'date')"
+                />
+              </div>
+            </div>
+
+            <div class="relative hidden w-full flex items-center">
+              <div class="flex items-center">
+                <select
+                  v-model="rentingForm.date"
+                  class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"
+                  name="workday"
+                >
+                  <option v-for="day in rentingList" :value="day.date">
+                    {{ day.name }}
+                  </option>
+                </select>
+              </div>
+              <div
+                class="relative w-full flex items-center pointer-events-none"
+              >
+                <input
+                  disabled
+                  :value="rentingForm.date"
+                  placeholder="Day"
+                  class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+                  name="workday"
+                />
+                <span class="absolute right-5 text-neutral-700 cursor-pointer"
+                  >Day</span
+                >
+                <span class="absolute right-0 cursor-pointer">
+                  <IconDown />
+                </span>
+              </div>
+            </div>
+
+            <div
+              v-if="rentingForm.date == 'another-day'"
+              class="relative w-full flex items-center mt-3"
+            >
+              <div class="flex items-center">
+                <input
+                  v-model="rentingForm.anotherDate"
+                  name="date"
+                  type="date"
+                  ref="dateInput"
+                  class="w-full px-3 h-11 outline-none rounded-[10px] opacity-0 absolute focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+                />
+              </div>
+              <div
+                @click="openDatePicker('date')"
+                class="relative w-full flex items-center"
+              >
+                <input
+                  :value="rentingForm.anotherDate"
+                  placeholder="Choose Another Day"
+                  class="pointer-events-none w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+                  name="workday"
+                />
+                <span class="absolute right-5 text-neutral-700 cursor-pointer"
+                  >Day</span
+                >
+                <span class="absolute right-0 cursor-pointer">
+                  <IconDown />
+                </span>
+              </div>
+            </div>
+            <div
+              v-if="rentingForm.date && hoursAvailableStart.length > 0"
+              class="relative w-full max-w-[212px] flex flex-col items-center"
+            >
+              <div
+                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+              >
+                Start From
+              </div>
+              <TimeSelect
+                :key="rentingForm.date"
+                class="z-40"
+                :available-hours="hoursAvailableStart"
+                label="Start From"
+                placeholder="Choose Start Time"
+                renting-form="rentingForm"
+                @timeChanged="timeChanged($event, 'start_time')"
+              />
+            </div>
+            <div
+              v-if="
+                rentingForm['start_time'] &&
+                rentingForm.date &&
+                hoursAvailableEnd.length > 0
+              "
+              class="relative w-full flex flex-col max-w-[212px] mb-10 items-center"
+            >
+              <div
+                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+              >
+                To
+              </div>
+              <TimeSelect
+                class="z-30"
+                :key="rentingForm.start_time.time && rentingForm.date"
+                :available-hours="hoursAvailableEnd"
+                label="To"
+                placeholder="Choose End Time"
+                renting-form="rentingForm"
+                @timeChanged="timeChanged($event, 'end_time')"
+              />
+            </div>
+          </div>
+          <div
+            :key="rentingForm.start_time.time"
+            v-if="calculatedPrice"
+            class="flex-col mb-14 relative justify-center items-center gap-1.5 flex animate__animated animate__fadeInDown"
+          >
+            <div
+              class="relative w-full max-w-48 mx-auto mb-5 flex justify-between items-center animate__animated animate__fadeInDown"
+            >
+              <div class="text-white text-4xl font-[BebasNeue]">Price:</div>
+              <div class="text-white text-4xl relative font-[BebasNeue]">
+                $<DisplayNumber :value="calculatedPrice" />
+              </div>
+            </div>
+            <div v-if="isLoading" class="spinner-container">
+              <div class="spinner"></div>
+            </div>
+            <Spinner :is-loading="isLoading" />
+            <div class="flex justify-center items-center flex-col gap-2">
+              <div
+                class="text-white opacity-70 text-sm font-normal font-['Montserrat'] tracking-wide"
+              >
+                We accept
+              </div>
+              <div class="justify-center items-center flex gap-5 mb-10">
+                <!-- <img :src="paymentSystems" /> -->
+                <IconApplePay />
+                <IconGooglePay />
+                <IconVisa />
+                <IconMastercard />
+              </div>
+            </div>
+            <div v-if="bookingError" class="errors mb-5">
+              <div class="text-red-500 text-sm">{{ bookingError }}</div>
+            </div>
+
+            <div
+              @click="book()"
+              class="relative w-full flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
+            >
+              <button
+                class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
+              >
+                Rent
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <EquipmentsModal
+      v-if="showPopup"
+      :showPopup="showPopup"
+      @closePopup="closePopup"
+    />
+  </div>
+</template>
 <script setup lang="ts">
 import { useHead } from "@unhead/vue"
 import { definePageMeta, useRuntimeConfig } from "#imports"
@@ -444,362 +797,6 @@ const closePopup = () => {
   showPopup.value = false
 }
 </script>
-
-<template>
-  <div
-    ref="mainContainer"
-    class="grid min-h-screen pb-[400px] overflow-hidden h-full bg-black"
-    style="min-height: -webkit-fill-available"
-  >
-    <div v-if="!address" class="spinner-container">
-      <div class="spinner"></div>
-      <!-- Replace with a proper loading indicator -->
-    </div>
-    <div
-      v-if="address && address.photos.length > 0"
-      ref="photoContainer"
-      class="photo-container animate__animated animate__fadeInRight w-full max-h-[250px] max-w-full backdrop-blur p-0 py-5 md:p-10"
-    >
-      <div
-        ref="pswpElement"
-        class="pswp"
-        tabindex="-1"
-        role="dialog"
-        aria-hidden="true"
-      ></div>
-      <ScrollContainer
-        v-if="address?.photos.length > 0"
-        justify-content="center"
-        class="rounded-[10px] h-full"
-        theme="default"
-        main-color="#171717"
-      >
-        <div
-          v-for="(photo, index) in address?.photos.sort(
-            (a, b) => a.index - b.index,
-          )"
-          class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement"
-        >
-          <img
-            :src="photo.url"
-            @click.stop="() => openGallery(displayedPhotos, index)"
-            alt="cover photo"
-            class="w-full h-full object-cover rounded-[10px]"
-          />
-        </div>
-      </ScrollContainer>
-    </div>
-    <div
-      class="info-container w-full animate__animated animate__fadeInRight h-full flex-col justify-between items-start gap-7 inline-flex"
-    >
-      <div
-        v-if="address"
-        class="relative w-full flex-col justify-start items-center gap-2.5 flex"
-      >
-        <div class="p-5 md:p-0 max-w-96">
-          <div
-            class="max-w-96 w-full flex items-center justify-center gap-2 mt-5 mb-5"
-          >
-            <div
-              class="text-white w-full flex flex-col justify-center items-center text-5xl font-bold"
-            >
-              <div
-                @click="navigateTo('/studios')"
-                class="text-white cursor-pointer w-full opacity-20 hover:opacity-100 mb-3 flex gap-3 justify-end items-center text-xs font-['Montserrat'] font-normal tracking-wide"
-              >
-                <IconBackDraw class="w-3" /> All Studios
-              </div>
-              <div
-                class="text-white w-full opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
-              >
-                Studio name
-              </div>
-              <div class="flex gap-5 w-full">
-                <div v-if="address?.company?.logo_url">
-                  <img
-                    :src="address?.company?.logo_url"
-                    class="h-10 w-10 object-contain"
-                  />
-                </div>
-                <div class="font-[BebasNeue] w-full text-left">
-                  {{ address?.company.name }}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
-          >
-            <div
-              class="text-white mb-10 text-5xl font-light text-left tracking-wide"
-            >
-              <div
-                class="text-white opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
-              >
-                Address
-              </div>
-              <Clipboard :text-to-copy="address?.street">
-                <div class="flex gap-5 w-full">
-                  <div>
-                    <IconAddress class="h-10 w-10 object-contain" />
-                  </div>
-                  <div class="font-[BebasNeue] text-4xl w-full text-left">
-                    {{ address?.street }}<br />
-                  </div>
-                </div>
-              </Clipboard>
-            </div>
-            <div
-              class="max-w-full w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center"
-            >
-              <BadgesList
-                class="justify-center-important"
-                theme="default"
-                size="lg"
-                :badges="address?.badges"
-              />
-            </div>
-            <div
-              class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
-            >
-              <div
-                v-for="price in address.prices"
-                class="price-tag flex flex-col gap-1 text-white justify-center items-center"
-              >
-                <div class="mb-2">
-                  <IconPricetag />
-                </div>
-                <div
-                  class="font-[BebasNeue] text-3xl flex justify-center items-center"
-                >
-                  {{ price.hours }} HOUR{{ price.hours > 1 ? "S" : "" }}
-                </div>
-                <div class="font-['Montserrat']">${{ price.total_price }}</div>
-              </div>
-            </div>
-            <div
-              class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
-            >
-              <div
-                class="price-tag flex gap-2 font-[BebasNeue] text-4xl text-white justify-center items-center"
-              >
-                Rating:
-                <span :class="getRatingColor(address?.rating)">{{
-                  address?.rating
-                }}</span>
-              </div>
-            </div>
-            <div
-              v-if="address?.equipments.length > 0"
-              @click="openEquipmentsPopup"
-              class="relative flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
-            >
-              <button
-                class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
-              >
-                Equipments
-              </button>
-            </div>
-          </div>
-          <div
-            class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
-          >
-            <div class="w-full max-w-[514px] h-[313px] relative">
-              <a
-                :href="`https://www.google.com/maps?q=${address?.latitude},${address?.longitude}`"
-                target="_blank"
-                class="nav group absolute z-10 w-full h-full group bg-black cursor-pointer bg-opacity-70 hover:bg-opacity-90 transition duration-300 flex justify-center items-center"
-              >
-                <div
-                  class="navigate-button font-[BebasNeue] group-hover:scale-115 transition duration-300 text-2xl text-white flex gap-3 justify-center items-center"
-                >
-                  <IconNav class="w-[20px] h-[20px]" /> Direction
-                </div>
-              </a>
-              <GoogleMap
-                class=""
-                :logo="address?.company.logo_url"
-                :lat="address?.latitude"
-                :lng="address?.longitude"
-              />
-            </div>
-          </div>
-          <div
-            v-if="address"
-            class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
-          >
-            <div class="relative w-full flex items-center mt-10">
-              <div class="flex items-center flex-col w-full">
-                <SelectPicker
-                  class="w-full z-50"
-                  @dateSelected="dateChanged($event, 'date')"
-                />
-              </div>
-            </div>
-
-            <div class="relative hidden w-full flex items-center">
-              <div class="flex items-center">
-                <select
-                  v-model="rentingForm.date"
-                  class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"
-                  name="workday"
-                >
-                  <option v-for="day in rentingList" :value="day.date">
-                    {{ day.name }}
-                  </option>
-                </select>
-              </div>
-              <div
-                class="relative w-full flex items-center pointer-events-none"
-              >
-                <input
-                  disabled
-                  :value="rentingForm.date"
-                  placeholder="Day"
-                  class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
-                  name="workday"
-                />
-                <span class="absolute right-5 text-neutral-700 cursor-pointer"
-                  >Day</span
-                >
-                <span class="absolute right-0 cursor-pointer">
-                  <IconDown />
-                </span>
-              </div>
-            </div>
-
-            <div
-              v-if="rentingForm.date == 'another-day'"
-              class="relative w-full flex items-center mt-3"
-            >
-              <div class="flex items-center">
-                <input
-                  v-model="rentingForm.anotherDate"
-                  name="date"
-                  type="date"
-                  ref="dateInput"
-                  class="w-full px-3 h-11 outline-none rounded-[10px] opacity-0 absolute focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
-                />
-              </div>
-              <div
-                @click="openDatePicker('date')"
-                class="relative w-full flex items-center"
-              >
-                <input
-                  :value="rentingForm.anotherDate"
-                  placeholder="Choose Another Day"
-                  class="pointer-events-none w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
-                  name="workday"
-                />
-                <span class="absolute right-5 text-neutral-700 cursor-pointer"
-                  >Day</span
-                >
-                <span class="absolute right-0 cursor-pointer">
-                  <IconDown />
-                </span>
-              </div>
-            </div>
-            <div
-              v-if="rentingForm.date && hoursAvailableStart.length > 0"
-              class="relative w-full max-w-[212px] flex flex-col items-center"
-            >
-              <div
-                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
-              >
-                Start From
-              </div>
-              <TimeSelect
-                :key="rentingForm.date"
-                class="z-40"
-                :available-hours="hoursAvailableStart"
-                label="Start From"
-                placeholder="Choose Start Time"
-                renting-form="rentingForm"
-                @timeChanged="timeChanged($event, 'start_time')"
-              />
-            </div>
-            <div
-              v-if="
-                rentingForm['start_time'] &&
-                rentingForm.date &&
-                hoursAvailableEnd.length > 0
-              "
-              class="relative w-full flex flex-col max-w-[212px] mb-10 items-center"
-            >
-              <div
-                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
-              >
-                To
-              </div>
-              <TimeSelect
-                class="z-30"
-                :key="rentingForm.start_time.time && rentingForm.date"
-                :available-hours="hoursAvailableEnd"
-                label="To"
-                placeholder="Choose End Time"
-                renting-form="rentingForm"
-                @timeChanged="timeChanged($event, 'end_time')"
-              />
-            </div>
-          </div>
-          <div
-            :key="rentingForm.start_time.time"
-            v-if="calculatedPrice"
-            class="flex-col mb-14 relative justify-center items-center gap-1.5 flex animate__animated animate__fadeInRight"
-          >
-            <div
-              class="relative w-full max-w-48 mx-auto mb-5 flex justify-between items-center animate__animated animate__fadeInRight"
-            >
-              <div class="text-white text-4xl font-[BebasNeue]">Price:</div>
-              <div class="text-white text-4xl relative font-[BebasNeue]">
-                $<DisplayNumber :value="calculatedPrice" />
-              </div>
-            </div>
-            <div v-if="isLoading" class="spinner-container">
-              <div class="spinner"></div>
-            </div>
-            <Spinner :is-loading="isLoading" />
-            <div class="flex justify-center items-center flex-col gap-2">
-              <div
-                class="text-white opacity-70 text-sm font-normal font-['Montserrat'] tracking-wide"
-              >
-                We accept
-              </div>
-              <div class="justify-center items-center flex gap-5 mb-10">
-                <!-- <img :src="paymentSystems" /> -->
-                <IconApplePay />
-                <IconGooglePay />
-                <IconVisa />
-                <IconMastercard />
-              </div>
-            </div>
-            <div v-if="bookingError" class="errors mb-5">
-              <div class="text-red-500 text-sm">{{ bookingError }}</div>
-            </div>
-
-            <div
-              @click="book()"
-              class="relative w-full flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
-            >
-              <button
-                class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
-              >
-                Rent
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <EquipmentsModal
-      v-if="showPopup"
-      @on-cancel-booking="handleCancelBooking"
-      :showPopup="showPopup"
-      :booking="booking"
-      @closePopup="closePopup"
-    />
-  </div>
-</template>
 
 <style scoped lang="scss">
 :deep(body),
