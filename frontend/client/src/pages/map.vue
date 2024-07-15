@@ -30,7 +30,7 @@ onMounted(async () => {
 <template>
   <div
     class="grid min-h-screen h-full animate__animated animate__fadeInRight"
-    style="min-height: -webkit-fill-available"
+    style="height: -webkit-fill-available"
   >
     <Header
       :hide-login-button="true"

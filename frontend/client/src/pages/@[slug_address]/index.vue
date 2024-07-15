@@ -227,11 +227,11 @@ function handlePaymentStatus(event: MessageEvent) {
 }
 
 async function getStartSlots() {
-  const { fetch: getStartSlots } = useApi({
-    url: `/address/reservation/start-time?address_id=${addressId.value}&date=${rentingForm.value.date}`,
+  const { fetch: fetchStartSlots } = useApi({
+    url: `/address/reservation/start-time?address_id=${address?.value?.id}&date=${rentingForm.value.date}`,
   })
 
-  getStartSlots().then((response) => {
+  fetchStartSlots().then((response) => {
     hoursAvailableStart.value = response.data
   })
 }
@@ -308,7 +308,6 @@ watch(
         time: "",
         date: "",
       }
-      getStartSlots()
     }
   },
 )
@@ -410,6 +409,7 @@ type DateReponse = {
 }
 function dateChanged(newDate: DateReponse, input: keyof StudioFormValues) {
   rentingForm.value[input] = newDate?.date
+  getStartSlots()
 }
 
 function timeChanged(newDate: string, input: keyof StudioFormValues) {
@@ -625,7 +625,7 @@ const closePopup = () => {
             </div>
           </div>
           <div
-            v-if="address && hoursAvailableStart"
+            v-if="address"
             class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
             <div class="relative w-full flex items-center mt-10">

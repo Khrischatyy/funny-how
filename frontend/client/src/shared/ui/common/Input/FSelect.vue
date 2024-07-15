@@ -11,7 +11,7 @@ const props = defineProps<{
   label?: string
   placeholder?: string
   options: { id: number | string; name: string; label: string }[]
-  modelValue: string | number | null
+  modelValue?: string | number | null
   size?: "sm" | "md" | "lg"
   error?: string | boolean
   modelKey?: string

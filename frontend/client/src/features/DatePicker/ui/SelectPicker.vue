@@ -65,7 +65,6 @@ const optionChanged = (value) => {
   const newLabel = value.name
   const index = optionNames.value.indexOf(newLabel)
   selectedOptionIndex.value = index
-  console.log("newLabel", newLabel)
 
   if (newLabel === "today") {
     customDateChanged("date", today)
@@ -76,11 +75,6 @@ const optionChanged = (value) => {
   } else {
     customDateChanged("date", new Date())
   }
-
-  // if (newLabel !== 'custom') {
-  //   customDate.value = null;
-  //   updateDate();
-  // }
 }
 
 const updateDate = () => {

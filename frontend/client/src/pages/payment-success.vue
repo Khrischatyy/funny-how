@@ -1,62 +1,62 @@
 <script setup lang="ts">
-import { useHead } from '@unhead/vue';
-import {definePageMeta, useRuntimeConfig} from '#imports';
-import axios from 'axios';
-import {ref, onMounted, computed} from 'vue';
-import {useApi} from "~/src/lib/api";
-import {navigateTo, useRoute} from "nuxt/app";
-import {Spinner} from "~/src/shared/ui/common";
+import { useHead } from "@unhead/vue"
+import { definePageMeta, useRuntimeConfig } from "#imports"
+import axios from "axios"
+import { ref, onMounted, computed } from "vue"
+import { useApi } from "~/src/lib/api"
+import { navigateTo, useRoute } from "nuxt/app"
+import { Spinner } from "~/src/shared/ui/common"
 
 // Meta tags for the page
 useHead({
-  title: 'Funny How – Payment Success',
-  meta: [
-    { name: 'description', content: 'Processing Payment' }
-  ],
-});
+  title: "Funny How – Payment Success",
+  meta: [{ name: "description", content: "Processing Payment" }],
+})
 definePageMeta({
-  layout: 'error',
+  layout: "error",
 })
 
-const route = useRoute();
-const isLoading = ref(true);
-const errorMessage = ref('');
-const sessionId = computed(() => route.query.session_id);
-const bookingId = computed(() => route.query.booking_id);
+const route = useRoute()
+const isLoading = ref(true)
+const errorMessage = ref("")
+const sessionId = computed(() => route.query.session_id)
+const bookingId = computed(() => route.query.booking_id)
 const processPayment = async () => {
-  const {post: paymentSuccess} = useApi({
-    url: '/address/payment-success',
+  const { post: paymentSuccess } = useApi({
+    url: "/address/payment-success",
     // auth: true,
   })
 
   if (!sessionId.value || !bookingId.value) {
-    errorMessage.value = 'Invalid request parameters.';
-    isLoading.value = false;
-    return;
+    errorMessage.value = "Invalid request parameters."
+    isLoading.value = false
+    return
   }
 
   paymentSuccess({
     session_id: sessionId.value,
     booking_id: bookingId.value,
-  }).then((response) => {
-    console.log('responseinside', response)
-    if (response.code == 200) {
-     navigateTo('/bookings');
-    } else {
-      errorMessage.value = response.message;
-    }
-  }).catch((error) => {
-    errorMessage.value = error.message.error || 'Payment verification failed.';
-  }).finally(() => {
-    isLoading.value = false;
   })
+    .then((response) => {
+      console.log("responseinside", response)
+      if (response.code == 200) {
+        navigateTo("/bookings")
+      } else {
+        errorMessage.value = response.message
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = error.message.error || "Payment verification failed."
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 onMounted(async () => {
-  await processPayment();
-});
+  await processPayment()
+})
 </script>
-
 
 <template>
   <div>
@@ -71,7 +71,10 @@ onMounted(async () => {
           <p class="text-xl">{{ errorMessage }}</p>
         </div>
         <div class="flex justify-center items-center gap-2.5">
-          <button @click="navigateTo('/bookings')" class="w-96 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide">
+          <button
+            @click="navigateTo('/bookings')"
+            class="max-w-96 px-10 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide"
+          >
             Go To My Bookings
           </button>
         </div>
@@ -90,6 +93,4 @@ onMounted(async () => {
   color: #fff;
   text-align: center;
 }
-
-
 </style>

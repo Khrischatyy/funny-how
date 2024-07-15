@@ -117,7 +117,7 @@ watch(
       v-bind="mapOptions"
     >
       <MarkerCluster v-if="studios.length > 0" :options="{ position: center }">
-        <MarkerListr
+        <MarkerList
           v-for="studio in studios"
           :key="studio.id"
           :logo="props.logo || '/logo.png'"

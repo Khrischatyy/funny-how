@@ -20,7 +20,7 @@ import { isoToHumanReadable } from "../shared/utils"
 type AvailbleHourType = {
   date: string
   iso_string: string
-  time: string
+  time?: string
 }
 
 const props = withDefaults(
@@ -28,7 +28,7 @@ const props = withDefaults(
     rentingForm: any
     label: string
     placeholder: string
-    time: string
+    time?: string
     availableHours?: AvailbleHourType[]
   }>(),
   {

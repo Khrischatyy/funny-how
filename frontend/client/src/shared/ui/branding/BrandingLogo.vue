@@ -12,7 +12,7 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    size: "default" | "small" | "large"
+    size?: "default" | "small" | "large"
   }>(),
   {
     size: "large",
