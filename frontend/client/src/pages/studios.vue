@@ -29,6 +29,7 @@
               </div>
             </RouterLink>
           </div>
+          Selected: {{ selectedCountry }}
           <FSelect
             class="font-[BebasNeue] z-50 animate__animated animate__fadeInRight"
             placeholder="Country"

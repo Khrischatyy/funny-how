@@ -62,7 +62,7 @@ const handleRoleUpdate = async (role: string) => {
     class="duration-[700ms] ease-in-out grid min-h-screen h-full animate__animated animate__fadeInRight"
     style="height: -webkit-fill-available"
   >
-    <div class="auth-panel bg-[#000000] relative overflow-hidden">
+    <div class="auth-panel bg-[#000000] relative">
       <div
         class="w-full h-full flex sm:grid items-start lg:items-center justify-center mb-10"
       >
@@ -96,7 +96,6 @@ const handleRoleUpdate = async (role: string) => {
           >
             <ChooseRole
               :selected-role="roleValue"
-              :show-title="false"
               @updateRole="handleRoleUpdate"
               @navigateBack="handleBackNavigation"
               ref="create"

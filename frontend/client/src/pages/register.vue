@@ -405,7 +405,7 @@ function verifyUser() {
       </div>
     </div>
 
-    <div class="auth-panel bg-[#000000] relative overflow-hidden">
+    <div class="auth-panel bg-[#000000] relative">
       <div class="w-full h-full grid items-center justify-center mb-10">
         <div
           class="relative bottom-[10%] flex-col justify-start items-center gap-7 inline-flex"

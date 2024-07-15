@@ -102,7 +102,7 @@ watch(showOptions, (newValue) => {
     }"
     class="w-full max-w-96 relative"
   >
-    <div class="label-action flex justify-between items-center w-full">
+    <div class="label-action grid justify-between items-center w-full">
       <div
         v-if="label"
         :class="{

@@ -63,8 +63,8 @@ const handleRoleUpdate = (role: string) => {
   step.value = "create_account"
 }
 
-const handleBackNavigation = () => {
-  step.value = "auth" // Navigate back to the sign-in screen
+const stepUpdate = ($event: string) => {
+  step.value = $event //Navigate to the step
 }
 
 async function authForm() {
@@ -206,7 +206,7 @@ async function authForm() {
       </div>
     </div>
 
-    <div class="auth-panel bg-[#000000] relative overflow-hidden">
+    <div class="auth-panel bg-[#000000] relative">
       <div
         class="w-full h-full flex sm:grid items-start lg:items-center justify-center mb-0 md:md-10"
       >
@@ -339,28 +339,21 @@ async function authForm() {
                 <GoogleSignInButton />
               </div>
               <div
-                  class="w-full h-11 p-3.5 justify-center items-center gap-2.5 inline-flex"
+                class="w-full h-11 p-3.5 justify-center items-center gap-2.5 inline-flex"
               >
                 <button
-                    @click="navigateTo('/forgot-password')"
-                    class="w-full h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white text-sm font-medium tracking-wide"
+                  @click="navigateTo('/forgot-password')"
+                  class="w-full h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white text-sm font-medium tracking-wide"
                 >
                   Forgot password?
                 </button>
               </div>
             </div>
 
-            <CreateAccountFlow v-if="step == 'create'" />
-            <!--            <ChooseRole-->
-            <!--                @updateRole="handleRoleUpdate"-->
-            <!--                @navigateBack="handleBackNavigation"-->
-            <!--                v-if="step == 'create' && !session?.isAuthorized"-->
-            <!--                ref="create"-->
-            <!--                :class="step == 'create' ? 'translate-x-[0px] duration-[700ms]' : 'ml-96 translate-x-96 duration-700 opacity-0'"-->
-            <!--                class="relative w-full flex-col justify-start items-center gap-2.5 flex"-->
-            <!--            />-->
-
-            <!--            <CreateAccountForm @stepUpdate="step = $event" v-if="step == 'create_account' && !session?.isAuthorized" ref="create_account" :class="step == 'create_account' ? 'translate-x-[0px] duration-[700ms]' : 'opacity-0 translate-x-96 duration-700'" class="relative w-full flex-col justify-start items-center gap-2.5 flex"/>-->
+            <CreateAccountFlow
+              @step-update="stepUpdate"
+              v-if="step == 'create'"
+            />
           </div>
         </div>
       </div>
