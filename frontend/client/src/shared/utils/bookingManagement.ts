@@ -1,3 +1,10 @@
+export enum BookingStatus {
+  Pending = 1,
+  Paid = 2,
+  Cancelled = 3,
+  Expired = 4,
+}
+
 export const STATUSES = {
   1: "Pending",
   2: "Paid",

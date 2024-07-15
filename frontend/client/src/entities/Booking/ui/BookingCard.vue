@@ -61,11 +61,18 @@
       </div>
     </div>
     <button
-      v-if="booking.status.id !== 3"
+      v-if="booking.status.id == BookingStatus.Paid"
       @click="manageBookingPopup"
       class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
     >
       Manage Booking
+    </button>
+    <button
+      v-if="booking.status.id == BookingStatus.Pending"
+      @click="goToPay('#')"
+      class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+    >
+      Pay
     </button>
     <ManageBookingModal
       v-if="showPopup"
@@ -85,6 +92,7 @@ import {
   IconLike,
   IconRight,
 } from "~/src/shared/ui/common"
+import { BookingStatus } from "~/src/shared/utils"
 import { ManageBookingModal } from "~/src/widgets/Modals"
 import { ref } from "vue"
 import { getStatus, getColor, getColorHex } from "~/src/shared/utils"
@@ -108,6 +116,9 @@ const manageBookingPopup = () => {
 const handleCancelBooking = (bookings) => {
   emit("onCancelBooking", bookings)
 }
+const goToPay = (url) => {
+  window.location.href = url
+}
 
 const toggleFavorite = () => {
   const { post: setFavorite } = useApi({
@@ -124,7 +135,9 @@ type Booking = {
   id: number
   name: string
   logo: string
-  status: number
+  status: {
+    id: number
+  }
   isFavorite: boolean
   address: string
   time: string
