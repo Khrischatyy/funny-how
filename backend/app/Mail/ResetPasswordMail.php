@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ResetPasswordMail extends Mailable
 {
@@ -24,6 +25,7 @@ class ResetPasswordMail extends Mailable
      */
     public function __construct($email, $token)
     {
+//        dd('fuck constructor');
         $this->email = $email;
         $this->token = $token;
     }
@@ -47,10 +49,15 @@ class ResetPasswordMail extends Mailable
      */
     public function content()
     {
+        $resetUrl = url(env('APP_URL') . '/reset-password?token=' . $this->token . '&email=' . $this->email);
+
+        // Логирование URL для отладки
+        Log::info('Reset password URL: ' . $resetUrl);
+
         return new Content(
             markdown: 'emails.reset_password',
             with: [
-                'resetUrl' => url('password/reset', $this->token),
+                'resetUrl' => $resetUrl,
             ],
         );
     }

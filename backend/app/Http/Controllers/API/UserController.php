@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Http\Responses\FailedPasswordResetResponse;
+use Laravel\Fortify\Http\Responses\PasswordResetResponse;
 
 class UserController extends BaseController
 {
@@ -276,16 +278,40 @@ class UserController extends BaseController
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/user/forgot-password",
+     *     summary="Send a password reset link",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Password reset link sent",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Password reset link sent."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="400", description="Invalid email"),
+     *     @OA\Response(response="500", description="Failed to send password reset link")
+     * )
+     */
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate(['email' => 'required|email']);
-
         $status = Password::sendResetLink(
             $request->only('email')
         );
 
         if ($status == Password::RESET_LINK_SENT) {
-            return response()->json(['status' => __($status)]);
+            return $this->sendResponse([], __('passwords.sent'), 200);
         }
 
         throw ValidationException::withMessages([
@@ -293,33 +319,55 @@ class UserController extends BaseController
         ]);
     }
 
-    public function resetPassword(Request $request): Responsable
+    /**
+     * @OA\Post(
+     *     path="/user/reset-password",
+     *     summary="Reset the user's password",
+     *     tags={"User"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"token", "email", "password", "password_confirmation"},
+     *             @OA\Property(property="token", type="string", example="your-reset-token"),
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+     *             @OA\Property(property="password", type="string", example="new-password"),
+     *             @OA\Property(property="password_confirmation", type="string", example="new-password")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Password reset successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Password reset successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="400", description="Invalid input"),
+     *     @OA\Response(response="500", description="Failed to reset password")
+     * )
+     */
+    public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
             'token' => 'required',
-            Fortify::email() => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|confirmed|min:8',
         ]);
 
         $status = Password::reset(
-            $request->only(Fortify::email(), 'password', 'password_confirmation', 'token'),
+            $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
-                Validator::make($request->all(), [
-                    'password' => 'required|string|min:8|confirmed',
-                ])->validate();
-
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                 ])->save();
-
-                $token = app('auth.password.broker')->createToken($user);
-
-                SendResetPasswordJob::dispatch($user->email, $token);
             }
         );
 
         return $status == Password::PASSWORD_RESET
-            ? app(PasswordResetResponse::class, ['status' => $status])
-            : app(FailedPasswordResetResponse::class, ['status' => $status]);
+            ? response()->json([], 204)
+            : throw ValidationException::withMessages([
+                'email' => [__($status)],
+            ]);
     }
 }
