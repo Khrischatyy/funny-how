@@ -33,21 +33,10 @@ services:
       - rabbitmq
     networks:
       - funny
-
     env_file:
       - .env
     environment:
       - AXIOS_BASEURL_CLIENT=https://funny-how.com
-
-#  certbot:
-#    container_name: certbot
-#    image: certbot/certbot:latest
-#    volumes:
-#      - ./proxy/certbot/www/:/var/www/certbot/:rw
-#      - ./proxy/certbot/conf/:/etc/letsencrypt/:rw
-#    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-#    networks:
-#      - funny
 
   rabbitmq:
     image: rabbitmq:3.13.4-management-alpine
@@ -84,6 +73,31 @@ services:
     networks:
       - funny
 
-volumes:
-  postgres-data:
-  static-data:
+  queue-worker:
+    build:
+      context: ./backend/php/
+      dockerfile: Dockerfile-production
+      args:
+        WWWUSER: 'laravel'
+        WWWUID: '1000'
+    container_name: queue-worker
+    volumes:
+      - './backend:/app/'
+    depends_on:
+      - backend
+      - rabbitmq
+    networks:
+      - funny
+    env_file:
+      - .env
+    command: sh -c "php artisan queue:work --sleep=3 --tries=3"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  funny:
+    driver: bridge
