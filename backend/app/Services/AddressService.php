@@ -47,6 +47,7 @@ class AddressService
             'latitude' => $request->input('latitude'),
             'city_id' => $city->id,
             'company_id' => $company->id,
+            'timezone' => $request->input('timezone'),
         ]);
 
         // Slug будет установлен автоматически при создании модели благодаря методу boot
