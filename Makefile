@@ -126,8 +126,11 @@ nginx-reload-prod:
 seeds-prod:
 	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan db:seed --class=DatabaseSeederProd --force"
 
-queue-prod:
-	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan queue:work"
+#queue-prod:
+	@#docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan queue:work"
+
+queue-rabbit-prod:
+	@docker-compose -f docker-compose.yml -f prod.yml run --rm backend sh -c "php artisan rabbitmq:consume"
 
 
 # CAUTION: This will remove all Docker containers, volumes, and networks.
