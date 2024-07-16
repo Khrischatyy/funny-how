@@ -252,25 +252,7 @@
                 </span>
               </div>
             </div>
-            <div
-              class="relative w-full max-w-[212px] flex flex-col items-center"
-            >
-              <div
-                class="flex gap-2 font-[BebasNeue] text-l text-white justify-center mt-5 mb-2 items-center"
-              >
-                Timezone: {{ address.timezone }}
-              </div>
-            </div>
-            <div
-              v-if="rentingForm.date && hoursAvailableStart.length == 0"
-              class="relative w-full max-w-[212px] flex flex-col items-center"
-            >
-              <div
-                class="flex gap-2 font-[BebasNeue] text-2xl text-white justify-center mt-5 mb-2 items-center"
-              >
-                No available slot <br />at this day
-              </div>
-            </div>
+
             <div
               v-if="rentingForm.date && hoursAvailableStart.length > 0"
               class="relative w-full max-w-[212px] flex flex-col items-center"
