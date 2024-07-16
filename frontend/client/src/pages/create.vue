@@ -70,6 +70,8 @@ function changeLogo() {
 async function addNewStudio() {
   isLoading.value = true
   formValues.company_id = userInfo.value?.company.id
+  //Add timezone of creator
+  formValues.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
   try {
     await addStudio(formValues) // Use composable to submit form
     // Navigate or handle success as needed
@@ -82,7 +84,8 @@ async function addNewStudio() {
 
 async function setupStudio() {
   isLoading.value = true
-
+  //Add timezone of creator
+  formValues.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
   try {
     await createStudio(formValues) // Use composable to submit form
     // Navigate or handle success as needed

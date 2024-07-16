@@ -11,6 +11,7 @@ use App\Jobs\SendEmailJob;
 use App\Models\Booking;
 use App\Models\OperatingHour;
 use App\Models\StudioClosure;
+use App\Models\Address;
 use Carbon\Carbon;
 use Doctrine\DBAL\Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -87,13 +88,35 @@ class BookingService
 
     public function getAvailableStartTime(string $date, int $addressId): array
     {
+        $address = Address::findOrFail($addressId);
+        if (!$address) {
+            throw new ModelNotFoundException("Address not found");
+        }
+        $timezone = $address->timezone;
+
         $date = Carbon::parse($date);
         Log::info('Date in getAvailableStartTime: ' . $date);
         $operatingHours = $this->getOperatingHours($addressId, $date);
 
-        $openTime = $date->copy()->setTimeFromTimeString($operatingHours->open_time);
-        $closeTime = $date->copy()->setTimeFromTimeString($operatingHours->close_time);
+        $openTime = $date->copy()->setTimezone($timezone)->setTimeFromTimeString($operatingHours->open_time);
+        $closeTime = $date->copy()->setTimezone($timezone)->setTimeFromTimeString($operatingHours->close_time);
+        // Get the current time with timezone
+        $now = Carbon::now($timezone);
 
+        // Round up to the nearest hour, 20:05 -> 21:00
+        if ($now->minute > 0 || $now->second > 0) {
+            $now->addHour()->minute(0)->second(0);
+        }
+
+        // If the openTime is before the current time, set openTime to the rounded current time, e.g. 10:00(common) -> 21:00 (current)
+        if ($openTime->lessThan($now)) {
+            $openTime = $now;
+        }
+
+        Log::info('Open Time: ' . $openTime);
+        Log::info('Close Time: ' . $closeTime);
+        Log::info('Now: ' . $now);
+       
         // Исключаем бронирования со статусами cancel, pending и expired
         $bookings = Booking::where('address_id', $addressId)
             ->where('date', $date->toDateString())
@@ -123,6 +146,12 @@ class BookingService
 
     private function calculateAvailableStartTimes($bookings, $openTime, $closeTime): array
     {
+        Log::info('Calculating available start times');
+        Log::info('Comparin:g ' . $openTime->greaterThanOrEqualTo($closeTime) ? 'true' : 'false');
+        //If modified open time is greater or equal than close time, return empty array, e.g. 21:00 - 21:00 means no available times
+        if ($openTime->greaterThanOrEqualTo($closeTime)) {
+            return [];
+        }
         $availableStartTimes = [];
         $current = $openTime->copy();
 
@@ -163,6 +192,12 @@ class BookingService
 
     public function getAvailableEndTime(string $date, int $addressId, string $startTime): array
     {
+        $address = Address::findOrFail($addressId);
+        if (!$address) {
+            throw new ModelNotFoundException("Address not found");
+        }
+        $timezone = $address->timezone;
+
         $date = Carbon::parse($date)->startOfDay();
         $startTime = Carbon::parse($date->toDateString() . ' ' . $startTime);
 
@@ -171,6 +206,9 @@ class BookingService
         // Extract the time portion only
         $openTime = Carbon::parse($operatingHours->open_time);
         $closeTime = $operatingHours->close_time === '24:00' ? Carbon::parse('23:59:59') : Carbon::parse($operatingHours->close_time);
+        
+        
+
         $startTimeOnly = Carbon::parse($startTime->format('H:i:s'));
 
         // Compare times without date
@@ -291,8 +329,14 @@ class BookingService
             $startTime = Carbon::parse($request->input('start_time'));
             $endTime = Carbon::parse($request->input('end_time'));
             $endDate = Carbon::parse($request->input('end_date'))->format('Y-m-d');
-            // Get the user's timezone
-            $timezone = $request->input('timezone');
+
+            $address = Address::findOrFail($addressId);
+            if (!$address) {
+                throw new ModelNotFoundException("Address not found");
+            }
+            // Get the address timezone
+            $timezone = $address->timezone;
+            
             $userWhoBooks = Auth::user();
 
             Log::info('Booking request: ', [

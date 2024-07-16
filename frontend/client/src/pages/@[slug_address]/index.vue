@@ -253,6 +253,25 @@
               </div>
             </div>
             <div
+              class="relative w-full max-w-[212px] flex flex-col items-center"
+            >
+              <div
+                class="flex gap-2 font-[BebasNeue] text-l text-white justify-center mt-5 mb-2 items-center"
+              >
+                Timezone: {{ address.timezone }}
+              </div>
+            </div>
+            <div
+              v-if="rentingForm.date && hoursAvailableStart.length == 0"
+              class="relative w-full max-w-[212px] flex flex-col items-center"
+            >
+              <div
+                class="flex gap-2 font-[BebasNeue] text-2xl text-white justify-center mt-5 mb-2 items-center"
+              >
+                No available slot <br />at this day
+              </div>
+            </div>
+            <div
               v-if="rentingForm.date && hoursAvailableStart.length > 0"
               class="relative w-full max-w-[212px] flex flex-col items-center"
             >
@@ -319,7 +338,6 @@
                 We accept
               </div>
               <div class="justify-center items-center flex gap-5 mb-10">
-                <!-- <img :src="paymentSystems" /> -->
                 <IconApplePay />
                 <IconGooglePay />
                 <IconVisa />
@@ -686,7 +704,6 @@ function book() {
     start_time: rentingForm.value.start_time.time,
     end_time: rentingForm.value.end_time.time,
     end_date: rentingForm.value.end_time.date,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   })
     .then((response) => {
       responseQuote.value = response.data

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('street');
             $table->string('slug')->unique();
             $table->float('rating')->nullable();
+            $table->string('timezone');
             $table->timestamps();
         });
     }
