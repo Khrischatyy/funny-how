@@ -102,6 +102,7 @@ services:
     depends_on:
       - backend
       - rabbitmq
+      - db
     networks:
       - funny
     env_file:
