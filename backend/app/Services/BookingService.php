@@ -94,23 +94,28 @@ class BookingService
         }
         $timezone = $address->timezone;
 
-        $date = Carbon::parse($date);
+        $date = Carbon::parse($date, $timezone);
         Log::info('Date in getAvailableStartTime: ' . $date);
+        Log::info('Timezone in getAvailableStartTime: ' . $timezone);
+        Log::info('Timezone in date: ' . $date->timezone); 
         $operatingHours = $this->getOperatingHours($addressId, $date);
-
+        Log::info('Operating Hours: ', $operatingHours->toArray());
         $openTime = $date->copy()->setTimezone($timezone)->setTimeFromTimeString($operatingHours->open_time);
         $closeTime = $date->copy()->setTimezone($timezone)->setTimeFromTimeString($operatingHours->close_time);
         // Get the current time with timezone
         $now = Carbon::now($timezone);
 
-        // Round up to the nearest hour, 20:05 -> 21:00
-        if ($now->minute > 0 || $now->second > 0) {
-            $now->addHour()->minute(0)->second(0);
-        }
+        // Only adjust the open time if the date is today
+        if ($date->isToday()) {
+            // Round up to the nearest hour, 20:05 -> 21:00
+            if ($now->minute > 0 || $now->second > 0) {
+                $now->addHour()->minute(0)->second(0);
+            }
 
-        // If the openTime is before the current time, set openTime to the rounded current time, e.g. 10:00(common) -> 21:00 (current)
-        if ($openTime->lessThan($now)) {
-            $openTime = $now;
+            // If the openTime is before the current time, set openTime to the rounded current time, e.g. 10:00(common) -> 21:00 (current)
+            if ($openTime->lessThan($now)) {
+                $openTime = $now;
+            }
         }
 
         Log::info('Open Time: ' . $openTime);
