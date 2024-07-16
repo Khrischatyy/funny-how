@@ -7,6 +7,9 @@ pull:
 
 update-dev-container: stop clean build composer db start
 update-prod-container: stop-prod clean-prod pull build-prod composer-prod migrate-prod seeds-prod declare-queue-prod optimize-prod start-prod
+#after db is ready
+#update-prod-container: stop-prod pull composer-prod migrate-prod declare-queue-prod optimize-prod start-prod
+
 # DEV
 
 status:
