@@ -134,7 +134,7 @@ class BookingService
 
         Log::info('Bookings: ', $bookings->toArray());
 
-        $availableStartTimes = $this->calculateAvailableStartTimes($bookings, $openTime, $closeTime);
+        $availableStartTimes = $this->calculateAvailableStartTimes($bookings, $openTime, $closeTime, $timezone);
 
         // Форматируем доступные временные слоты
         $formattedTimes = array_map(function ($time) use ($date) {
@@ -149,7 +149,7 @@ class BookingService
         return $formattedTimes;
     }
 
-    private function calculateAvailableStartTimes($bookings, $openTime, $closeTime): array
+    private function calculateAvailableStartTimes($bookings, $openTime, $closeTime, $timezone): array
     {
         Log::info('Calculating available start times');
         Log::info('Comparin:g ' . $openTime->greaterThanOrEqualTo($closeTime) ? 'true' : 'false');
@@ -159,7 +159,7 @@ class BookingService
         }
         $availableStartTimes = [];
         $current = $openTime->copy();
-
+        Log::info('$current', $current->toArray());
         // Создаем массив занятых временных интервалов
         $occupiedIntervals = [];
 
@@ -168,10 +168,10 @@ class BookingService
         Log::info('Close Time: ' . $closeTime);
 
         foreach ($bookings as $booking) {
-            $bookingStart = Carbon::parse($booking->date . ' ' . $booking->start_time);
-            $bookingEnd = Carbon::parse($booking->date . ' ' . $booking->end_time);
+            $bookingStart = Carbon::parse($booking->date . ' ' . $booking->start_time, $timezone);
+            $bookingEnd = Carbon::parse($booking->date . ' ' . $booking->end_time, $timezone);
             $occupiedIntervals[] = [$bookingStart, $bookingEnd];
-            Log::info('Booking Interval: ', ['start' => $bookingStart, 'end' => $bookingEnd]);
+            Log::info('Booking Interval: ', ['start' => $bookingStart, 'timeZone' => $bookingStart->getTimezone(), 'end' => $bookingEnd]);
         }
 
         Log::info('Occupied Intervals: ', $occupiedIntervals);
@@ -227,10 +227,12 @@ class BookingService
                     ->whereTime('start_time', '>=', $startTime->toTimeString());
             })
             ->whereHas('status', function ($query) {
-                $query->whereNotIn('name', ['cancel', 'expired']);
+                $query->where('name', 'paid');
             })
             ->orderBy('start_time', 'asc')
             ->get();
+
+            Log::info('бронирования', $bookings->toArray());
 
         if ($operatingHours->mode_id == 1) {
             $date->addDays(3); // Добавляем 3 дня для режима 24/7
