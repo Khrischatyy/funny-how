@@ -6,7 +6,7 @@
 <body style="background-color: #f2f2f2; font-family: 'Roboto', sans-serif;">
 <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #000000; color: #ffffff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
     <div style="text-align: center; padding: 20px 0;">
-        <img src="https://funny-how.com/mail/favicon.png" style="width: 110px;">
+        <img src="https://funny-how.com/mail/logo.png" style="width: 110px;">
     </div>
     <div style="padding: 20px; text-align: center;  font-size:18px;color:#fff;">
         <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 20px;">Welcome to Funny How</h1>

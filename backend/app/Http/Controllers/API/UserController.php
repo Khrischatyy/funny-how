@@ -354,20 +354,32 @@ class UserController extends BaseController
             'email' => 'required|email',
             'password' => 'required|confirmed|min:8',
         ]);
-
+    
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                 ])->save();
+
+                Auth::login($user);
             }
         );
-
-        return $status == Password::PASSWORD_RESET
-            ? response()->json([], 204)
-            : throw ValidationException::withMessages([
-                'email' => [__($status)],
-            ]);
+    
+        if ($status == Password::PASSWORD_RESET) {
+            $user = Auth::user();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return $this->sendResponse([
+                "message" => "Password reset successfully",
+                "role" => $user->getRoleNames()->first(),
+                "token" => $token,
+                "company_slug" => $user->company->slug ?? null,
+                "has_company" => AdminCompany::where('admin_id', $user->id)->exists(),
+            ], 'Password reset successfully.');
+        }
+    
+        throw ValidationException::withMessages([
+            'email' => [__($status)],
+        ]);
     }
 }

@@ -1,145 +1,145 @@
 <template>
-  <div class="container">
+  <div class="w-full px-5">
     <Spinner :is-loading="isLoading" />
-    <div class="flex flex-col gap-10">
-      <div v-if="isLoading" class="text-center">
-        <h1 class="text-5xl font-bold">Resetting Password...</h1>
+    <div class="flex flex-col gap-10 justify-center items-center">
+      <div class="text-center flex flex-col gap-5">
+        <h1 class="text-4xl font-bold">Reset Password</h1>
+        <p class="text-xl">Enter your new password</p>
       </div>
-      <div v-else-if="errorMessage" class="flex flex-col gap-5">
-        <div class="text-center">
-          <h1 class="text-5xl font-bold">Error</h1>
-          <p class="text-xl">{{ errorMessage }}</p>
-        </div>
+
+      <div
+        class="flex flex-col gap-2.5 max-w-96 w-full justify-center items-center"
+      >
+        <FInputClassic
+          :error="isError('password')"
+          :success="success"
+          class="w-full"
+          :disabled="success.length > 0"
+          type="password"
+          v-model="password"
+          placeholder="New Password"
+          required
+        />
+        <FInputClassic
+          class="w-full"
+          type="password"
+          :disabled="success.length > 0"
+          v-model="password_confirmation"
+          placeholder="Confirm New Password"
+          required
+        />
+        <button
+          @click="resetPassword()"
+          :disabled="success.length > 0"
+          class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+        >
+          Reset Password
+        </button>
       </div>
-      <div v-else class="flex flex-col gap-5">
-        <div class="text-center">
-          <h1 class="text-5xl font-bold">Reset Password</h1>
-        </div>
-        <form @submit.prevent="resetPassword">
-          <div class="flex flex-col gap-2.5">
-            <input
-              type="password"
-              v-model="password"
-              placeholder="New Password"
-              required
-              class="input-transparent"
-            />
-            <input
-              type="password"
-              v-model="password_confirmation"
-              placeholder="Confirm New Password"
-              required
-              class="input-transparent"
-            />
-            <button type="submit" class="button-transparent">
-              Reset Password
-            </button>
-          </div>
-        </form>
-        <div class="flex justify-center items-center gap-2.5">
-          <button
-            @click="navigateTo('/forgot-password')"
-            class="w-full h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white text-sm font-medium tracking-wide"
-          >
-            Forgot password?
-          </button>
-        </div>
+
+      <div
+        class="max-w-96 w-full h-11 p-3.5 justify-between items-center gap-2.5 inline-flex"
+      >
+        <button
+          @click="navigateTo('/login')"
+          class="w-full flex justify-center h-11 p-3.5 hover:opacity-70 rounded-[10px] text-white text-sm font-medium tracking-wide"
+        >
+          <icon-left />
+          Back to Sign In
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useHead } from "@unhead/vue"
-import { definePageMeta, navigateTo } from "#imports"
+import { computed, ref } from "vue"
+import { useRoute, useRouter } from "vue-router"
 import axios from "axios"
-import { ref, computed } from "vue"
-import { useRoute } from "nuxt/app"
-import { Spinner } from "~/src/shared/ui/common"
-
+import { FInputClassic } from "../shared/ui/common"
+import { navigateTo } from "#app"
+import { Spinner } from "../shared/ui/common"
+import { IconLeft } from "../shared/ui/common"
+import { definePageMeta } from "#imports"
+import { useApi } from "../lib/api"
+import { useSessionStore } from "../entities/Session"
+const router = useRouter()
+const isLoading = ref(false)
 // Meta tags for the page
-useHead({
-  title: "Funny How – Reset Password",
-  meta: [{ name: "description", content: "Reset Password" }],
-})
 definePageMeta({
   layout: "error",
 })
 
+const errors = ref<any>([])
+const success = ref<string>("")
 const route = useRoute()
-const isLoading = ref(false)
-const errorMessage = ref("")
 const password = ref("")
 const password_confirmation = ref("")
 
 const token = computed(() => route.query.token)
 const email = computed(() => route.query.email)
 
+function isError(field): string | boolean {
+  if (errors.value?.errors?.hasOwnProperty(field)) {
+    const errorMessages = errors.value?.errors[field]
+    if (errorMessages && errorMessages.length > 0) {
+      return errorMessages[0] // Return the first error message
+    }
+  } else {
+    return errors.value.message // Return the first error message
+  }
+  return false // Return false if no errors are found
+}
+const sessionStore = useSessionStore()
 const resetPassword = async () => {
   isLoading.value = true
-  errorMessage.value = ""
 
   if (!token.value || !email.value) {
-    errorMessage.value = "Invalid request parameters."
+    errors.value = { message: "Invalid token or email" }
     isLoading.value = false
     return
   }
 
-  try {
-    const response = await axios.post("/api/v1/auth/reset-password", {
-      token: token.value,
-      email: email.value,
-      password: password.value,
-      password_confirmation: password_confirmation.value,
+  const { post } = useApi({
+    url: "auth/reset-password",
+  })
+  errors.value = []
+  success.value = ""
+  await post({
+    token: token.value,
+    email: email.value,
+    password: password.value,
+    password_confirmation: password_confirmation.value,
+  })
+    .then((response) => {
+      console.log("responseRestore", response)
+      isLoading.value = false
+      email.value = ""
+      success.value = "Password updated successfully! Redirecting to profile."
+      sessionStore.setUserRole(response?.data.role)
+      sessionStore.setAccessToken(response?.data.token)
+      sessionStore.setAuthorized(true)
+      if (response?.data.has_company) {
+        sessionStore.setBrand(response?.data.company_slug.toString())
+      }
+
+      if (!response?.data.role && process.client) {
+        navigateTo("/settings/role")
+        return
+      }
+      setInterval(() => {
+        success.value += "."
+      }, 1000)
+      setTimeout(() => {
+        router.push("/profile")
+      }, 4000)
     })
-    //AUTHORIZE USER!
-    if (response.status === 204) {
-      navigateTo("/profile")
-    } else {
-      errorMessage.value = response.data.message || "Password reset failed."
-    }
-  } catch (error) {
-    if (
-      error.response &&
-      error.response.data &&
-      error.response.data.errors &&
-      error.response.data.errors.password
-    ) {
-      errorMessage.value = error.response.data.errors.password[0]
-    } else {
-      errorMessage.value =
-        error.response?.data?.message || "Password reset failed."
-    }
-  } finally {
-    isLoading.value = false
-  }
+    .catch((error) => {
+      isLoading.value = false
+      console.log("errrors", error)
+      errors.value = error
+    })
 }
 </script>
 
-<style scoped lang="scss">
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #000;
-  color: #fff;
-  text-align: center;
-}
-
-.input-transparent {
-  background: transparent;
-  border: 1px solid #fff;
-  color: #fff;
-  padding: 10px;
-  margin: 5px 0;
-}
-
-.button-transparent {
-  background: transparent;
-  border: 1px solid #fff;
-  color: #fff;
-  padding: 10px;
-  margin: 5px 0;
-}
-</style>
+<style scoped lang="scss"></style>

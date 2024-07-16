@@ -11,6 +11,7 @@ const props = withDefaults(
     size?: "sm" | "md" | "lg"
     wide?: boolean
     error?: string | boolean
+    success?: string | boolean
     inputStyle?: "plain" | "classic"
     disabled?: boolean
   }>(),
@@ -73,9 +74,15 @@ watch(
       </div>
       <div
         v-if="error"
-        class="text-right text-red-500 text-sm font-normal tracking-wide"
+        class="text-right text-red-500 text-sm font-normal tracking-wide mb-1.5"
       >
         {{ error }}
+      </div>
+      <div
+        v-if="success"
+        class="text-right text-green text-sm font-normal tracking-wide mb-1.5"
+      >
+        {{ success }}
       </div>
       <div
         v-if="slots?.action"

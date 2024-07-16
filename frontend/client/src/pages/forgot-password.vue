@@ -1,30 +1,41 @@
 <template>
-  <div class="container">
-    <div class="flex flex-col gap-10">
-      <div class="text-center">
-        <h1 class="text-5xl font-bold">Forgot Password</h1>
+  <div class="w-full px-5">
+    <Spinner :is-loading="isLoading" />
+    <div class="flex flex-col gap-10 justify-center items-center">
+      <div class="text-center flex flex-col gap-5">
+        <h1 class="text-4xl font-bold">Forgot Password</h1>
         <p class="text-xl">Enter your email to reset your password</p>
       </div>
-      <form @submit.prevent="forgotPassword">
-        <div class="flex flex-col gap-2.5">
-          <input
-              type="email"
-              v-model="email"
-              placeholder="Your email"
-              required
-              class="input-transparent"
-          />
-          <button
-              type="submit"
-              class="button-transparent"
-          >
-            Send Reset Link
-          </button>
-        </div>
-      </form>
-      <div class="flex justify-center items-center gap-2.5">
-        <button @click="navigateTo('/login')" class="w-full h-11 p-3.5 hover:opacity-90 rounded-[10px] text-white text-sm font-medium tracking-wide">
-          Back to Login
+
+      <div
+        class="flex flex-col gap-2.5 max-w-96 w-full justify-center items-center"
+      >
+        <FInputClassic
+          :error="isError('email')"
+          :success="success"
+          type="email"
+          class="w-full"
+          v-model="email"
+          placeholder="Your email"
+          required
+        />
+        <button
+          @click="forgotPassword()"
+          class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+        >
+          Send Reset Link
+        </button>
+      </div>
+
+      <div
+        class="max-w-96 w-full h-11 p-3.5 justify-between items-center gap-2.5 inline-flex"
+      >
+        <button
+          @click="navigateTo('/login')"
+          class="w-full flex justify-center h-11 p-3.5 hover:opacity-70 rounded-[10px] text-white text-sm font-medium tracking-wide"
+        >
+          <icon-left />
+          Back to Sign In
         </button>
       </div>
     </div>
@@ -32,48 +43,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { ref } from "vue"
+import { useRouter } from "vue-router"
+import axios from "axios"
+import { FInputClassic } from "../shared/ui/common"
+import { navigateTo } from "#app"
+import { Spinner } from "../shared/ui/common"
+import { IconLeft } from "../shared/ui/common"
+import { definePageMeta } from "#imports"
+import { useApi } from "../lib/api"
+const email = ref("")
+const router = useRouter()
+const isLoading = ref(false)
+// Meta tags for the page
+definePageMeta({
+  layout: "error",
+})
 
-const email = ref('');
-const router = useRouter();
+const errors = ref<string[]>([])
+const success = ref<string>("")
+function isError(field): string | boolean {
+  if (errors.value?.hasOwnProperty(field)) {
+    const errorMessages = errors.value[field]
+    if (errorMessages && errorMessages.length > 0) {
+      return errorMessages[0] // Return the first error message
+    }
+  }
+  return false // Return false if no errors are found
+}
 
 const forgotPassword = async () => {
-  try {
-    const response = await axios.post('/api/v1/auth/forgot-password', { email: email.value });
-    alert('Password reset link sent! Check your email.');
-    router.push('/login');
-  } catch (error) {
-    alert('Failed to send reset link. Please try again., скорее всего не тпользователя, look at console, надо обработать как-то клево');
-  }
-};
+  isLoading.value = true
+  const { post } = useApi({
+    url: "auth/forgot-password",
+  })
+  errors.value = []
+  success.value = ""
+  await post({
+    email: email.value,
+  })
+    .then((response) => {
+      isLoading.value = false
+      email.value = ""
+      success.value = "Password reset link sent! Check your email."
+      setInterval(() => {
+        success.value += "."
+      }, 1000)
+      setTimeout(() => {
+        router.push("/login")
+      }, 4000)
+    })
+    .catch((error) => {
+      isLoading.value = false
+      errors.value = error.errors
+    })
+}
 </script>
 
-<style scoped lang="scss">
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #000;
-  color: #fff;
-  text-align: center;
-}
-
-.input-transparent {
-  background: transparent;
-  border: 1px solid #fff;
-  color: #fff;
-  padding: 10px;
-  margin: 5px 0;
-}
-
-.button-transparent {
-  background: transparent;
-  border: 1px solid #fff;
-  color: #fff;
-  padding: 10px;
-  margin: 5px 0;
-}
-</style>
+<style scoped lang="scss"></style>
