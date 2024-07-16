@@ -6,8 +6,7 @@ pull:
 # MANIPULATE CONTAINER
 
 update-dev-container: stop clean build composer db start
-update-prod-container: stop-prod clean-prod pull build-prod composer-prod migrate-prod seeds-prod optimize-prod start-prod
-
+update-prod-container: stop-prod clean-prod pull build-prod composer-prod migrate-prod seeds-prod declare-queue-prod optimize-prod start-prod
 # DEV
 
 status:
@@ -110,6 +109,9 @@ logs-prod:
 	@docker-compose -f prod.yml logs -f $(container)
 
 restart-prod: stop-prod start-prod
+
+declare-queue-prod:
+	@docker-compose -f prod.yml run --rm backend sh -c "php artisan rabbitmq:declare-queue"
 
 clean-prod:
 	@docker-compose -f prod.yml down --remove-orphans

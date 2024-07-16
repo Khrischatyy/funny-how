@@ -50,7 +50,7 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - /mnt/fhdb:/var/lib/postgresql/data
+      - /mnt/fhdb/postgres_data:/var/lib/postgresql/data
     networks:
       - funny
 
