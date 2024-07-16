@@ -309,9 +309,9 @@ class BookingService
             $paymentSession = $this->paymentService->createPaymentSession($booking, $amount);
 
             //Preparing data for email
-            $booking->payment_url = $paymentSession['payment_url'] ?? null;
-            $booking->userEmail = $userWhoBooks->email;
-            $booking->amount = $amount ?? null;
+            $paymentUrl = $paymentSession['payment_url'] ?? null;
+            $userEmail = $userWhoBooks->email;
+            $amount = $amount ?? null;
 
             dispatch(new BookingConfirmationJob($booking, $paymentUrl, $userEmail, $amount));
 
