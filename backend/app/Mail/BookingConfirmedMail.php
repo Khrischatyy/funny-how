@@ -7,12 +7,16 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Booking;
 
 class BookingConfirmedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $booking;
+    public $paymentUrl;
+    public $userEmail;
+    public $amount;
 
     /**
      * Create a new message instance.
@@ -20,9 +24,12 @@ class BookingConfirmedMail extends Mailable
      * @param $booking
      * @return void
      */
-    public function __construct($booking)
+    public function __construct(Booking $booking, $paymentUrl, $userEmail, $amount)
     {
         $this->booking = $booking;
+        $this->paymentUrl = $paymentUrl;
+        $this->userEmail = $userEmail;
+        $this->amount = $amount;
     }
 
     /**
@@ -46,8 +53,16 @@ class BookingConfirmedMail extends Mailable
     {
         return new Content(
             view: 'emails.booking_confirmed',
+            with: [
+                'booking' => $this->booking,
+                'paymentUrl' => $this->paymentUrl,
+                'userEmail' => $this->userEmail,
+                'amount' => $this->amount,
+                'user' => $this->booking->user,
+            ],
         );
     }
+
 
     /**
      * Get the attachments for the message.

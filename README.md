@@ -1,8 +1,9 @@
 # Funny-how
 
 ### Technologies used in Docker 💻
+
 | Technology | Version |
-|------------|---------|
+| ---------- | ------- |
 | Laravel    | ^9.19   |
 | Nginx      | 1.20    |
 | Postgres   | 16      |
@@ -12,11 +13,12 @@
 | Cashier    | 14.14   |
 | RabbitMQ   | 3.13.4  |
 
-Swagger documentation is available in a dev environment **after** launch containers: [http://127.0.0.1:8080](http://127.0.0.1:8080)
-----
+## Swagger documentation is available in a dev environment **after** launch containers: [http://127.0.0.1:8080](http://127.0.0.1:8080)
+
 ## Start The Project
 
 ---
+
 For credentials, contact us at khrischatyy@gmail.com or rushadaev@gmail.com
 
 Create an .env file
@@ -31,30 +33,62 @@ cp .env.example .env
 
 **Execute all commands in the main folder `funny-how/`**
 
-
 Build containers
+
 ```bash
 make build
 ```
 
 Launch containers
+
 ```bash
 make start
 ```
 
 Update frontend container
+
 ```bash
 make update-frontend
 ```
 
 Update all containers
+
 ```bash
-make update-dev-container 
+make update-dev-container
 ```
 
 Reload the nginx server
+
 ```bash
 make nginx-reload
 ```
 
+### Test Jobs
 
+```bash
+$user = User::where('email', 'rushadaev@gmail.com')->first();
+```
+
+```bash
+$booking = Booking::first();
+```
+
+```bash
+dispatch(new App\Jobs\SendVerifyEmailJob($user, 'verify_url'));
+```
+
+```bash
+dispatch(new App\Jobs\SendWelcomeEmailJob($user));
+```
+
+```bash
+dispatch(new App\Jobs\SendResetPasswordJob('rushadaev@gmail.com', 'token'));
+```
+
+```bash
+dispatch(new App\Jobs\BookingConfirmationJob($booking, 'payment_url', 'rushadaev@gmail.com', '120'));
+```
+
+```bash
+dispatch(new App\Jobs\BookingCancellationJob($user, $booking));
+```

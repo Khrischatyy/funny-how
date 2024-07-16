@@ -1,21 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Booking Confirmation</title>
+    <title>Booking Confirmed</title>
 </head>
-<body>
-<h1>Booking Confirmation</h1>
-<!-- <p>Dear {{ $booking->user->name }},</p>
-<p>Your booking for the studio has been confirmed. Here are the details:</p>
-<ul>
-    <li>Studio: {{ $booking->address->name }}</li>
-    <li>Date: {{ $booking->date }}</li>
-    <li>Start Time: {{ $booking->start_time }}</li>
-    <li>End Time: {{ $booking->end_time }}</li>
-    <li>Total Cost: {{ $booking->charge->amount }}</li>
-</ul> -->
-<p>{{$booking->user}}</p>
-<!-- {"id":3,"firstname":"Ruslan","lastname":"Shadaev","email":"rushadaev@gmail.com","phone":null,"profile_photo":"https:\/\/lh3.googleusercontent.com\/a\/ACg8ocKAhAWZfkzceVRXxDMXwgP2KvnTIjSasz-7c8fe8T_exwIcsb7O=s96-c","username":null,"date_of_birth":null,"email_verified_at":null,"created_at":"2024-07-15T16:31:07.000000Z","updated_at":"2024-07-15T16:32:41.000000Z","two_factor_secret":null,"two_factor_recovery_codes":null,"stripe_id":"cus_QTpUBiYwMshONx","pm_type":null,"pm_last_four":null,"trial_ends_at":null,"google_id":"113028171119841162730"} -->
-<p>Thank you for booking with us!</p>
+<body style="background-color: #f2f2f2; font-family: 'Roboto', sans-serif;">
+<div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #000000; color: #ffffff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="https://funny-how.com/mail/favicon.png" style="width: 110px;">
+    </div>
+    <div style="padding: 20px; text-align: left; font-size:18px;color:#fff;">
+        <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 20px;">Booking Confirmed</h1>
+        <p>Dear {{ $user->firstname }},</p>
+        <p>Your booking has been successfully confirmed. <br/>Here are the details:</p>
+        <p>
+            <strong>Booking ID:</strong> {{ $booking->id }}<br>
+            <strong>Date:</strong> {{ $booking->date }}<br>
+            <strong>Start Time:</strong> {{ $booking->start_time }}<br>
+            <strong>End Time:</strong> {{ $booking->end_time }}<br>
+            <strong>Location:</strong> <a href="https://funny-how.com/{{ '@'.$booking->address->slug }}" style="color: #ffffff;">{{ $booking->address->street }}</a>
+        </p>
+    </div>
+    <div style="padding: 10px; text-align: center;">
+        <p><a href="{{ $paymentUrl }}" style="display: inline-block; width: 100%; height: 44px; background-color: #ffffff; color: #333333; border-radius: 10px; text-align: center; line-height: 44px; font-size: 14px; font-weight: 500; letter-spacing: 0.05em; text-decoration: none; transition: opacity 0.3s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">Pay ${{ $amount }}</a></p>
+    </div>
+    <div style="padding: 5px; text-align: center;  font-size:18px;color:#fff;">
+        <p>Don't forget to pay in advance.</p>
+        <p>Booking wil be cancelled within 6 hours, <br/>if we won't receive your payment</p>
+        <p>Thank you for using our service.</p>
+    </div>
+    <div style="text-align: center; padding: 20px 0; margin-top: 20px; font-size: 12px; color: #cccccc;">
+        &copy; 2024 Funny How. All rights reserved.
+    </div>
+    <div style="text-align: center; padding: 5px 0;">
+        <a style="font-size: 12px; color: #cccccc;" href="{{env('UNSUBSCRIBE_URL')}}">Unsubscribe</a>
+    </div>
+</div>
 </body>
 </html>

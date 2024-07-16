@@ -10,26 +10,36 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Booking;
 
 class BookingConfirmationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $details;
+    protected $booking;
+    protected $paymentUrl;
+    protected $userEmail;
+    protected $amount;
 
     /**
      * Create a new job instance.
      *
-     * @param array $details
+     * @param \App\Models\Booking $booking
+     * @param string|null $paymentUrl
+     * @param string $userEmail
+     * @param float|null $amount
      */
-    public function __construct(array $details)
+    public function __construct(Booking $booking, $paymentUrl, $userEmail, $amount)
     {
-        $this->details = $details;
+        $this->booking = $booking;
+        $this->paymentUrl = $paymentUrl;
+        $this->userEmail = $userEmail;
+        $this->amount = $amount;
     }
 
     public function handle()
     {
-        $mailable = new BookingConfirmedMail($this->details['booking']);
-        Mail::to($this->details['email'])->send($mailable);
+        $mailable = new BookingConfirmedMail($this->booking, $this->paymentUrl, $this->userEmail, $this->amount);
+        Mail::to($this->userEmail)->send($mailable);
     }
 }
