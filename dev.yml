@@ -16,6 +16,20 @@ services:
     networks:
       - funny
 
+  db:
+    image: postgres:16
+    container_name: db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST==${DB_HOST}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - funny
+
   backend:
     build:
       context: ./backend/php/

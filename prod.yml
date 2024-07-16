@@ -38,6 +38,20 @@ services:
     environment:
       - AXIOS_BASEURL_CLIENT=https://funny-how.com
 
+  db:
+    image: postgres:16
+    container_name: db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST==${DB_HOST}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - funny
+
   rabbitmq:
     image: rabbitmq:3.13.4-management-alpine
     container_name: rabbitmq
