@@ -19,12 +19,6 @@
       ]"
     >
       <DatePicker :date="customDate" @dateChange="customDateChanged" />
-      <input
-        type="date"
-        ref="systemDatePicker"
-        @change="systemDateChanged"
-        class="hidden"
-      />
     </div>
   </div>
 </template>
@@ -32,12 +26,14 @@
 <script setup>
 import { ref, computed, watch } from "vue"
 import DatePicker from "./DatePicker.vue"
-import { IconDown } from "~/src/shared/ui/common"
 import { FSelect } from "~/src/shared/ui/common"
 
 const today = new Date()
+today.setHours(0, 0, 0, 0)
+
 const tomorrow = new Date()
 tomorrow.setDate(today.getDate() + 1)
+tomorrow.setHours(0, 0, 0, 0)
 
 const options = ref([
   { id: 1, name: "today", label: "Today", date: today },
@@ -78,32 +74,24 @@ const optionChanged = (value) => {
 }
 
 const updateDate = () => {
+  //Get Date and transform it to ISOString to pass to backend along with the timezone
+  //To get clients's timezone use Intl.DateTimeFormat().resolvedOptions().timeZone;
   const selected = options.value[selectedOptionIndex.value]
+
+  let selectedDate
   if (selected.name === "custom" && customDate.value) {
-    emit("dateSelected", { date: customDate.value.toISOString().split("T")[0] })
+    selectedDate = customDate.value
   } else {
-    emit("dateSelected", { date: selected.date.toISOString().split("T")[0] })
+    selectedDate = selected.date
   }
+
+  emit("dateSelected", { date: selectedDate.toISOString().split("T")[0] })
 }
 
 const customDateChanged = (type, newDate) => {
+  console.log("newDatecustomDateChanged", newDate)
   customDate.value = new Date(newDate)
   updateDate()
-}
-
-const systemDateChanged = (event) => {
-  const selectedDate = new Date(event.target.value)
-  selectedDate.setHours(
-    selectedDate.getHours() + selectedDate.getTimezoneOffset() / 60,
-  )
-  customDate.value = selectedDate
-  updateDate()
-}
-
-const systemDatePicker = ref(null)
-
-const triggerSystemPicker = () => {
-  systemDatePicker.value.showPicker()
 }
 
 watch(

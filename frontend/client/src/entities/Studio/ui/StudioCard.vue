@@ -215,13 +215,13 @@ const displayedBadges = computed(() => {
 
 // Days of the week in English
 const daysOfWeek = [
+  "Sunday",
   "Monday",
   "Tuesday",
   "Wednesday",
   "Thursday",
   "Friday",
   "Saturday",
-  "Sunday",
 ]
 
 function generateTooltipContent(type) {

@@ -601,9 +601,6 @@ async function getEndSlots(start_time: string) {
 const calculatedPrice = ref(0)
 
 const calculatePrice = () => {
-  //address_id
-  //start_time
-  //end_time
   const { post: getPrice } = useApi({
     url: `/address/calculate-price`,
     auth: true,
@@ -622,15 +619,6 @@ const calculatePrice = () => {
     calculatedPrice.value = response.data
   })
 }
-
-// watch(
-//   () => address.value,
-//   async (newVal) => {
-//     if (newVal) {
-//       await getStartSlots()
-//     }
-//   },
-// )
 
 watch(
   () => rentingForm.value.start_time,
@@ -698,6 +686,7 @@ function book() {
     start_time: rentingForm.value.start_time.time,
     end_time: rentingForm.value.end_time.time,
     end_date: rentingForm.value.end_time.date,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   })
     .then((response) => {
       responseQuote.value = response.data
@@ -727,10 +716,6 @@ function pay(url: string) {
   }, 500)
 }
 
-function getFormValues(): StudioFormValues {
-  return useCreateStudioFormStore().inputValues
-}
-
 function openDatePicker(input) {
   if (input == "date") dateInput.value[0].showPicker()
   else if (input == "start_time") {
@@ -740,23 +725,6 @@ function openDatePicker(input) {
   }
 }
 
-function formatTime(time: string) {
-  const date = new Date(time)
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  })
-}
-
-function formatDate(date: string) {
-  const dateObj = new Date(date)
-  return dateObj.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
 type DateReponse = {
   date: string
 }

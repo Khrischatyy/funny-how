@@ -106,7 +106,6 @@ watch(
 )
 
 const dateChanged = (type, changedData) => {
-  console.log("dateChanged", type, changedData)
   let newDate
   if (type === "day") {
     newDate = new Date(

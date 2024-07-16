@@ -88,7 +88,7 @@ class BookingService
     public function getAvailableStartTime(string $date, int $addressId): array
     {
         $date = Carbon::parse($date);
-
+        Log::info('Date in getAvailableStartTime: ' . $date);
         $operatingHours = $this->getOperatingHours($addressId, $date);
 
         $openTime = $date->copy()->setTimeFromTimeString($operatingHours->open_time);
@@ -98,7 +98,8 @@ class BookingService
         $bookings = Booking::where('address_id', $addressId)
             ->where('date', $date->toDateString())
             ->whereHas('status', function ($query) {
-                $query->whereNotIn('name', ['cancel', 'pending', 'expired']);
+                // Исключаем статусы cancel и expired, если pending or paid, то оставляем
+                $query->whereNotIn('name', ['cancel', 'expired']);
             })
             ->orderBy('start_time', 'asc')
             ->get();
@@ -183,7 +184,7 @@ class BookingService
                     ->whereTime('start_time', '>=', $startTime->toTimeString());
             })
             ->whereHas('status', function ($query) {
-                $query->whereNotIn('name', ['cancel', 'pending', 'expired']);
+                $query->whereNotIn('name', ['cancel', 'expired']);
             })
             ->orderBy('start_time', 'asc')
             ->get();
@@ -286,21 +287,31 @@ class BookingService
     {
         try {
             $addressId = $request->input('address_id');
-            $bookingDate = Carbon::parse($request->input('date'));
+            $bookingDate = Carbon::parse($request->input('date'))->format('Y-m-d');
             $startTime = Carbon::parse($request->input('start_time'));
             $endTime = Carbon::parse($request->input('end_time'));
-            $endDate = Carbon::parse($request->input('end_date'));
+            $endDate = Carbon::parse($request->input('end_date'))->format('Y-m-d');
+            // Get the user's timezone
+            $timezone = $request->input('timezone');
             $userWhoBooks = Auth::user();
 
-            $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime);
+            Log::info('Booking request: ', [
+                'address_id' => $addressId,
+                'booking_date' => $bookingDate,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'end_date' => $endDate,
+                'user_id' => $userWhoBooks->id,
+            ]);
+            $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone);
 
             $booking = Booking::create([
                 'address_id' => $addressId,
                 'start_time' => $startTime,
                 'end_time' => $endTime,
                 'user_id' => $userWhoBooks->id,
-                'date' => $bookingDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
+                'date' => $bookingDate,
+                'end_date' => $endDate,
                 'status_id' => 1, // studio is on pending after booking
             ]);
 
@@ -337,30 +348,39 @@ class BookingService
         return $booking;
     }
 
-    private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime): void
+    private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone): void
     {
-        // Check if booking date and time are in the past
-        $currentDateTime = now();
-        $bookingDateTime = $bookingDate->setTimeFrom($startTime);
-
-        if ($bookingDateTime->lt($currentDateTime)) {
+        // Set the timezone for the current date and time match that user timezone, assuming that server timezone is UTC
+        $currentDateTime = Carbon::now($timezone);
+    
+        // Parse the booking date, start time, and end time correctly with the specified timezone
+        $bookingDate = Carbon::createFromFormat('Y-m-d', $bookingDate, $timezone);
+        $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $startTime, $timezone);
+        $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $endTime, $timezone);
+    
+        // Log information for debugging
+        Log::info('Current Date Time: ' . $currentDateTime->toDateTimeString() . ' Timezone: ' . $currentDateTime->getTimezone()->getName());
+        Log::info('Booking Start Time: ' . $startTime->toDateTimeString() . ' Timezone: ' . $startTime->getTimezone()->getName());
+        Log::info('Is booking in the past: ' . ($startTime->lt($currentDateTime) ? 'Yes' : 'No'));
+    
+        if ($startTime->lt($currentDateTime)) {
             throw new BookingException('Cannot book a time in the past', 422);
         }
-
+    
         if (StudioClosure::where('address_id', $addressId)->where('closure_date', $bookingDate->toDateString())->exists()) {
             throw new BookingException('Studio is closed on this date', 422);
         }
-
+    
         $operatingHours = $this->getOperatingHours($addressId, $bookingDate);
-
+    
         if (!$operatingHours || $operatingHours->is_closed) {
             throw new BookingException('Booking times are outside of business hours.', 422);
         }
-
+    
         if ($startTime->lt($operatingHours->open_time) || $endTime->gt($operatingHours->close_time)) {
             throw new BookingException("Booking times are outside of business hours. Studio opens at {$operatingHours->open_time} and closes at {$operatingHours->close_time}", 422);
         }
-
+    
         if ($this->isTimeSlotTaken($addressId, $startTime, $endTime, $bookingDate->format('Y-m-d'))) {
             throw new BookingException('Studio is already booked for the requested time slot', 400);
         }
