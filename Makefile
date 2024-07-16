@@ -24,6 +24,9 @@ start:
 logs:
 	@docker-compose -f dev.yml logs -f $(container)
 
+logs-all:
+	@docker-compose -f dev.yml logs -f
+
 stop:
 	@docker-compose -f dev.yml stop
 
@@ -110,6 +113,9 @@ stop-prod:
 
 logs-prod:
 	@docker-compose -f prod.yml logs -f $(container)
+
+logs-all-prod:
+	@docker-compose -f prod.yml logs -f
 
 restart-prod: stop-prod start-prod
 
