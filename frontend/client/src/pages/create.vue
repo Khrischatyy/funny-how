@@ -38,8 +38,18 @@ watch(
     formValues.latitude = newVal.location.lat.toString()
     formValues.longitude = newVal.location.lng.toString()
     formValues.country = newVal.addressComponents["country"]?.longName || ""
-    formValues.zip = newVal.addressComponents["postal_code"]?.longName || ""
-    formValues.city = newVal.addressComponents["locality"]?.longName || ""
+    formValues.zip =
+      newVal.addressComponents["postal_code"]?.longName || "000000"
+
+    const administrativeArea =
+      newVal.addressComponents["administrative_area_level_2"]?.longName.replace(
+        /county/i,
+        "",
+      ) || ""
+    const locality = newVal.addressComponents["locality"]?.longName || ""
+
+    formValues.city = administrativeArea.trim() || locality
+
     formValues.street = `${
       newVal.addressComponents["street_number"]?.longName || ""
     } ${newVal.addressComponents["route"]?.longName || ""}`
