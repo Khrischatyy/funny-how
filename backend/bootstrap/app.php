@@ -43,6 +43,28 @@ $app->singleton(
 
 /*
 |--------------------------------------------------------------------------
+| Integrate Sentry
+|--------------------------------------------------------------------------
+|
+| Here we integrate Sentry to handle exceptions and capture unhandled
+| exceptions to report to Sentry for better error tracking.
+|
+*/
+//
+//if (class_exists(\Sentry\Laravel\ServiceProvider::class)) {
+//    app('Sentry\Laravel\ServiceProvider')->register();
+//    $app->singleton(
+//        Illuminate\Contracts\Debug\ExceptionHandler::class,
+//        function ($app) {
+//            return new \Sentry\Laravel\Tracing\ExceptionHandler(
+//                $app->make(App\Exceptions\Handler::class)
+//            );
+//        }
+//    );
+//}
+
+/*
+|--------------------------------------------------------------------------
 | Return The Application
 |--------------------------------------------------------------------------
 |

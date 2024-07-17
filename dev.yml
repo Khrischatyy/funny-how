@@ -47,6 +47,8 @@ services:
       - .env
     environment:
       - AXIOS_BASEURL_CLIENT=http://127.0.0.1
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_ENVIRONMENT=development
 
 
   frontend:

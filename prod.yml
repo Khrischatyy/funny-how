@@ -37,6 +37,8 @@ services:
       - .env
     environment:
       - AXIOS_BASEURL_CLIENT=https://funny-how.com
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_ENVIRONMENT=production
 
   db:
     image: postgres:16
