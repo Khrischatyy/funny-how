@@ -9,7 +9,7 @@
         class="w-full text-center text-xl font-[BebasNeue]"
         v-for="(item, index) in data"
         :key="index"
-        :class="{ magnified: isMagnified(index) }"
+        :class="{ magnified: index === centerIndex }"
       >
         {{ item }}
       </li>
@@ -114,11 +114,6 @@ setPosition(props.selected)
 const centerIndex = computed(() => {
   return Math.round(-position.value / 50)
 })
-
-// Method to check if the item should be magnified
-const isMagnified = (index) => {
-  return index === centerIndex.value
-}
 </script>
 
 <style scoped>
