@@ -253,7 +253,16 @@
                 </span>
               </div>
             </div>
-
+            <div
+              v-if="rentingForm.date && hoursAvailableStart.length == 0"
+              class="relative w-full flex flex-col max-w-[212px] items-center"
+            >
+              <div
+                class="flex gap-2 font-[BebasNeue] text-l text-white justify-center mt-5 mb-2 items-center"
+              >
+                No available slots at this time
+              </div>
+            </div>
             <div
               v-if="rentingForm.date && hoursAvailableStart.length > 0"
               class="relative w-full max-w-[212px] flex flex-col items-center"
@@ -273,6 +282,7 @@
                 @timeChanged="timeChanged($event, 'start_time')"
               />
             </div>
+
             <div
               v-if="
                 rentingForm['start_time'] &&
@@ -562,7 +572,6 @@ const handleScroll = () => {
 onMounted(async () => {
   session.value = useSessionStore()
   console.log("route.params.slug_address", route.params)
-  rentingForm.value.date = rentingList[0].date
   window.addEventListener("scroll", handleScroll)
   window.addEventListener("message", handlePaymentStatus)
 })
