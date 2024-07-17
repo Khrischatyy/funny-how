@@ -35,7 +35,7 @@ export const useSessionStore = defineStore({
         const response = await api.fetch()
         if (response.data) {
           console.log("response.data:", response.data)
-          this.setUserInfo(JSON.stringify(response.data.user))
+          this.setUserInfo(JSON.stringify(response.data))
           this.setBrand(response.data.company_slug)
           this.setAuthorized(true)
           return response.data
@@ -89,7 +89,7 @@ export const useSessionStore = defineStore({
       return !this.isAuthorized
     },
     getUser() {
-      return JSON.parse(decodeURIComponent(this.userInfo) || "{}")
+      return JSON.parse(decodeURIComponent(this.userInfo?.user) || "{}")
     },
     clearSession() {
       this.setUserInfo(null)
