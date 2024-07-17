@@ -23,12 +23,42 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from "vue"
 import DatePicker from "./DatePicker.vue"
 import { FSelect } from "~/src/shared/ui/common"
 
-const today = new Date()
+const props = withDefaults(defineProps<{ timezone: string }>(), {
+  timezone: "UTC",
+})
+
+const getTimezoneOffset = (timezone: string): number => {
+  const currentDate = new Date()
+  const localOffset = currentDate.getTimezoneOffset() * 60000 // Convert minutes to milliseconds
+  const utcDate = new Date(currentDate.getTime() + localOffset)
+  const targetDate = new Date(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }).format(utcDate),
+  )
+  return targetDate.getTime() - utcDate.getTime()
+}
+
+const getDateWithTimezone = (timezone: string): Date => {
+  const offset = getTimezoneOffset(timezone)
+  const dateWithOffset = new Date(new Date().getTime() + offset)
+  return dateWithOffset
+}
+
+// Get today date with correct timezone
+const today = getDateWithTimezone(props.timezone)
 today.setHours(0, 0, 0, 0)
 
 const tomorrow = new Date()
@@ -76,6 +106,7 @@ const optionChanged = (value) => {
 const updateDate = () => {
   //Get Date and transform it to ISOString to pass to backend along with the timezone
   //To get clients's timezone use Intl.DateTimeFormat().resolvedOptions().timeZone;
+  //Now we using address.timezone
   const selected = options.value[selectedOptionIndex.value]
 
   let selectedDate

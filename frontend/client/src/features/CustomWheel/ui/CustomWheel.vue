@@ -1,20 +1,22 @@
 <template>
-  <div
-    :class="`dragdealer ${type}`"
-    @mousedown="onMouseDown"
-    @touchstart="onMouseDown"
-  >
-    <ul class="handle w-full text-center" :style="inlineStyle">
-      <li
-        class="w-full text-center text-xl font-[BebasNeue]"
-        v-for="(item, index) in data"
-        :key="index"
-        :class="{ magnified: index === centerIndex }"
-      >
-        {{ item }}
-      </li>
-    </ul>
-  </div>
+  <client-only>
+    <div
+      :class="`dragdealer ${type}`"
+      @mousedown="onMouseDown"
+      @touchstart="onMouseDown"
+    >
+      <ul class="handle w-full text-center" :style="inlineStyle">
+        <li
+          class="w-full text-center text-xl font-[BebasNeue]"
+          v-for="(item, index) in data"
+          :key="index"
+          :class="{ magnified: isMagnified(index) }"
+        >
+          {{ item }}
+        </li>
+      </ul>
+    </div>
+  </client-only>
 </template>
 
 <script setup>
@@ -114,6 +116,11 @@ setPosition(props.selected)
 const centerIndex = computed(() => {
   return Math.round(-position.value / 50)
 })
+
+// Method to check if the item should be magnified
+const isMagnified = (index) => {
+  return index === centerIndex.value
+}
 </script>
 
 <style scoped>

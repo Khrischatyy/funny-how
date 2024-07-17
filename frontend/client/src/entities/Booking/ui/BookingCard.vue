@@ -68,7 +68,10 @@
       Manage Booking
     </button>
     <button
-      v-if="booking.status.id == BookingStatus.Pending"
+      v-if="
+        booking.status.id == BookingStatus.Pending &&
+        booking?.user_id == user?.id
+      "
       @click="goToPay('#')"
       class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
     >
@@ -100,8 +103,11 @@ import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue"
 import { Clipboard } from "~/src/shared/ui/common/Clipboard"
 import defaultLogo from "~/src/shared/assets/image/studio.png"
 import { useApi } from "~/src/lib/api"
+import { useSessionStore } from "~/src/entities/Session"
 const showPopup = ref(false)
+const session = useSessionStore()
 
+const user = session.getUser()
 const emit = defineEmits<{
   (e: "onCancelBooking"): void
   (e: "onFavoriteChange", bookingId: number): void

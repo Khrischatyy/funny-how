@@ -39,10 +39,10 @@ const ICON_MAP = {
       <div
         v-for="(badge, index) in badges"
         :key="badge.id"
-        @click.stop="showTooltipHandler($event, badge.description)"
-        @mouseenter="showTooltipHandler($event, badge.description)"
+        @click.stop="showTooltipHandler($event, badge?.description || '')"
+        @mouseenter="showTooltipHandler($event, badge?.description || '')"
         @mouseleave="hideTooltipHandler"
-        @touchstart="showTooltipHandler($event, badge.description)"
+        @touchstart="showTooltipHandler($event, badge?.description || '')"
         @touchend="hideTooltipHandler"
         class="scrollElement"
       >
@@ -63,11 +63,11 @@ const ICON_MAP = {
         </div>
       </div>
     </ScrollContainer>
-    <Teleport to="body">
-      <Tooltip v-if="isTooltipVisible">
+    <div v-show="isTooltipVisible">
+      <Tooltip>
         {{ tooltipData.content }}
       </Tooltip>
-    </Teleport>
+    </div>
   </div>
 </template>
 

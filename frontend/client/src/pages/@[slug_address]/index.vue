@@ -184,6 +184,7 @@
             <div class="relative w-full flex items-center mt-10">
               <div class="flex items-center flex-col w-full">
                 <SelectPicker
+                  :timezone="address?.timezone"
                   class="w-full z-50"
                   @dateSelected="dateChanged($event, 'date')"
                 />

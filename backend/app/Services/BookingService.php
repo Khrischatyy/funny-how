@@ -48,29 +48,57 @@ class BookingService
 
     public function filterBookings($userId, $status, $date, $time, $search, $type)
     {
-        $query = Booking::where('user_id', $userId);
+        $query = Booking::where('user_id', $userId)
+        ->orWhereHas('address.company.adminCompany', function ($query) use ($userId) {
+            $query->where('admin_id', $userId);
+        })
+        ->with(['address.company', 'address.badges', 'status', 'user']);
+    
+        // Add a join to the addresses table to get the timezone
+        $query->join('addresses', 'bookings.address_id', '=', 'addresses.id');
+    
+        // Filter by type (history or upcoming)
+        $query->where(function ($q) use ($type) {
+            if ($type === 'history') {
+                $q->whereRaw("TO_TIMESTAMP(CONCAT(bookings.date, ' ', bookings.start_time), 'YYYY-MM-DD HH24:MI:SS') < NOW() AT TIME ZONE addresses.timezone");
+            } else {
+                $q->whereRaw("TO_TIMESTAMP(CONCAT(bookings.date, ' ', bookings.start_time), 'YYYY-MM-DD HH24:MI:SS') >= NOW() AT TIME ZONE addresses.timezone");
+            }
+        });
 
-        if ($type === 'history') {
-            $query->where('date', '<', now());
-        } else {
-            $query->where('date', '>=', now());
-        }
+        // Execute the query and log the results for debugging
+        $results = $query->select('bookings.*')->paginate(self::BOOKING_PAGINATE_COUNT);
 
+        $results->each(function ($booking) {
+            Log::info('Booking Details:', [
+                'booking_date' => $booking->date,
+                'address_timezone' => $booking->address->timezone,
+                'converted_current_time' => now()->timezone($booking->address->timezone)->toDateTimeString()
+            ]);
+        });
+
+        return $results;
+    
+        // Filter by status
         if ($status) {
             $query->whereHas('status', function ($query) use ($status) {
                 $query->where('name', $status);
             });
         }
-
+    
+        // Filter by date
         if ($date) {
-            $query->whereDate('date', Carbon::parse($date));
+            $query->whereDate('date', Carbon::parse($date, $timezone));
         }
-
+    
+        // Filter by time
         if ($time) {
-            $query->whereTime('start_time', '<=', Carbon::parse($time))
-                ->whereTime('end_time', '>=', Carbon::parse($time));
+            $parsedTime = Carbon::parse($time, $timezone);
+            $query->whereTime('start_time', '<=', $parsedTime)
+                ->whereTime('end_time', '>=', $parsedTime);
         }
-
+    
+        // Filter by search term
         if ($search) {
             $lowerSearch = strtolower($search);
             $query->where(function ($q) use ($lowerSearch) {
@@ -83,7 +111,21 @@ class BookingService
             });
         }
 
-        return $query->with(['address.company', 'address.badges', 'status', 'user'])->paginate(self::BOOKING_PAGINATE_COUNT);
+        // Log the SQL query and its bindings
+        Log::info('SQL Query:', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
+
+        // Execute the query and log the results for debugging
+        $results = $query->select('bookings.*')->paginate(self::BOOKING_PAGINATE_COUNT);
+
+        $results->each(function ($booking) {
+            Log::info('Booking Details:', [
+                'booking_date' => $booking->date,
+                'address_timezone' => $booking->address->timezone,
+                'converted_current_time' => now()->timezone($booking->address->timezone)->toDateTimeString()
+            ]);
+        });
+
+        return $results;
     }
 
     public function getAvailableStartTime(string $date, int $addressId): array
@@ -94,7 +136,7 @@ class BookingService
         }
         $timezone = $address->timezone;
 
-        $date = Carbon::parse($date, $timezone);
+        $date = Carbon::parse($date, $timezone)->startOfDay();
         Log::info('Date in getAvailableStartTime: ' . $date);
         Log::info('Timezone in getAvailableStartTime: ' . $timezone);
         Log::info('Timezone in date: ' . $date->timezone); 
@@ -203,18 +245,28 @@ class BookingService
         }
         $timezone = $address->timezone;
 
-        $date = Carbon::parse($date)->startOfDay();
-        $startTime = Carbon::parse($date->toDateString() . ' ' . $startTime);
+        $date = Carbon::parse($date, $timezone)->startOfDay();
+        $startTime = Carbon::parse($date->toDateString() . ' ' . $startTime, $timezone);
 
         $operatingHours = $this->getOperatingHours($addressId, $date);
 
         // Extract the time portion only
-        $openTime = Carbon::parse($operatingHours->open_time);
-        $closeTime = $operatingHours->close_time === '24:00' ? Carbon::parse('23:59:59') : Carbon::parse($operatingHours->close_time);
-        
-        
+        $openTime = Carbon::parse($operatingHours->open_time, $timezone);
+        $closeTime = $operatingHours->close_time === '24:00' ? Carbon::parse('23:59:59', $timezone) : Carbon::parse($operatingHours->close_time, $timezone);
 
-        $startTimeOnly = Carbon::parse($startTime->format('H:i:s'));
+        $startTimeOnly = Carbon::parse($startTime->format('H:i:s'), $timezone);
+
+        Log::info('getAvailableEndTime request: ', [
+            'date' => $date,
+            'startTime' => $startTime,
+            'operatingHours' => $operatingHours,
+            'openTime' => $openTime,
+            'closeTime' => $closeTime,
+            'startTimeOnly' => $startTimeOnly,
+
+            
+            'startTimeOnlyTZ' => $startTimeOnly->getTimezone(),
+        ]);
 
         // Compare times without date
         if ($startTimeOnly->lt($openTime) || $startTimeOnly->gte($closeTime)) {
@@ -227,7 +279,8 @@ class BookingService
                     ->whereTime('start_time', '>=', $startTime->toTimeString());
             })
             ->whereHas('status', function ($query) {
-                $query->where('name', 'paid');
+                // Исключаем статусы cancel и expired, если pending or paid, то оставляем
+                $query->whereNotIn('name', ['cancel', 'expired']);
             })
             ->orderBy('start_time', 'asc')
             ->get();
@@ -238,10 +291,10 @@ class BookingService
             $date->addDays(3); // Добавляем 3 дня для режима 24/7
         }
 
-        return $this->calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $operatingHours->mode_id);
+        return $this->calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $operatingHours->mode_id, $timezone);
     }
 
-    private function calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $mode): array
+    private function calculateAvailableEndTimes($bookings, $startTime, $closeTime, $date, $mode, $timezone): array
     {
         $availableEndTimes = [];
         $current = $startTime->copy()->addHour();
@@ -257,8 +310,8 @@ class BookingService
         $endDate = $date->copy()->addDays(3);
 
         foreach ($bookings as $booking) {
-            $bookingStart = Carbon::parse($booking->date . ' ' . $booking->start_time);
-            $bookingEnd = Carbon::parse($booking->date . ' ' . $booking->end_time);
+            $bookingStart = Carbon::parse($booking->date . ' ' . $booking->start_time, $timezone);
+            $bookingEnd = Carbon::parse($booking->date . ' ' . $booking->end_time, $timezone);
 
             // If the start time is before the booking start
             if ($startTime->lt($bookingStart)) {
@@ -332,10 +385,8 @@ class BookingService
     {
         try {
             $addressId = $request->input('address_id');
-            $bookingDate = Carbon::parse($request->input('date'))->format('Y-m-d');
-            $startTime = Carbon::parse($request->input('start_time'));
-            $endTime = Carbon::parse($request->input('end_time'));
-            $endDate = Carbon::parse($request->input('end_date'))->format('Y-m-d');
+            
+
 
             $address = Address::findOrFail($addressId);
             if (!$address) {
@@ -343,6 +394,11 @@ class BookingService
             }
             // Get the address timezone
             $timezone = $address->timezone;
+
+            $bookingDate = Carbon::parse($request->input('date'), $timezone)->format('Y-m-d');
+            $startTime = Carbon::parse($request->input('start_time'), $timezone);
+            $endTime = Carbon::parse($request->input('end_time'), $timezone);
+            $endDate = Carbon::parse($request->input('end_date'), $timezone)->format('Y-m-d');
             
             $userWhoBooks = Auth::user();
 
@@ -403,7 +459,8 @@ class BookingService
     {
         // Set the timezone for the current date and time match that user timezone, assuming that server timezone is UTC
         $currentDateTime = Carbon::now($timezone);
-    
+   
+        Log::info('startTimeBeforeConversion', [$startTime]);
         // Parse the booking date, start time, and end time correctly with the specified timezone
         $bookingDate = Carbon::createFromFormat('Y-m-d', $bookingDate, $timezone);
         $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $startTime, $timezone);
