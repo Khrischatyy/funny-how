@@ -13,7 +13,7 @@ use Stripe\Stripe;
 
 class PaymentService
 {
-    private const MINUTE_TO_PAY = 30;
+    public const MINUTE_TO_PAY = 30;
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney): array
     {

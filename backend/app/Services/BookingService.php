@@ -385,33 +385,23 @@ class BookingService
     {
         try {
             $addressId = $request->input('address_id');
-            
-
-
             $address = Address::findOrFail($addressId);
             if (!$address) {
                 throw new ModelNotFoundException("Address not found");
             }
-            // Get the address timezone
-            $timezone = $address->timezone;
 
+            $timezone = $address->timezone;
             $bookingDate = Carbon::parse($request->input('date'), $timezone)->format('Y-m-d');
             $startTime = Carbon::parse($request->input('start_time'), $timezone);
             $endTime = Carbon::parse($request->input('end_time'), $timezone);
             $endDate = Carbon::parse($request->input('end_date'), $timezone)->format('Y-m-d');
-            
-            $userWhoBooks = Auth::user();
 
-            Log::info('Booking request: ', [
-                'address_id' => $addressId,
-                'booking_date' => $bookingDate,
-                'start_time' => $startTime,
-                'end_time' => $endTime,
-                'end_date' => $endDate,
-                'user_id' => $userWhoBooks->id,
-            ]);
+            $userWhoBooks = Auth::user();
             $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone);
 
+            $amount = $this->getTotalCost($startTime, $endTime, $addressId);
+
+            // Create and save the booking to get an ID
             $booking = Booking::create([
                 'address_id' => $addressId,
                 'start_time' => $startTime,
@@ -422,12 +412,15 @@ class BookingService
                 'status_id' => 1, // studio is on pending after booking
             ]);
 
-            $amount = $this->getTotalCost($startTime, $endTime, $addressId);
-
+            // Generate the payment session
             $paymentSession = $this->paymentService->createPaymentSession($booking, $amount);
-
-            //Preparing data for email
             $paymentUrl = $paymentSession['payment_url'] ?? null;
+
+            // Update the booking with the temporary payment link and expiration time
+            $booking->temporary_payment_link = $paymentUrl;
+            $booking->temporary_payment_link_expires_at = Carbon::now()->addMinutes( $this->paymentService::MINUTE_TO_PAY); // link expires in 20 minutes
+            $booking->save();
+
             $userEmail = $userWhoBooks->email;
             $amount = $amount ?? null;
 
@@ -436,7 +429,7 @@ class BookingService
             return [
                 'booking' => $booking,
                 'session_id' => $paymentSession['session_id'],
-                'payment_url' => $paymentSession['payment_url'],
+                'payment_url' => $paymentUrl,
             ];
         } catch (Exception $e) {
             Log::error("Booking failed: " . $e->getMessage());
