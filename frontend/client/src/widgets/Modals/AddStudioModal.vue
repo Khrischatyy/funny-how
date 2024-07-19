@@ -328,10 +328,13 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
           aria-hidden="true"
         ></div>
         <div
-          :class="
-            studioForm?.photos.length > 0 ? 'sm:grid-cols-[1fr_1fr_250px]' : ''
-          "
-          class="grid-cols-1 grid-rows-3 sm:grid-rows-1 grid gap-5"
+          :class="[
+            studioForm?.photos.length > 0
+              ? 'sm:grid-cols-[1fr_1fr_250px] grid-rows-3'
+              : '',
+            { 'grid-rows-1': studioForm?.photos.length === 0 },
+          ]"
+          class="grid-cols-1 sm:grid-rows-1 grid gap-5"
         >
           <div
             v-if="studioForm?.photos.length > 0"
@@ -349,7 +352,15 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
               class="w-full drag-item h-full object-cover rounded-[10px]"
             />
           </div>
-          <div class="grid grid-cols-1 grid-rows-2 gap-5 max-h-60">
+          <div
+            :class="{
+              hidden: studioForm?.photos.length == 0,
+              'grid-rows-1':
+                studioForm?.photos.slice(3, studioForm?.photos.length).length ==
+                0,
+            }"
+            class="grid grid-cols-1 grid-rows-2 gap-5 max-h-60"
+          >
             <div class="mt-5 sm:mt-0 w-auto md:w-[fit-content]">
               <ScrollContainer
                 v-if="studioForm?.photos.length > 1"
@@ -391,6 +402,9 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
                 'w-[fit-content]':
                   studioForm?.photos.slice(3, studioForm?.photos.length)
                     .length == 1,
+                hidden:
+                  studioForm?.photos.slice(3, studioForm?.photos.length)
+                    .length == 0,
               }"
               class="mt-5 sm:mt-0"
             >

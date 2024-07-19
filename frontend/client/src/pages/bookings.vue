@@ -12,11 +12,19 @@
         />
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <Spinner :is-loading="isLoading" />
-          <AddStudioButton
-            title="Book recent studio"
-            :subtitle="`${recentStudio.address} at ${recentStudio.date}`"
-            @click="togglePopup"
-          />
+          <div
+            v-if="bookings.length === 0 && !isLoading"
+            :class="`border-white border-opacity-20`"
+            class="p-[10px] text-white rounded-[10px] h-full flex items-center justify-center border border-dashed cursor-pointer"
+          >
+            <div
+              class="flex flex-col justify-center text-center items-center m-10"
+            >
+              <span class="text-xl text-neutral-700"
+                >We couldn't find any upcoming bookings</span
+              >
+            </div>
+          </div>
           <BookingCard
             class="border border-white border-opacity-30"
             @on-favorite-change="onFavoriteChange"
@@ -117,7 +125,7 @@ const handleFiltersChange = (newFilters) => {
 const bookings = ref<Booking[]>([])
 const currentPage = ref(1)
 const lastPage = ref(1)
-const isLoading = ref(false)
+const isLoading = ref(true)
 
 onMounted(() => {
   getBookings()

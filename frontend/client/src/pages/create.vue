@@ -129,7 +129,7 @@ const userInfo = computed(() => {
       class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex"
     >
       <div
-        class="relative w-full flex-col justify-start items-center gap-2.5 flex"
+        class="relative w-full flex-col justify-start items-center gap-2.5 flex px-3"
       >
         <BrandingLogo @click="navigateTo('/')" class="mb-20" />
         <div class="animate__animated animate__fadeInRight">
@@ -147,7 +147,7 @@ const userInfo = computed(() => {
         </div>
 
         <div
-          class="w-96 justify-center items-center inline-flex mb-10 text-center"
+          class="max-w-96 justify-center items-center inline-flex mb-10 text-center"
         >
           <div class="text-white text-xl font-bold text-center tracking-wide">
             {{ existedCompany ? "Add Address" : "Setup Your First Studio" }}
@@ -155,110 +155,120 @@ const userInfo = computed(() => {
         </div>
         <div
           v-if="isError('general')"
-          class="w-96 justify-center items-center inline-flex"
+          class="max-w-96 justify-center items-center inline-flex"
         >
           <div class="text-red-500 text-sm font-normal tracking-wide">
             {{ isError("general") }}
           </div>
         </div>
 
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">
-              Studio name and logo
-            </div>
+        <div class="w-full flex justify-center flex-col max-w-96 gap-1.5">
+          <div class="flex-col justify-start items-start gap-1.5 flex w-full">
             <div
-              v-if="errors.hasOwnProperty('company') && !formValues.company"
-              class="text-right text-red-500 text-sm font-normal tracking-wide"
+              class="max-w-96 w-full justify-between items-start inline-flex"
             >
-              {{ isError("company") }}
+              <div class="text-white text-sm font-normal tracking-wide">
+                Studio name and logo
+              </div>
+              <div
+                v-if="errors.hasOwnProperty('company') && !formValues.company"
+                class="text-right text-red-500 text-sm font-normal tracking-wide"
+              >
+                {{ isError("company") }}
+              </div>
+            </div>
+            <div class="flex justify-start items-center w-full gap-2.5">
+              <div
+                class="flex w-full justify-center max-w-96 items-center gap-2.5"
+              >
+                <label
+                  v-if="!existedCompany"
+                  for="studio_logo"
+                  class="w-[58px] h-[58px] flex flex-col justify-center items-center px-1.5 py-1.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center"
+                >
+                  <div class="flex flex-col justify-end h-full">
+                    <IconUpload
+                      class="mx-1.5 my-1.5 opacity-50 hover:opacity-100"
+                      v-if="!formValues.logo"
+                    />
+                    <img
+                      :src="`${formValues.logo_preview}`"
+                      v-if="formValues.logo_preview"
+                      class="w-[58px] h-[58px] object-contain"
+                    />
+                  </div>
+                </label>
+                <input
+                  v-if="!existedCompany"
+                  class="hidden"
+                  id="studio_logo"
+                  @change="changeLogo()"
+                  type="file"
+                />
+                <input
+                  :disabled="existedCompany"
+                  v-model="formValues.company"
+                  :class="
+                    errors.hasOwnProperty('company') && !formValues.company
+                      ? 'border border-red border-opacity-80'
+                      : 'border border-white border-opacity-20'
+                  "
+                  class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide"
+                  type="text"
+                  :placeholder="
+                    existedCompany
+                      ? upperCase(existedCompany)
+                      : 'Ex. Section Studios'
+                  "
+                />
+              </div>
             </div>
           </div>
-          <div class="flex justify-start items-center w-full gap-2.5">
-            <div class="flex justify-center w-96 items-center gap-2.5">
-              <label
-                v-if="!existedCompany"
-                for="studio_logo"
-                class="w-[58px] h-[58px] flex flex-col justify-center items-center px-1.5 py-1.5 cursor-pointer outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-[#c1c1c1] text-xs font-light tracking-wide text-center"
+
+          <div class="flex-col justify-start items-start gap-1.5 flex w-full">
+            <div
+              class="max-w-96 w-full justify-between items-start inline-flex"
+            >
+              <div class="text-white text-sm font-normal tracking-wide">
+                Address
+              </div>
+              <div
+                v-if="errors.hasOwnProperty('street') && !formValues.street"
+                class="text-right text-red-500 text-sm font-normal tracking-wide"
               >
-                <div class="flex flex-col justify-end h-full">
-                  <IconUpload
-                    class="mx-1.5 my-1.5 opacity-50 hover:opacity-100"
-                    v-if="!formValues.logo"
-                  />
-                  <img
-                    :src="`${formValues.logo_preview}`"
-                    v-if="formValues.logo_preview"
-                    class="w-[58px] h-[58px] object-contain"
-                  />
-                </div>
-              </label>
+                {{ isError("street") }}
+              </div>
+            </div>
+            <div
+              class="justify-start max-w-96 w-full items-center gap-2.5 inline-flex"
+            >
               <input
-                v-if="!existedCompany"
-                class="hidden"
-                id="studio_logo"
-                @change="changeLogo()"
-                type="file"
-              />
-              <input
-                :disabled="existedCompany"
-                v-model="formValues.company"
+                id="place"
+                ref="place"
                 :class="
-                  errors.hasOwnProperty('company') && !formValues.company
-                    ? 'border border-red border-opacity-80'
+                  errors.hasOwnProperty('street') && !formValues.street
+                    ? 'border border-red border-opacity-80 placeholder-red'
                     : 'border border-white border-opacity-20'
                 "
-                class="w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide"
+                class="max-w-96 w-full h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide"
                 type="text"
-                :placeholder="
-                  existedCompany
-                    ? upperCase(existedCompany)
-                    : 'Enter Your Studio Name'
-                "
+                placeholder="Ex. 435 East 30th street, Los Angeles, CA 90011"
               />
             </div>
           </div>
         </div>
-
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
-            <div class="text-white text-sm font-normal tracking-wide">
-              Address
-            </div>
-            <div
-              v-if="errors.hasOwnProperty('street') && !formValues.street"
-              class="text-right text-red-500 text-sm font-normal tracking-wide"
-            >
-              {{ isError("street") }}
-            </div>
-          </div>
-          <div class="justify-start items-center gap-2.5 inline-flex">
-            <input
-              id="place"
-              ref="place"
-              :class="
-                errors.hasOwnProperty('street') && !formValues.street
-                  ? 'border border-red border-opacity-80 placeholder-red'
-                  : 'border border-white border-opacity-20'
-              "
-              class="w-96 h-11 px-3.5 py-7 outline-none rounded-[10px] focus:border-white bg-transparent text-white text-sm font-medium tracking-wide"
-              type="text"
-              placeholder="Enter Your Address"
-            />
-          </div>
-        </div>
-        <div class="justify-center items-center gap-2.5 inline-flex">
+        <div class="justify-center items-center gap-2.5 inline-flex w-full">
           <button
             v-if="!existedCompany"
             @click="setupStudio()"
-            class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+            class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
           >
             Save And Continue
           </button>
           <button
             v-else
             @click="addNewStudio()"
-            class="w-96 h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+            class="max-w-96 w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
           >
             Add studio
           </button>

@@ -81,7 +81,9 @@
       </div>
     </div>
     <Tooltip>
-      {{ tooltipData.content }}
+      <div class="text-left">
+        {{ tooltipData.content }}
+      </div>
     </Tooltip>
     <Teleport v-if="showPopup" to="body">
       <Popup
@@ -241,7 +243,7 @@ function generateTooltipContent(type) {
               0,
               5,
             )}`
-        return `${dayName}:\n ${timeString}`
+        return `${dayName}: ${timeString}`
       })
       .join("\n")
   } else if (type === "price") {

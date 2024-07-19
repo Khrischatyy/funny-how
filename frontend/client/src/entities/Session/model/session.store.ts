@@ -25,6 +25,12 @@ export const useSessionStore = defineStore({
     payment_session: useCookie(PAYMENT_SESSION).value,
     brand: useCookie(BRAND_KEY).value,
   }),
+  getters: {
+    user(): any {
+      let userJson = this.userInfo
+      return JSON.parse(decodeURIComponent(this.userInfo) || "{}")?.user
+    },
+  },
   actions: {
     async fetchUserInfo() {
       if (!this.accessToken) {

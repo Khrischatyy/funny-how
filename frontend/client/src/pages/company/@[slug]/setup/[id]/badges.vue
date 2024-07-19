@@ -175,7 +175,7 @@ function signOut() {
     style="min-height: -webkit-fill-available"
   >
     <div
-      class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex"
+      class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex px-3"
     >
       <div
         class="relative w-full flex-col justify-start items-center gap-2.5 flex"
@@ -212,7 +212,7 @@ function signOut() {
         </div>
 
         <div
-          class="w-96 justify-center items-center inline-flex mb-10 text-center"
+          class="w-full max-w-96 justify-center items-center inline-flex mb-10 text-center"
         >
           <div class="text-white text-xl font-bold text-center tracking-wide">
             Set Up Badges
@@ -220,7 +220,7 @@ function signOut() {
         </div>
 
         <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
+          <div class="w-full max-w-96 justify-between items-start inline-flex">
             <div class="text-white text-sm font-normal tracking-wide">
               Studio Information
             </div>
@@ -233,9 +233,11 @@ function signOut() {
           </div>
         </div>
 
-        <div class="flex-col justify-center items-center gap-1.5 flex">
-          <div class="w-96 justify-center items-center gap-2.5 inline-flex">
-            <div class="w-96 max-w-96 flex gap-2.5">
+        <div class="flex-col justify-center items-center gap-1.5 flex w-full">
+          <div
+            class="w-full max-w-96 justify-center items-center gap-2.5 inline-flex"
+          >
+            <div class="w-full max-w-96 flex gap-2.5">
               <div
                 v-for="badge in badges?.all_badges"
                 :class="
@@ -253,7 +255,7 @@ function signOut() {
           </div>
         </div>
         <div
-          class="w-96 h-11 p-3.5 mb-5 mt-5 justify-center items-center gap-2.5 inline-flex"
+          class="w-full max-w-96 h-11 p-3.5 mb-5 mt-5 justify-center items-center gap-2.5 inline-flex"
         >
           <button
             @click="routeBack()"
@@ -273,8 +275,8 @@ function signOut() {
         <div class="flex-col mb-14 justify-center items-center gap-1.5 flex">
           <div class="justify-center items-center gap-2.5 inline-flex">
             <button
-              @click="skip()"
-              class="w-96 h-11 p-3.5 hover:opacity-90 bg-transparent border border-white text-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+              @click="routeNext()"
+              class="w-full max-w-96 h-11 p-3.5 hover:opacity-90 bg-transparent border border-white text-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
             >
               Skip for later
             </button>

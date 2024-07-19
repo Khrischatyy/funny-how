@@ -1,10 +1,11 @@
 <template>
   <div
-    class="flex flex-col lg:grid lg:grid-cols-4 lg:justify-between items-center gap-2 md:gap-2 mb-6 space-y-4 lg:space-y-0 w-full"
+    class="flex flex-col lg:grid lg:grid-cols-3 lg:justify-between items-center gap-2 md:gap-[20px] mb-6 space-y-4 lg:space-y-0 w-full"
   >
     <!-- Search and IconButton on the first line -->
     <div class="flex items-center w-full">
       <FInputClassic
+        :wide="true"
         placeholder="Search"
         v-model="filters.search"
         class="w-full"
@@ -23,13 +24,13 @@
     <template v-if="isFiltersOpen">
       <!-- Status and Price on the second line -->
       <div class="flex items-center w-full flex-col lg:flex-row gap-6">
-        <div class="flex w-full h-full gap-2">
+        <div class="flex w-full h-full gap-[20px]">
           <FSelectClassic
             v-if="getFilterShow('city')"
             placeholder="City"
             :options="getFilterShow('city')?.options"
             v-model="filters.city"
-            class="w-full h-full"
+            class="w-full h-[43px]"
           >
             <template #icon>
               <IconStatus class="h-5 w-5 text-gray-400" />
@@ -43,7 +44,7 @@
               { id: 2, name: 'Status 2' },
             ]"
             v-model="filters.status"
-            class="w-full h-full"
+            class="w-full h-[43px]"
           >
             <template #icon>
               <IconStatus class="h-5 w-5 text-gray-400" />
@@ -54,7 +55,7 @@
             placeholder="Badges"
             :options="getFilterShow('badges')?.options"
             v-model="filters.badges"
-            class="w-full h-full"
+            class="w-full h-[43px]"
           >
             <template #icon>
               <IconStatus class="h-5 w-5 text-gray-400" />
@@ -67,7 +68,7 @@
             placeholder="Date"
             v-model="filters.date"
             size="sm"
-            class="w-full h-full"
+            class="w-full h-[43px]"
           >
             <template #icon>
               <IconCalendar class="h-5 w-5 text-gray-400" />
@@ -79,7 +80,7 @@
             placeholder="Price up to"
             size="sm"
             v-model="filters.price"
-            class="w-full h-full"
+            class="w-full h-[43px]"
           >
             <template #icon>
               <IconPrice class="h-5 w-5 text-gray-400" />
@@ -96,7 +97,7 @@
           placeholder="Time"
           v-model="filters.time"
           size="sm"
-          class="w-full h-full"
+          class="max-w-[117px] md:max-w-full w-full h-[43px]"
         >
           <template #icon>
             <IconClock class="h-5 w-5 text-gray-400" />
@@ -104,28 +105,26 @@
         </FInputClassic>
         <FInputClassic
           v-if="getFilterShow('rating')"
-          placeholder="Rating from"
+          placeholder="Rating"
           size="sm"
           v-model="filters.rating"
-          class="w-full h-full"
+          class="max-w-[117px] md:max-w-full w-full h-[43px]"
         >
           <template #icon>
             <IconRating class="h-5 w-5 text-gray-400" />
           </template>
         </FInputClassic>
-      </div>
-      <div class="flex w-full justify-between items-center gap-2">
-        <button
-          class="bg-white text-black p-2 rounded-[10px] w-full h-full flex items-center justify-center"
+        <div
+          class="bg-white text-black py-2 px-[10px] rounded-[10px] w-[71px] md:w-full h-[43px] flex items-center justify-center text-[14px] leading-[17px] tracking-[0.04em]"
         >
-          <i class="fas fa-filter mr-1"></i> Filter
-        </button>
-        <button
+          Filter
+        </div>
+        <div
           @click="clearFilters"
-          class="border border-red-500 p-2 rounded-[10px] w-full h-full flex items-center justify-center text-red-500"
+          class="border border-red-500 py-2 px-1 rounded-[10px] w-full h-[43px] flex items-center justify-center text-red-500 text-[14px] leading-[17px] tracking-[0.04em]"
         >
-          <i class="fas fa-times mr-1"></i> Clear filter
-        </button>
+          Clear filter
+        </div>
       </div>
     </template>
   </div>

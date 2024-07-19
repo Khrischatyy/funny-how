@@ -243,7 +243,7 @@ const getDayMean = (day: number) => {
     style="min-height: -webkit-fill-available"
   >
     <div
-      class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex"
+      class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex px-3"
     >
       <div
         class="relative w-full flex-col justify-start items-center gap-2.5 flex"
@@ -275,7 +275,7 @@ const getDayMean = (day: number) => {
         </div>
 
         <div
-          class="w-96 justify-center items-center inline-flex mb-10 text-center"
+          class="max-w-96 w-full justify-center items-center inline-flex mb-10 text-center"
         >
           <div class="text-white text-xl font-bold text-center tracking-wide">
             Set Up Hours
@@ -283,7 +283,7 @@ const getDayMean = (day: number) => {
         </div>
 
         <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
+          <div class="max-w-96 w-full justify-between items-start inline-flex">
             <div class="text-white text-sm font-normal tracking-wide">
               Working hours
             </div>
@@ -296,9 +296,11 @@ const getDayMean = (day: number) => {
           </div>
         </div>
 
-        <div class="flex-col justify-center items-center gap-1.5 flex">
-          <div class="w-96 justify-center items-center gap-2.5 inline-flex">
-            <div class="w-96 max-w-96 relative">
+        <div class="flex-col justify-center items-center gap-1.5 flex w-full">
+          <div
+            class="max-w-96 w-full justify-center items-center gap-2.5 inline-flex"
+          >
+            <div class="max-w-96 w-full relative">
               <div class="flex items-center">
                 <select
                   :class="workHours.mode_id == 3 ? 'opacity-0 absolute' : ''"
@@ -360,9 +362,9 @@ const getDayMean = (day: number) => {
           <div
             v-for="(hour, index) in 7"
             v-if="workHours.mode_id == 3"
-            class="w-96 justify-center items-center gap-2.5 inline-flex"
+            class="max-w-96 w-full justify-center items-center gap-2.5 inline-flex"
           >
-            <div class="w-96 max-w-96">
+            <div class="max-w-96 w-full max-w-96">
               <input
                 disabled
                 :placeholder="getDayMean(index)"
@@ -390,7 +392,7 @@ const getDayMean = (day: number) => {
         </div>
 
         <div
-          class="w-96 h-11 p-3.5 mb-5 mt-5 justify-center items-center gap-2.5 inline-flex"
+          class="max-w-96 w-full h-11 p-3.5 mb-5 mt-5 justify-center items-center gap-2.5 inline-flex"
         >
           <button
             disabled

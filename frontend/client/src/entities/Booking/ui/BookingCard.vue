@@ -104,10 +104,11 @@ import { Clipboard } from "~/src/shared/ui/common/Clipboard"
 import defaultLogo from "~/src/shared/assets/image/studio.png"
 import { useApi } from "~/src/lib/api"
 import { useSessionStore } from "~/src/entities/Session"
+import { storeToRefs } from "pinia"
 const showPopup = ref(false)
 const session = useSessionStore()
-
-const user = session.getUser()
+const { user } = storeToRefs(session)
+// const user = session.getUser()
 const emit = defineEmits<{
   (e: "onCancelBooking"): void
   (e: "onFavoriteChange", bookingId: number): void

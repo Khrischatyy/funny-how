@@ -119,7 +119,10 @@ async function authForm() {
             >
               <div class="justify-start items-start gap-5 inline-flex">
                 <div class="w-8 h-8 relative">
-                  <div class="left-0 top-0 absolute"><IconCheck /></div>
+                  <div class="left-0 top-0 absolute numberSubHead">
+                    <!-- <IconCheck /> -->
+                    1
+                  </div>
                 </div>
                 <div
                   class="flex-col justify-start items-start gap-2.5 inline-flex"
@@ -369,6 +372,16 @@ async function authForm() {
 </template>
 
 <style scoped lang="scss">
+.numberSubHead {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 44px;
+
+  letter-spacing: 0.04em;
+  border: 1px solid #efc933;
+}
 .checkbox-wrapper {
   display: flex;
   gap: 5px;

@@ -253,13 +253,13 @@ function signOut() {
     style="min-height: -webkit-fill-available"
   >
     <div
-      class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex"
+      class="w-full mt-20 h-full flex-col justify-between items-start gap-7 inline-flex px-3"
     >
       <div
         class="relative w-full flex-col justify-start items-center gap-2.5 flex"
       >
         <BrandingLogo class="mb-20" />
-        <div class="animate__animated animate__fadeInRight">
+        <div class="animate__animated animate__fadeInDown">
           <div
             class="breadcrumbs mb-10 text-white text-sm font-normal tracking-wide flex gap-1.5 justify-center items-center"
           >
@@ -290,15 +290,17 @@ function signOut() {
         </div>
 
         <div
-          class="w-96 justify-center items-center inline-flex mb-10 text-center"
+          class="w-full max-w-96 justify-center items-center inline-flex mb-10 text-center"
         >
           <div class="text-white text-xl font-bold text-center tracking-wide">
             Set Up Prices
           </div>
         </div>
 
-        <div class="flex-col justify-start items-start gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
+        <div
+          class="flex-col justify-start items-start gap-1.5 flex w-full max-w-96"
+        >
+          <div class="w-full max-w-96 justify-between items-start inline-flex">
             <div class="text-neutral-700 text-sm font-normal tracking-wide">
               Price
             </div>
@@ -309,21 +311,25 @@ function signOut() {
               {{ isError("setup", "studio_name") }}
             </div>
           </div>
-          <div class="flex-col mb-1 justify-center items-center gap-1.5 flex">
-            <div class="justify-center items-center gap-2.5 inline-flex">
+          <div
+            class="flex-col mb-1 justify-center items-center gap-1.5 flex w-full"
+          >
+            <div class="justify-center items-center gap-2.5 inline-flex w-full">
               <button
                 @click="addPrice()"
-                class="w-96 h-11 p-3.5 hover:opacity-90 bg-transparent rounded-[10px] text-white border-white border text-sm font-medium tracking-wide"
+                class="w-full max-w-96 h-11 p-3.5 hover:opacity-90 bg-transparent rounded-[10px] text-white border-white border text-sm font-medium tracking-wide"
               >
                 Add price
               </button>
             </div>
           </div>
-          <div class="flex-col mb-1 justify-center items-center gap-1.5 flex">
-            <div class="justify-center items-center gap-2.5 inline-flex">
+          <div
+            class="flex-col mb-1 justify-center items-center gap-1.5 flex w-full"
+          >
+            <div class="justify-center items-center gap-2.5 inline-flex w-full">
               <button
                 @click="addSamplePrices()"
-                class="w-96 h-11 p-3.5 hover:opacity-90 bg-transparent rounded-[10px] text-white border-white border text-sm font-medium tracking-wide"
+                class="w-full max-w-96 h-11 p-3.5 hover:opacity-90 bg-transparent rounded-[10px] text-white border-white border text-sm font-medium tracking-wide"
               >
                 Replace With Sample Data
               </button>
@@ -332,7 +338,7 @@ function signOut() {
         </div>
 
         <div class="flex-col justify-center items-center gap-1.5 flex">
-          <div class="w-96 justify-between items-start inline-flex">
+          <div class="w-full max-w-96 justify-between items-start inline-flex">
             <div class="text-neutral-700 text-sm font-normal tracking-wide">
               You can edit pricing anytime
             </div>
@@ -346,7 +352,7 @@ function signOut() {
           <div
             v-for="price in prices"
             :key="price.hours"
-            class="animate__animated animate__fadeInRight relative w-full max-w-96 flex items-center gap-1.5 justify-between"
+            class="animate__animated animate__fadeInDown relative w-full max-w-96 flex items-center gap-1.5 justify-between"
           >
             <label class="checkbox-wrapper flex">
               <div class="w-5 h-5 justify-center items-center flex">
@@ -417,7 +423,7 @@ function signOut() {
         </div>
 
         <div
-          class="w-96 h-11 p-3.5 mb-5 mt-5 justify-center items-center gap-2.5 inline-flex"
+          class="w-full max-w-96 h-11 p-3.5 mb-5 mt-5 justify-center items-center gap-2.5 inline-flex"
         >
           <button
             @click="routeBack()"
