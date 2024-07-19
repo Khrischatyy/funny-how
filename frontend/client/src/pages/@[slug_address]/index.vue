@@ -21,6 +21,7 @@
       <ScrollContainer
         v-if="address?.photos.length > 0"
         justify-content="center"
+        justofy-content-mobile="start"
         class="rounded-[10px] h-full"
         theme="default"
         main-color="#171717"
@@ -105,7 +106,7 @@
               style="width: -webkit-fill-available"
             >
               <BadgesList
-                class="justify-center-important"
+                justify-content="center"
                 theme="default"
                 size="lg"
                 style="width: -webkit-fill-available"
@@ -360,13 +361,18 @@
       :showPopup="showPopup"
       @closePopup="closePopup"
     />
+    <LoginModal
+      v-if="showLoginPopup"
+      :show-popup="showLoginPopup"
+      @close-popup="closeLoginPopup"
+    />
   </div>
 </template>
 <script setup lang="ts">
 import { useHead } from "@unhead/vue"
-import { definePageMeta, useRuntimeConfig } from "#imports"
+import { definePageMeta, storeToRefs, useRuntimeConfig } from "#imports"
 import { useSessionStore } from "~/src/entities/Session"
-import { EquipmentsModal } from "~/src/widgets/Modals"
+import { EquipmentsModal, LoginModal } from "~/src/widgets/Modals"
 import {
   computed,
   onMounted,
@@ -437,7 +443,9 @@ const studioFirstPhoto: Ref<string> = computed(() => {
 })
 const isLoading = ref(false)
 
-const session = ref()
+const session = useSessionStore()
+
+const { isAuthorized } = storeToRefs(session)
 
 const dateInput = ref<HTMLInputElement | null>(null)
 const end_time = ref<HTMLInputElement | null>(null)
@@ -570,8 +578,6 @@ const handleScroll = () => {
 }
 
 onMounted(async () => {
-  session.value = useSessionStore()
-  console.log("route.params.slug_address", route.params)
   window.addEventListener("scroll", handleScroll)
   window.addEventListener("message", handlePaymentStatus)
 })
@@ -584,7 +590,6 @@ onUnmounted(() => {
 function handlePaymentStatus(event: MessageEvent) {
   if (event.origin !== window.location.origin) return // Ensure the message is from the same origin
   if (event.data && event.data.status === "closed") {
-    console.log("Payment window closed")
     // Handle the status update here
   }
 }
@@ -625,7 +630,6 @@ const calculatePrice = () => {
     end_time:
       rentingForm.value.end_time.date + "T" + rentingForm.value.end_time.time,
   }).then((response) => {
-    console.log("Price:", response.data)
     calculatedPrice.value = response.data
   })
 }
@@ -691,6 +695,7 @@ function book() {
   })
 
   const bookingData = {
+    addressSlug: addressSlug.value,
     address_id: address.value?.id,
     date: rentingForm.value.date,
     start_time: rentingForm.value.start_time.time,
@@ -700,7 +705,11 @@ function book() {
 
   // Store booking data in localStorage
   localStorage.setItem("bookingData", JSON.stringify(bookingData))
-
+  if (!isAuthorized.value) {
+    openLoginPopup()
+    isLoading.value = false
+    return
+  }
   bookTime(bookingData)
     .then((response) => {
       responseQuote.value = response.data
@@ -712,7 +721,7 @@ function book() {
       }
     })
     .catch((error) => {
-      console.log("Error:", error)
+      localStorage.removeItem("bookingData")
       bookingError.value = error.errors.error
       isLoading.value = false
     })
@@ -774,11 +783,18 @@ onMounted(() => {
   })
 })
 const showPopup = ref(false)
+const showLoginPopup = ref(false)
 const openEquipmentsPopup = () => {
   showPopup.value = true
 }
+const openLoginPopup = () => {
+  showLoginPopup.value = true
+}
 const closePopup = () => {
   showPopup.value = false
+}
+const closeLoginPopup = () => {
+  showLoginPopup.value = false
 }
 </script>
 

@@ -11,11 +11,11 @@
     <div
       v-bind="$attrs"
       ref="scrollableContainer"
-      :class="
-        justifyContent == 'center'
-          ? 'justify-start sm:justify-center'
-          : 'justify-start'
-      "
+      :data-test="justifyContentMobile"
+      :class="[
+        justifyContent == 'center' ? 'sm:justify-center' : 'sm:justify-start',
+        justifyContentMobile == 'center' ? 'justify-center' : 'justify-start',
+      ]"
       class="relative flex w-full h-auto overflow-x-auto overflow-y-visible scroll-smooth no-scrollbar gap-5"
       @scroll="checkButtons"
     >
@@ -41,11 +41,13 @@ const props = withDefaults(
     theme?: string
     mainColor?: string
     justifyContent?: string
+    justifyContentMobile?: string
   }>(),
   {
     theme: "default",
     mainColor: "black",
     justifyContent: "center",
+    justifyContentMobile: "start",
   },
 )
 const scrollContainer = ref(null)

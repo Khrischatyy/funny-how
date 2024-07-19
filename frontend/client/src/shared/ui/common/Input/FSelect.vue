@@ -151,6 +151,18 @@ watch(showOptions, (newValue) => {
         class="select-options custom-transition absolute top-full left-0 border-l border-r border-b border-white h-auto w-full z-10 bg-black"
       >
         <ul class="w-full h-full">
+          <li
+            v-if="props.options.length === 0"
+            class="option cursor-pointer text-2xl hover:opacity-60 py-4"
+          >
+            <div class="w-full h-full flex items-center justify-center px-5">
+              <div
+                class="text-white text-left font-[BebasNeue] font-medium tracking-wide w-full"
+              >
+                No options available
+              </div>
+            </div>
+          </li>
           <template :key="option.name" v-for="(option, index) in props.options">
             <li
               @click="handleChange(option)"

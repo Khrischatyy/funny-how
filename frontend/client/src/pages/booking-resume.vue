@@ -61,10 +61,25 @@ onMounted(async () => {
 <template>
   <div>
     <Spinner :is-loading="isLoading" />
-    <div class="error flex flex-col gap-10">
+    <div v-if="!bookingError" class="error flex flex-col gap-10">
       <div class="text-center">
         <p class="text-xl">Processing booking information...</p>
         <p class="text-sm">Please wait a moment</p>
+        <p class="text-sm">{{ bookingError }}</p>
+      </div>
+    </div>
+    <div v-if="bookingError" class="flex flex-col gap-5">
+      <div class="text-center">
+        <h1 class="text-5xl font-bold">Error</h1>
+        <p class="text-xl">{{ bookingError }}</p>
+      </div>
+      <div class="flex justify-center items-center gap-2.5">
+        <button
+          @click="navigateTo(`/@${bookingData?.addressSlug}`)"
+          class="max-w-96 px-10 h-11 p-3.5 hover:opacity-90 border border-white rounded-[10px] text-white text-sm font-medium tracking-wide"
+        >
+          Go Back To Studio Booking
+        </button>
       </div>
     </div>
   </div>

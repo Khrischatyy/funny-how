@@ -9,10 +9,12 @@ const props = withDefaults(
     badges: { id: number; name: string; description: string }[]
     theme?: string
     size?: "default" | "sm" | "lg"
+    justifyContent?: "center" | "start" | "end"
   }>(),
   {
     theme: "default",
     size: "default",
+    justifyContent: "center",
   },
 )
 const isTooltipVisible = ref(false)
@@ -35,7 +37,12 @@ const ICON_MAP = {
 
 <template>
   <div>
-    <ScrollContainer v-bind="$attrs" :theme="theme">
+    <ScrollContainer
+      v-bind="$attrs"
+      :justify-content-mobile="'center'"
+      :justify-content="justifyContent"
+      :theme="theme"
+    >
       <div
         v-for="(badge, index) in badges"
         :key="badge.id"
