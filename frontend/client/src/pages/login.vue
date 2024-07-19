@@ -7,12 +7,13 @@ import BrandingLogo from "~/src/shared/ui/branding/BrandingLogo.vue"
 import { useHead } from "@unhead/vue"
 import Particles from "~/src/shared/ui/components/Particles/Particles.vue"
 import { definePageMeta, navigateTo } from "#imports"
-import { onBeforeMount, reactive, ref } from "vue"
+import { computed, onBeforeMount, reactive, ref } from "vue"
 import {
   IconElipse,
   IconCopyright,
   IconLine,
   IconCheck,
+  IconNumbers,
 } from "~/src/shared/ui/common/Icon"
 import { useCreateAccount, useLogin } from "~/src/entities/User/api"
 import { FInputClassic } from "~/src/shared/ui/common"
@@ -78,6 +79,9 @@ async function authForm() {
     isLoading.value = false
   }
 }
+const bookingData = computed(() => {
+  return localStorage.getItem("bookingData") || false
+})
 </script>
 
 <template>
@@ -119,9 +123,8 @@ async function authForm() {
             >
               <div class="justify-start items-start gap-5 inline-flex">
                 <div class="w-8 h-8 relative">
-                  <div class="left-0 top-0 absolute numberSubHead">
-                    <!-- <IconCheck /> -->
-                    1
+                  <div class="left-0 top-0 absolute">
+                    <IconNumbers :number="1" />
                   </div>
                 </div>
                 <div
@@ -141,7 +144,9 @@ async function authForm() {
               </div>
               <div class="justify-start items-start gap-5 inline-flex">
                 <div class="w-8 h-8 relative">
-                  <div class="left-0 top-0 absolute"><IconCheck /></div>
+                  <div class="left-0 top-0 absolute">
+                    <IconNumbers :number="2" />
+                  </div>
                 </div>
                 <div
                   class="flex-col justify-start items-start gap-2.5 inline-flex"
@@ -159,7 +164,9 @@ async function authForm() {
               </div>
               <div class="justify-start items-start gap-5 inline-flex">
                 <div class="w-8 h-8 relative">
-                  <div class="left-0 top-0 absolute"><IconCheck /></div>
+                  <div class="left-0 top-0 absolute">
+                    <IconNumbers :number="3" />
+                  </div>
                 </div>
                 <div
                   class="flex-col justify-start items-start gap-2.5 inline-flex"
@@ -277,6 +284,19 @@ async function authForm() {
             class="relative hidden sm:block text-white text-3xl font-bold tracking-wider"
           >
             {{ getAuthTitleByName(step) }}
+          </div>
+          <div
+            v-if="bookingData"
+            class="relative px-5 flex gap-2 justify-center items-center text-white text-sm font-bold tracking-wider"
+          >
+            <IconCheck />
+            <div>
+              {{
+                bookingData
+                  ? "We saved your booking data, you will continue after login"
+                  : ""
+              }}
+            </div>
           </div>
           <div
             class="relative h-full w-full m-2 md:m-0 md:w-96 min-h-auto sm:min-h-[500px] flex justify-start items-center bg-gradient-to-b from-[#000] via-[#000] to-transparent rounded-xl p-5 z-10"

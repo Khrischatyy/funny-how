@@ -123,6 +123,13 @@ const resetPassword = async () => {
         sessionStore.setBrand(response?.data.company_slug.toString())
       }
 
+      //Resume booking if there is any stored data
+      const storedBookingData = localStorage.getItem("bookingData")
+      if (storedBookingData) {
+        navigateTo("/booking-resume")
+        return response
+      }
+
       if (!response?.data.role && process.client) {
         navigateTo("/settings/role")
         return

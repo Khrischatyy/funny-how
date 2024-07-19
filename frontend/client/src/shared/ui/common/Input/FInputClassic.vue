@@ -60,7 +60,7 @@ watch(
   <div :class="wide ? 'max-w-full' : 'max-w-96'" class="w-full flex-col flex">
     <div
       :class="label ? 'mb-1.5' : 'mb-0'"
-      class="label-action grid grid-cols-[max-content,max-content] justify-between items-center w-full"
+      class="label-action grid grid-cols-[max-content,auto] justify-between items-center w-full"
     >
       <div
         v-if="label"

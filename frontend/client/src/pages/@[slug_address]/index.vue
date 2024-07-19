@@ -690,16 +690,23 @@ function book() {
     auth: true,
   })
 
-  bookTime({
+  const bookingData = {
     address_id: address.value?.id,
     date: rentingForm.value.date,
     start_time: rentingForm.value.start_time.time,
     end_time: rentingForm.value.end_time.time,
     end_date: rentingForm.value.end_time.date,
-  })
+  }
+
+  // Store booking data in localStorage
+  localStorage.setItem("bookingData", JSON.stringify(bookingData))
+
+  bookTime(bookingData)
     .then((response) => {
       responseQuote.value = response.data
       isLoading.value = false
+      //Delete bookingData from local storage if success and redirect to payment
+      localStorage.removeItem("bookingData")
       if (response.data?.payment_url) {
         window.location.href = response.data?.payment_url
       }

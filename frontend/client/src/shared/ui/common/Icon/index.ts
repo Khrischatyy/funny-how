@@ -39,3 +39,5 @@ export { default as IconMastercard } from "./IconMastercard.vue"
 export { default as IconVisa } from "./IconVisa.vue"
 
 export { default as IconBackDraw } from "./IconBackDraw.vue"
+
+export { default as IconNumbers } from "./IconNumbers.vue"
