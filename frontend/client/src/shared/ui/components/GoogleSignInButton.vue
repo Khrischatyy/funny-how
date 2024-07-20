@@ -27,7 +27,7 @@
         ></path>
       </svg>
     </div>
-    <span class="text-sm text-white tracking-wider">Sign in with Google</span>
+    <span class="text-sm text-white tracking-wider font-[BebasNeue]">Sign in with Google</span>
   </button>
 </template>
 

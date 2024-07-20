@@ -21,7 +21,7 @@
         />
         <button
           @click="forgotPassword()"
-          class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+          class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide mt-4"
         >
           Send Reset Link
         </button>
