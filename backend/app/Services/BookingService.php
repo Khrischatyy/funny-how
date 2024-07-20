@@ -391,10 +391,15 @@ class BookingService
             }
 
             $timezone = $address->timezone;
+
             $bookingDate = Carbon::parse($request->input('date'), $timezone)->format('Y-m-d');
             $startTime = Carbon::parse($request->input('start_time'), $timezone);
             $endTime = Carbon::parse($request->input('end_time'), $timezone);
             $endDate = Carbon::parse($request->input('end_date'), $timezone)->format('Y-m-d');
+            
+            // Set the correct date for startTime and endTime
+            $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $bookingDate . ' ' . $startTime->format('H:i:s'), $timezone);
+            $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $bookingDate . ' ' . $endTime->format('H:i:s'), $timezone);
 
             $userWhoBooks = Auth::user();
             $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone);
@@ -450,6 +455,11 @@ class BookingService
 
     private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone): void
     {
+        Log::info('beforeConversion', [
+            'bookingDateTimezone' => $bookingDate,
+            'startTime' => $startTime,
+            'endTime' => $endTime
+        ]);
         // Set the timezone for the current date and time match that user timezone, assuming that server timezone is UTC
         $currentDateTime = Carbon::now($timezone);
    
@@ -462,6 +472,7 @@ class BookingService
         // Log information for debugging
         Log::info('Current Date Time: ' . $currentDateTime->toDateTimeString() . ' Timezone: ' . $currentDateTime->getTimezone()->getName());
         Log::info('Booking Start Time: ' . $startTime->toDateTimeString() . ' Timezone: ' . $startTime->getTimezone()->getName());
+        Log::info('Booking End Time: ' . $endTime->toDateTimeString() . ' Timezone: ' . $endTime->getTimezone()->getName());
         Log::info('Is booking in the past: ' . ($startTime->lt($currentDateTime) ? 'Yes' : 'No'));
     
         if ($startTime->lt($currentDateTime)) {
@@ -473,12 +484,17 @@ class BookingService
         }
     
         $operatingHours = $this->getOperatingHours($addressId, $bookingDate);
-    
+   
+        Log::info('operationHours', ['operationHours' => $operatingHours, 'comparing' => !$operatingHours || $operatingHours->is_closed]);
         if (!$operatingHours || $operatingHours->is_closed) {
             throw new BookingException('Booking times are outside of business hours.', 422);
         }
-    
-        if ($startTime->lt($operatingHours->open_time) || $endTime->gt($operatingHours->close_time)) {
+   
+        $openTime = $bookingDate->copy()->setTimeFromTimeString($operatingHours->open_time);
+        $closeTime = $bookingDate->copy()->setTimeFromTimeString($operatingHours->close_time);
+       
+        Log::info('operationHours', ['operationHours' => $operatingHours, 'openTime' => $openTime, 'opentimeTZ' => $openTime->getTimezone(), 'closeTime' => $closeTime, 'closeTimeTZ' => $closeTime->getTimezone(), '$startTime->lt($openTime)' => $startTime->lt($openTime), '$endTime->gt($closeTime)'=>$endTime->gt($closeTime)]);
+        if ($startTime->lt($openTime) || $endTime->gt($closeTime)) {
             throw new BookingException("Booking times are outside of business hours. Studio opens at {$operatingHours->open_time} and closes at {$operatingHours->close_time}", 422);
         }
     
