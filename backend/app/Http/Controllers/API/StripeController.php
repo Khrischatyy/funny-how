@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Account;
 use Stripe\AccountLink;
-use Stripe\AccountSession;
 use Stripe\Stripe;
 
 class StripeController extends BaseController

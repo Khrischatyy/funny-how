@@ -122,11 +122,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::prefix('stripe')->group(function () {
             Route::post('create-account', [StripeController::class, 'createAccount']);
-            Route::post('create-account-session', [StripeController::class, 'createAccountSession']);
-            Route::get('account/link', [StripeController::class, 'createAccountLink']);
-            Route::get('account/refresh', [StripeController::class, 'refreshAccountLink']);
-            Route::get('account/complete', [StripeController::class, 'completeAccount']);
-            Route::get('account/retrieve', [StripeController::class, 'retrieveAccount']);
+
+            Route::prefix('account')->group(function () {
+                Route::get('link', [StripeController::class, 'createAccountLink']);
+                Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
+                Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
+            });
         });
     });
 

@@ -22,11 +22,19 @@ class PaymentService
     {
         try {
             $user = Auth::user();
+            $address = Address::findOrFail($booking->address_id);
 
-//            $session = $user->checkoutCharge($amountOfMoney * 100, 'Payment for studio reservation', 1, [
-            $session = $user->checkoutCharge(50, 'Payment for studio reservation', 1, [
+            if (!$user->stripe_account_id) {
+                throw new Exception("Studio owner does not have a Stripe account.");
+            }
+
+            $session = $user->checkoutCharge($amountOfMoney * 100, 'Payment for studio reservation', 1, [
                 'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
                 'cancel_url' => env('APP_URL') . '/cancel-booking',
+                'payment_intent_data' => [
+                    'application_fee_amount' => $amountOfMoney * 100 * self::SERVICE_FEE_PERCENTAGE,
+                    'transfer_data' => ['destination' => $user->stripe_account_id],
+                ],
                 'metadata' => [
                     'booking_id' => $booking->id,
                 ],
