@@ -29,10 +29,10 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getDateAttribute($value)
-    {
-        return Carbon::parse($value)->format('j F');
-    }
+//    public function getDateAttribute($value)
+//    {
+//        return Carbon::parse($value)->format('j F');
+//    }
 
     public function charge()
     {
