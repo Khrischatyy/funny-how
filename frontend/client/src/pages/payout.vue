@@ -10,7 +10,11 @@
       <div class="container mx-auto p-4">
         <h2 class="text-2xl mb-4">Manage Payouts</h2>
         <div
-          v-if="stripeAccountId"
+          v-if="
+            stripeAccountId &&
+            stripeAccountData &&
+            Object.keys(stripeAccountData).length > 0
+          "
           class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg"
         >
           <div class="text-xl">
@@ -18,7 +22,10 @@
             <p class="text-white font-bold">
               ${{ (balance / 100).toFixed(2) }}
             </p>
-            <p class="text-gray-400 mt-2 mb-2">Payouts enabled</p>
+            <p class="text-gray-400 mt-2 mb-2">
+              Payouts
+              {{ stripeAccountData?.charges_enabled ? "Enabled" : "Disabled" }}
+            </p>
             <p
               v-if="stripeAccountData?.external_accounts?.total_count > 0"
               class="text-white text-sm font-bold mb-2"
@@ -26,7 +33,7 @@
               {{ stripeAccountData?.external_accounts?.data[0]?.bank_name }}
               {{ stripeAccountData?.external_accounts?.data[0]?.last4 }}
             </p>
-            <p class="text-sm">
+            <p v-if="stripeAccountData?.charges_enabled" class="text-sm">
               Payout interval:
               {{ stripeAccountData?.settings?.payouts?.schedule?.interval }}
             </p>
@@ -44,7 +51,8 @@
             stripeAccountId &&
             stripeAccountData &&
             Object.keys(stripeAccountData).length > 0 &&
-            !stripeAccountData.details_submitted
+            (!stripeAccountData.details_submitted ||
+              !stripeAccountData.payouts_enabled)
           "
           class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg"
         >
@@ -225,7 +233,7 @@ const stripeAccountData: Ref<StripAccountDataType> = ref(
   {} as StripAccountDataType,
 )
 const session = useSessionStore()
-const { user, userObject } = storeToRefs(session)
+const { user } = storeToRefs(session)
 
 const fetchBalance = async () => {
   try {
@@ -242,8 +250,8 @@ const createPayout = async () => {
     const { data } = await useFetch("/user/create-payout", {
       method: "POST",
     })
-    fetchBalance()
-    fetchPayouts()
+    // fetchBalance()
+    // fetchPayouts()
   } catch (error) {
     console.error("Failed to create payout:", error)
   } finally {
@@ -266,8 +274,6 @@ const createAccount = async () => {
     createAccountLink()
   } catch (error) {
     console.error("Failed to create Stripe account:", error)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -319,15 +325,14 @@ const toggleSideMenu = () => {
   }
 }
 
-onMounted(() => {
-  // fetchBalance()
-  // fetchStripeAccountId()
-  console.log(user.value)
+onMounted(async () => {
+  if (!user.value) {
+    await session.fetchUserInfo()
+  }
+  isLoading.value = false
   if (user.value && user.value.stripe_account_id) {
     stripeAccountId.value = user.value.stripe_account_id
     fetchStripeAccountData()
   }
-  // stripeAccountId.value = "acct_1PerrT08tikQmYaQ"
-  // fetchPayouts(); Uncomment if fetchPayouts logic is implemented
 })
 </script>
