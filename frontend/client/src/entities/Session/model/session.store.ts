@@ -16,6 +16,7 @@ export const PAYMENT_SESSION = "payment-session-key"
 export const useSessionStore = defineStore({
   id: "session-store",
   state: () => ({
+    userObject: null,
     userInfo: useCookie(USER_INFO_KEY).value,
     userRole: useCookie(USER_ROLE_KEY).value as UserRole | null,
     accessToken: useCookie(ACCESS_TOKEN_KEY).value,
@@ -28,7 +29,7 @@ export const useSessionStore = defineStore({
   getters: {
     user(): any {
       let userJson = this.userInfo
-      return JSON.parse(decodeURIComponent(this.userInfo) || "{}")?.user
+      return this.userObject?.user
     },
   },
   actions: {
@@ -41,6 +42,7 @@ export const useSessionStore = defineStore({
         const response = await api.fetch()
         if (response.data) {
           console.log("response.data:", response.data)
+          this.userObject = response.data
           this.setUserInfo(JSON.stringify(response.data))
           this.setBrand(response.data.company_slug)
           this.setAuthorized(true)

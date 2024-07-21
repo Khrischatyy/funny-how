@@ -1,39 +1,30 @@
 <template>
-  <div class="complete-container">
-    <h1>Stripe Account Onboarding Complete</h1>
-    <p>Your account has been successfully created and verified. You can now start using Stripe services.</p>
-    <nuxt-link to="/">Go to Dashboard</nuxt-link>
+  <div class="w-full px-5">
+    <Spinner :is-loading="isLoading" />
+    <div class="flex flex-col gap-10 justify-center items-center">
+      <div class="text-center flex flex-col gap-5">
+        <h1 class="text-4xl font-bold">Payment updated</h1>
+        <p class="text-xl">Redirecting to payout page</p>
+      </div>
+    </div>
   </div>
 </template>
 
-<script>
-export default {
-  mounted() {
-    // Add any additional logic needed after onboarding completion
-  }
-}
+<script setup lang="ts">
+import { onMounted, ref } from "vue"
+import { Spinner } from "~/src/shared/ui/common"
+import { definePageMeta } from "#imports"
+const isLoading = ref(true)
+// Meta tags for the page
+definePageMeta({
+  layout: "error",
+})
+
+onMounted(() => {
+  setTimeout(() => {
+    window.location.href = "/payout"
+  }, 3000)
+})
 </script>
 
-<style scoped>
-.complete-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
-}
-
-.complete-container h1 {
-  margin-bottom: 20px;
-}
-
-.complete-container p {
-  margin-bottom: 40px;
-}
-
-.complete-container a {
-  color: #007bff;
-  text-decoration: none;
-}
-</style>
+<style scoped lang="scss"></style>

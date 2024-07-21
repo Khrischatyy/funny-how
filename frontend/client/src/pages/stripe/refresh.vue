@@ -1,63 +1,53 @@
 <template>
-  <div class="refresh-container">
-    <h1>Refresh Stripe Account</h1>
-    <p>Please update your information by clicking the button below.</p>
-    <button @click="refreshAccountLink">Refresh Account Link</button>
-    <p v-if="loading">Creating new account link...</p>
-    <p v-if="error">{{ error }}</p>
+  <div class="w-full px-5">
+    <Spinner :is-loading="isLoading" />
+    <div class="flex flex-col gap-10 justify-center items-center">
+      <div class="text-center flex flex-col gap-5">
+        <h1 class="text-4xl font-bold">Error occured</h1>
+        <p class="text-xl">Creating new Stripe session</p>
+      </div>
+    </div>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      loading: false,
-      error: null,
-    };
-  },
-  methods: {
-    async refreshAccountLink() {
-      this.loading = true;
-      this.error = null;
-      try {
-        const response = await this.$axios.$get('/api/v1/user/stripe/account/link');
-        window.location.href = response.url; // Redirect to the new account link URL
-      } catch (e) {
-        this.error = e.response ? e.response.data.error : 'An error occurred';
-      } finally {
-        this.loading = false;
+<script setup lang="ts">
+import { onMounted, ref } from "vue"
+import { Spinner } from "~/src/shared/ui/common"
+import { definePageMeta, storeToRefs } from "#imports"
+import { useSessionStore } from "~/src/entities/Session"
+import { useApi } from "~/src/lib/api"
+const isLoading = ref(true)
+// Meta tags for the page
+definePageMeta({
+  layout: "error",
+})
+
+const session = useSessionStore()
+const { user } = storeToRefs(session)
+
+const createAccountLink = async () => {
+  try {
+    isLoading.value = true
+    const { fetch: getLink } = useApi({
+      url:
+        "/user/stripe/account/link?account_id=" + user.value.stripe_account_id,
+      auth: true,
+    })
+
+    await getLink().then((res) => {
+      if (res.data.url) {
+        window.location.href = res.data.url
       }
-    }
+    })
+  } catch (error) {
+    console.error("Failed to create account link:", error)
+    isLoading.value = false
   }
 }
+
+onMounted(() => {
+  createAccountLink()
+})
 </script>
 
-<style scoped>
-.refresh-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
-}
-
-.refresh-container h1 {
-  margin-bottom: 20px;
-}
-
-.refresh-container p {
-  margin-bottom: 20px;
-}
-
-.refresh-container button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.refresh-container button:disabled {
-  cursor: not-allowed;
-}
-</style>
+<style scoped lang="scss"></style>

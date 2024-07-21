@@ -6,6 +6,7 @@
       class="text-white flex flex-col min-h-screen"
       name="dashboard"
     >
+      <Spinner :is-loading="isLoading" class="mt-4" />
       <div class="container mx-auto p-4">
         <h2 class="text-2xl mb-4">Manage Payouts</h2>
         <div
@@ -13,9 +14,21 @@
           class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg"
         >
           <div class="text-xl">
-            <p class="text-gray-400">Available Balance:</p>
+            <p class="text-gray-400 mb-2">Available Balance:</p>
             <p class="text-white font-bold">
               ${{ (balance / 100).toFixed(2) }}
+            </p>
+            <p class="text-gray-400 mt-2 mb-2">Payouts enabled</p>
+            <p
+              v-if="stripeAccountData?.external_accounts?.total_count > 0"
+              class="text-white text-sm font-bold mb-2"
+            >
+              {{ stripeAccountData?.external_accounts?.data[0]?.bank_name }}
+              {{ stripeAccountData?.external_accounts?.data[0]?.last4 }}
+            </p>
+            <p class="text-sm">
+              Payout interval:
+              {{ stripeAccountData?.settings?.payouts?.schedule?.interval }}
             </p>
           </div>
           <button
@@ -30,6 +43,7 @@
           v-if="
             stripeAccountId &&
             stripeAccountData &&
+            Object.keys(stripeAccountData).length > 0 &&
             !stripeAccountData.details_submitted
           "
           class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg"
@@ -47,7 +61,10 @@
             Update information
           </button>
         </div>
-        <div v-else class="text-center mt-4 text-gray-400">
+        <div
+          v-if="user && !user.stripe_account_id"
+          class="text-center mt-4 text-gray-400"
+        >
           <p class="mb-5">
             Please connect your Stripe account to manage payouts.
           </p>
@@ -58,8 +75,6 @@
             Connect Stripe Account
           </button>
         </div>
-
-        <Spinner :is-loading="isLoading" class="mt-4" />
 
         <div
           v-if="!isLoading && payouts.length === 0 && stripeAccountId"
@@ -96,21 +111,121 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
+import { ref, onMounted, type Ref } from "vue"
 import { useFetch } from "#app"
 import { Spinner } from "~/src/shared/ui/common"
 import { useApi } from "../lib/api"
 import { useSessionStore } from "../entities/Session"
 import { storeToRefs } from "pinia"
 
+type StripAccountDataType = {
+  id: string
+  object: string
+  business_profile: {
+    annual_revenue: null
+    estimated_worker_count: null
+    mcc: string
+    name: string
+    support_address: null
+    support_email: null
+    support_phone: null
+    support_url: null
+    url: string
+  }
+  capabilities: {
+    card_payments: string
+    transfers: string
+  }
+  charges_enabled: boolean
+  controller: {
+    fees: {
+      payer: string
+    }
+    is_controller: boolean
+    losses: {
+      payments: string
+    }
+    requirement_collection: string
+    stripe_dashboard: {
+      type: string
+    }
+    type: string
+  }
+  country: string
+  created: number
+  default_currency: string
+  details_submitted: boolean
+  email: string
+  external_accounts: {
+    object: string
+    data: [
+      {
+        id: string
+        object: string
+        account: string
+        account_holder_name: null
+        account_holder_type: null
+        account_type: null
+        available_payout_methods: string[]
+        bank_name: string
+        country: string
+        currency: string
+        default_for_currency: boolean
+        financial_account: null
+        fingerprint: string
+        future_requirements: {
+          currently_due: string[]
+          errors: string[]
+          past_due: string[]
+          pending_verification: string[]
+        }
+        last4: string
+        metadata: string[]
+        requirements: {
+          currently_due: string[]
+          errors: string[]
+          past_due: string[]
+          pending_verification: string[]
+        }
+        routing_number: string
+        status: string
+      },
+    ]
+    has_more: boolean
+    total_count: number
+    url: string
+  }
+  future_requirements: {
+    alternatives: string[]
+    current_deadline: null
+    currently_due: string[]
+    disabled_reason: null
+    errors: string[]
+    eventually_due: string[]
+    past_due: string[]
+    pending_verification: string[]
+  }
+  login_links: {
+    object: string
+    data: string[]
+    has_more: boolean
+    total_count: number
+    url: string
+  }
+  metadata: string[]
+  payouts_enabled: boolean
+}
+
 const sideMenuRef = ref()
-const isLoading = ref(false)
+const isLoading = ref(true)
 const balance = ref(null)
 const payouts = ref([])
 const stripeAccountId = ref(null)
-const stripeAccountData = ref(null)
+const stripeAccountData: Ref<StripAccountDataType> = ref(
+  {} as StripAccountDataType,
+)
 const session = useSessionStore()
-const { user } = storeToRefs(session)
+const { user, userObject } = storeToRefs(session)
 
 const fetchBalance = async () => {
   try {
@@ -171,7 +286,6 @@ const createAccountLink = async () => {
     })
   } catch (error) {
     console.error("Failed to create account link:", error)
-  } finally {
     isLoading.value = false
   }
 }
@@ -191,10 +305,10 @@ const fetchStripeAccountData = async () => {
     getAccountData().then((res) => {
       console.log(res.data)
       stripeAccountData.value = res.data
+      isLoading.value = false
     })
   } catch (error) {
     console.error("Failed to fetch Stripe account ID:", error)
-  } finally {
     isLoading.value = false
   }
 }
