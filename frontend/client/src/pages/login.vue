@@ -80,7 +80,11 @@ async function authForm() {
   }
 }
 const bookingData = computed(() => {
-  return localStorage.getItem("bookingData") || false
+  if (process.client) {
+    return localStorage.getItem("bookingData") || false
+  } else {
+    return false
+  }
 })
 </script>
 
