@@ -70,10 +70,11 @@
     <button
       v-if="
         booking.status.id == BookingStatus.Pending &&
-        booking?.user_id == user?.id
+        booking?.user_id == user?.id &&
+        booking?.temporary_payment_link
       "
-      @click="goToPay('#')"
-      class="w-full h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+      @click="goToPay(booking?.temporary_payment_link)"
+      class="w-full h-11 hover:opacity-90 border border-red-500 rounded-[10px] text-red-500 bg-red-500 bg-opacity-5 text-sm font-medium tracking-wide"
     >
       Pay
     </button>
