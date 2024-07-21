@@ -71,7 +71,7 @@ class StripeController extends BaseController
                 'account' => $user->stripe_account_id,
                 'refresh_url' => env('APP_URL') . '/stripe/refresh', // URL фронтенда для обновления
                 'return_url' => env('APP_URL') . '/stripe/complete', // URL фронтенда для завершения
-                'type' => 'account_Update',
+                'type' => 'account_onboarding',
             ]);
 
             return $this->sendResponse(['url' => $accountLink->url], 'Account link created successfully.');

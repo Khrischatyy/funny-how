@@ -19,14 +19,38 @@
             </p>
           </div>
           <button
+            v-if="stripeAccountData && stripeAccountData.charges_enabled"
             @click="createPayout"
             class="bg-white text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400"
           >
             Create Payout
           </button>
         </div>
+        <div
+          v-if="
+            stripeAccountId &&
+            stripeAccountData &&
+            !stripeAccountData.details_submitted
+          "
+          class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg"
+        >
+          <div class="text-xl">
+            <p class="text-red-400 mb-5">Requires attention</p>
+            <p class="text-white font-bold">
+              Your account is missing some information to make payouts.
+            </p>
+          </div>
+          <button
+            @click="createAccountLink"
+            class="bg-white text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400"
+          >
+            Update information
+          </button>
+        </div>
         <div v-else class="text-center mt-4 text-gray-400">
-          <p>Please connect your Stripe account to manage payouts.</p>
+          <p class="mb-5">
+            Please connect your Stripe account to manage payouts.
+          </p>
           <button
             @click="createAccount"
             class="bg-white text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400"
@@ -38,7 +62,7 @@
         <Spinner :is-loading="isLoading" class="mt-4" />
 
         <div
-          v-if="!isLoading && payouts.length === 0"
+          v-if="!isLoading && payouts.length === 0 && stripeAccountId"
           class="text-center mt-4 text-gray-400"
         >
           No payouts available.
@@ -76,12 +100,17 @@ import { ref, onMounted } from "vue"
 import { useFetch } from "#app"
 import { Spinner } from "~/src/shared/ui/common"
 import { useApi } from "../lib/api"
+import { useSessionStore } from "../entities/Session"
+import { storeToRefs } from "pinia"
 
 const sideMenuRef = ref()
 const isLoading = ref(false)
 const balance = ref(null)
 const payouts = ref([])
 const stripeAccountId = ref(null)
+const stripeAccountData = ref(null)
+const session = useSessionStore()
+const { user } = storeToRefs(session)
 
 const fetchBalance = async () => {
   try {
@@ -108,6 +137,7 @@ const createPayout = async () => {
 }
 
 const createAccount = async () => {
+  isLoading.value = true
   try {
     const { post } = useApi({
       url: "/user/stripe/create-account",
@@ -117,14 +147,18 @@ const createAccount = async () => {
     const response = await post({})
 
     stripeAccountId.value = response.data.account_id
+    isLoading.value = false
     createAccountLink()
   } catch (error) {
     console.error("Failed to create Stripe account:", error)
+  } finally {
+    isLoading.value = false
   }
 }
 
 const createAccountLink = async () => {
   try {
+    isLoading.value = true
     const { fetch: getLink } = useApi({
       url: "/user/stripe/account/link?account_id=" + stripeAccountId.value,
       auth: true,
@@ -137,6 +171,8 @@ const createAccountLink = async () => {
     })
   } catch (error) {
     console.error("Failed to create account link:", error)
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -144,12 +180,22 @@ const fetchPayouts = async () => {
   // Implement fetchPayouts logic if needed
 }
 
-const fetchStripeAccountId = async () => {
+const fetchStripeAccountData = async () => {
   try {
-    const { data } = await useFetch("/api/v1/user/me")
-    stripeAccountId.value = data.user.stripe_account_id
+    isLoading.value = true
+    const { fetch: getAccountData } = useApi({
+      url: "/user/stripe/account/retrieve",
+      auth: true,
+    })
+
+    getAccountData().then((res) => {
+      console.log(res.data)
+      stripeAccountData.value = res.data
+    })
   } catch (error) {
     console.error("Failed to fetch Stripe account ID:", error)
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -160,8 +206,13 @@ const toggleSideMenu = () => {
 }
 
 onMounted(() => {
-  fetchBalance()
-  fetchStripeAccountId()
+  // fetchBalance()
+  // fetchStripeAccountId()
+  console.log(user.value)
+  if (user.value && user.value.stripe_account_id) {
+    stripeAccountId.value = user.value.stripe_account_id
+    fetchStripeAccountData()
+  }
   // stripeAccountId.value = "acct_1PerrT08tikQmYaQ"
   // fetchPayouts(); Uncomment if fetchPayouts logic is implemented
 })
