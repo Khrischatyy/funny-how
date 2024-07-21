@@ -9,14 +9,14 @@ use App\Http\Controllers\API\{AddressController,
     EquipmentController,
     MenuController,
     OperatingHourController,
+    PayoutController,
+    StripeController,
     UserController};
 use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
     EmailVerificationNotificationController,
-    PasswordResetLinkController,
     RegisteredUserController};
 
 /*
@@ -106,7 +106,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             Route::get('{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
         });
-
     });
     Route::prefix('photos')->group(function () {
         Route::post('/upload', [AddressController::class, 'uploadAddressPhotos']);
@@ -117,10 +116,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('me', [UserController::class, 'getMe']);
         Route::put('update', [UserController::class, 'updateUser']);
         Route::post('update-photo', [UserController::class, 'updatePhoto']);
+        Route::get('available-balance', [PayoutController::class, 'getAvailableBalance']);
     });
 
+    Route::prefix('stripe')->group(function () {
+        Route::get('account/link', [StripeController::class, 'createAccountLink']);
+        Route::get('account/refresh', [StripeController::class, 'refreshAccountLink']);
+        Route::get('account/complete', [StripeController::class, 'completeAccount']);
+    });
 
-    //filters
+    Route::get('/payouts', [PayoutController::class, 'index']);
+    Route::post('/create-payout', [PayoutController::class, 'create']);
 
     Route::post('my-studios/filter', [AddressController::class, 'filterMyAddresses']);
     Route::post('history/filter', [BookingController::class, 'filterBookings'])->defaults('type', 'history');

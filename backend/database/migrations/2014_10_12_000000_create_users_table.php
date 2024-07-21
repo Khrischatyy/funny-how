@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('username')->unique()->nullable();
             $table->date('date_of_birth')->nullable();
             $table->timestamp('email_verified_at')->nullable();
+
+            $table->string('stripe_account_id')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

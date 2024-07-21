@@ -5,7 +5,6 @@ namespace App\Actions\Fortify;
 use App\Jobs\SendVerifyEmailJob;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -47,6 +46,9 @@ class CreateNewUser implements CreatesNewUsers
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify', now()->addMinutes(60), ['id' => $user->id, 'hash' => sha1($user->email)]
         );
+
+        // Dispatch email verification job
+         SendVerifyEmailJob::dispatch($user, $verificationUrl);
 
         return $user;
     }

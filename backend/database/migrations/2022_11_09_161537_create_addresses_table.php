@@ -18,6 +18,7 @@ return new class extends Migration
             $table->float('latitude', 8, 6);
             $table->float('longitude', 8,6);
             $table->string('street');
+            $table->decimal('available_balance', 10, 2)->default(0);
             $table->string('slug')->unique();
             $table->float('rating')->nullable();
             $table->string('timezone');

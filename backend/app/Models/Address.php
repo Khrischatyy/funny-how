@@ -17,7 +17,7 @@ class Address extends Model
 
     use HasFactory;
 
-    protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone'];
+    protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone', 'available_balance'];
 
     protected $appends = ['is_favorite'];
 

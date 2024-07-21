@@ -105,6 +105,13 @@ const sideMenuTemplate: MenuItem[] = [
     role: STUDIO_OWNER_ROLE,
   },
   {
+    name: "Payout",
+    icon: IconMic,
+    path: "/icons/my-studios.svg",
+    link: "/payout",
+    role: STUDIO_OWNER_ROLE,
+  },
+  {
     name: "Clients",
     icon: IconClients,
     path: "/icons/settings.svg",

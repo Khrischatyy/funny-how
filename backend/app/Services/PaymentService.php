@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Address;
 use App\Models\Booking;
 use App\Models\Charge;
+use App\Models\Payout;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -14,6 +16,7 @@ use Stripe\Stripe;
 class PaymentService
 {
     public const MINUTE_TO_PAY = 30;
+    public const SERVICE_FEE_PERCENTAGE = 0.04; // 4% сервисный сбор
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney): array
     {
@@ -21,7 +24,7 @@ class PaymentService
             $user = Auth::user();
 
 //            $session = $user->checkoutCharge($amountOfMoney * 100, 'Payment for studio reservation', 1, [
-                $session = $user->checkoutCharge(50, 'Payment for studio reservation', 1, [
+            $session = $user->checkoutCharge(50, 'Payment for studio reservation', 1, [
                 'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
                 'cancel_url' => env('APP_URL') . '/cancel-booking',
                 'metadata' => [
@@ -29,10 +32,7 @@ class PaymentService
                 ],
             ]);
 
-
-            // Создание начальной записи о платеже
-//            $this->createCharge($booking, $session->id, $amountOfMoney, 'usd');
-            $this->createCharge($booking, $session->id, 50, 'usd');
+            $this->createCharge($booking, $session->id, $amountOfMoney, 'usd');
 
             Log::info('Charge created in DB with session ID: ' . $session->id);
 
@@ -69,9 +69,25 @@ class PaymentService
                 'refund_status' => $refund->status,
             ]);
 
+            // Обновим баланс студии
+            $this->updateBalance($booking->address_id, -$charge->amount);
+
+            // Обновим статус бронирования
+            $this->updateBookingStatus($booking->id, 3);
+
+            return [
+                'success' => true,
+                'code' => 200,
+                'message' => 'Refund processed successfully and booking status updated.',
+            ];
+
         } catch (Exception $e) {
             Log::error('Refund failed: ' . $e->getMessage());
-            throw new Exception("Failed to process refund: " . $e->getMessage());
+            return [
+                'success' => false,
+                'code' => 500,
+                'error' => 'Failed to process refund: ' . $e->getMessage(),
+            ];
         }
     }
 
@@ -88,7 +104,7 @@ class PaymentService
         }
     }
 
-    public function processPaymentSuccess($sessionId, $bookingId, BookingService $bookingService)
+    public function processPaymentSuccess($sessionId, $bookingId)
     {
         // Verify the session
         $session = $this->verifyPaymentSession($sessionId);
@@ -102,7 +118,31 @@ class PaymentService
             ];
         }
 
-        // Check if the session has expired
+        $validationResult = $this->validateSession($session);
+        if (!$validationResult['success']) {
+            return $validationResult;
+        }
+
+        $booking = $this->updateBookingStatus($bookingId, 2);
+        $this->updateCharge($session->id, $session->payment_intent);
+
+        // Рассчитаем сумму, идущую студии, и сервисный сбор
+        $totalAmount = $session->amount_total; // Сумма в центах
+        $serviceFee = $totalAmount * self::SERVICE_FEE_PERCENTAGE;
+        $amountToStudio = $totalAmount - $serviceFee;
+
+        // Обновим баланс студии
+        $this->updateBalance($booking->address_id, $amountToStudio);
+
+        return [
+            'success' => true,
+            'code' => 200,
+            'message' => 'Payment successful and booking status updated.',
+        ];
+    }
+
+    private function validateSession(Session $session): array
+    {
         if ($session->expires_at < time()) {
             Log::error('Payment session has expired.');
             return [
@@ -112,7 +152,6 @@ class PaymentService
             ];
         }
 
-        // Check the payment status
         if ($session->payment_status !== 'paid') {
             Log::error('Payment not completed.');
             return [
@@ -122,24 +161,108 @@ class PaymentService
             ];
         }
 
-        // Update the booking status to paid status
-        $bookingService->updateBookingStatus($bookingId, 2);
-
-        // Update the charge information
-        $this->updateCharge($session->id, $session->payment_intent);
-
-        return [
-            'success' => true,
-            'code' => 200,
-            'message' => 'Payment successful and booking status updated.',
-        ];
+        return ['success' => true];
     }
 
-    public function updateCharge(string $sessionId, string $paymentIntent): void
+    private function updateBookingStatus(int $bookingId, int $statusId): Booking
+    {
+        $booking = Booking::findOrFail($bookingId);
+        $booking->status_id = $statusId;
+        $booking->save();
+
+        return $booking;
+    }
+
+    private function updateCharge(string $sessionId, string $paymentIntent): void
     {
         $charge = Charge::where('stripe_session_id', $sessionId)->firstOrFail();
         $charge->update([
             'stripe_payment_intent' => $paymentIntent,
         ]);
+    }
+
+    private function updateBalance(int $addressId, int $amount): void
+    {
+        $address = Address::findOrFail($addressId);
+        $address->available_balance += $amount; // Сохраняем в центах, увеличение или уменьшение баланса
+        $address->save();
+    }
+
+    public function getAvailableBalance(): array
+    {
+        $user = Auth::user();
+        $company = $user->company;
+
+
+        if (!$company) {
+            return [
+                'success' => false,
+                'balance' => 0,
+            ];
+        }
+
+        $addresses = Address::where('company_id', $company->id)->get();
+        $totalBalance = $addresses->sum('available_balance');
+
+        return [
+            'success' => true,
+            'balance' => $totalBalance,
+        ];
+    }
+
+    public function createPayout($user): array
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            $company = $user->company;
+            $addresses = Address::where('company_id', $company->id)->get();
+            $totalBalance = $addresses->sum('available_balance');
+
+            // Создание объекта Payout в Stripe
+            $payout = \Stripe\Payout::create([
+                'amount' => $totalBalance,
+                'currency' => 'usd',
+                'method' => 'instant',
+                'destination' => $user->stripe_account_id,
+            ]);
+
+            // Обнуление баланса
+            foreach ($addresses as $address) {
+                $address->available_balance = 0;
+                $address->save();
+            }
+
+            // Создание записи в таблице payouts
+            $payoutRecord = Payout::create([
+                'user_id' => $user->id,
+                'payout_id' => $payout->id,
+                'amount' => $totalBalance,
+                'currency' => 'usd',
+                'status' => $payout->status,
+            ]);
+
+            return [
+                'success' => true,
+                'payout' => $payoutRecord,
+            ];
+        } catch (Exception $e) {
+            Log::error('Payout creation failed: ' . $e->getMessage());
+            throw new Exception('Failed to create payout: ' . $e->getMessage());
+        }
+    }
+
+    public function createAccountLink($user): string
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $accountLink = AccountLink::create([
+            'account' => $user->stripe_account_id,
+            'refresh_url' => route('stripe.account.refresh'),
+            'return_url' => route('stripe.account.complete'),
+            'type' => 'account_onboarding',
+        ]);
+
+        return $accountLink->url;
     }
 }
