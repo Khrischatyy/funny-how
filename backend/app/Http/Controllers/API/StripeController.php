@@ -2,80 +2,92 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use Exception;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Account;
 use Stripe\AccountLink;
+use Stripe\AccountSession;
 use Stripe\Stripe;
 
-class StripeController extends Controller
+class StripeController extends BaseController
 {
-    public function createAccountlink()
+    public function createAccount(): JsonResponse
     {
         try {
             $user = Auth::user();
+            Stripe::setApiKey(env('STRIPE_SECRET'));
 
-            // Проверяем, есть ли у пользователя уже аккаунт в Stripe
+            // Create Stripe account if it doesn't exist
             if (!$user->stripe_account_id) {
-                Stripe::setApiKey(env('STRIPE_SECRET'));
-
-                // Создаем аккаунт в Stripe
                 $account = Account::create([
                     'type' => 'express',
-                    'country' => 'US', // Измените на необходимую страну
+                    'country' => 'US',
                     'email' => $user->email,
                     'capabilities' => [
                         'card_payments' => ['requested' => true],
                         'transfers' => ['requested' => true],
                     ],
-                    'tos_acceptance' => [
-                        'date' => time(),
-                        'ip' => request()->ip(), // IP-адрес пользователя
-                    ],
-                    'business_type' => 'individual', // или 'company'
+                    'business_type' => 'individual',
                 ]);
 
-                // Сохраняем Stripe Account ID в базе данных
+                // Save the Stripe Account ID in the database
                 $user->stripe_account_id = $account->id;
                 $user->save();
             }
 
-            // Создаем ссылку для подключения аккаунта
-            $accountLink = AccountLink::create([
-                'account' => $user->stripe_account_id,
-                'refresh_url' => route('stripe.account.refresh'),
-                'return_url' => route('stripe.account.complete'),
-                'type' => 'account_onboarding',
-            ]);
-
-            return response()->json(['url' => $accountLink->url], 200);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return $this->sendResponse(['account_id' => $user->stripe_account_id], 'Stripe account created successfully.');
+        } catch (ApiErrorException $e) {
+            return $this->sendError('Failed to create Stripe account.', 500, ['error' => $e->getMessage()]);
         }
     }
 
-    public function refreshAccountLink()
+    public function createAccountLink(): JsonResponse
     {
         try {
             $user = Auth::user();
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            // Create Stripe account if it doesn't exist
+            if (!$user->stripe_account_id) {
+                $account = Account::create([
+                    'type' => 'express',
+                    'country' => 'US',
+                    'email' => $user->email,
+                    'capabilities' => [
+                        'card_payments' => ['requested' => true],
+                        'transfers' => ['requested' => true],
+                    ],
+                    'business_type' => 'individual',
+                ]);
+
+                // Save the Stripe Account ID in the database
+                $user->stripe_account_id = $account->id;
+                $user->save();
+            }
 
             $accountLink = AccountLink::create([
                 'account' => $user->stripe_account_id,
-                'refresh_url' => route('stripe.account.refresh'),
-                'return_url' => route('stripe.account.complete'),
+                'refresh_url' => env('APP_URL') . '/stripe/refresh', // URL фронтенда для обновления
+                'return_url' => env('APP_URL') . '/stripe/complete', // URL фронтенда для завершения
                 'type' => 'account_onboarding',
             ]);
 
-            return response()->json(['url' => $accountLink->url], 200);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return $this->sendResponse(['url' => $accountLink->url], 'Account link created successfully.');
+        } catch (ApiErrorException $e) {
+            return $this->sendError('Failed to create account link.', 500, ['error' => $e->getMessage()]);
         }
     }
 
-    public function completeAccount()
+    public function refreshAccountLink(): JsonResponse
     {
-        return response()->json(['message' => 'Account setup complete'], 200);
+        return $this->createAccountLink();
+    }
+
+    public function completeAccount(): JsonResponse
+    {
+        // Handle post-onboarding logic
+        return $this->sendResponse([], 'Account onboarding complete.');
     }
 }

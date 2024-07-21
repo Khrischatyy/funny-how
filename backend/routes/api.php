@@ -111,18 +111,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/upload', [AddressController::class, 'uploadAddressPhotos']);
         Route::post('/update-index', [AddressController::class, 'updatePhotoIndex']);
     });
+
+
     Route::prefix('user')->group(function () {
         Route::post('set-role', [UserController::class, 'setRole']);
         Route::get('me', [UserController::class, 'getMe']);
         Route::put('update', [UserController::class, 'updateUser']);
         Route::post('update-photo', [UserController::class, 'updatePhoto']);
         Route::get('available-balance', [PayoutController::class, 'getAvailableBalance']);
-    });
 
-    Route::prefix('stripe')->group(function () {
-        Route::get('account/link', [StripeController::class, 'createAccountLink']);
-        Route::get('account/refresh', [StripeController::class, 'refreshAccountLink']);
-        Route::get('account/complete', [StripeController::class, 'completeAccount']);
+        Route::prefix('stripe')->group(function () {
+            Route::post('create-account', [StripeController::class, 'createAccount']);
+            Route::post('create-account-session', [StripeController::class, 'createAccountSession']);
+            Route::get('account/link', [StripeController::class, 'createAccountLink']);
+            Route::get('account/refresh', [StripeController::class, 'refreshAccountLink']);
+            Route::get('account/complete', [StripeController::class, 'completeAccount']);
+        });
     });
 
     Route::get('/payouts', [PayoutController::class, 'index']);
