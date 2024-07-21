@@ -71,7 +71,7 @@ class StripeController extends BaseController
                 'account' => $user->stripe_account_id,
                 'refresh_url' => env('APP_URL') . '/stripe/refresh', // URL фронтенда для обновления
                 'return_url' => env('APP_URL') . '/stripe/complete', // URL фронтенда для завершения
-                'type' => 'account_onboarding',
+                'type' => 'account_Update',
             ]);
 
             return $this->sendResponse(['url' => $accountLink->url], 'Account link created successfully.');
@@ -89,5 +89,23 @@ class StripeController extends BaseController
     {
         // Handle post-onboarding logic
         return $this->sendResponse([], 'Account onboarding complete.');
+    }
+
+    public function retrieveAccount(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            if (!$user->stripe_account_id) {
+                return $this->sendError('Stripe account not found.', 404);
+            }
+
+            $account = Account::retrieve($user->stripe_account_id);
+
+            return $this->sendResponse($account, 'Stripe account retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve Stripe account.', 500, ['error' => $e->getMessage()]);
+        }
     }
 }
