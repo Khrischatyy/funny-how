@@ -8,31 +8,31 @@
     >
       <Spinner :is-loading="isLoading" class="mt-4" />
       <div class="container mx-auto p-4">
-        <h2 class="text-2xl mb-4">Manage Payouts</h2>
         <div
           v-if="
             stripeAccountId &&
             stripeAccountData &&
             Object.keys(stripeAccountData).length > 0
           "
-          class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg"
+          class="flex justify-between items-center border border-white border-opacity-10 rounded-[10px] p-4"
         >
           <div class="text-xl">
             <p class="text-gray-400 mb-2">Available Balance:</p>
             <p class="text-white font-bold">
               ${{ (balance / 100).toFixed(2) }}
             </p>
-            <p class="text-gray-400 mt-2 mb-2">
+            <p class="text-gray-400 mt-5 mb-2">
               Payouts
               {{ stripeAccountData?.charges_enabled ? "Enabled" : "Disabled" }}
             </p>
-            <p
+            <div
               v-if="stripeAccountData?.external_accounts?.total_count > 0"
-              class="text-white text-sm font-bold mb-2"
+              class="text-white text-sm font-bold mb-2 flex justify-center items-center"
             >
+              <IconCredit class="w-6 h-6 mr-2" />
               {{ stripeAccountData?.external_accounts?.data[0]?.bank_name }}
               {{ stripeAccountData?.external_accounts?.data[0]?.last4 }}
-            </p>
+            </div>
             <p v-if="stripeAccountData?.charges_enabled" class="text-sm">
               Payout interval:
               {{ stripeAccountData?.settings?.payouts?.schedule?.interval }}
@@ -54,7 +54,7 @@
             (!stripeAccountData.details_submitted ||
               !stripeAccountData.payouts_enabled)
           "
-          class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-lg"
+          class="flex mt-5 justify-between items-center border border-white border-opacity-10 rounded-[10px] p-4"
         >
           <div class="text-xl">
             <p class="text-red-400 mb-5">Requires attention</p>
@@ -121,7 +121,7 @@
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from "vue"
 import { useFetch } from "#app"
-import { Spinner } from "~/src/shared/ui/common"
+import { IconCredit, Spinner } from "~/src/shared/ui/common"
 import { useApi } from "../lib/api"
 import { useSessionStore } from "../entities/Session"
 import { storeToRefs } from "pinia"

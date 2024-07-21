@@ -41,3 +41,6 @@ export { default as IconVisa } from "./IconVisa.vue"
 export { default as IconBackDraw } from "./IconBackDraw.vue"
 
 export { default as IconNumbers } from "./IconNumbers.vue"
+
+export { default as IconCredit } from "./IconCredit.vue"
+export { default as IconDollar } from "./IconDollar.vue"

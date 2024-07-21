@@ -73,6 +73,8 @@ import {
   IconClients,
   IconHistory,
   IconClose,
+  IconCredit,
+  IconDollar,
 } from "~/src/shared/ui/common"
 
 const sideMenuTemplate: MenuItem[] = [
@@ -105,13 +107,6 @@ const sideMenuTemplate: MenuItem[] = [
     role: STUDIO_OWNER_ROLE,
   },
   {
-    name: "Payout",
-    icon: IconMic,
-    path: "/icons/my-studios.svg",
-    link: "/payout",
-    role: STUDIO_OWNER_ROLE,
-  },
-  {
     name: "Clients",
     icon: IconClients,
     path: "/icons/settings.svg",
@@ -123,6 +118,13 @@ const sideMenuTemplate: MenuItem[] = [
     icon: IconHistory,
     path: "/icons/settings.svg",
     link: "/history",
+    role: STUDIO_OWNER_ROLE,
+  },
+  {
+    name: "Payouts",
+    icon: IconDollar,
+    path: "/icons/dollar.svg",
+    link: "/payout",
     role: STUDIO_OWNER_ROLE,
   },
   {
