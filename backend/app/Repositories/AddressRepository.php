@@ -16,7 +16,10 @@ class AddressRepository implements AddressRepositoryInterface
     {
         $addresses = Address::where('city_id', $cityId)
             ->with(['badges', 'photos', 'prices', 'company', 'operatingHours'])
-            ->get();
+            ->get()->filter(function ($address) {
+                return $address->is_complete;
+            });
+
         foreach ($addresses as $address) {
             if ($address->company->logo) {
                 $address->company->logo_url = Storage::disk('s3')->url($address->company->logo);

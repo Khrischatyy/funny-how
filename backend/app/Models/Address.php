@@ -19,7 +19,7 @@ class Address extends Model
 
     protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone', 'available_balance'];
 
-    protected $appends = ['is_favorite'];
+    protected $appends = ['is_favorite', 'is_complete'];
 
     public function equipments()
     {
@@ -67,6 +67,13 @@ class Address extends Model
     {
         $userId = Auth::id();
         return $this->favoriteByUsers()->where('user_id', $userId)->exists();
+    }
+
+    public function getIsCompleteAttribute()
+    {
+        $hasPrices = $this->prices()->exists();
+        $hasOperatingHours = $this->operatingHours()->exists();
+        return $hasPrices && $hasOperatingHours;
     }
 
     public function favoriteByUsers()
