@@ -15,7 +15,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <AddStudioButton @click="navigateTo('/create')" />
           <StudioCard
-            class="border border-white border-opacity-50 hover:border-opacity-100 cursor-pointer"
+            class="border-dashed border-2 border-opacity-50 hover:border-opacity-100 cursor-pointer"
             @update-studios="fetchStudios"
             :is-delete="true"
             v-for="studio in myStudios"

@@ -83,7 +83,7 @@
             @click="goToStudio(studio)"
           >
             <StudioCard
-              :class="`border border-white border-opacity-50 hover:border-opacity-100 max-w-[22rem] cursor-pointer zoom-effect`"
+              :class="`border-dashed border-2 border-opacity-50 hover:border-opacity-100 max-w-[22rem] cursor-pointer zoom-effect`"
               :studio="studio"
             />
           </div>

@@ -45,13 +45,6 @@
               Update Information
             </button>
           </div>
-          <button
-            v-if="stripeAccountData && stripeAccountData.charges_enabled"
-            @click="createPayout"
-            class="bg-white text-gray-800 font-bold py-2 px-4 rounded-[10px] hover:opacity-80"
-          >
-            Create Payout
-          </button>
         </div>
         <div
           v-if="
@@ -91,12 +84,6 @@
           </button>
         </div>
 
-        <div
-          v-if="!isLoading && payouts.length === 0 && stripeAccountId"
-          class="text-center mt-4 text-gray-400"
-        >
-          No payouts available.
-        </div>
 
         <div v-if="!isLoading && payouts.length > 0" class="mt-4">
           <table class="min-w-full bg-white">
