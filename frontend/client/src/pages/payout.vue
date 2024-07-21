@@ -37,11 +37,18 @@
               Payout interval:
               {{ stripeAccountData?.settings?.payouts?.schedule?.interval }}
             </p>
+            <button
+              v-if="stripeAccountData?.charges_enabled"
+              @click="createAccountLink"
+              class="border-white border mt-2 text-white text-sm py-2 px-4 rounded-[10px] hover:opacity-80"
+            >
+              Update Information
+            </button>
           </div>
           <button
             v-if="stripeAccountData && stripeAccountData.charges_enabled"
             @click="createPayout"
-            class="bg-white text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400"
+            class="bg-white text-gray-800 font-bold py-2 px-4 rounded-[10px] hover:opacity-80"
           >
             Create Payout
           </button>
