@@ -127,6 +127,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::get('link', [StripeController::class, 'createAccountLink']);
                 Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
                 Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
+                Route::get('balance', [StripeController::class, 'retrieveBalance']);
             });
         });
     });

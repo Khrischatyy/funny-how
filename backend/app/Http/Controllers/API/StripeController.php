@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Account;
 use Stripe\AccountLink;
+use Stripe\Balance;
 use Stripe\Stripe;
 
 class StripeController extends BaseController
@@ -84,12 +85,6 @@ class StripeController extends BaseController
         return $this->createAccountLink();
     }
 
-    public function completeAccount(): JsonResponse
-    {
-        // Handle post-onboarding logic
-        return $this->sendResponse([], 'Account onboarding complete.');
-    }
-
     public function retrieveAccount(): JsonResponse
     {
         try {
@@ -105,6 +100,26 @@ class StripeController extends BaseController
             return $this->sendResponse($account, 'Stripe account retrieved successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to retrieve Stripe account.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    public function retrieveBalance(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            if (!$user->stripe_account_id) {
+                return $this->sendError('Stripe account ID not found for the user.', 404);
+            }
+
+            $balance = Balance::retrieve([
+                'stripe_account' => $user->stripe_account_id,
+            ]);
+
+            return $this->sendResponse($balance, 'Balance retrieved successfully.');
+        } catch (ApiErrorException $e) {
+            return $this->sendError('Failed to retrieve balance.', 500, ['error' => $e->getMessage()]);
         }
     }
 }
