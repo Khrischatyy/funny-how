@@ -506,7 +506,10 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
             </FInputClassic>
           </div>
           <div class="price w-full flex-col flex gap-1.5">
-            <PriceChoose v-model="studioForm.price" />
+            <PriceChoose
+              @update-studios="emit('update-studios')"
+              v-model="studioForm.price"
+            />
           </div>
         </div>
         <div class="w-full flex-col flex gap-1.5">

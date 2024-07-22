@@ -119,6 +119,7 @@ function setHours() {
     .then((response) => {
       isLoading.value = false
       updateKey.value++
+      emit("update-studios")
     })
     .catch((error) => {
       console.error("error", error)

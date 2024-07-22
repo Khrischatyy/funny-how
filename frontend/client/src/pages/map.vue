@@ -21,8 +21,7 @@ onMounted(async () => {
     url: "/map/studios",
   })
   getStudios().then((response) => {
-    studios.value = response.data
-    console.log(studios.value.map((studio) => studio.company.name))
+    studios.value = response.data.filter((studio) => studio.is_complete)
   })
 })
 </script>

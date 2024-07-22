@@ -4,7 +4,7 @@ import { useRoute } from "nuxt/app"
 import { useCreateStudioFormStore } from "~/src/entities/RegistrationForms"
 import { IconDown, IconTrash } from "~/src/shared/ui/common"
 import { useApi } from "~/src/lib/api"
-
+const emit = defineEmits(["update-studios"])
 const prices = ref([])
 
 const pricesList = [
@@ -106,6 +106,7 @@ function sendPrice(price) {
       console.log("response", response.data)
       prices.value = response.data
       isLoading.value = false
+      emit("update-studios")
     })
     .catch((error) => {
       console.log(error)
@@ -124,6 +125,7 @@ function deletePrice(price) {
       console.log("response", response.data)
       prices.value = response.data
       isLoading.value = false
+      emit("update-studios")
     })
     .catch((error) => {
       console.log(error)
