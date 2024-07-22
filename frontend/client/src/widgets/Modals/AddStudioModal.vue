@@ -519,7 +519,10 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
         </div>
         <div class="w-full">
           <div class="hours w-full flex-col flex gap-1.5">
-            <HoursChoose v-model="studioForm.hours" />
+            <HoursChoose
+              @update-studios="emit('update-studios')"
+              v-model="studioForm.hours"
+            />
           </div>
         </div>
       </div>

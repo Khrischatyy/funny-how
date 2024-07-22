@@ -13,6 +13,7 @@ import { getModes } from "~/src/widgets/HoursChoose/api"
 import { type ResponseDto, useApi } from "~/src/lib/api"
 import type { Company } from "~/src/entities/RegistrationForms/api"
 
+const emit = defineEmits(["update-studios"])
 const workHours = ref({
   mode_id: 1,
   open_time: "10:00",
@@ -68,7 +69,7 @@ const modes = ref([])
 const studio = inject("studioForPopup")
 const route = useRoute()
 const isLoading = ref(false)
-
+const updateKey = ref(0)
 function isError(form: string, field: string): boolean {
   let formErrors: Record<string, any> = useCreateStudioFormStore().errors
   return formErrors.hasOwnProperty(field) ? formErrors[field][0] : false
@@ -117,9 +118,11 @@ function setHours() {
   post(data)
     .then((response) => {
       isLoading.value = false
+      updateKey.value++
     })
     .catch((error) => {
       console.error("error", error)
+      updateKey.value++
       isLoading.value = false
     })
 }
@@ -203,10 +206,12 @@ const getDayMean = (day: number) => {
           Working hours
         </div>
         <div
-          :class="isError('setup', 'studio_name') ? '' : 'hidden'"
-          class="text-right text-red-500 text-sm font-normal tracking-wide"
+          v-if="
+            !isLoading && studio?.operating_hours.length == 0 && updateKey == 0
+          "
+          class="text-right text-red-500 text-sm font-normal tracking-wide mb-1.5"
         >
-          {{ isError("setup", "studio_name") }}
+          Update your working hours
         </div>
       </div>
     </div>
