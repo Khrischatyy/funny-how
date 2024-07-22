@@ -53,7 +53,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['daily', 'sentry'],
+            'channels' => ['daily'],
             'ignore_exceptions' => false,
         ],
 
@@ -63,10 +63,10 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
         ],
 
-        'sentry' => [
-            'driver' => 'sentry',
-            'level' => env('LOG_LEVEL', 'debug'),
-        ],
+//        'sentry' => [
+//            'driver' => 'sentry',
+//            'level' => env('LOG_LEVEL', 'debug'),
+//        ],
 
         'daily' => [
             'driver' => 'daily',

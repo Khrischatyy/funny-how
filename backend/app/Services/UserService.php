@@ -6,8 +6,9 @@ use App\Http\Requests\UserUpdateRequest;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Intervention\Image\Facades\Image as InterventionImage;
 use Illuminate\Support\Facades\Storage;
+use Spatie\ImageOptimizer\OptimizerChainFactory;
 
 class UserService
 {
@@ -38,9 +39,17 @@ class UserService
 
     public function updateUserPhoto(User $user, $photo): string
     {
-        $photoName = uniqid() . '.' . $photo->getClientOriginalExtension();
+        $photoName = uniqid() . '.jpg';
+        $photoPath = 'photos/profile/' . $photoName;
 
-        $photoPath = $photo->storeAs('photos/profile', $photoName, 's3');
+        // Compress and resize image
+        $compressedImage = $this->compressAndResizeImage($photo, 1500, 85);
+
+        // Save to storage
+        Storage::disk('s3')->put($photoPath, (string) $compressedImage);
+
+        // Optimize image
+        $this->optimizeImage(Storage::disk('s3')->path($photoPath));
 
         $photoUrl = Storage::disk('s3')->url($photoPath);
 
@@ -48,6 +57,22 @@ class UserService
         $user->save();
 
         return $photoUrl;
+    }
+
+    private function compressAndResizeImage($photo, $maxHeight, $quality)
+    {
+        return InterventionImage::make($photo)
+            ->resize(null, $maxHeight, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
+            ->encode('jpg', $quality);
+    }
+
+    private function optimizeImage($imagePath)
+    {
+        $optimizerChain = OptimizerChainFactory::create();
+        $optimizerChain->optimize($imagePath);
     }
 
     public function getClientsByCompanySlug(string $companySlug)

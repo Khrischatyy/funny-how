@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.0.2",
         "guzzlehttp/guzzle": "^7.2",
+        "intervention/image": "^3.7",
         "laravel/cashier": "^14.14",
         "laravel/fortify": "^1.19",
         "laravel/framework": "^9.19",
@@ -16,6 +17,7 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "php-amqplib/php-amqplib": "^3.7",
         "sentry/sentry-laravel": "^4.7",
+        "spatie/laravel-image-optimizer": "^1.8",
         "spatie/laravel-permission": "6.7.0",
         "vladimir-yuldashev/laravel-queue-rabbitmq": "^13.3"
     },
