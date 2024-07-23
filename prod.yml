@@ -29,8 +29,10 @@ services:
     volumes:
       - './backend:/app/'
     depends_on:
-      - db
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     networks:
       - funny
     env_file:
@@ -107,9 +109,12 @@ services:
     volumes:
       - './backend:/app/'
     depends_on:
-      - backend
-      - rabbitmq
-      - db
+      backend:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     networks:
       - funny
     env_file:
