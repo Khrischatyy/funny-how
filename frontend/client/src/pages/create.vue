@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from "@unhead/vue"
-import { definePageMeta, useRuntimeConfig } from "#imports"
+import { definePageMeta, storeToRefs, useRuntimeConfig } from "#imports"
 import { useSessionStore } from "~/src/entities/Session"
 import { computed, onMounted, ref, watch } from "vue"
 import { BrandingLogo } from "~/src/shared/ui/branding"
@@ -26,8 +26,9 @@ const route = useRoute()
 function isError(field: string): boolean {
   return errors.value.hasOwnProperty(field) ? errors.value[field][0] : false
 }
+const session = useSessionStore()
+const { existedCompany } = storeToRefs(session)
 
-const session = computed(() => useSessionStore())
 const { initGoogleMaps, autocomplete, addressData } = useGoogleMaps()
 const place = ref<HTMLInputElement | undefined>()
 
@@ -79,7 +80,7 @@ function changeLogo() {
 
 async function addNewStudio() {
   isLoading.value = true
-  formValues.company_id = userInfo.value?.company.id
+  formValues.company_id = existedCompany.value.id
   //Add timezone of creator
   formValues.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
   try {
@@ -106,18 +107,9 @@ async function setupStudio() {
   }
 }
 
-function signOut() {
-  session.value.logout()
-}
 const upperCase = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
-const existedCompany = computed(() => {
-  return session.value?.brand
-})
-const userInfo = computed(() => {
-  return JSON.parse(session.value?.userInfo).user
-})
 </script>
 
 <template>
@@ -217,7 +209,7 @@ const userInfo = computed(() => {
                   type="text"
                   :placeholder="
                     existedCompany
-                      ? upperCase(existedCompany)
+                      ? upperCase(existedCompany?.name)
                       : 'Ex. Section Studios'
                   "
                 />

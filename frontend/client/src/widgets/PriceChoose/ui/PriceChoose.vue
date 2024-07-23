@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from "vue"
-import { useRoute } from "nuxt/app"
-import { useCreateStudioFormStore } from "~/src/entities/RegistrationForms"
 import { IconDown, IconTrash } from "~/src/shared/ui/common"
 import { useApi } from "~/src/lib/api"
 const emit = defineEmits(["update-studios"])
@@ -15,11 +13,6 @@ const pricesList = [
   { hours: 24 },
 ]
 
-function isError(form: string, field: string): boolean {
-  let formErrors: Record<string, any> = useCreateStudioFormStore().errors
-  return formErrors.hasOwnProperty(field) ? formErrors[field][0] : false
-}
-
 function addPrice() {
   // Get all the existing hours from the prices array
   const existingHours = prices.value.map((price) => price.hours)
@@ -28,21 +21,22 @@ function addPrice() {
   const nextAvailableHours = pricesList.find(
     (pr) => !existingHours.includes(pr.hours),
   )
+  const priceToAdd = {
+    total_price: 60 * nextAvailableHours?.hours,
+    hours: nextAvailableHours?.hours,
+    is_enabled: true,
+  }
 
   // If there's an available hours slot, add a new price with that hours value
   if (nextAvailableHours) {
-    prices.value.push({
-      total_price: "60",
-      hours: nextAvailableHours.hours,
-      is_enabled: false,
-    })
+    sendPrice(priceToAdd)
   } else {
     console.log("No available hours slot to add a new price.")
   }
 }
 
 function addSamplePrices() {
-  prices.value.push(
+  const sampleData = [
     {
       total_price: "60",
       hours: 1,
@@ -58,13 +52,13 @@ function addSamplePrices() {
       hours: 12,
       is_enabled: false,
     },
-  )
+  ].filter((price) => !prices.value.some((p) => p.hours === price.hours))
+  prices.value.push(...sampleData)
 }
 
 const studio = inject("studioForPopup")
 
 onMounted(async () => {
-  addSamplePrices()
   getPrices()
 })
 
@@ -91,22 +85,19 @@ function sendPrice(price) {
     auth: true,
   })
 
-  let data = {
-    total_price: price.total_price,
-    hours: price.hours,
-    is_enabled: price.is_enabled,
-  }
-
-  if (price.id) {
-    data.address_price_id = price.id
-  }
-
-  post(data)
+  post(price)
     .then((response) => {
-      console.log("response", response.data)
-      prices.value = response.data
+      response.data.forEach((price, index) => {
+        const newOrUpdatePrice = prices.value.find(
+          (p) => p.hours === price.hours,
+        )
+        if (newOrUpdatePrice) {
+          newOrUpdatePrice.id = price.id
+        } else {
+          prices.value.push(price)
+        }
+      })
       isLoading.value = false
-      emit("update-studios")
     })
     .catch((error) => {
       console.log(error)
@@ -119,6 +110,12 @@ function deletePrice(price) {
     url: `/address/prices?address_id=${studio.value.id}&address_prices_id=${price.id}`,
     auth: true,
   })
+
+  if (price.id === undefined) {
+    prices.value.splice(index, 1)
+    isLoading.value = false
+    return
+  }
 
   callDeletePrice()
     .then((response) => {

@@ -29,6 +29,7 @@ import { isBadgeTaken } from "~/src/shared/utils/checkBadge"
 import { useRouter } from "vue-router"
 import FormData from "form-data"
 import { useApi } from "~/src/lib/api"
+import Spinner from "~/src/shared/ui/common/Spinner/Spinner.vue"
 definePageMeta({
   middleware: ["auth"],
 })
@@ -39,24 +40,9 @@ useHead({
 })
 
 const isLoading = ref(false)
-//delete
-const workHours = ref({
-  mode_id: 1,
-  open_time: "",
-  close_time: "",
-  open_time_weekend: "",
-  close_time_weekend: "",
-  address_id: "",
-})
-
-//delete
-const badges = ref([])
-
 const prices = ref([])
 
 const route = useRoute()
-
-const router = useRouter()
 
 const pricesList = [
   { hours: 1 },
@@ -79,21 +65,22 @@ function addPrice() {
   const nextAvailableHours = pricesList.find(
     (pr) => !existingHours.includes(pr.hours),
   )
+  const priceToAdd = {
+    total_price: 60 * nextAvailableHours?.hours,
+    hours: nextAvailableHours?.hours,
+    is_enabled: true,
+  }
 
   // If there's an available hours slot, add a new price with that hours value
   if (nextAvailableHours) {
-    prices.value.push({
-      total_price: "60",
-      hours: nextAvailableHours.hours,
-      is_enabled: false,
-    })
+    sendPrice(priceToAdd)
   } else {
     console.log("No available hours slot to add a new price.")
   }
 }
 
 function addSamplePrices() {
-  prices.value.push(
+  const sampleData = [
     {
       total_price: "60",
       hours: 1,
@@ -109,16 +96,12 @@ function addSamplePrices() {
       hours: 12,
       is_enabled: false,
     },
-  )
+  ].filter((price) => !prices.value.some((p) => p.hours === price.hours))
+  prices.value.push(...sampleData)
 }
 
-const session = ref()
 onMounted(async () => {
-  const config = useRuntimeConfig()
-  session.value = useSessionStore()
-  addSamplePrices()
   getPrices()
-  getAddressId()
 })
 
 function filterUnassigned(obj) {
@@ -126,111 +109,68 @@ function filterUnassigned(obj) {
 }
 
 function sendPrice(price) {
-  const config = useRuntimeConfig()
+  isLoading.value = true
+  const { post: updatePrice } = useApi({
+    url: `/address/${route.params.id}/prices`,
+    auth: true,
+  })
 
-  let data = {
-    total_price: price.total_price,
-    hours: price.hours,
-    is_enabled: price.is_enabled,
-  }
-
-  if (price.id) {
-    data.address_price_id = price.id
-  }
-
-  let requestConfig = {
-    method: "post",
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/${route.params.id}/prices`,
-    data: data,
-    headers: {
-      Accept: "application/json",
-      Authorization: "Bearer " + useSessionStore().accessToken,
-    },
-  }
-  axios.defaults.headers.common["X-Api-Client"] = `web`
-  axios
-    .request(requestConfig)
+  updatePrice(price)
     .then((response) => {
-      console.log("response", response.data.data)
+      response.data.forEach((price, index) => {
+        const newOrUpdatePrice = prices.value.find(
+          (p) => p.hours === price.hours,
+        )
+        if (newOrUpdatePrice) {
+          newOrUpdatePrice.id = price.id
+        } else {
+          prices.value.push(price)
+        }
+      })
+      isLoading.value = false
     })
     .catch((error) => {
       console.log(error)
     })
 }
 
-function deletePrice(price) {
-  const config = useRuntimeConfig()
+function deletePrice(price, index) {
+  isLoading.value = true
+  const { delete: removePrice } = useApi({
+    url: `/address/prices?address_id=${route.params.id}&address_prices_id=${price.id}`,
+    auth: true,
+  })
 
-  let data = new FormData()
-
-  let requestConfig = {
-    method: "delete",
-    maxBodyLength: Infinity,
-    url: `${config.public.apiBaseClient}/address/prices?address_id=${route.params.id}&address_prices_id=${price.id}`,
-    headers: {
-      Accept: "application/json",
-      Authorization: "Bearer " + useSessionStore().accessToken,
-    },
-    data: data,
+  if (price.id === undefined) {
+    prices.value.splice(index, 1)
+    isLoading.value = false
+    return
   }
 
-  axios
-    .request(requestConfig)
+  removePrice(price)
     .then((response) => {
-      console.log("response", response.data.data)
-      prices.value = response.data.data
+      console.log("response", response.data)
+      prices.value = response.data
+      isLoading.value = false
     })
     .catch((error) => {
       console.log(error)
     })
 }
 function getPrices() {
-  const config = useRuntimeConfig()
-
-  let requestConfig = {
-    method: "get",
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/${route.params.id}/prices`,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "multipart/form-data",
-      Authorization: "Bearer " + useSessionStore().accessToken,
-    },
-  }
-  axios.defaults.headers.common["X-Api-Client"] = `web`
-  axios
-    .request(requestConfig)
-    .then((response) => {
-      console.log("response", response.data.data)
-      prices.value = response.data.data
-    })
-    .catch((error) => {
-      console.log(error)
-    })
-}
-const addressSlug = ref("")
-function getAddressId() {
-  const { fetch: getCompany } = useApi({
-    url: `/company/${route.params.slug}`,
+  isLoading.value = true
+  const { fetch: fetchPrices } = useApi({
+    url: `/address/${route.params.id}/prices`,
     auth: true,
   })
 
-  getCompany().then((response) => {
-    workHours.value.address_id = response?.data.addresses.find(
-      (addr) => addr.id == route.params.id,
-    )?.id
-    addressSlug.value = response?.data.addresses.find(
-      (addr) => addr.id == route.params.id,
-    )?.slug
+  fetchPrices().then((response) => {
+    if (response.data.length === 0) {
+      addSamplePrices()
+    }
+    prices.value = response.data
+    isLoading.value = false
   })
-}
-function getFormValues(): StudioFormValues {
-  return useCreateStudioFormStore().inputValues
-}
-
-function isBadge(badgeId: number, badges): boolean {
-  if (badges.length > 0) return isBadgeTaken(badgeId, badges)
 }
 
 function routeBack() {
@@ -238,12 +178,7 @@ function routeBack() {
 }
 
 function routeNext() {
-  console.log("addressSlug", addressSlug.value)
   navigateTo(`/my-studios`)
-}
-
-function signOut() {
-  session.value.logout()
 }
 </script>
 
@@ -338,6 +273,7 @@ function signOut() {
         </div>
 
         <div class="flex-col justify-center items-center gap-1.5 flex">
+          <Spinner :is-loading="isLoading" />
           <div class="w-full max-w-96 justify-between items-start inline-flex">
             <div class="text-neutral-700 text-sm font-normal tracking-wide">
               You can edit pricing anytime
@@ -350,7 +286,7 @@ function signOut() {
             </div>
           </div>
           <div
-            v-for="price in prices"
+            v-for="(price, index) in prices"
             :key="price.hours"
             class="animate__animated animate__fadeInDown relative w-full max-w-96 flex items-center gap-1.5 justify-between"
           >
@@ -414,7 +350,7 @@ function signOut() {
               >
             </div>
             <div
-              @click="deletePrice(price)"
+              @click="deletePrice(price, index)"
               class="relative cursor-pointer flex items-center"
             >
               <IconTrash />

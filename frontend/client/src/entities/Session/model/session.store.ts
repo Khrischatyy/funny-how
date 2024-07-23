@@ -31,6 +31,9 @@ export const useSessionStore = defineStore({
       let userJson = this.userInfo
       return this.userObject?.user
     },
+    existedCompany(): any {
+      return this.userObject?.user?.company
+    },
   },
   actions: {
     async fetchUserInfo() {
