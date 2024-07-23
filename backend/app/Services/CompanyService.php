@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class CompanyService
 {
-    public function __construct(public CompanyRepository $companyRepository)
+    public function __construct(public CompanyRepository $companyRepository, public ImageService $imageService)
     {}
 
     public function getCompany(string $slug)
@@ -31,20 +31,22 @@ class CompanyService
         $user = Auth::user();
 
         if (AdminCompany::where('admin_id', $user->id)->exists()) {
-           throw new \Exception('User already has the company', 400);
-        };
+            throw new Exception('User already has a company', 400);
+        }
 
-
-        if($companyRequest->hasFile('logo')) {
-            $path = $companyRequest->file('logo')->store('public/images', 's3');
-        } else {
-            $path = null;
+        $path = null;
+        if ($companyRequest->hasFile('logo')) {
+            $photo = $companyRequest->file('logo');
+            $compressedImage = $this->imageService->toJpeg($photo);
+            $path = 'company/images/' . uniqid() . '.jpg'; // Generate a unique path
+            $url = $this->imageService->saveImageToStorage($compressedImage, $path);
         }
 
         $company = Company::create([
             'name' => $companyRequest->company,
             'logo' => $path,
-            'slug' => Str::slug($companyRequest->company)]);
+            'slug' => Str::slug($companyRequest->company),
+        ]);
 
         AdminCompany::create([
             'admin_id' => Auth::id(),
