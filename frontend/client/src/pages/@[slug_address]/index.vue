@@ -6,7 +6,7 @@
   >
     <Spinner :is-loading="!address" />
     <div
-      v-if="address && address.photos.length > 0"
+      v-if="address && address.is_complete && address.photos.length > 0"
       ref="photoContainer"
       style="width: -webkit-fill-available"
       class="photo-container animate__animated animate__fadeInDown w-full max-h-[250px] max-w-full backdrop-blur p-0 py-5 md:p-10"
@@ -45,7 +45,7 @@
       class="info-container w-full animate__animated animate__fadeInRight h-full flex-col justify-between items-start gap-7 inline-flex"
     >
       <div
-        v-if="address"
+        v-if="address && address.is_complete"
         class="relative w-full flex-col justify-start items-center gap-2.5 flex"
       >
         <div class="p-5 md:p-0 max-w-96">
@@ -375,6 +375,7 @@ import { useSessionStore } from "~/src/entities/Session"
 import { EquipmentsModal, LoginModal } from "~/src/widgets/Modals"
 import {
   computed,
+  onBeforeMount,
   onMounted,
   onUnmounted,
   provide,
@@ -576,6 +577,12 @@ const handleScroll = () => {
     photoContainer.value.style.height = `${newHeight}px`
   }
 }
+
+onBeforeMount(() => {
+  if (address.value && !address.value.is_complete) {
+    navigateTo("/studios")
+  }
+})
 
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll)
