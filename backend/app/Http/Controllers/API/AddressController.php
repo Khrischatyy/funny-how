@@ -251,6 +251,12 @@ class AddressController extends BaseController
      */
     public function createBrand(BrandRequest $request): JsonResponse
     {
+        $user = Auth::user();
+
+        if (!$user->hasRole('studio_owner')) {
+            throw new \Exception('You are not studio owner');
+        }
+
         $city = $this->cityService->findOrCreateCity($request->city, $request->country);
 
         $company = $this->companyService->createNewCompany($request);
@@ -259,7 +265,7 @@ class AddressController extends BaseController
 
         $this->addDefaultHours($address->id);
 
-       return $this->sendResponse([
+        return $this->sendResponse([
             'slug' => $company->slug,
             'address_id' => $address->id
         ], 'Company and address added');

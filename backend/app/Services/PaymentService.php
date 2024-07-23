@@ -6,6 +6,7 @@ use App\Models\Address;
 use App\Models\Booking;
 use App\Models\Charge;
 use App\Models\Payout;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -18,22 +19,19 @@ class PaymentService
     public const MINUTE_TO_PAY = 30;
     public const SERVICE_FEE_PERCENTAGE = 0.5; // 4% сервисный сбор
 
-    public function createPaymentSession(Booking $booking, int $amountOfMoney): array
+    public function createPaymentSession(Booking $booking, int $amountOfMoney, User $studioOwner): array
     {
         try {
-            $user = Auth::user();
-            $address = Address::findOrFail($booking->address_id);
-
-            if (!$user->stripe_account_id) {
-                throw new Exception("Studio owner does not have a Stripe account.");
+            if (!$studioOwner->stripe_account_id) {
+                throw new \Exception("Studio owner does not have a Stripe account.");
             }
 
-            $session = $user->checkoutCharge($amountOfMoney * 100, 'Payment for studio reservation', 1, [
+            $session = $studioOwner->checkoutCharge($amountOfMoney * 100, 'Payment for studio reservation', 1, [
                 'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
                 'cancel_url' => env('APP_URL') . '/cancel-booking',
                 'payment_intent_data' => [
                     'application_fee_amount' => $amountOfMoney * 100 * self::SERVICE_FEE_PERCENTAGE,
-                    'transfer_data' => ['destination' => $user->stripe_account_id],
+                    'transfer_data' => ['destination' => $studioOwner->stripe_account_id],
                 ],
                 'metadata' => [
                     'booking_id' => $booking->id,

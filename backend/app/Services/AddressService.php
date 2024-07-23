@@ -78,6 +78,7 @@ class AddressService
     {
         $addresses = $this->addressRepository->getAddressByCityId($cityId);
 
+
         if ($addresses->isEmpty()) {
             throw new OperatingHourException("No addresses found for the given city ID.", 400);
         }

@@ -8,6 +8,7 @@ use App\Models\Address;
 use App\Models\AdminCompany;
 use App\Models\Company;
 use App\Repositories\CompanyRepository;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 

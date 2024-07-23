@@ -386,9 +386,6 @@ class BookingService
         try {
             $addressId = $request->input('address_id');
             $address = Address::findOrFail($addressId);
-            if (!$address) {
-                throw new ModelNotFoundException("Address not found");
-            }
 
             $timezone = $address->timezone;
 
@@ -396,14 +393,13 @@ class BookingService
             $startTime = Carbon::parse($request->input('start_time'), $timezone);
             $endTime = Carbon::parse($request->input('end_time'), $timezone);
             $endDate = Carbon::parse($request->input('end_date'), $timezone)->format('Y-m-d');
-            
+
             // Set the correct date for startTime and endTime
             $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $bookingDate . ' ' . $startTime->format('H:i:s'), $timezone);
             $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $bookingDate . ' ' . $endTime->format('H:i:s'), $timezone);
 
             $userWhoBooks = Auth::user();
 
-            dd($userWhoBooks);
             $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone);
 
             $amount = $this->getTotalCost($startTime, $endTime, $addressId);
@@ -419,8 +415,13 @@ class BookingService
                 'status_id' => 1, // studio is on pending after booking
             ]);
 
+            // Get the studio owner
+            $company = $address->company;
+            $studioOwner = $company->adminCompany->user;
+
+
             // Generate the payment session
-            $paymentSession = $this->paymentService->createPaymentSession($booking, $amount);
+            $paymentSession = $this->paymentService->createPaymentSession($booking, $amount, $studioOwner);
             $paymentUrl = $paymentSession['payment_url'] ?? null;
 
             // Update the booking with the temporary payment link and expiration time
