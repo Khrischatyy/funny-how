@@ -45,7 +45,7 @@ class Address extends Model
 
     public function prices()
     {
-        return $this->hasMany(AddressPrice::class);
+        return $this->hasMany(AddressPrice::class)->where('is_enabled', true);
     }
 
     public function city()

@@ -402,6 +402,8 @@ class BookingService
             $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $bookingDate . ' ' . $endTime->format('H:i:s'), $timezone);
 
             $userWhoBooks = Auth::user();
+
+            dd($userWhoBooks);
             $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone);
 
             $amount = $this->getTotalCost($startTime, $endTime, $addressId);
