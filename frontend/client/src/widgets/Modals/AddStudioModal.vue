@@ -144,7 +144,7 @@ const updatePhotos = () => {
   if (!studio.value) return
   studioForm.photos = studio?.value.photos
     .map((photo) => ({
-      url: photo.url,
+      url: photo.path,
       id: photo.id,
       index: photo.index,
       file: null,

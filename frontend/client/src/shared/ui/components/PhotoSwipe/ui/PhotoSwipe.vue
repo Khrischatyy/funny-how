@@ -29,13 +29,13 @@ import { usePhotoSwipe } from "~/src/shared/ui/components/PhotoSwipe"
 import { ScrollContainer } from "~/src/shared/ui/common/ScrollContainer"
 
 const props = defineProps<{
-  photos: { url: string; w?: number; h?: number }[]
+  photos: { path: string; w?: number; h?: number }[]
 }>()
 
 const { pswpElement, openGallery } = usePhotoSwipe()
 
 const displayedPhotos: SlideData[] = props.photos.map((photo) => ({
-  src: photo.url,
+  src: photo.path,
   w: photo.w || 1200, // Default width if not specified
   h: photo.h || 900, // Default height if not specified
 }))

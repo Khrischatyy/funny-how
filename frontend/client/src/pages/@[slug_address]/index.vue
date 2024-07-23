@@ -33,7 +33,7 @@
           class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement"
         >
           <img
-            :src="photo.url"
+            :src="photo.path"
             @click.stop="() => openGallery(displayedPhotos, index)"
             alt="cover photo"
             class="w-full h-full object-cover rounded-[10px]"
@@ -771,7 +771,7 @@ function timeChanged(newDate: string, input: keyof StudioFormValues) {
 const { pswpElement, openGallery } = usePhotoSwipe()
 const displayedPhotos: SlideData[] = computed(() =>
   address?.value.photos.map((photo) => ({
-    src: photo.url,
+    src: photo.path,
     w: photo.file?.width || 1200, // Default width if not specified
     h: photo.file?.height || 900, // Default height if not specified
   })),
