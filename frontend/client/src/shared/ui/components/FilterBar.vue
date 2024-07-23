@@ -39,10 +39,7 @@
           <FSelectClassic
             v-if="getFilterShow('status')"
             placeholder="Status"
-            :options="[
-              { id: 1, name: 'Status 1' },
-              { id: 2, name: 'Status 2' },
-            ]"
+            :options="getFilterShow('status')?.options"
             v-model="filters.status"
             class="w-full h-[43px]"
           >

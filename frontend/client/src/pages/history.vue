@@ -74,10 +74,7 @@ const filterShow = reactive([
   { key: "search", options: "", value: "" },
   {
     key: "status",
-    options: [
-      { id: 1, name: "Status 1" },
-      { id: 2, name: "Status 2" },
-    ],
+    options: [],
     value: "",
   },
   { key: "date", options: "", value: "" },
@@ -107,9 +104,36 @@ const getBookings = async (page = 1) => {
     return acc
   }, {})
 
+  const filters = filterUnassigned(body)
+
   fetchBookings(filterUnassigned(body))
     .then((response) => {
       bookings.value = response.data.data
+
+      //Filter by status on frontend
+      if (Object.keys(filters).includes("status")) {
+        bookings.value = bookings.value.filter(
+          (booking) => booking.status.id == filters.status,
+        )
+      }
+
+      console.log("bookings", bookings.value)
+      //Update status filter options
+      filterShow.find((filter) => filter.key === "status").options = [
+        ...new Set(
+          bookings.value.reduce((acc, booking) => {
+            if (!acc.find((status) => status.id === booking.status.id))
+              acc.push({
+                id: booking.status.id,
+                name:
+                  booking.status.name.charAt(0).toUpperCase() +
+                  booking.status.name.slice(1),
+              })
+            return acc
+          }, []),
+        ),
+      ]
+
       currentPage.value = response.data.current_page
       lastPage.value = response.data.last_page
       isLoading.value = false

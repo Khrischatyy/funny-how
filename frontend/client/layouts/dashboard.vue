@@ -127,13 +127,6 @@ const sideMenuTemplate: MenuItem[] = [
     link: "/payout",
     role: STUDIO_OWNER_ROLE,
   },
-  {
-    name: "Logout",
-    icon: IconClose,
-    path: "/icons/logout.svg",
-    link: "/logout",
-    role: "",
-  },
 ]
 if (error.value) {
   console.error("Failed to fetch side menu:", error.value)

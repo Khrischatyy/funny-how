@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { FilterBar } from "~/src/shared/ui/components"
 import { AddStudioButton } from "~/src/features/addStudio"
-import { onMounted, reactive, ref } from "vue"
+import { computed, onMounted, reactive, ref } from "vue"
 import { BookingCard } from "~/src/entities/Booking/ui"
 import { useApi } from "~/src/lib/api"
 import { Spinner } from "~/src/shared/ui/common"
@@ -79,10 +79,7 @@ const filterShow = reactive([
   { key: "search", options: "", value: "" },
   {
     key: "status",
-    options: [
-      { id: 1, name: "Status 1" },
-      { id: 2, name: "Status 2" },
-    ],
+    options: [],
     value: "",
   },
   { key: "date", options: "", value: "" },
@@ -131,14 +128,12 @@ onMounted(() => {
   getBookings()
 })
 
-const onFavoriteChange = (bookingId) => {
-  bookings.value = bookings.value.map((booking) => {
-    if (booking.id === bookingId) {
-      booking.address.is_favorite = !booking.address.is_favorite
-    }
-    return booking
+const availableStatuses = computed(() => {
+  bookings.value.map((booking) => {
+    return { id: booking.status.id, name: booking.status.name }
   })
-}
+})
+
 const handleCancelBooking = (bookings) => {
   bookings.value = bookings
   getBookings()
@@ -155,9 +150,34 @@ const getBookings = async (page = 1) => {
     return acc
   }, {})
 
-  fetchBookings(filterUnassigned(body))
+  const filters = filterUnassigned(body)
+
+  fetchBookings(filters)
     .then((response) => {
       bookings.value = response.data.data
+
+      //Filter by status on frontend
+      if (Object.keys(filters).includes("status")) {
+        bookings.value = bookings.value.filter(
+          (booking) => booking.status.id == filters.status,
+        )
+      }
+      //Update status filter options
+      filterShow.find((filter) => filter.key === "status").options = [
+        ...new Set(
+          bookings.value.reduce((acc, booking) => {
+            if (!acc.find((status) => status.id === booking.status.id))
+              acc.push({
+                id: booking.status.id,
+                name:
+                  booking.status.name.charAt(0).toUpperCase() +
+                  booking.status.name.slice(1),
+              })
+            return acc
+          }, []),
+        ),
+      ]
+
       currentPage.value = response.data.current_page
       lastPage.value = response.data.last_page
       isLoading.value = false

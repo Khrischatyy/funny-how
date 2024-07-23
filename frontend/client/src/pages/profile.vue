@@ -6,11 +6,11 @@
       name="dashboard"
     >
       <div
-        class="container flex flex-col relative gap-10 mx-auto px-2 overflow-x-hidden md:px-4"
+        class="container flex flex-col relative gap-10 mx-auto px-2 overflow-x-hidden md:px-4 mb-10"
       >
         <Spinner :is-loading="isLoading" />
         <div
-          class="flex gap-2 w-full p-5 max-w-2xl bg-black border border-white border-opacity-10 rounded-[10px] justify-center items-center"
+          class="flex gap-2 w-full p-5 max-w-2xl bg-[#171717] border border-white border-opacity-10 rounded-[10px] justify-center items-center"
         >
           <div
             class="group relative min-w-32 cursor-pointer w-32 h-32 avatar rounded-full border border-white border-opacity-20 flex justify-center items-center"
@@ -46,7 +46,7 @@
           </div>
         </div>
         <div
-          class="flex gap-2 w-full p-5 max-w-2xl bg-black border border-white border-opacity-10 rounded-[10px]"
+          class="flex gap-2 w-full p-5 max-w-2xl bg-[#171717] border border-white border-opacity-10 rounded-[10px]"
         >
           <div class="flex flex-col gap-5 w-full">
             <FInputClassic
@@ -65,7 +65,7 @@
           </div>
         </div>
         <div
-          class="flex gap-2 w-full p-5 max-w-2xl bg-black border border-white border-opacity-10 rounded-[10px]"
+          class="flex gap-2 w-full p-5 max-w-2xl bg-[#171717] border border-white border-opacity-10 rounded-[10px]"
         >
           <div class="flex flex-col gap-5 w-full">
             <FInputClassic
@@ -83,6 +83,20 @@
             />
           </div>
         </div>
+        <div class="flex gap-2 w-full justify-center max-w-2xl">
+          <button
+            @click="navigateTo('/forgot-password')"
+            class="w-full max-w-[376px] h-11 hover:opacity-90 bg-white rounded-[10px] text-neutral-900 text-sm font-medium tracking-wide"
+          >
+            Reset password
+          </button>
+          <button
+            @click="navigateTo('/logout')"
+            class="w-full h-11 max-w-[218px] hover:opacity-90 border-red border rounded-[10px] text-red text-sm font-medium tracking-wide"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </NuxtLayout>
   </div>
@@ -93,7 +107,7 @@ import { computed, onMounted, reactive, ref } from "vue"
 import { FInputClassic, IconUpload, Spinner } from "~/src/shared/ui/common"
 import { useApi } from "~/src/lib/api"
 import { filterUnassigned } from "~/src/shared/utils"
-
+import { navigateTo } from "nuxt/app"
 const isLoading = ref(false)
 
 const userForm = reactive({
