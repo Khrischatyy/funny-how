@@ -104,6 +104,7 @@ const getImageBase64 = (file: File) => {
 
 const handleFile = async (files: FileList) => {
   isLoading.value = true
+  console.log(files)
   const newPhotos = Array.from(files).map((file, index) => ({
     url: URL.createObjectURL(file),
     index: index,
