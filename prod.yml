@@ -67,6 +67,11 @@ services:
     command: [ "sh", "-c", "rabbitmq-plugins enable rabbitmq_management && rabbitmq-server" ]
     networks:
       - funny
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   frontend:
     container_name: frontend
