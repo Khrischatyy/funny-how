@@ -23,7 +23,7 @@
             </p>
             <p class="text-gray-400 mt-5 mb-2">
               Payouts
-              {{ stripeAccountData?.charges_enabled ? "Enabled" : "Disabled" }}
+              {{ stripeAccountData?.payouts_enabled ? "Enabled" : "Disabled" }}
             </p>
             <div
               v-if="stripeAccountData?.external_accounts?.total_count > 0"
@@ -33,12 +33,12 @@
               {{ stripeAccountData?.external_accounts?.data[0]?.bank_name }}
               {{ stripeAccountData?.external_accounts?.data[0]?.last4 }}
             </div>
-            <p v-if="stripeAccountData?.charges_enabled" class="text-sm">
+            <p v-if="stripeAccountData?.payouts_enabled" class="text-sm">
               Payout interval:
               {{ stripeAccountData?.settings?.payouts?.schedule?.interval }}
             </p>
             <button
-              v-if="stripeAccountData?.charges_enabled"
+              v-if="stripeAccountData?.payouts_enabled"
               @click="createAccountLink"
               class="border-white border mt-2 text-white text-sm py-2 px-4 rounded-[10px] hover:opacity-80"
             >
@@ -83,7 +83,6 @@
             Connect Stripe Account
           </button>
         </div>
-
 
         <div v-if="!isLoading && payouts.length > 0" class="mt-4">
           <table class="min-w-full bg-white">
