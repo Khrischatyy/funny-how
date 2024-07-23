@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Log;
 class AddressService
 {
     public function __construct(public AddressRepository $addressRepository,
-                                public BookingService $bookingService) {}
+                                public ImageService $imageService) {}
 
     public function getAddressBySlug(string $addressSlug): Address
     {
@@ -115,6 +115,8 @@ class AddressService
         // Обновляем адрес с жадной загрузкой фотографий после загрузки
         $address = Address::with('photos')->findOrFail($address_id);
 
+//        dd($address->photos);
+
         return [
             'photos' => $address->photos,
             'message' => 'Photos uploaded successfully.'
@@ -134,20 +136,31 @@ class AddressService
         foreach ($photos as $file) {
             Log::info('Uploading file: ' . $file->getClientOriginalName());
 
-            $path = $file->store('photos', 's3');
+
+
+
+            // Compress, maybe resize, and optimize image in memory
+            $compressedImage = $this->imageService->toJpeg($file);
+            $optimizedImage = $this->imageService->optimizeImageInMemory($compressedImage);
+
+            // Генерируем путь для сохранения на S3
+            $photoName = uniqid() . '.jpg';
+            $path = 'studio/photos/' . $photoName;
             $index = ++$currentMaxIndex;  // Увеличиваем индекс для каждой новой фотографии
 
-            Log::info('File stored at: ' . $path);
+            // Сохраняем изображение на S3 и получаем URL
+            $photoUrl = $this->imageService->saveImageToStorage($optimizedImage, $path);
+
 
             try {
                 $photo = $address->photos()->create([
-                    'path' => $path,
+                    'path' => $photoUrl,
                     'index' => $index,
                 ]);
 
                 Log::info('Photo record created: ' . json_encode($photo));
                 $uploadedPhotos[] = $photo;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('Failed to create photo record for file: ' . $file->getClientOriginalName());
                 Log::error('Error: ' . $e->getMessage());
             }
@@ -218,19 +231,6 @@ class AddressService
     public function getAllStudios(): Collection
     {
         return $this->addressRepository->getAllStudios();
-    }
-
-    public function setFavorite(int $address_id, bool $is_favorite): Address
-    {
-        $address = Address::findOrFail($address_id);
-
-        if (Gate::denies('update', $address)) {
-            abort(403, 'You are not authorized to update this address.');
-        }
-
-        $address->update(['is_favorite' => $is_favorite]);
-
-        return $address;
     }
 
     public function getCitiesByCompany(int $companyId)

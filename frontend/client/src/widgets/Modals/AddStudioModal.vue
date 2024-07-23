@@ -451,7 +451,6 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
             ref="fileInputRef"
             type="file"
             multiple
-            accept="image/png, image/jpeg"
             @change="onFileChange"
             style="display: none"
           />

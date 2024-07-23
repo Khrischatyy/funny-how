@@ -26,7 +26,7 @@ class AddressPhotosRequest extends FormRequest
         return [
             'address_id' => 'required|exists:addresses,id',
             'photos' => 'required|array',
-            'photos.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'photos.*' => 'required|file|mimes:jpeg,png,jpg,gif,svg,heic,heif|max:5120',
         ];
     }
 }

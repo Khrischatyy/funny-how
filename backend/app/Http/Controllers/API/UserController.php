@@ -222,7 +222,6 @@ class UserController extends BaseController
             if (!$user) {
                 return $this->sendError('Unauthorized.', 401);
             }
-
             $photoUrl = $this->userService->updateUserPhoto($user, $request->file('photo'));
 
             return $this->sendResponse(['photo_url' => $photoUrl], 'Photo updated successfully.');

@@ -6,12 +6,18 @@ use App\Http\Requests\UserUpdateRequest;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image as InterventionImage;
-use Illuminate\Support\Facades\Storage;
-use Spatie\ImageOptimizer\OptimizerChainFactory;
+use Illuminate\Support\Str;
 
 class UserService
 {
+    private $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
+
     public function updateUser(User $user, UserUpdateRequest $request): User
     {
         $data = $request->validated();
@@ -37,42 +43,23 @@ class UserService
         return $user;
     }
 
+
     public function updateUserPhoto(User $user, $photo): string
     {
-        $photoName = uniqid() . '.jpg';
-        $photoPath = 'photos/profile/' . $photoName;
+        $photoName = Str::uuid() . '.jpg';
+        $photoPath = 'profile/photos/' . $photoName;
 
-        // Compress and resize image
-        $compressedImage = $this->compressAndResizeImage($photo, 1500, 85);
+        // Compress, resize, and optimize image in memory
+        $compressedImage = $this->imageService->toJpeg($photo);
+        $optimizedImage = $this->imageService->optimizeImageInMemory($compressedImage);
 
-        // Save to storage
-        Storage::disk('s3')->put($photoPath, (string) $compressedImage);
-
-        // Optimize image
-        $this->optimizeImage(Storage::disk('s3')->path($photoPath));
-
-        $photoUrl = Storage::disk('s3')->url($photoPath);
+        // Save to S3 and get URL
+        $photoUrl = $this->imageService->saveImageToStorage($optimizedImage, $photoPath);
 
         $user->profile_photo = $photoUrl;
         $user->save();
 
         return $photoUrl;
-    }
-
-    private function compressAndResizeImage($photo, $maxHeight, $quality)
-    {
-        return InterventionImage::make($photo)
-            ->resize(null, $maxHeight, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })
-            ->encode('jpg', $quality);
-    }
-
-    private function optimizeImage($imagePath)
-    {
-        $optimizerChain = OptimizerChainFactory::create();
-        $optimizerChain->optimize($imagePath);
     }
 
     public function getClientsByCompanySlug(string $companySlug)

@@ -12,8 +12,6 @@ class AddressPhoto extends Model
 
     protected $table = 'address_photos';
 
-    protected $appends = ['url'];
-
     public $timestamps = false;
 
     protected $fillable = [
@@ -23,10 +21,5 @@ class AddressPhoto extends Model
     public function address()
     {
         return $this->belongsTo(Address::class);
-    }
-
-    public function getUrlAttribute()
-    {
-        return Storage::disk('s3')->url($this->path);
     }
 }

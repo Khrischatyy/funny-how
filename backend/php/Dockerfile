@@ -33,6 +33,13 @@ RUN apt-get -y update \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install -j$(nproc) iconv gd mysqli pdo_pgsql pdo_mysql soap bcmath gmp intl opcache zip sockets
 
+# Install Imagick extension
+RUN apt-get update && apt-get install -y libmagickwand-dev --no-install-recommends \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Xdebug
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug

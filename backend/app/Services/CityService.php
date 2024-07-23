@@ -2,12 +2,7 @@
 
 namespace App\Services;
 
-
-use App\Http\Requests\CityRequest;
-use App\Http\Requests\CountryRequest;
 use App\Models\City;
-use App\Models\Country;
-use Illuminate\Http\Request;
 
 class CityService
 {

@@ -29,20 +29,20 @@ class UserPhotoUpdateRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation()
-    {
-        if ($this->hasFile('photo') && in_array($this->file('photo')->getClientOriginalExtension(), ['heic', 'heif'])) {
-            $heifPath = $this->file('photo')->getPathname();
-            $jpegPath = $heifPath . '.jpg';
-
-            $command = "heif-convert $heifPath $jpegPath";
-            exec($command, $output, $returnVar);
-
-            if ($returnVar !== 0) {
-                throw ValidationException::withMessages(['photo' => 'Failed to convert HEIC/HEIF to JPEG.']);
-            }
-
-            $this->replace(['photo' => new \Illuminate\Http\UploadedFile($jpegPath, $this->file('photo')->getClientOriginalName() . '.jpg')]);
-        }
-    }
+//    protected function prepareForValidation()
+//    {
+//        if ($this->hasFile('photo') && in_array($this->file('photo')->getClientOriginalExtension(), ['heic', 'heif'])) {
+//            $heifPath = $this->file('photo')->getPathname();
+//            $jpegPath = $heifPath . '.jpg';
+//
+//            $command = "heif-convert $heifPath $jpegPath";
+//            exec($command, $output, $returnVar);
+//
+//            if ($returnVar !== 0) {
+//                throw ValidationException::withMessages(['photo' => 'Failed to convert HEIC/HEIF to JPEG.']);
+//            }
+//
+//            $this->replace(['photo' => new \Illuminate\Http\UploadedFile($jpegPath, $this->file('photo')->getClientOriginalName() . '.jpg')]);
+//        }
+//    }
 }
