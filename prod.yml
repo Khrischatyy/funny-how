@@ -32,6 +32,7 @@ services:
       rabbitmq:
         condition: service_healthy
       db:
+        condition: service_healthy
     networks:
       - funny
     env_file:
@@ -56,6 +57,11 @@ services:
       - /mnt/fhdb/postgres_data:/var/lib/postgresql/data
     networks:
       - funny
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:3.13.4-management-alpine
@@ -110,20 +116,24 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-      - rabbitmq:
+      rabbitmq:
         condition: service_healthy
-      - db
+      db:
+        condition: service_healthy
     networks:
       - funny
     env_file:
       - .env
-    command: sh -c "php artisan queue:work --sleep=3 --tries=3"
+    command: sh -c "
+      while ! nc -z rabbitmq 5672; do sleep 1; done;
+      php artisan queue:work --sleep=3 --tries=3
+    "
     restart: always
     logging:
       driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    options:
+      max-size: "10m"
+      max-file: "5"
 
 networks:
   funny:
