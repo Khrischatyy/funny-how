@@ -126,6 +126,13 @@ const handleFile = async (files: FileList) => {
     const response = await uploadPhoto(formData)
     console.log("Upload successful:", response.data)
     studioForm.photos = response.data
+      .map((photo) => ({
+        url: photo.path,
+        id: photo.id,
+        index: photo.index,
+        file: null,
+      }))
+      .sort((a, b) => a.index - b.index)
     emit("update-studios")
     // Handle response, possibly updating UI to reflect the uploaded state
   } catch (error) {
