@@ -126,8 +126,7 @@ services:
       - .env
     command: sh -c "
       while ! nc -z rabbitmq 5672; do sleep 1; done;
-      php artisan queue:work --sleep=3 --tries=3
-    "
+      php artisan queue:work --sleep=3 --tries=3"
     restart: always
     logging:
       driver: "json-file"
