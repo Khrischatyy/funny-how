@@ -26,6 +26,11 @@ services:
         WWWUSER: 'laravel'
         WWWUID: '1000'
     container_name: php
+    healthcheck:
+      test: ["CMD", "php", "-v"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     volumes:
       - './backend:/app/'
     depends_on:
