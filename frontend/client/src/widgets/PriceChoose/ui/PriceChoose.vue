@@ -31,7 +31,7 @@ function addPrice() {
   if (nextAvailableHours) {
     sendPrice(priceToAdd)
   } else {
-    console.log("No available hours slot to add a new price.")
+    console.error("No available hours slot to add a new price.")
   }
 }
 
@@ -74,7 +74,7 @@ function getPrices() {
       isLoading.value = false
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 
@@ -100,7 +100,7 @@ function sendPrice(price) {
       isLoading.value = false
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 
@@ -119,13 +119,12 @@ function deletePrice(price) {
 
   callDeletePrice()
     .then((response) => {
-      console.log("response", response.data)
       prices.value = response.data
       isLoading.value = false
       emit("update-studios")
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 

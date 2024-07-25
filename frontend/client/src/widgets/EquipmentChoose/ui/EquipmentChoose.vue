@@ -30,8 +30,6 @@ const getEquipmentTypes = async () => {
   })
   const { data } = await getTypes()
   equipmentTypes.value = data
-
-  console.log(data)
 }
 
 const session = ref()

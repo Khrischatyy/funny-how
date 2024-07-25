@@ -58,7 +58,6 @@ function mapFitBounds(mapRef, markers) {
   const api = mapRef.value.api
   const map = mapRef.value.map
 
-  console.log("markers", markers)
   bounds = new api.LatLngBounds()
   for (let i = 0; i < markers.length; i++) {
     bounds.extend(new api.LatLng(markers[i].lat, markers[i].lng))
@@ -97,7 +96,6 @@ watch(
   () => props.markers,
   (newMarkers) => {
     if (newMarkers) {
-      console.log("newMarkers", newMarkers)
       updateStudios(newMarkers)
     }
   },

@@ -53,13 +53,10 @@
 import { ref, watch, onMounted, useAttrs, reactive, type Component } from "vue"
 import { Header, Footer } from "~/src/shared/ui/components"
 import { SideMenu } from "~/src/widgets/navigation"
-import { getSideMenu } from "~/src/widgets/navigation/api/useSideMenu"
-import { useAsyncData } from "#app"
 import { STUDIO_OWNER_ROLE, USER_ROLE } from "~/src/entities/Session"
 
 const sideMenuRef = ref()
 const isLoading = ref(false)
-const { data, error } = await useAsyncData("sideMenu", getSideMenu)
 interface MenuItem {
   icon: Component
   name: string
@@ -128,10 +125,6 @@ const sideMenuTemplate: MenuItem[] = [
     role: STUDIO_OWNER_ROLE,
   },
 ]
-if (error.value) {
-  console.error("Failed to fetch side menu:", error.value)
-  isLoading.value = false // Set loading to false in case of error
-}
 
 interface MenuItem {
   icon: Component

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import { navigateTo, useCookie } from "nuxt/app"
 import { useApi } from "~/src/lib/api"
+import { nextTick } from "vue"
 
 type UserRole = "user" | "studio_owner"
 export const USER_ROLE = "user" as UserRole
@@ -44,7 +45,6 @@ export const useSessionStore = defineStore({
       try {
         const response = await api.fetch()
         if (response.data) {
-          console.log("response.data:", response.data)
           this.userObject = response.data
           this.setUserInfo(JSON.stringify(response.data))
           this.setBrand(response.data.company_slug)
@@ -100,6 +100,13 @@ export const useSessionStore = defineStore({
     },
     getUser() {
       return JSON.parse(decodeURIComponent(this.userInfo?.user) || "{}")
+    },
+    authorize(token: string) {
+      this.setAccessToken(token)
+      this.setAuthorized(true)
+      nextTick(() => {
+        this.fetchUserInfo()
+      })
     },
     clearSession() {
       this.setUserInfo(null)

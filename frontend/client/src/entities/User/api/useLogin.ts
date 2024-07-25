@@ -109,11 +109,9 @@ export function useLogin() {
 
     try {
       const response = await post(formData)
-      console.log("Successful response:", response)
 
-      session.setAccessToken(response?.token)
-      session.setAuthorized(true)
       session.setUserRole(response?.role)
+      session.authorize(response?.token)
 
       //Resume booking if there is any stored data
       const storedBookingData = localStorage.getItem("bookingData")

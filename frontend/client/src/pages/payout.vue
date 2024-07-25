@@ -302,7 +302,6 @@ const fetchStripeAccountData = async () => {
     })
 
     getAccountData().then((res) => {
-      console.log(res.data)
       stripeAccountData.value = res.data
       isLoading.value = false
     })

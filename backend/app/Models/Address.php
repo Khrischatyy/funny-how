@@ -19,7 +19,7 @@ class Address extends Model
 
     protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone', 'available_balance'];
 
-    protected $appends = ['is_favorite', 'is_complete'];
+    protected $appends = ['is_favorite', 'is_complete', 'stripe_account_id'];
 
     public function equipments()
     {
@@ -73,7 +73,14 @@ class Address extends Model
     {
         $hasPrices = $this->prices()->exists();
         $hasOperatingHours = $this->operatingHours()->exists();
-        return $hasPrices && $hasOperatingHours;
+        $hasStripeAccountId = $this->stripe_account_id !== null;
+        
+        return $hasPrices && $hasOperatingHours && $hasStripeAccountId;
+    }
+
+    public function getStripeAccountIdAttribute()
+    {
+        return $this->company->adminCompany->user->stripe_account_id;
     }
 
     public function favoriteByUsers()

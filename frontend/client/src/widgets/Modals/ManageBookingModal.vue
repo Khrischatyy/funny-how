@@ -40,7 +40,6 @@ const cancelBooking = async () => {
     booking_id: props.booking?.id,
   }).then((response) => {
     isLoading.value = false
-    console.log("emitOnCancelBooking", response.data)
     emit("onCancelBooking", response.data)
     closePopup()
   })

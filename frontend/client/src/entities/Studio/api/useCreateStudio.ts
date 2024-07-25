@@ -68,7 +68,6 @@ export function useCreateStudio() {
 
     try {
       const response = await post(formData)
-      console.log("Successful response:", response)
       //response returns slug of the created brand and address_id
       useSessionStore().setBrand(response?.data.slug || "")
       navigateTo(
@@ -110,7 +109,6 @@ export function useCreateStudio() {
 
     try {
       const response = await post(formData)
-      console.log("Successful response:", response)
       //response returns slug of the created brand and address_id
       useSessionStore().setBrand(response?.data.slug || "")
       navigateTo(

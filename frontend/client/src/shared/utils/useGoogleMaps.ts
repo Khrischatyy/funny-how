@@ -100,8 +100,6 @@ export function useGoogleMaps() {
         )
         addressData.placeId = place.place_id
         addressData.url = place.url
-
-        console.log("Address Data Updated:", addressData)
       }
     })
   }

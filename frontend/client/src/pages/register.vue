@@ -154,8 +154,6 @@ onMounted(async () => {
     version: "weekly",
   })
 
-  console.log("loader", loader)
-
   const Places = await loader.importLibrary("places")
 
   // the center, defaultbounds are not necessary but are best practices to limit/focus search results
@@ -172,8 +170,6 @@ onMounted(async () => {
 
   const input = document.getElementById("place") //binds to our input element
 
-  console.log("input", input) //optional logging
-
   //this object will be our second arg for the new instance of the Places API
   const options = {
     componentRestrictions: { country: ["us", "ca"] },
@@ -184,15 +180,11 @@ onMounted(async () => {
   // per the Google docs create the new instance of the import above. I named it Places.
   const autocomplete = new Places.Autocomplete(input, options)
 
-  console.log("autocomplete", autocomplete) //optional log but will show you the available methods and properties of the new instance of Places.
-
   //add the place_changed listener to display results when inputs change
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace() //this callback is inherent you will see it if you logged autocomplete
 
     getFormValues("setup").place = place
-
-    console.log("place", place)
   })
 })
 
@@ -225,7 +217,7 @@ function createAccount() {
       }
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 
@@ -275,11 +267,9 @@ function verifyUser() {
   axios.defaults.headers.common["X-Api-Client"] = `web`
   axios
     .request(requestConfig)
-    .then((response) => {
-      console.log(JSON.stringify(response.data))
-    })
+    .then((response) => {})
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 </script>

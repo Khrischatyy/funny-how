@@ -271,6 +271,10 @@ const handleCityChange = async (cityId: string) => {
   selectedCity.value = cityId
   localStorage.setItem("selectedCity", cityId.toString())
   updateURL()
+  await fetchStudios(cityId)
+}
+
+const fetchStudios = async (cityId: string) => {
   const studiosData = await getStudios(cityId)
 
   studios.value = studiosData.map((studio) => ({
@@ -280,6 +284,7 @@ const handleCityChange = async (cityId: string) => {
     name: studio.company.name,
     street: studio.street,
     photos: studio.photos,
+    stripe_account_id: studio.stripe_account_id,
     badges: studio.badges,
     prices: studio.prices,
     is_complete: studio.is_complete,
@@ -289,10 +294,9 @@ const handleCityChange = async (cityId: string) => {
     price: studio.prices.length > 0 ? studio.prices[0].total_price : 0,
   }))
 
-  //set unique badges
-
-  if (filterShow.find((filter) => filter.key == "badges")) {
-    filterShow.find((filter) => filter.key == "badges").options = studiosData
+  const badgesFilter = filterShow.find((filter) => filter.key == "badges")
+  if (badgesFilter) {
+    badgesFilter.options = studiosData
       .map((studio) => studio.badges)
       .flat()
       .filter(
@@ -303,6 +307,18 @@ const handleCityChange = async (cityId: string) => {
         id: badge.id,
         name: badge.name.charAt(0).toUpperCase() + badge.name.slice(1),
       }))
+  }
+}
+
+const handleRouteChange = async (newRoute) => {
+  if (newRoute.query.country) {
+    selectedCountry.value = newRoute.query.country as string
+  }
+  if (newRoute.query.city) {
+    selectedCity.value = newRoute.query.city as string
+  }
+  if (newRoute.query.search) {
+    searchTerm.value = newRoute.query.search as string
   }
 }
 
@@ -367,17 +383,7 @@ const router = useRouter()
 watch(
   route,
   (newRoute) => {
-    if (newRoute.query.country) {
-      selectedCountry.value = newRoute.query.country as string
-      handleCountryChange(selectedCountry.value)
-    }
-    if (newRoute.query.city) {
-      selectedCity.value = newRoute.query.city as string
-      handleCityChange(selectedCity.value)
-    }
-    if (newRoute.query.search) {
-      searchTerm.value = newRoute.query.search as string
-    }
+    handleRouteChange(newRoute)
   },
   { immediate: true },
 )

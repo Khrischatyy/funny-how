@@ -58,8 +58,6 @@ import { computed, onMounted, provide, reactive, ref } from "vue"
 import { AddStudioButton } from "~/src/features/addStudio"
 import { StudioCard } from "~/src/entities/Studio"
 import { FilterBar } from "~/src/shared/ui/components"
-import { getSideMenu } from "~/src/widgets/navigation/api/useSideMenu"
-import { useAsyncData } from "#app"
 import { AddStudioModal } from "~/src/widgets/Modals"
 import {
   getMyStudiosFilter,
@@ -132,8 +130,6 @@ const handleFiltersChange = (newFilters) => {
   fetchStudios() // Reset to page 1 with new filters
 }
 
-const { data, error } = await useAsyncData("sideMenu", getSideMenu)
-
 const togglePopup = () => {
   showPopup.value = !showPopup.value
 }
@@ -148,11 +144,6 @@ provide("studioForPopup", studioForPopup)
 
 const closePopup = () => {
   showPopup.value = false
-}
-
-if (error.value) {
-  console.error("Failed to fetch side menu:", error.value)
-  isLoading.value = false // Set loading to false in case of error
 }
 
 const toggleSideMenu = () => {

@@ -137,7 +137,6 @@ watch(
   data,
   (newData) => {
     if (newData) {
-      console.log("Modes Data:", newData.data)
       modes.value = newData.data || []
     }
   },
@@ -261,7 +260,7 @@ const getDayMean = (day: number) => {
 
         <div
           v-if="workHours.mode_id == 2"
-          class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center"
+          class="gap-2.5 inline-flex justify-center items-center"
         >
           <input
             v-model="workHours.open_time"
@@ -290,9 +289,7 @@ const getDayMean = (day: number) => {
             name="workday"
           />
         </div>
-        <div
-          class="w-48 max-w-48 gap-2.5 inline-flex justify-center items-center"
-        >
+        <div class="gap-2.5 inline-flex justify-center items-center">
           <input
             v-model="workHours.eachDay[index].open_time"
             class="w-full h-11 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"

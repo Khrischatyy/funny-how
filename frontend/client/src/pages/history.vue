@@ -117,7 +117,6 @@ const getBookings = async (page = 1) => {
         )
       }
 
-      console.log("bookings", bookings.value)
       //Update status filter options
       filterShow.find((filter) => filter.key === "status").options = [
         ...new Set(

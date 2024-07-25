@@ -75,7 +75,7 @@ function addPrice() {
   if (nextAvailableHours) {
     sendPrice(priceToAdd)
   } else {
-    console.log("No available hours slot to add a new price.")
+    console.error("No available hours slot to add a new price.")
   }
 }
 
@@ -130,7 +130,7 @@ function sendPrice(price) {
       isLoading.value = false
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 
@@ -149,12 +149,11 @@ function deletePrice(price, index) {
 
   removePrice(price)
     .then((response) => {
-      console.log("response", response.data)
       prices.value = response.data
       isLoading.value = false
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 function getPrices() {

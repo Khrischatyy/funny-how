@@ -90,11 +90,10 @@ function toogleBadge(badge_id) {
   axios
     .request(requestConfig)
     .then((response) => {
-      console.log("response", response.data.data)
       badges.value.taken_badges = response.data.data
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 function getBadges() {
@@ -114,11 +113,10 @@ function getBadges() {
   axios
     .request(requestConfig)
     .then((response) => {
-      console.log("response", response.data.data)
       badges.value = response.data.data
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 
@@ -139,13 +137,12 @@ function getAddressId() {
   axios
     .request(requestConfig)
     .then((response) => {
-      console.log("response", response.data.data)
       workHours.value.address_id = response?.data?.data.addresses.find(
         (addr) => addr.id == route.params.id,
       )?.id
     })
     .catch((error) => {
-      console.log(error)
+      console.error(error)
     })
 }
 function getFormValues(): StudioFormValues {

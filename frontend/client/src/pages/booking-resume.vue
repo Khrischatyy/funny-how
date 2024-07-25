@@ -49,7 +49,7 @@ function book(data) {
       }
     })
     .catch((error) => {
-      console.log("Error:", error)
+      console.error("Error:", error)
       bookingError.value = error.errors.error
       isLoading.value = false
     })

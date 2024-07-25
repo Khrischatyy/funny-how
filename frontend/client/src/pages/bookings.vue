@@ -27,7 +27,7 @@
           </div>
           <BookingCard
             class="border border-white border-opacity-30"
-            @on-favorite-change="onFavoriteChange"
+            @on-favorite-change="getBookings()"
             @onCancelBooking="handleCancelBooking"
             v-for="booking in bookings"
             :key="booking.id"

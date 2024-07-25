@@ -33,14 +33,14 @@
       </div>
     </div>
     <div
-      class="flex justify-center items-center absolute left-0 top-0 w-full h-full"
+      class="flex flex-col justify-center items-center absolute left-0 top-0 w-full h-full"
       v-if="!studio.is_complete"
     >
       <div
         class="absolute bg-black bg-opacity-50 z-20 backdrop-blur-[15px] rounded-[10px] left-0 top-0 w-full h-full"
       ></div>
       <div
-        class="flex absolute justify-start z-30 items-center gap-2 px-5 py-2 rounded-[10px] bg-red-500 bg-opacity-0 border-opacity-0 border border-red-500"
+        class="flex justify-start z-30 items-center gap-2 px-5 py-2 rounded-[10px] bg-red-500 bg-opacity-0 border-opacity-0 border border-red-500"
       >
         <div class="iconInfo z-30">
           <IconStatus />
@@ -48,6 +48,19 @@
         <div class="textInfo z-30">
           <span class="text-white font-['BebasNeue']"
             >Complete setup to publish your studio
+          </span>
+        </div>
+      </div>
+      <div
+        v-if="!studio?.stripe_account_id"
+        class="flex justify-start z-30 items-center gap-2 px-5 py-2 rounded-[10px] bg-red-500 bg-opacity-0 border-opacity-0 border border-red-500"
+      >
+        <div class="iconInfo z-30">
+          <IconDollar />
+        </div>
+        <div class="textInfo z-30">
+          <span class="text-white font-['BebasNeue']"
+            >Add Payout Information
           </span>
         </div>
       </div>
@@ -162,6 +175,7 @@ import {
   FSelectClassic,
   IconBooking,
   IconClock,
+  IconDollar,
   IconLeft,
   IconLike,
   IconMic,

@@ -38,7 +38,6 @@ const processPayment = async () => {
     booking_id: bookingId.value,
   })
     .then((response) => {
-      console.log("responseinside", response)
       if (response.code == 200) {
         navigateTo("/bookings")
       } else {

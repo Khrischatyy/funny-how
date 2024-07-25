@@ -112,7 +112,6 @@ const resetPassword = async () => {
     password_confirmation: password_confirmation.value,
   })
     .then((response) => {
-      console.log("responseRestore", response)
       isLoading.value = false
       email.value = ""
       success.value = "Password updated successfully! Redirecting to profile."
@@ -143,7 +142,7 @@ const resetPassword = async () => {
     })
     .catch((error) => {
       isLoading.value = false
-      console.log("errrors", error)
+      console.error("errrors", error)
       errors.value = error
     })
 }

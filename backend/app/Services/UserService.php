@@ -75,11 +75,18 @@ class UserService
             throw new \Exception('Unauthorized.', 403);
         }
 
-        $clients = User::whereHas('adminCompany', function ($query) use ($company) {
-            $query->where('company_id', $company->id);
+        $clients = User::whereHas('bookings', function ($query) use ($company) {
+            $query->whereHas('address', function ($query) use ($company) {
+                $query->where('company_id', $company->id);
+            });
         })
             ->withCount('bookings')
             ->get(['id', 'firstname', 'username', 'phone', 'email', 'bookings_count']);
+        // $clients = User::whereHas('adminCompany', function ($query) use ($company) {
+        //     $query->where('company_id', $company->id);
+        // })
+        //     ->withCount('bookings')
+        //     ->get(['id', 'firstname', 'username', 'phone', 'email', 'bookings_count']);
 
         return $clients->map(function($client) {
             return [

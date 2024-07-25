@@ -52,7 +52,7 @@ const handleRoleUpdate = async (role: string) => {
       }
     })
     .catch((error) => {
-      console.log("error", error)
+      console.error("error", error)
     })
 }
 </script>

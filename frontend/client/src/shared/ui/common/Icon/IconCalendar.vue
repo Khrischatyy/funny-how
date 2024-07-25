@@ -37,7 +37,7 @@
 const props = withDefaults(
   defineProps<{
     iconColor?: string
-    active: boolean
+    active?: boolean
   }>(),
   {
     iconColor: "#ffffff",

@@ -20,6 +20,7 @@ import { useApi } from "~/src/lib/api"
 import { ScrollContainer } from "~/src/shared/ui/common/ScrollContainer"
 import { usePhotoSwipe } from "~/src/shared/ui/components/PhotoSwipe"
 import type { SlideData } from "photoswipe"
+import { navigateTo } from "#app"
 
 const props = withDefaults(
   defineProps<{
@@ -64,7 +65,6 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const onFileChange = async (event: Event) => {
   const files = (event.target as HTMLInputElement).files
-  console.log("files", files)
   if (files) {
     await handleFile(files)
   }
@@ -91,20 +91,16 @@ const onDrop = async (event: DragEvent) => {
 }
 
 const getImageUrlByFile = (file: File) => {
-  console.log(URL.createObjectURL(file))
   return URL.createObjectURL(file)
 }
 const getImageBase64 = (file: File) => {
   const reader = new FileReader()
   reader.readAsDataURL(file)
-  reader.onload = () => {
-    console.log(reader.result)
-  }
+  reader.onload = () => {}
 }
 
 const handleFile = async (files: FileList) => {
   isLoading.value = true
-  console.log(files)
   const newPhotos = Array.from(files).map((file, index) => ({
     url: URL.createObjectURL(file),
     index: index,
@@ -125,7 +121,6 @@ const handleFile = async (files: FileList) => {
   formData.append("address_id", studio.value.id.toString())
   try {
     const response = await uploadPhoto(formData)
-    console.log("Upload successful:", response.data)
     studioForm.photos = response.data
       .map((photo) => ({
         url: photo.path,
@@ -257,7 +252,6 @@ function handleDragEnd(event: DragEvent) {
 
   const photo = studioForm.photos[draggedItemIndex.value]
   const newIndex = draggedItemIndex.value
-  console.log("photo", photo, "newIndex", newIndex)
   // Send photo_id and new index to the server
   updatePhotoOrder(photo.id, newIndex)
 
@@ -274,7 +268,6 @@ const updateSlug = () => {
 
   updateSlug({ new_slug: studioForm.slug })
     .then((response) => {
-      console.log("Update successful:", response.data)
       updatedSlug.value = response.data?.slug
       emit("update-studios")
     })
@@ -293,7 +286,6 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
       index: newIndex,
     })
     emit("update-studios")
-    console.log("Update successful:", response.data)
     // Handle response, possibly updating UI to reflect the uploaded state
   } catch (error) {
     console.error("Update failed:", error)
@@ -525,6 +517,41 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
           </div>
           <div class="badgees w-full flex-col flex gap-1.5">
             <BadgesChoose v-model="studioForm.badges" />
+          </div>
+          <div
+            v-if="!studio.stripe_account_id"
+            class="payouts w-full flex-col flex gap-1.5"
+          >
+            <div
+              class="relative w-full flex-col justify-start items-center gap-2.5 flex"
+            >
+              <div
+                class="flex-col w-full justify-start items-start gap-1.5 flex"
+              >
+                <div class="w-wull justify-between items-center flex">
+                  <div
+                    class="text-red w-full text-sm font-normal tracking-wide"
+                  >
+                    Connect yout stripe account
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="flex-col w-full justify-center items-center gap-1.5 flex"
+              >
+                <div
+                  class="w-full justify-center items-center gap-2.5 inline-flex"
+                >
+                  <button
+                    @click="navigateTo('/payout')"
+                    class="w-full h-11 p-3.5 hover:opacity-70 text-white rounded-[10px] border-red border text-sm font-medium tracking-wide"
+                  >
+                    Setup Payouts
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="w-full">

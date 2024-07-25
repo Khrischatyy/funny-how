@@ -101,7 +101,6 @@ watch(
   () => props.date,
   (newDate) => {
     currentDate.value = newDate
-    console.log("newDate", newDate)
   },
 )
 

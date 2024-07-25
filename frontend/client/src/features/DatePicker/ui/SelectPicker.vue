@@ -120,7 +120,6 @@ const updateDate = () => {
 }
 
 const customDateChanged = (type, newDate) => {
-  console.log("newDatecustomDateChanged", newDate)
   customDate.value = new Date(newDate)
   updateDate()
 }

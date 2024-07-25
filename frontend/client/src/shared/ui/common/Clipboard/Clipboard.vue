@@ -22,7 +22,6 @@ const copyText = async () => {
   try {
     await navigator.clipboard.writeText(<string>props.textToCopy)
     copySuccess.value = true
-    console.log("Copied successfully!")
     setTimeout(() => (copySuccess.value = false), 2000) // Notification visible for 2 seconds
   } catch (err) {
     console.error("Failed to copy:", err)
