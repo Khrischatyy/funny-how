@@ -51,7 +51,7 @@ Update frontend container
 make update-frontend
 ```
 
-Update all containers
+Update all containers (recommended)
 
 ```bash
 make update-dev-container
@@ -61,34 +61,4 @@ Reload the nginx server
 
 ```bash
 make nginx-reload
-```
-
-### Test Jobs
-
-```bash
-$user = User::where('email', 'rushadaev@gmail.com')->first();
-```
-
-```bash
-$booking = Booking::first();
-```
-
-```bash
-dispatch(new App\Jobs\SendVerifyEmailJob($user, 'verify_url'));
-```
-
-```bash
-dispatch(new App\Jobs\SendWelcomeEmailJob($user));
-```
-
-```bash
-dispatch(new App\Jobs\SendResetPasswordJob('rushadaev@gmail.com', 'token'));
-```
-
-```bash
-dispatch(new App\Jobs\BookingConfirmationJob($booking, 'payment_url', 'rushadaev@gmail.com', '120'));
-```
-
-```bash
-dispatch(new App\Jobs\BookingCancellationJob($user, $booking));
 ```

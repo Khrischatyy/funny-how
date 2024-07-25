@@ -16,7 +16,7 @@
           type="email"
           class="w-full"
           v-model="email"
-          placeholder="Your email"
+          placeholder="youremail@example.com"
           required
         />
         <button
