@@ -103,9 +103,16 @@ const closePopup = () => {
           <div
             class="w-full h-7 rounded-lg justify-start items-center gap-2.5 inline-flex"
           >
-            <label class="checkbox-wrapper flex gap-2">
+            <label
+              for="sign-in-for-a-month"
+              class="checkbox-wrapper flex gap-2 cursor-pointer"
+            >
               <div class="w-4 h-4 justify-center items-center flex">
-                <input type="checkbox" class="hidden" />
+                <input
+                  id="sign-in-for-a-month"
+                  type="checkbox"
+                  class="hidden"
+                />
                 <div
                   class="w-4 h-4 rounded-[3px] border border-white custom-checkbox"
                 ></div>

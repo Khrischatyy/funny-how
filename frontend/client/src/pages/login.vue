@@ -290,19 +290,6 @@ const bookingData = computed(() => {
             {{ getAuthTitleByName(step) }}
           </div>
           <div
-            v-if="bookingData"
-            class="relative px-5 flex gap-2 justify-center items-center text-white text-sm font-bold tracking-wider"
-          >
-            <IconCheck />
-            <div>
-              {{
-                bookingData
-                  ? "We saved your booking data, you will continue after login"
-                  : ""
-              }}
-            </div>
-          </div>
-          <div
             class="relative h-full w-full m-2 md:m-0 md:w-96 min-h-auto sm:min-h-[500px] flex justify-start items-center bg-gradient-to-b from-[#000] via-[#000] to-transparent rounded-xl p-5 z-10"
           >
             <div
@@ -332,9 +319,13 @@ const bookingData = computed(() => {
               <div
                 class="w-full h-7 rounded-lg justify-start items-center gap-2.5 inline-flex"
               >
-                <label class="checkbox-wrapper flex">
+                <label for="sign-in-for-a-month" class="checkbox-wrapper flex">
                   <div class="w-4 h-4 justify-center items-center flex">
-                    <input type="checkbox" class="hidden" />
+                    <input
+                      id="sign-in-for-a-month"
+                      type="checkbox"
+                      class="hidden"
+                    />
                     <div
                       class="w-4 h-4 rounded-[3px] border border-white custom-checkbox"
                     ></div>
@@ -405,44 +396,5 @@ const bookingData = computed(() => {
 
   letter-spacing: 0.04em;
   border: 1px solid #efc933;
-}
-.checkbox-wrapper {
-  display: flex;
-  gap: 5px;
-  cursor: pointer;
-
-  .custom-checkbox {
-    display: inline-block;
-    vertical-align: middle;
-    position: relative;
-
-    &:after {
-      content: "";
-      position: absolute;
-      display: none;
-    }
-  }
-
-  input[type="checkbox"] {
-    &:checked ~ .custom-checkbox {
-      padding: 3px;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      &:after {
-        position: relative;
-        top: 0;
-        left: 0;
-        display: block;
-        width: 100%;
-        height: 100%;
-        border: solid white;
-        background: #f3f5fd;
-        border-radius: 2px;
-      }
-    }
-  }
 }
 </style>

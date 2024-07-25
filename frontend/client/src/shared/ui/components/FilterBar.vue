@@ -8,10 +8,15 @@
         :wide="true"
         placeholder="Search"
         v-model="filters.search"
+        @click="makeActive('search')"
+        v-click-outside="resetActive"
         class="w-full"
       >
         <template #icon>
-          <IconSearch class="h-5 w-5 text-gray-400" />
+          <IconSearch
+            :active="activeFilter == 'search'"
+            class="h-5 w-5 text-gray-400"
+          />
         </template>
       </FInputClassic>
       <IconButton
@@ -27,60 +32,85 @@
         <div class="flex w-full h-full gap-[20px]">
           <FSelectClassic
             v-if="getFilterShow('city')"
+            @click="makeActive('city')"
+            v-click-outside="resetActive"
             placeholder="City"
             :options="getFilterShow('city')?.options"
             v-model="filters.city"
             class="w-full h-[43px]"
           >
             <template #icon>
-              <IconStatus class="h-5 w-5 text-gray-400" />
+              <IconStatus
+                :active="activeFilter == 'city'"
+                lass="h-5 w-5 text-gray-400"
+              />
             </template>
           </FSelectClassic>
           <FSelectClassic
             v-if="getFilterShow('status')"
+            @click="makeActive('status')"
+            v-click-outside="resetActive"
             placeholder="Status"
             :options="getFilterShow('status')?.options"
             v-model="filters.status"
             class="w-full h-[43px]"
           >
             <template #icon>
-              <IconStatus class="h-5 w-5 text-gray-400" />
+              <IconStatus
+                :active="activeFilter == 'status'"
+                class="h-5 w-5 text-gray-400"
+              />
             </template>
           </FSelectClassic>
           <FSelectClassic
             v-if="getFilterShow('badges')"
             placeholder="Badges"
+            @click="makeActive('badges')"
+            v-click-outside="resetActive"
             :options="getFilterShow('badges')?.options"
             v-model="filters.badges"
             class="w-full h-[43px]"
           >
             <template #icon>
-              <IconStatus class="h-5 w-5 text-gray-400" />
+              <IconStatus
+                :active="activeFilter == 'badges'"
+                class="h-5 w-5 text-gray-400"
+              />
             </template>
           </FSelectClassic>
 
           <FInputClassic
             v-if="getFilterShow('date')"
             type="date"
+            @click="makeActive('date')"
+            v-click-outside="resetActive"
             placeholder="Date"
             v-model="filters.date"
             size="sm"
             class="w-full h-[43px]"
           >
             <template #icon>
-              <IconCalendar class="h-5 w-5 text-gray-400" />
+              <IconCalendar
+                :active="activeFilter == 'date'"
+                class="h-5 w-5 text-gray-400"
+              />
             </template>
           </FInputClassic>
 
           <FInputClassic
             v-if="getFilterShow('price')"
+            @click="makeActive('price')"
+            v-click-outside="resetActive"
             placeholder="Price up to"
             size="sm"
             v-model="filters.price"
             class="w-full h-[43px]"
           >
             <template #icon>
-              <IconPrice class="h-5 w-5 text-gray-400" />
+              <IconPrice
+                :active="activeFilter == 'price'"
+                class="h-5 w-5 text-gray-400"
+              />
             </template>
           </FInputClassic>
         </div>
@@ -91,24 +121,34 @@
         <FInputClassic
           v-if="getFilterShow('time')"
           type="time"
+          @click="makeActive('time')"
+          v-click-outside="resetActive"
           placeholder="Time"
           v-model="filters.time"
           size="sm"
           class="max-w-[117px] md:max-w-full w-full h-[43px]"
         >
           <template #icon>
-            <IconClock class="h-5 w-5 text-gray-400" />
+            <IconClock
+              :active="activeFilter == 'time'"
+              class="h-5 w-5 text-gray-400"
+            />
           </template>
         </FInputClassic>
         <FInputClassic
           v-if="getFilterShow('rating')"
           placeholder="Rating"
+          @click="makeActive('rating')"
+          v-click-outside="resetActive"
           size="sm"
           v-model="filters.rating"
           class="max-w-[117px] md:max-w-full w-full h-[43px]"
         >
           <template #icon>
-            <IconRating class="h-5 w-5 text-gray-400" />
+            <IconRating
+              :active="activeFilter == 'rating'"
+              class="h-5 w-5 text-gray-400"
+            />
           </template>
         </FInputClassic>
         <div
@@ -187,9 +227,20 @@ const filters = ref({
   badges: null,
 })
 const dateInput = ref(null)
+const activeFilter = ref("")
+
 const isFiltersOpen = ref(false)
 const openFiltersToogle = () => (isFiltersOpen.value = !isFiltersOpen.value)
 
+const makeActive = (key: string) => {
+  setTimeout(() => {
+    activeFilter.value = key
+  }, 0)
+}
+
+const resetActive = () => {
+  activeFilter.value = ""
+}
 const checkDesktop = () => {
   return process.client && window.innerWidth > 1024
 }

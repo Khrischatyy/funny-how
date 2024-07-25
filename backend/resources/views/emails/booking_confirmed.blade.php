@@ -25,7 +25,7 @@
     </div>
     <div style="padding: 5px; text-align: center;  font-size:18px;color:#fff;">
         <p>Don't forget to pay in advance.</p>
-        <p>Booking wil be cancelled within 6 hours, <br/>if we won't receive your payment</p>
+        <p>Booking wil be cancelled in 20 minutes, <br/>if we won't receive your payment</p>
         <p>Thank you for using our service.</p>
     </div>
     <div style="text-align: center; padding: 20px 0; margin-top: 20px; font-size: 12px; color: #cccccc;">
