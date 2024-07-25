@@ -17,7 +17,7 @@
           >
             <img
               v-if="userForm.profile_photo"
-              class="object-cover rounded-full"
+              class="object-cover rounded-full w-full"
               :src="userForm.profile_photo"
             />
             <div class="absolute w-full h-full z-10">

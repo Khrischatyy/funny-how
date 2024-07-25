@@ -53,8 +53,7 @@ export const useSessionStore = defineStore({
         }
       } catch (error) {
         console.error("Error fetching user info:", error)
-        this.setAuthorized(false)
-        throw error
+        this.logout()
       }
     },
     setAccessToken(token: string | null) {

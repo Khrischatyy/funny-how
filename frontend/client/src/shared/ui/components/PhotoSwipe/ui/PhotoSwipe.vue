@@ -23,7 +23,6 @@
 </template>
 
 <script lang="ts" setup>
-import "photoswipe/style.css"
 import type { SlideData } from "photoswipe"
 import { usePhotoSwipe } from "~/src/shared/ui/components/PhotoSwipe"
 import { ScrollContainer } from "~/src/shared/ui/common/ScrollContainer"
@@ -43,6 +42,8 @@ const displayedPhotos: SlideData[] = props.photos.map((photo) => ({
 defineExpose({ openGallery })
 </script>
 <style lang="scss">
+@import "photoswipe/style.css";
+
 .pswp__img {
   object-fit: cover;
 }

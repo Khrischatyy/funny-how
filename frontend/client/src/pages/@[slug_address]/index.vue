@@ -860,7 +860,6 @@ select {
   cursor: pointer;
 }
 .photo-container {
-  position: sticky;
   top: 0; // Adjust this value based on your header or desired offset
   transition: height 0.1s ease-in-out; // Smooth transition for height change
   z-index: 1000; // Ensure the photo container is above other content
