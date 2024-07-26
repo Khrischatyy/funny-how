@@ -13,7 +13,6 @@ ENV TZ=UTC
 # Install system dependencies and clear cache
 RUN apt-get -y update \
     && apt-get install -y \
-    libfreetype6-dev \
     libpq-dev \
     libicu-dev \
     libjpeg62-turbo-dev \
@@ -30,8 +29,7 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install -j$(nproc) iconv gd mysqli pdo_pgsql pdo_mysql soap bcmath gmp intl opcache zip sockets
+RUN docker-php-ext-install -j$(nproc) iconv mysqli pdo_pgsql pdo_mysql soap bcmath gmp intl opcache zip sockets
 
 # Install Imagick extension
 RUN apt-get update && apt-get install -y libmagickwand-dev --no-install-recommends \

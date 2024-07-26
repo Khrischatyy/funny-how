@@ -10,9 +10,8 @@ WORKDIR /app/
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
 
-# Install system dependencies and clear cache
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libfreetype6-dev \
     libpq-dev \
     libicu-dev \
     libjpeg62-turbo-dev \
@@ -30,8 +29,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) iconv gd mysqli pdo_pgsql pdo_mysql soap bcmath gmp intl opcache zip sockets
+RUN docker-php-ext-install -j$(nproc) iconv mysqli pdo_pgsql pdo_mysql soap bcmath gmp intl opcache zip sockets
 
 # Install Imagick
 RUN pecl install imagick \
