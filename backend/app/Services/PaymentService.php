@@ -17,7 +17,7 @@ use Stripe\Stripe;
 class PaymentService
 {
     public const MINUTE_TO_PAY = 30;
-    public const SERVICE_FEE_PERCENTAGE = 0.5; // 4% сервисный сбор
+    public const SERVICE_FEE_PERCENTAGE = 0.04; // 4% сервисный сбор
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney, User $studioOwner): array
     {

@@ -113,15 +113,15 @@ export const useSessionStore = defineStore({
           navigateTo("/booking-resume")
           return response
         }
-
-        if (this.userRole === "studio_owner" && !this.existedCompany) {
-          navigateTo("/create")
-          return
-        }
-
         if (!this.userRole && process.client) {
           navigateTo("/settings/role")
           return
+        }
+        if (this.userRole === "studio_owner" && !this.existedCompany) {
+          navigateTo("/create")
+          return
+        } else {
+          navigateTo("/")
         }
       })
     },

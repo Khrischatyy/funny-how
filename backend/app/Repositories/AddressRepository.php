@@ -18,7 +18,7 @@ class AddressRepository implements AddressRepositoryInterface
             ->with(['badges', 'photos', 'prices', 'company', 'operatingHours'])
             ->get()->filter(function ($address) {
                 return $address->is_complete;
-            });
+            })->values();
 
         foreach ($addresses as $address) {
             if ($address->company->logo) {
