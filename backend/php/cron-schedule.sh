@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Write out current crontab
-echo "* * * * * cd /app && php artisan schedule:run >> /dev/null 2>&1" > /etc/crontabs/root
+# Add your cron job here
+echo "* * * * * /path/to/your/script.sh" > /etc/crontabs/root
 
-# Start cron
-crond -f -l 2
+# Start cron in the foreground (for Docker)
+crond -f
