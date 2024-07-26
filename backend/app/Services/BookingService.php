@@ -6,7 +6,7 @@ use App\Exceptions\BookingException;
 use App\Exceptions\OperatingHourException;
 use App\Http\Requests\BookingRequest;
 use App\Jobs\BookingCancellationJob;
-use App\Jobs\BookingConfirmationJob;
+use App\Jobs\BookingPendingJob;
 use App\Jobs\SendEmailJob;
 use App\Models\Booking;
 use App\Models\OperatingHour;
@@ -432,7 +432,9 @@ class BookingService
             $userEmail = $userWhoBooks->email;
             $amount = $amount ?? null;
 
-            dispatch(new BookingConfirmationJob($booking, $paymentUrl, $userEmail, $amount));
+            // TODO: create delay 10 minutes for sending email
+            dispatch(new BookingPendingJob($booking, $paymentUrl, $userEmail, $amount));
+            
 
             return [
                 'booking' => $booking,

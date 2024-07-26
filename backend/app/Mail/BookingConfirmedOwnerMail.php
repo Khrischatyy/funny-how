@@ -8,13 +8,14 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Booking;
+use App\Models\User;
 
-class BookingConfirmedMail extends Mailable
+class BookingConfirmedOwnerMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $booking;
-    public $userEmail;
+    public $studioOwner;
     public $amount;
 
     /**
@@ -23,10 +24,10 @@ class BookingConfirmedMail extends Mailable
      * @param $booking
      * @return void
      */
-    public function __construct(Booking $booking, $userEmail, $amount)
+    public function __construct(Booking $booking, User $studioOwner, $amount)
     {
         $this->booking = $booking;
-        $this->userEmail = $userEmail;
+        $this->studioOwner = $studioOwner;
         $this->amount = $amount;
     }
 
@@ -50,10 +51,10 @@ class BookingConfirmedMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.booking_confirmed',
+            view: 'emails.booking_confirmed_owner',
             with: [
                 'booking' => $this->booking,
-                'userEmail' => $this->userEmail,
+                'studioOwner' => $this->studioOwner,
                 'amount' => $this->amount,
                 'user' => $this->booking->user,
             ],

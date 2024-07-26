@@ -10,9 +10,16 @@
     </div>
     <div style="padding: 20px; text-align: left; font-size:18px;color:#fff;">
         <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 20px;">Booking Confirmed</h1>
-        <p>Dear {{ $user->firstname }},</p>
-        <p>Your booking has been successfully confirmed. <br/>Here are the details:</p>
+        <p>Dear {{ $studioOwner->firstname }},</p>
+        <p>Somebody has booked a studio. <br/>Here are the details:</p>
         <p>
+           
+            <strong>Name:</strong> {{ $user->firstname }}<br>
+            <strong>Contacts:</strong> 
+            {{ implode(' / ', array_filter([$user->email, $user->phone])) }}
+            <br>
+
+            <br/><br/>
             <strong>Booking ID:</strong> {{ $booking->id }}<br>
             <strong>Date:</strong> {{ $booking->date }}<br>
             <strong>Start Time:</strong> {{ $booking->start_time }}<br>

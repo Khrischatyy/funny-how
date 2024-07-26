@@ -7,6 +7,8 @@ use App\Models\Booking;
 use App\Models\Charge;
 use App\Models\Payout;
 use App\Models\User;
+use App\Jobs\BookingConfirmationJob;
+use App\Jobs\BookingConfirmationOwnerJob;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -139,6 +141,11 @@ class PaymentService
 
         // Обновим баланс студии
         $this->updateBalance($booking->address_id, $amountToStudio);
+
+        $userWhoBooksEmail = $booking->user->email; 
+        $studioOwner =  $booking->address->company->adminCompany->user;
+        dispatch(new BookingConfirmationJob($booking, $userWhoBooksEmail, $totalAmount));
+        dispatch(new BookingConfirmationOwnerJob($booking, $studioOwner, $totalAmount));
 
         return [
             'success' => true,

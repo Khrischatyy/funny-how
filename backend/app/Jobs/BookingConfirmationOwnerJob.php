@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Mail\BookingConfirmedMail;
+use App\Mail\BookingConfirmedOwnerMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,31 +12,32 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Booking;
 
-class BookingConfirmationJob implements ShouldQueue
+class BookingConfirmationOwnerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $booking;
-    protected $userEmail;
+    protected $studioOwner;
     protected $amount;
 
     /**
      * Create a new job instance.
      *
      * @param \App\Models\Booking $booking
-     * @param string $userEmail
+     * @param \App\Models\User $studioOwner
      * @param float|null $amount
      */
-    public function __construct(Booking $booking, $userEmail, $amount)
+    public function __construct(Booking $booking, $studioOwner, $amount)
     {
         $this->booking = $booking;
-        $this->userEmail = $userEmail;
+        $this->studioOwner = $studioOwner;
         $this->amount = $amount;
     }
 
     public function handle()
     {
-        $mailable = new BookingConfirmedMail($this->booking, $this->userEmail, $this->amount);
-        Mail::to($this->userEmail)->send($mailable);
+        $ownerEmail = $this->studioOwner->email;
+        $mailable = new BookingConfirmedOwnerMail($this->booking, $this->studioOwner, $this->amount);
+        Mail::to('rushadaev@gmail.com')->send($mailable);
     }
 }

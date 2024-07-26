@@ -14,14 +14,37 @@
             stripeAccountData &&
             Object.keys(stripeAccountData).length > 0
           "
-          class="flex justify-between items-center border border-white border-opacity-10 rounded-[10px] p-4"
+          class="flex flex-col justify-start items-start border border-white border-opacity-10 rounded-[10px] p-4"
         >
           <div class="text-xl">
-            <p class="text-gray-400 mb-2">Available Balance:</p>
-            <p class="text-white font-bold">
-              ${{ (balance / 100).toFixed(2) }}
+            <p class="text-gray-400 mb-1.5">Balance:</p>
+            <p class="text-sm mb-1.5">
+              Total balance: ${{ balance.instant_available[0]?.amount / 100 }}
             </p>
-            <p class="text-gray-400 mt-5 mb-2">
+            <p v-if="balance?.pending?.length > 0" class="text-sm mb-1.5">
+              Future payouts: ${{ balance.pending[0]?.amount / 100 }}
+            </p>
+            <p v-if="balance?.available?.length > 0" class="text-sm mb-1.5">
+              In transit to bank: ${{ balance.available[0]?.amount / 100 }}
+            </p>
+            <p
+              v-if="balance?.refund_and_dispute_prefunding?.length > 0"
+              class="text-sm mb-1.5"
+            >
+              Refund and Dispute Prefunding:
+              {{ balance.refund_and_dispute_prefunding[0]?.amount / 100 }}
+            </p>
+            <a
+              v-if="stripeAccountId"
+              target="_blank"
+              :href="`https://connect.stripe.com/app/express#${stripeAccountId}/overview`"
+              class="border-white border mt-5 mb-5 block text-white text-sm py-2 px-4 rounded-[10px] hover:opacity-80"
+            >
+              Go to Stripe Dashboard
+            </a>
+          </div>
+          <div class="text-xl">
+            <p class="text-gray-400 mt-2 mb-2">
               Payouts
               {{ stripeAccountData?.payouts_enabled ? "Enabled" : "Disabled" }}
             </p>
@@ -40,7 +63,7 @@
             <button
               v-if="stripeAccountData?.payouts_enabled"
               @click="createAccountLink"
-              class="border-white border mt-2 text-white text-sm py-2 px-4 rounded-[10px] hover:opacity-80"
+              class="border-white border mt-5 mb-5 text-white text-sm py-2 px-4 rounded-[10px] hover:opacity-80"
             >
               Update Information
             </button>
@@ -217,9 +240,39 @@ type StripAccountDataType = {
   payouts_enabled: boolean
 }
 
+type SourceTypes = {
+  card: number
+}
+
+type BalanceDetail = {
+  amount: number
+  currency: string
+  source_types?: SourceTypes
+}
+
+type Balance = {
+  object: string
+  available: BalanceDetail[]
+  instant_available: BalanceDetail[]
+  livemode: boolean
+  pending: BalanceDetail[]
+  refund_and_dispute_prefunding: BalanceDetail[]
+}
+
+type BalanceResponse = {
+  data: Balance
+}
+
 const sideMenuRef = ref()
 const isLoading = ref(true)
-const balance = ref(null)
+const balance: Ref<Balance> = ref({
+  object: "",
+  available: [],
+  instant_available: [],
+  livemode: false,
+  pending: [],
+  refund_and_dispute_prefunding: [],
+} as Balance)
 const payouts = ref([])
 const stripeAccountId = ref(null)
 const stripeAccountData: Ref<StripAccountDataType> = ref(
@@ -230,25 +283,16 @@ const { user } = storeToRefs(session)
 
 const fetchBalance = async () => {
   try {
-    const { data } = await useFetch("/api/v1/user/available-balance")
-    balance.value = data.balance
+    const { fetch: fetchBalance } = useApi<BalanceResponse>({
+      url: "/user/stripe/account/balance",
+      auth: true,
+    })
+
+    const response = (await fetchBalance()) || ({ data: {} } as BalanceResponse)
+
+    balance.value = response.data
   } catch (error) {
     console.error("Failed to fetch balance:", error)
-  }
-}
-
-const createPayout = async () => {
-  try {
-    isLoading.value = true
-    const { data } = await useFetch("/user/create-payout", {
-      method: "POST",
-    })
-    // fetchBalance()
-    // fetchPayouts()
-  } catch (error) {
-    console.error("Failed to create payout:", error)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -324,7 +368,8 @@ onMounted(async () => {
   isLoading.value = false
   if (user.value && user.value.stripe_account_id) {
     stripeAccountId.value = user.value.stripe_account_id
-    fetchStripeAccountData()
+    await fetchStripeAccountData()
+    await fetchBalance()
   }
 })
 </script>

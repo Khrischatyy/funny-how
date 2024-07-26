@@ -19,8 +19,8 @@
         aria-hidden="true"
       ></div>
       <ScrollContainer
-        v-if="address?.photos.length > 0"
-        justify-content="center"
+        v-if="address?.photos?.length > 0"
+        :justify-content="address?.photos?.length >= 7 ? 'start' : 'center'"
         justofy-content-mobile="start"
         class="rounded-[10px] h-full"
         theme="default"

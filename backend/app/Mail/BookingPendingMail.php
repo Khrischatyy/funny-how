@@ -9,11 +9,12 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Booking;
 
-class BookingConfirmedMail extends Mailable
+class BookingPendingMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $booking;
+    public $paymentUrl;
     public $userEmail;
     public $amount;
 
@@ -23,9 +24,10 @@ class BookingConfirmedMail extends Mailable
      * @param $booking
      * @return void
      */
-    public function __construct(Booking $booking, $userEmail, $amount)
+    public function __construct(Booking $booking, $paymentUrl, $userEmail, $amount)
     {
         $this->booking = $booking;
+        $this->paymentUrl = $paymentUrl;
         $this->userEmail = $userEmail;
         $this->amount = $amount;
     }
@@ -38,7 +40,7 @@ class BookingConfirmedMail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Booking Confirmed Mail',
+            subject: 'Booking Placed But Not Paid',
         );
     }
 
@@ -50,9 +52,10 @@ class BookingConfirmedMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.booking_confirmed',
+            view: 'emails.booking_pending',
             with: [
                 'booking' => $this->booking,
+                'paymentUrl' => $this->paymentUrl,
                 'userEmail' => $this->userEmail,
                 'amount' => $this->amount,
                 'user' => $this->booking->user,
