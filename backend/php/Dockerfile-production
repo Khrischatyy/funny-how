@@ -49,13 +49,13 @@ RUN useradd -G www-data,root -u $WWWUID -d /home/$WWWUSER $WWWUSER \
 COPY php-production.ini /etc/php/8.1/fpm/conf.d/xy-custom.ini
 
 # Ensure cron directory exists and set up cron
-RUN mkdir -p /etc/crontabs/ && touch /etc/crontabs/root
+RUN mkdir -p /etc/crontabs/ && touch /etc/crontabs/root && chmod 644 /etc/crontabs/root
 COPY cron-schedule.sh /usr/local/bin/cron-schedule.sh
 RUN chmod +x /usr/local/bin/cron-schedule.sh
 
 # Copy the rest of the application code
 COPY --chown=$WWWUSER:$WWWUSER . .
 
-USER $WWWUSER
+USER root
 
 CMD ["php-fpm"]
