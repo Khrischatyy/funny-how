@@ -24,7 +24,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     libmagickwand-dev --no-install-recommends \
-    cron \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -45,20 +44,27 @@ RUN useradd -G www-data,root -u $WWWUID -d /home/$WWWUSER $WWWUSER \
 
 COPY php-production.ini /etc/php/8.1/fpm/conf.d/xy-custom.ini
 
+# Install Supercronic
+ARG SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.29
+ARG SUPERCRONIC=supercronic-linux-amd64
+ARG SUPERCRONIC_SHA1SUM=cd48d45c4b10f3f0bfdd3a57d054cd05ac96812b
+RUN curl -fsSLO "$SUPERCRONIC_URL/$SUPERCRONIC" \
+    && echo "$SUPERCRONIC_SHA1SUM $SUPERCRONIC" | sha1sum -c - \
+    && chmod +x "$SUPERCRONIC" \
+    && mv "$SUPERCRONIC" "/usr/local/bin/supercronic"
+
 # Ensure cron directory exists and set up cron
-RUN mkdir -p /etc/cron.d && touch /etc/cron.d/root && chmod 644 /etc/cron.d/root
 COPY cron-schedule.sh /usr/local/bin/cron-schedule.sh
 RUN chmod +x /usr/local/bin/cron-schedule.sh
 
 # Copy the rest of the application code
 COPY --chown=$WWWUSER:$WWWUSER . .
 
-# Ensure storage directory has the correct permissions
-RUN mkdir -p /app/storage/logs \
-    && chown -R $WWWUSER:www-data /app/storage/logs \
-    && chmod -R 775 /app/storage/logs
-
-
-CMD ["php-fpm"]
+# Ensure storage, logs, and cron directory has the correct permissions
+RUN mkdir -p /app/storage /app/logs /app/cron.d \
+    && chown -R $WWWUSER:www-data /app/storage /app/logs /app/cron.d \
+    && chmod -R 775 /app/storage /app/logs /app/cron.d
 
 USER $WWWUSER
+
+CMD ["php-fpm"]

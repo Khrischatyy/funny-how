@@ -1,0 +1,2 @@
+* * * * * cd /app && php artisan schedule:run --no-ansi >> /app/storage/logs/cron.log 2>&1
+* * * * * echo 'Cron is working at $(date)' >> /app/storage/logs/cron_test.log 2>&1
