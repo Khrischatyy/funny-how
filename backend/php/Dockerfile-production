@@ -11,8 +11,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
 
 # Install system dependencies and clear cache
-RUN apt-get -y update \
-    && apt-get install -y \
+RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libpq-dev \
     libicu-dev \
@@ -21,6 +20,7 @@ RUN apt-get -y update \
     libxml2-dev \
     libgmp-dev \
     libzip-dev \
+    libonig-dev \
     zip \
     unzip \
     curl \
@@ -32,7 +32,7 @@ RUN apt-get -y update \
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) iconv gd mysqli pdo_pgsql pdo_mysql soap bcmath gmp intl opcache zip sockets
+    && docker-php-ext-install -j$(nproc) iconv gd mysqli pdo_pgsql pdo_mysql soap bcmath gmp intl opcache zip sockets mbstring
 
 # Install Imagick
 RUN pecl install imagick \
@@ -52,9 +52,9 @@ COPY php-production.ini /etc/php/8.1/fpm/conf.d/xy-custom.ini
 COPY cron-schedule.sh /usr/local/bin/cron-schedule.sh
 RUN chmod +x /usr/local/bin/cron-schedule.sh
 
-USER $WWWUSER
-
 # Copy the rest of the application code
-COPY . .
+COPY --chown=$WWWUSER:$WWWUSER . .
+
+USER $WWWUSER
 
 CMD ["php-fpm"]
