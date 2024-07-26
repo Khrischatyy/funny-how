@@ -98,7 +98,7 @@ import { useHead } from "@unhead/vue"
 import { ref, computed, watch, onMounted, type Ref, reactive } from "vue"
 import { DisplayNumber, FilterBar } from "~/src/shared/ui/components"
 // import { FSelect } from '~/src/entities/RegistrationForms/ui'
-import { FSelect } from "~/src/shared/ui/common"
+import FSelect from "~/src/shared/ui/common/Input/FSelect.vue"
 import { StudioCard } from "~/src/entities/Studio"
 import {
   getStudios,

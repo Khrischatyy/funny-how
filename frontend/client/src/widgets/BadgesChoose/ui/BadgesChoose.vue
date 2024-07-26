@@ -84,7 +84,7 @@ const sampleBadges = [
 </script>
 
 <template>
-  <div class="relative w-full flex-col justify-start items-center gap-2.5 flex">
+  <div class="relative w-full flex-col justify-start items-center gap-1.5 flex">
     <div class="flex-col w-full justify-start items-start gap-1.5 flex">
       <div class="w-wull justify-between items-start inline-flex">
         <div

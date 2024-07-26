@@ -142,7 +142,7 @@ const isLoading = ref(false)
 
         <div
           v-if="!isLoading && prices.length == 0"
-          class="text-right text-red-500 text-sm font-normal tracking-wide mb-1.5"
+          class="text-right text-red text-sm font-normal tracking-wide mb-1.5"
         >
           Add at least 1 price package
         </div>

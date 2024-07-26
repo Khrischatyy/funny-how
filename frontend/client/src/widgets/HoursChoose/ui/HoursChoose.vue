@@ -209,7 +209,7 @@ const getDayMean = (day: number) => {
           v-if="
             !isLoading && studio?.operating_hours.length == 0 && updateKey == 0
           "
-          class="text-right text-red-500 text-sm font-normal tracking-wide mb-1.5"
+          class="text-right text-red text-sm font-normal tracking-wide mb-1.5"
         >
           Update your working hours
         </div>

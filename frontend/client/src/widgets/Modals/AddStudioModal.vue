@@ -520,7 +520,7 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
           </div>
           <div
             v-if="!studio.stripe_account_id"
-            class="payouts w-full flex-col flex gap-1.5"
+            class="payouts w-full flex-col flex gap-1.5 mt-3.5"
           >
             <div
               class="relative w-full flex-col justify-start items-center gap-2.5 flex"

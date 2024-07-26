@@ -48,6 +48,7 @@ export const useSessionStore = defineStore({
           this.userObject = response.data
           this.setUserInfo(JSON.stringify(response.data))
           this.setBrand(response.data.company_slug)
+          this.setUserRole(response?.data?.role)
           this.setAuthorized(true)
           return response.data
         }
@@ -104,8 +105,24 @@ export const useSessionStore = defineStore({
     authorize(token: string) {
       this.setAccessToken(token)
       this.setAuthorized(true)
-      nextTick(() => {
-        this.fetchUserInfo()
+      nextTick(async () => {
+        await this.fetchUserInfo()
+        //Resume booking if there is any stored data
+        const storedBookingData = localStorage.getItem("bookingData")
+        if (storedBookingData) {
+          navigateTo("/booking-resume")
+          return response
+        }
+
+        if (this.userRole === "studio_owner" && !this.existedCompany) {
+          navigateTo("/create")
+          return
+        }
+
+        if (!this.userRole && process.client) {
+          navigateTo("/settings/role")
+          return
+        }
       })
     },
     clearSession() {

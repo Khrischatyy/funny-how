@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
 import DatePicker from "./DatePicker.vue"
-import { FSelect } from "~/src/shared/ui/common"
+import FSelect from "~/src/shared/ui/common/Input/FSelect.vue"
 
 const props = withDefaults(defineProps<{ timezone: string }>(), {
   timezone: "UTC",

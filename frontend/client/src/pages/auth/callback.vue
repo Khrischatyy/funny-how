@@ -19,47 +19,7 @@ const sessionStore = useSessionStore() // Retrieve session store
 // Directly handle the token from URL
 const token = route.query.token as string | undefined
 if (token) {
-  // Setup API with token
-  const api = useApi<ResponseDto<{ user: string; role: string }>>({
-    url: "/user/me",
-    auth: true,
-    token,
-  })
-  api
-    .fetch()
-    .then((response) => {
-      sessionStore.setUserRole(response?.data.role)
-      sessionStore.setAccessToken(token)
-      sessionStore.setAuthorized(true)
-      if (response?.data.has_company) {
-        sessionStore.setBrand(response?.data.company_slug.toString())
-      }
-
-      //Resume booking if there is any stored data
-      const storedBookingData = localStorage.getItem("bookingData")
-      if (storedBookingData) {
-        navigateTo("/booking-resume")
-        return response
-      }
-
-      if (!response?.data.role && process.client) {
-        navigateTo("/settings/role")
-        return
-      }
-
-      //TODO: Redirect to company page/ dashboard if owner?
-      // if (response?.data.company_slug && process.client) {
-      //   navigateTo(`/@${response?.data.company_slug}`)
-      //   return
-      // }
-
-      navigateTo(`/`)
-      return
-    })
-    .catch((error) => {
-      console.error("Authorization error:", error)
-      router.push("/login")
-    })
+  sessionStore.authorize(token)
 } else {
   router.push("/login")
 }
