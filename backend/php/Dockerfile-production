@@ -56,9 +56,11 @@ RUN chmod +x /usr/local/bin/cron-schedule.sh
 COPY --chown=$WWWUSER:$WWWUSER . .
 
 # Ensure storage directory has the correct permissions
-RUN chown -R $WWWUSER:www-data /app/storage \
-    && chmod -R 775 /app/storage
+RUN mkdir -p /app/storage/logs \
+    && chown -R $WWWUSER:www-data /app/storage/logs \
+    && chmod -R 775 /app/storage/logs
 
-USER $WWWUSER
 
 CMD ["php-fpm"]
+
+USER $WWWUSER

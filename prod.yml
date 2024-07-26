@@ -26,6 +26,7 @@ services:
         WWWUSER: 'laravel'
         WWWUID: '1000'
     container_name: php
+    user: '1000:1000' # Ensure container runs as laravel user
     healthcheck:
       test: ["CMD", "php", "-v"]
       interval: 30s
@@ -81,10 +82,10 @@ services:
       - funny
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics ping"]
-      interval: 30s      # Increased from 10s
-      timeout: 20s       # Increased from 5s
+      interval: 30s
+      timeout: 20s
       retries: 5
-      start_period: 60s  # Added to allow extra startup time
+      start_period: 60s
 
   frontend:
     container_name: frontend
@@ -117,6 +118,7 @@ services:
         WWWUSER: 'laravel'
         WWWUID: '1000'
     container_name: queue-worker
+    user: '1000:1000' # Ensure container runs as laravel user
     volumes:
       - './backend:/app/'
     depends_on:
@@ -127,7 +129,10 @@ services:
       - funny
     env_file:
       - .env
-    command: php /app/artisan queue:work --sleep=3 --tries=3
+    command: >
+      sh -c "
+      sleep 10 &&
+      php /app/artisan queue:work --sleep=3 --tries=3"
     restart: always
 
   scheduler:
@@ -138,6 +143,7 @@ services:
         WWWUSER: 'laravel'
         WWWUID: '1000'
     container_name: scheduler
+    user: '1000:1000' # Ensure container runs as laravel user
     volumes:
       - './backend:/app/'
     depends_on:
@@ -148,7 +154,10 @@ services:
       - funny
     env_file:
       - .env
-    command: /usr/local/bin/cron-schedule.sh
+    command: >
+      sh -c "
+      sleep 10 &&
+      /usr/local/bin/cron-schedule.sh"
     restart: always
 
 networks:
