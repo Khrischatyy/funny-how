@@ -12,6 +12,8 @@ use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Jobs\SendWelcomeEmailOwnerJob;
 use App\Models\AdminCompany;
 use Exception;
 use Illuminate\Support\Facades\Hash;
@@ -380,5 +382,46 @@ class UserController extends BaseController
         throw ValidationException::withMessages([
             'email' => [__($status)],
         ]);
+    }
+    
+    /**
+     * @OA\Post(
+     *     path="/user/send-welcome-email-owner",
+     *     summary="Send a welcome email to the owner",
+     *     tags={"User"},
+     *     security={{ "sanctum":{} }},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"user_id"},
+     *             @OA\Property(property="user_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Welcome email sent successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Welcome email sent successfully✨")
+     *         )
+     *     ),
+     *     @OA\Response(response="400", description="Invalid input"),
+     *     @OA\Response(response="500", description="Failed to send welcome email")
+     * ),
+     * @OA\Server(
+     *     url="https://funny-how.com/api/v1",
+     *     description="Funny How API Server"
+     * )
+     */
+    public function sendWelcomeEmailOwner(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        SendWelcomeEmailOwnerJob::dispatch($user);
+
+        return $this->sendResponse([], 'Welcome email sent successfully');
     }
 }

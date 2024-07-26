@@ -54,15 +54,15 @@
                         <h1 style="color: #ffffff !important; font-size: 24px; font-weight: 700; margin-bottom: 20px;">Welcome to Funny How</h1>
                             <p>Hi {{$user['firstname']}} {{$user['lastname']}},</p>
                             <p>We're excited to have you on board!</p>
-                            <p>Your studio is almost ready. To publish it, you need to add your payment information. Please follow the instructions in the GIF below:</p>
                             <img src="https://funny-how-s3-bucket.s3.amazonaws.com/public/email/gif.gif" alt="Instructions GIF" />
-                            <p>To get started, you need to set your password as this is your first time logging in. Click the link below to set your new password:</p>
+                            <p>Your studio is almost ready. To publish it, please add your payment information.</p>
+                            <p>First, set your password by clicking the link below:</p>
                             <div style="padding: 10px; text-align: center;">
                                 <p>
                                     <a href="{{ $resetUrl }}" style="display: inline-block; width: 100%; height: 44px; background-color: #ffffff; color: #333333; border-radius: 10px; text-align: center; line-height: 44px; font-size: 14px; font-weight: 500; letter-spacing: 0.05em; text-decoration: none; transition: opacity 0.3s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">Set New Password</a>
                                 </p>
                             </div>
-                            <p>After setting your password, log in to your account and follow the instructions in your dashboard to complete the setup.</p>
+                            <p>Then, log in and follow the instructions in your dashboard to complete the setup.</p>
                         </td>
                     </tr>
                     <tr>

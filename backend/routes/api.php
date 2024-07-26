@@ -130,6 +130,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::get('balance', [StripeController::class, 'retrieveBalance']);
             });
         });
+        Route::post('send-welcome-email-owner', [UserController::class, 'sendWelcomeEmailOwner']);
     });
 
     Route::get('/payouts', [PayoutController::class, 'index']);
