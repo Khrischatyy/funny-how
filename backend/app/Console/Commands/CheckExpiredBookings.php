@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\CheckExpiredBookingsJob;
 use App\Models\Booking;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -29,14 +30,7 @@ class CheckExpiredBookings extends Command
      */
     public function handle()
     {
-        $expiredBookings = Booking::where('status_id', 1)
-            ->where('temporary_payment_link_expires_at', '<', Carbon::now())
-            ->get();
-
-        foreach ($expiredBookings as $booking) {
-            $booking->update(['status_id' => 4]);
-        }
-
-        $this->info('Expired bookings have been updated.');
+        CheckExpiredBookingsJob::dispatch();
+        $this->info('CheckExpiredBookingsJob has been dispatched.');
     }
 }
