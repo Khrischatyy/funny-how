@@ -114,31 +114,16 @@ const resetPassword = async () => {
     .then((response) => {
       isLoading.value = false
       email.value = ""
-      success.value = "Password updated successfully! Redirecting to profile."
-      sessionStore.setUserRole(response?.data.role)
-      sessionStore.setAccessToken(response?.data.token)
-      sessionStore.setAuthorized(true)
-      if (response?.data.has_company) {
-        sessionStore.setBrand(response?.data.company_slug.toString())
-      }
+      success.value = "Password updated successfully! Redirecting"
 
-      //Resume booking if there is any stored data
-      const storedBookingData = localStorage.getItem("bookingData")
-      if (storedBookingData) {
-        navigateTo("/booking-resume")
-        return response
-      }
+      sessionStore.authorize(response?.data.token)
 
-      if (!response?.data.role && process.client) {
-        navigateTo("/settings/role")
-        return
-      }
       setInterval(() => {
         success.value += "."
       }, 1000)
       setTimeout(() => {
         router.push("/profile")
-      }, 4000)
+      }, 2000)
     })
     .catch((error) => {
       isLoading.value = false
