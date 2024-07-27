@@ -31,11 +31,6 @@ class GoogleController extends BaseController
                 // Обновление данных пользователя, если он уже существует
                 $user->update([
                     'google_id' => $googleUser->id,
-                    'firstname' => $firstName,
-                    'lastname' => $lastName,
-                    'password' => $user->password ?? Str::random(18), // Оставить существующий пароль, если он есть
-                    'profile_photo' => $googleUser->avatar,
-                    'date_of_birth' => null, // Дата рождения не возвращается Google API, устанавливаем null
                 ]);
             } else {
                 // Создание нового пользователя, если он не существует
