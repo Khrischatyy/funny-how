@@ -404,14 +404,14 @@ class BookingService
 
             // Set the correct date for startTime and endTime
             $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $bookingDate . ' ' . $startTime->format('H:i:s'), $timezone);
-            $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $bookingDate . ' ' . $endTime->format('H:i:s'), $timezone);
+            $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $endDate . ' ' . $endTime->format('H:i:s'), $timezone);
 
             $userWhoBooks = Auth::user();
 
             $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone);
 
             // Get the total cost and explanation
-            $costDetails = $this->getTotalCost($startTime, $endTime, $addressId);
+            $costDetails = $this->getTotalCost($startTime->toDateTimeString(), $endTime->toDateTimeString(), $addressId);
             $amount = $costDetails['total_price'];
             $explanation = $costDetails['explanation'];
 
@@ -444,7 +444,6 @@ class BookingService
 
             // TODO: create delay 10 minutes for sending email
             dispatch(new BookingPendingJob($booking, $paymentUrl, $userEmail, $amount));
-            
 
             return [
                 'booking' => $booking,
@@ -458,38 +457,15 @@ class BookingService
         }
     }
 
-    public function updateBookingStatus($bookingId, $statusId)
-    {
-        $booking = Booking::find($bookingId);
-        if ($booking) {
-            $booking->status_id = $statusId;
-            $booking->save();
-        }
-
-        return $booking;
-    }
-
     private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone): void
     {
-        Log::info('beforeConversion', [
-            'bookingDateTimezone' => $bookingDate,
-            'startTime' => $startTime,
-            'endTime' => $endTime
-        ]);
         // Set the timezone for the current date and time match that user timezone, assuming that server timezone is UTC
         $currentDateTime = Carbon::now($timezone);
    
-        Log::info('startTimeBeforeConversion', [$startTime]);
         // Parse the booking date, start time, and end time correctly with the specified timezone
         $bookingDate = Carbon::createFromFormat('Y-m-d', $bookingDate, $timezone);
         $startTime = Carbon::createFromFormat('Y-m-d H:i:s', $startTime, $timezone);
         $endTime = Carbon::createFromFormat('Y-m-d H:i:s', $endTime, $timezone);
-    
-        // Log information for debugging
-        Log::info('Current Date Time: ' . $currentDateTime->toDateTimeString() . ' Timezone: ' . $currentDateTime->getTimezone()->getName());
-        Log::info('Booking Start Time: ' . $startTime->toDateTimeString() . ' Timezone: ' . $startTime->getTimezone()->getName());
-        Log::info('Booking End Time: ' . $endTime->toDateTimeString() . ' Timezone: ' . $endTime->getTimezone()->getName());
-        Log::info('Is booking in the past: ' . ($startTime->lt($currentDateTime) ? 'Yes' : 'No'));
     
         if ($startTime->lt($currentDateTime)) {
             throw new BookingException('Cannot book a time in the past', 422);
@@ -501,19 +477,20 @@ class BookingService
     
         $operatingHours = $this->getOperatingHours($addressId, $bookingDate);
    
-        Log::info('operationHours', ['operationHours' => $operatingHours, 'comparing' => !$operatingHours || $operatingHours->is_closed]);
         if (!$operatingHours || $operatingHours->is_closed) {
             throw new BookingException('Booking times are outside of business hours.', 422);
         }
-   
-        $openTime = $bookingDate->copy()->setTimeFromTimeString($operatingHours->open_time);
-        $closeTime = $bookingDate->copy()->setTimeFromTimeString($operatingHours->close_time);
-       
-        Log::info('operationHours', ['operationHours' => $operatingHours, 'openTime' => $openTime, 'opentimeTZ' => $openTime->getTimezone(), 'closeTime' => $closeTime, 'closeTimeTZ' => $closeTime->getTimezone(), '$startTime->lt($openTime)' => $startTime->lt($openTime), '$endTime->gt($closeTime)'=>$endTime->gt($closeTime)]);
-        if ($startTime->lt($openTime) || $endTime->gt($closeTime)) {
-            throw new BookingException("Booking times are outside of business hours. Studio opens at {$operatingHours->open_time} and closes at {$operatingHours->close_time}", 422);
+
+        // Check if mode_id is 1, which means the studio operates 24/7
+        if ($operatingHours->mode_id != 1) {
+            $openTime = $bookingDate->copy()->setTimeFromTimeString($operatingHours->open_time);
+            $closeTime = $bookingDate->copy()->setTimeFromTimeString($operatingHours->close_time);
+
+            if ($startTime->lt($openTime) || $endTime->gt($closeTime)) {
+                throw new BookingException("Booking times are outside of business hours. Studio opens at {$operatingHours->open_time} and closes at {$operatingHours->close_time}", 422);
+            }
         }
-    
+
         if ($this->isTimeSlotTaken($addressId, $startTime, $endTime, $bookingDate->format('Y-m-d'))) {
             throw new BookingException('Studio is already booked for the requested time slot', 400);
         }

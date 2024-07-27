@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Address;
 use App\Models\Booking;
 use App\Models\Charge;
-use App\Models\Payout;
 use App\Models\User;
 use App\Jobs\BookingConfirmationJob;
 use App\Jobs\BookingConfirmationOwnerJob;
@@ -177,6 +176,8 @@ class PaymentService
         return ['success' => true];
     }
 
+
+    // TODO: move it to Booking service
     private function updateBookingStatus(int $bookingId, int $statusId): Booking
     {
         $booking = Booking::findOrFail($bookingId);
