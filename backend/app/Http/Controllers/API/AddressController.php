@@ -428,7 +428,7 @@ class AddressController extends BaseController
         $total_price = $request->input('total_price');
         $is_enabled = $request->input('is_enabled');
 
-        $address_price_id = $request->input('address_price_id');
+        $address_price_id = $request->input('id');
 
         try {
             $address = Address::findOrFail($address_id);
