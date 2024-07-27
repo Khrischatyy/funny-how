@@ -380,8 +380,13 @@ class BookingService
 
         // Calculate the total price using the applicable price per hour
         $totalPrice = $hours * $applicablePrice->price_per_hour;
+        $explanation = "The price is based on {$hours} hours at a rate of {$applicablePrice->price_per_hour} per hour, using the package for {$applicablePrice->hours} hours.";
 
-        return $totalPrice;
+
+        return [
+            'total_price' => $totalPrice,
+            'explanation' => $explanation
+        ];
     }
 
     public function bookAddress(BookingRequest $request): array
