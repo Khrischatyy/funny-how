@@ -352,31 +352,34 @@ class BookingService
 
     public function getTotalCost(string $startTime, string $endTime, int $addressId)
     {
-
-        // Расчет количества часов между start_time и end_time
-
+        // Parse the new datetime format for start and end times
         $start = Carbon::parse($startTime);
         $end = Carbon::parse($endTime);
+
+        // Calculate the total number of hours between start and end
         $hours = $end->diffInHours($start);
 
-
+        // Fetch the enabled address prices for the given address_id
         $addressPrices = DB::table('address_prices')
             ->where('address_id', $addressId)
             ->where('is_enabled', true)
-            ->orderBy('hours', 'asc')
+            ->orderBy('hours', 'desc')
             ->get();
 
         if ($addressPrices->isEmpty()) {
             throw new \Exception('Prices were not set');
         }
 
-        // Поиск подходящего пакета часов и расчет цены
-        $totalPrice = 0;
-        foreach ($addressPrices as $price) {
-            if ($hours >= $price->hours) {
-                $totalPrice = $hours * $price->price_per_hour;
-            }
+        // Determine the applicable price tier based on the total hours
+        $applicablePrice = $addressPrices->firstWhere('hours', '<=', $hours);
+
+        // If no specific tier is applicable, use the highest tier available
+        if (!$applicablePrice) {
+            $applicablePrice = $addressPrices->first();
         }
+
+        // Calculate the total price using the applicable price per hour
+        $totalPrice = $hours * $applicablePrice->price_per_hour;
 
         return $totalPrice;
     }
