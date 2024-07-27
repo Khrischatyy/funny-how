@@ -317,8 +317,25 @@
               class="relative w-full max-w-48 mx-auto mb-5 flex justify-between items-center animate__animated animate__fadeInDown"
             >
               <div class="text-white text-4xl font-[BebasNeue]">Price:</div>
-              <div class="text-white text-4xl relative font-[BebasNeue]">
-                $<DisplayNumber :value="calculatedPrice" />
+              <div
+                @click.stop="
+                  showTooltip($event, calculatedPrice?.explanation || '')
+                "
+                @mouseenter="
+                  showTooltip($event, calculatedPrice?.explanation || '')
+                "
+                @mouseleave="hideTooltip"
+                @touchstart="
+                  showTooltip($event, calculatedPrice?.explanation || '')
+                "
+                @touchend="hideTooltip"
+                class="text-white text-4xl flex items-center justify-between gap-2 relative font-[BebasNeue]"
+              >
+                <span
+                  class="text-white text-4xl flex gap-2 relative font-[BebasNeue]"
+                  >$<DisplayNumber :value="calculatedPrice?.total_price"
+                /></span>
+                <IconStatus />
               </div>
             </div>
             <div v-if="isLoading" class="spinner-container">
@@ -375,6 +392,7 @@ import { useSessionStore } from "~/src/entities/Session"
 import { EquipmentsModal, LoginModal } from "~/src/widgets/Modals"
 import {
   computed,
+  inject,
   onBeforeMount,
   onMounted,
   onUnmounted,
@@ -417,12 +435,13 @@ import { getRatingColor } from "~/src/shared/utils"
 import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue"
 import { Clipboard } from "~/src/shared/ui/common/Clipboard"
 import FSelect from "~/src/shared/ui/common/Input/FSelect.vue"
+import { IconStatus } from "~/src/shared/ui/common/Icon/Filter"
 
 const route = useRoute()
 const addressSlug = ref(route.params.slug_address)
 const bookingError = ref("")
 const { address, pending, error } = useAddress(addressSlug.value)
-
+const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
 provide("address", address)
 
 const addressId = computed(() => address.value?.id)
