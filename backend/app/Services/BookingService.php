@@ -410,7 +410,10 @@ class BookingService
 
             $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone);
 
-            $amount = $this->getTotalCost($startTime, $endTime, $addressId);
+            // Get the total cost and explanation
+            $costDetails = $this->getTotalCost($startTime, $endTime, $addressId);
+            $amount = $costDetails['total_price'];
+            $explanation = $costDetails['explanation'];
 
             // Create and save the booking to get an ID
             $booking = Booking::create([
@@ -434,11 +437,10 @@ class BookingService
 
             // Update the booking with the temporary payment link and expiration time
             $booking->temporary_payment_link = $paymentUrl;
-            $booking->temporary_payment_link_expires_at = Carbon::now()->addMinutes( $this->paymentService::MINUTE_TO_PAY); // link expires in 20 minutes
+            $booking->temporary_payment_link_expires_at = Carbon::now()->addMinutes($this->paymentService::MINUTE_TO_PAY); // link expires in 20 minutes
             $booking->save();
 
             $userEmail = $userWhoBooks->email;
-            $amount = $amount ?? null;
 
             // TODO: create delay 10 minutes for sending email
             dispatch(new BookingPendingJob($booking, $paymentUrl, $userEmail, $amount));
@@ -448,6 +450,7 @@ class BookingService
                 'booking' => $booking,
                 'session_id' => $paymentSession['session_id'],
                 'payment_url' => $paymentUrl,
+                'explanation' => $explanation,
             ];
         } catch (Exception $e) {
             Log::error("Booking failed: " . $e->getMessage());
