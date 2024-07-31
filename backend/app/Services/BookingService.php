@@ -8,10 +8,11 @@ use App\Http\Requests\BookingRequest;
 use App\Jobs\BookingCancellationJob;
 use App\Jobs\BookingPendingJob;
 use App\Jobs\SendEmailJob;
+use App\Models\Address;
 use App\Models\Booking;
 use App\Models\OperatingHour;
 use App\Models\StudioClosure;
-use App\Models\Address;
+use App\Services\Payment\PaymentService;
 use Carbon\Carbon;
 use Doctrine\DBAL\Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -430,10 +431,12 @@ class BookingService
             $company = $address->company;
             $studioOwner = $company->adminCompany->user;
 
+            // Get the payment gateway from the user
+            $paymentGateway = $studioOwner->payment_gateway; // 'stripe' или 'square'
 
             // Generate the payment session
             $paymentSession = $this->paymentService->createPaymentSession($booking, $amount, $studioOwner);
-            $paymentUrl = $paymentSession['payment_url'] ?? null;
+            $paymentUrl = $paymentSession['payment_url'];
 
             // Update the booking with the temporary payment link and expiration time
             $booking->temporary_payment_link = $paymentUrl;

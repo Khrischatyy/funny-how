@@ -10,22 +10,17 @@ use App\Http\Requests\CalculatePriceRequest;
 use App\Http\Requests\CancelBookingRequest;
 use App\Http\Requests\FilterBookingHistoryRequest;
 use App\Http\Requests\PaymentRequest;
-use App\Http\Requests\ReservationRequest;
-use App\Models\Booking;
 use App\Services\BookingService;
-use App\Services\PaymentService;
-use Carbon\Carbon;
+use App\Services\Payment\Gateways\StripeService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 
 class BookingController extends BaseController
 {
-    public function __construct(private BookingService $bookingService, private PaymentService $paymentService)
+    public function __construct(private BookingService $bookingService, private StripeService $paymentService)
     {}
 
     /**

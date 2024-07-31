@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
-use App\Services\PaymentService;
+use App\Services\Payment\Gateways\StripeService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 
 class PayoutController extends BaseController
 {
-    private PaymentService $paymentService;
+    private StripeService $paymentService;
 
-    public function __construct(PaymentService $paymentService)
+    public function __construct(StripeService $paymentService)
     {
         $this->paymentService = $paymentService;
     }

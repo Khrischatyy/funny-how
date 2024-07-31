@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Payment\Gateways;
 
+use App\Interfaces\PaymentServiceInterface;
+use App\Jobs\BookingConfirmationJob;
+use App\Jobs\BookingConfirmationOwnerJob;
 use App\Models\Address;
 use App\Models\Booking;
 use App\Models\Charge;
 use App\Models\User;
-use App\Jobs\BookingConfirmationJob;
-use App\Jobs\BookingConfirmationOwnerJob;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -15,9 +16,8 @@ use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Stripe;
 
-class PaymentService
+class StripeService implements PaymentServiceInterface
 {
-    public const MINUTE_TO_PAY = 30;
     public const SERVICE_FEE_PERCENTAGE = 0.04; // 4% сервисный сбор
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney, User $studioOwner): array
