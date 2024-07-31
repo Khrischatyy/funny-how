@@ -9,6 +9,7 @@ use App\Http\Controllers\API\{AddressController,
     EquipmentController,
     MenuController,
     OperatingHourController,
+    PaymentController,
     PayoutController,
     StripeController,
     UserController};
@@ -120,16 +121,31 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('update-photo', [UserController::class, 'updatePhoto']);
         Route::get('available-balance', [PayoutController::class, 'getAvailableBalance']);
 
-        Route::prefix('stripe')->group(function () {
-            Route::post('create-account', [StripeController::class, 'createAccount']);
+//        Route::prefix('stripe')->group(function () {
+//            Route::post('create-account', [StripeController::class, 'createAccount']);
+//
+//            Route::prefix('account')->group(function () {
+//                Route::get('link', [StripeController::class, 'createAccountLink']);
+//                Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
+//                Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
+//                Route::get('balance', [StripeController::class, 'retrieveBalance']);
+//            });
+//        });
 
-            Route::prefix('account')->group(function () {
-                Route::get('link', [StripeController::class, 'createAccountLink']);
-                Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
-                Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
-                Route::get('balance', [StripeController::class, 'retrieveBalance']);
+        Route::prefix('payment')->group(function () {
+            Route::prefix('square')->group(function () {
+                Route::post('create-location', [PaymentController::class, 'createLocation'])->name('square.createLocation');
             });
+
+//            Route::prefix('account')->group(function () {
+//                Route::get('link', [StripeController::class, 'createAccountLink']);
+//                Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
+//                Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
+//                Route::get('balance', [StripeController::class, 'retrieveBalance']);
+//            });
         });
+
+
         Route::post('send-welcome-email-owner', [UserController::class, 'sendWelcomeEmailOwner']);
     });
 

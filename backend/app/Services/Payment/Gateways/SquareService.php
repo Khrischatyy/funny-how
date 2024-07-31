@@ -30,6 +30,7 @@ class SquareService implements PaymentServiceInterface
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney, User $studioOwner): array
     {
+
         $address = $booking->address;
         $applicationFeePercentage = 0.04; // 4% сервисный сбор
         $applicationFeeAmount = (int)($amountOfMoney * 100 * $applicationFeePercentage); // сумма в центах
@@ -59,6 +60,7 @@ class SquareService implements PaymentServiceInterface
         $createPaymentLinkRequest->setCheckoutOptions($checkoutOptions);
 
         try {
+            dd('try');
             $response = $this->squareClient->getCheckoutApi()->createPaymentLink($createPaymentLinkRequest);
 
             if ($response->isError()) {
@@ -225,41 +227,37 @@ class SquareService implements PaymentServiceInterface
         return ['success' => true];
     }
 
-    public function createLocation(Address $address): array
+    public function createLocation(Request $request)
     {
+        $address = Address::findOrFail($request->input('address_id'));
+
+        $squareAddress = new SquareAddress();
+        $squareAddress->setAddressLine1($address->street);
+        $squareAddress->setLocality($address->city);
+        $squareAddress->setPostalCode($address->postal_code);
+        $squareAddress->setAdministrativeDistrictLevel1($address->state);
+        $squareAddress->setCountry('US'); // Установите вашу страну
+
+        $location = new \Square\Models\Location();
+        $location->setName($address->name);
+        $location->setAddress($squareAddress);
+
+        $createLocationRequest = new CreateLocationRequest($location);
+
         try {
-            $location = new Location();
-            $location->setName($address->slug); // Использование slug как имени локации
-            $location->setAddressLine1($address->street);
-            $location->setLocality($address->city->name);
-            $location->setAdministrativeDistrictLevel1($address->city->state->name);
-            $location->setPostalCode($address->city->postal_code);
-            $location->setTimezone($address->timezone);
-//            $location->setDescription($address->description); // Предполагается, что у вас есть поле description
-            $location->setCapabilities(['CREDIT_CARD_PROCESSING']);
+            $response = $this->squareClient->getLocationsApi()->createLocation($createLocationRequest);
 
-            $request = new CreateLocationRequest();
-            $request->setLocation($location);
+            if ($response->isSuccess()) {
+                $locationId = $response->getResult()->getLocation()->getId();
+                $address->square_location_id = $locationId;
+                $address->save();
 
-            $response = $this->squareClient->getLocationsApi()->createLocation($request);
-
-            if ($response->isError()) {
-                Log::error('Square Location Error: ' . json_encode($response->getErrors()));
-                throw new \Exception('Square Location Error');
+                return redirect()->route('dashboard')->with('success', 'Square location connected successfully.');
+            } else {
+                return redirect()->back()->with('error', 'Failed to connect Square location.');
             }
-
-            $location = $response->getResult()->getLocation();
-            $address->square_location_id = $location->getId();
-            $address->square_capabilities = $location->getCapabilities();
-            $address->save();
-
-            return [
-                'success' => true,
-                'location_id' => $location->getId(),
-            ];
-        } catch (ApiException $e) {
-            Log::error('Square API Exception: ' . $e->getMessage());
-            throw new \Exception('Square API Exception: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Square API Exception: ' . $e->getMessage());
         }
     }
 }

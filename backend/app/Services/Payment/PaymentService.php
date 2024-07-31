@@ -35,7 +35,7 @@ class PaymentService
         }
     }
 
-    public function refundPayment($booking, $gateway)
+    public function refundPayment(Booking $booking, $gateway)
     {
         return $this->getService($gateway)->refundPayment($booking);
     }

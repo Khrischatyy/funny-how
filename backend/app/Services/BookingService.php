@@ -432,7 +432,7 @@ class BookingService
             $studioOwner = $company->adminCompany->user;
 
             // Get the payment gateway from the user
-            $paymentGateway = $studioOwner->payment_gateway; // 'stripe' или 'square'
+//            $paymentGateway = $studioOwner->payment_gateway; // 'stripe' или 'square'
 
             // Generate the payment session
             $paymentSession = $this->paymentService->createPaymentSession($booking, $amount, $studioOwner);
