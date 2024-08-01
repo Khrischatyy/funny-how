@@ -10,8 +10,9 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue"
 import * as THREE from "three"
+import Spinner from "../../common/Spinner/Spinner.vue"
 const container = ref(null)
-
+const isLoading = ref(true)
 const SEPARATION = 50,
   AMOUNTX = 60,
   AMOUNTY = 30
@@ -49,7 +50,13 @@ const props = defineProps({
     default: () => ({ x: 0, y: 180, z: 20 }),
   },
 })
+
 function init() {
+  if (!container.value) {
+    console.error("Container element not found")
+    return
+  }
+
   camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
@@ -77,19 +84,30 @@ function init() {
     }
   }
 
-  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
-  renderer.setPixelRatio(window.devicePixelRatio) // Ensure maximum quality
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  container.value.appendChild(renderer.domElement)
+  try {
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+    renderer.setPixelRatio(window.devicePixelRatio) // Ensure maximum quality
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    container.value.appendChild(renderer.domElement)
+  } catch (error) {
+    console.error("Error creating WebGL context:", error)
+    container.value.innerHTML =
+      "<p>WebGL not supported in your browser or graphics card. Please try a different setup.</p>"
+    return
+  }
 }
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth, window.innerHeight)
+  if (camera && renderer) {
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+  }
 }
 
 function animate() {
+  if (!renderer || !scene || !camera) return
+
   requestAnimationFrame(animate)
 
   let i = 0

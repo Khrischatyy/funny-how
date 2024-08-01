@@ -97,13 +97,20 @@
           class="text-center mt-4 text-gray-400"
         >
           <p class="mb-5">
-            Please connect your Stripe account to manage payouts.
+            Please connect your Stripe or Square account to manage payouts.
           </p>
           <button
             @click="createAccount"
             class="bg-white text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400"
           >
             Connect Stripe Account
+          </button>
+          <div class="text-white font-['BebasNeue'] my-5">Or</div>
+          <button
+            @click="connectSquareAccount"
+            class="bg-white text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400"
+          >
+            Connect Square Account
           </button>
         </div>
 
@@ -136,7 +143,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from "vue"
-import { useFetch } from "#app"
+import { useFetch, useRuntimeConfig } from "#app"
 import { IconCredit, Spinner } from "~/src/shared/ui/common"
 import { useApi } from "../lib/api"
 import { useSessionStore } from "../entities/Session"
@@ -294,6 +301,13 @@ const fetchBalance = async () => {
   } catch (error) {
     console.error("Failed to fetch balance:", error)
   }
+}
+
+const connectSquareAccount = async () => {
+  const config = useRuntimeConfig()
+  let redirectUriBase = config.public.baseUrlClient
+  // let redirectUriBase = "http://127.0.0.1"
+  window.location.href = `https://connect.squareupsandbox.com/oauth2/authorize?client_id=sandbox-sq0idb-ZZhreupTqmxTkawXNXA1Yw&redirect_uri=${redirectUriBase}%2Fauth%2Fsquare&scope=MERCHANT_PROFILE_READ%20ORDERS_WRITE%20ORDERS_READ%20PAYMENTS_WRITE`
 }
 
 const createAccount = async () => {
