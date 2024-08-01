@@ -134,7 +134,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::prefix('payment')->group(function () {
             Route::prefix('square')->group(function () {
-                Route::post('create-location', [PaymentController::class, 'createLocation'])->name('square.createLocation');
+                Route::post('token', [PaymentController::class, 'obtainToken']);
             });
 
 //            Route::prefix('account')->group(function () {

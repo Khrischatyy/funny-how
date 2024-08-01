@@ -12,7 +12,6 @@ use Square\Models\CheckoutOptions;
 use Square\Models\CreateLocationRequest;
 use Square\Models\CreateOrderRequest;
 use Square\Models\CreatePaymentLinkRequest;
-use Square\Models\Location;
 use Square\Models\Order;
 use Square\Models\OrderLineItem;
 use Square\SquareClient;
@@ -30,7 +29,6 @@ class SquareService implements PaymentServiceInterface
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney, User $studioOwner): array
     {
-
         $address = $booking->address;
         $applicationFeePercentage = 0.04; // 4% сервисный сбор
         $applicationFeeAmount = (int)($amountOfMoney * 100 * $applicationFeePercentage); // сумма в центах
@@ -53,14 +51,21 @@ class SquareService implements PaymentServiceInterface
         // Устанавливаем redirect URL для обработки успешного платежа
         $checkoutOptions->setRedirectUrl(route('payment.success', ['booking_id' => $booking->id]));
 
-        // Установка комиссии приложения
-        $checkoutOptions->setApplicationFeeMoney((new Money())->setAmount($applicationFeeAmount)->setCurrency('USD'));
-
         $createPaymentLinkRequest = new CreatePaymentLinkRequest($createOrderRequest);
         $createPaymentLinkRequest->setCheckoutOptions($checkoutOptions);
 
+        // Установка комиссии приложения
+        $appFeeMoney = new Money();
+        $appFeeMoney->setAmount($applicationFeeAmount);
+        $appFeeMoney->setCurrency('USD');
+
+        dd($createPaymentLinkRequest, $appFeeMoney);
+
+
+        $createPaymentLinkRequest->setAppFeeMoney($appFeeMoney);
+
         try {
-            dd('try');
+            dd('s');
             $response = $this->squareClient->getCheckoutApi()->createPaymentLink($createPaymentLinkRequest);
 
             if ($response->isError()) {

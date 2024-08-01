@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\User;
 use App\Services\Payment\Gateways\StripeService;
 use App\Services\Payment\Gateways\SquareService;
+use Exception;
 
 class PaymentService
 {

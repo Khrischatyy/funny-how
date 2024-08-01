@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('addresses', function (Blueprint $table) {
-            $table->string('square_location_id')->nullable()->after('company_id');
-            $table->json('square_capabilities')->nullable()->after('square_location_id');
+//            $table->string('square_location_id')->nullable()->after('company_id');
+//            $table->json('square_capabilities')->nullable()->after('square_location_id');
         });
     }
 
@@ -27,8 +27,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('addresses', function (Blueprint $table) {
-            $table->dropColumn('square_location_id');
-            $table->dropColumn('square_capabilities');
+//            $table->dropColumn('square_location_id');
+//            $table->dropColumn('square_capabilities');
         });
     }
 };
