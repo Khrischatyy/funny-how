@@ -91,8 +91,8 @@ function init() {
     container.value.appendChild(renderer.domElement)
   } catch (error) {
     console.error("Error creating WebGL context:", error)
-    container.value.innerHTML =
-      "<p>WebGL not supported in your browser or graphics card. Please try a different setup.</p>"
+    // container.value.innerHTML =
+    //   "<p>WebGL not supported in your browser or graphics card. Please try a different setup.</p>"
     return
   }
 }
