@@ -3,72 +3,59 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
-use App\Models\SquareToken;
-use Exception;
 use Illuminate\Http\Request;
-use Square\Models\ObtainTokenRequest;
 use Square\SquareClient;
+use Square\Models\ObtainTokenRequest;
+use Square\Models\CreateLocationRequest;
+use Exception;
+use App\Models\SquareToken;
+use App\Models\SquareLocation;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends BaseController
 {
-    /**
-     * @OA\Post(
-     *     path="/payment/square/token",
-     *     summary="Obtain or refresh Square token",
-     *     tags={"Payments"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="code", type="string", example="authorization_code_or_refresh_token"),
-     *             @OA\Property(property="is_refresh", type="boolean", example=false)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Token obtained or refreshed successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="access_token", type="string"),
-     *             @OA\Property(property="refresh_token", type="string"),
-     *             @OA\Property(property="expires_at", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(response=400, description="Bad request"),
-     *     @OA\Response(response=500, description="Internal server error")
-     * )
-     */
-    public function obtainToken(Request $request)
+    public function redirectToSquare()
     {
-        $code = $request->input('code');
-        $isRefresh = $request->input('is_refresh', false);
-        $userId = $request->user()->id; // или другой способ получения идентификатора пользователя
+        $clientId = env('SQUARE_APPLICATION_ID');
+        $redirectUri = route('square.callback');
+        $scope = 'MERCHANT_PROFILE_READ PAYMENTS_WRITE PAYMENTS_READ';
+
+        $url = "https://connect.squareup.com/oauth2/authorize?client_id={$clientId}&scope={$scope}&session=false&redirect_uri={$redirectUri}";
+
+        return redirect($url);
+    }
+
+    public function handleSquareCallback(Request $request)
+    {
+        $code = $request->query('code');
+
+        if (!$code) {
+            return $this->sendError('Authorization code not found.', 400);
+        }
 
         try {
             $client = new SquareClient([
-                'accessToken' => env('SQUARE_ACCESS_TOKEN'),
                 'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
             ]);
 
             $body = new ObtainTokenRequest(
                 env('SQUARE_APPLICATION_ID'),
-                $isRefresh ? 'refresh_token' : 'authorization_code'
+                'authorization_code'
             );
 
             $body->setClientSecret(env('SQUARE_CLIENT_SECRET'));
             $body->setCode($code);
-
-            if (!$isRefresh) {
-                $body->setRedirectUri(env('APP_URL') . '/auth/square');
-            }
+            $body->setRedirectUri(route('square.callback'));
 
             $apiResponse = $client->getOAuthApi()->obtainToken($body);
 
             if ($apiResponse->isSuccess()) {
                 $result = $apiResponse->getResult();
+                $user = Auth::user();
 
                 // Сохранение токенов в базу данных
                 SquareToken::updateOrCreate(
-                    ['user_id' => $userId],
+                    ['user_id' => $user->id],
                     [
                         'access_token' => $result->getAccessToken(),
                         'refresh_token' => $result->getRefreshToken(),
@@ -76,16 +63,92 @@ class PaymentController extends BaseController
                     ]
                 );
 
-                return $this->sendResponse([
-                    'access_token' => $result->getAccessToken(),
-                    'refresh_token' => $result->getRefreshToken(),
-                    'expires_at' => $result->getExpiresAt(),
-                ], 'Token obtained or refreshed successfully.');
+                // Получение и создание локаций
+                return $this->getOrCreateLocations($user, $result->getAccessToken());
             } else {
                 return $this->sendError('Failed to obtain token.', 400, ['errors' => $apiResponse->getErrors()]);
             }
         } catch (Exception $e) {
             return $this->sendError('Failed to obtain token.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    protected function getOrCreateLocations($user, $accessToken)
+    {
+        try {
+            $client = new SquareClient([
+                'accessToken' => $accessToken,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
+
+            $apiResponse = $client->getLocationsApi()->listLocations();
+
+            if ($apiResponse->isSuccess()) {
+                $locations = $apiResponse->getResult()->getLocations();
+
+                $addressId = $user->addresses()->first()->id;
+
+                if (count($locations) > 0) {
+                    foreach ($locations as $location) {
+                        SquareLocation::updateOrCreate(
+                            ['address_id' => $addressId], // предполагаем, что у пользователя есть адрес
+                            ['location_id' => $location->getId()]
+                        );
+                    }
+
+                    return $this->sendResponse($locations, 'Existing locations retrieved successfully.');
+                } else {
+                    return $this->createLocationForUser($user, $accessToken);
+                }
+            } else {
+                return $this->sendError('Failed to retrieve locations.', 400, ['errors' => $apiResponse->getErrors()]);
+            }
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve locations.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    protected function createLocationForUser($user, $accessToken)
+    {
+        $address = $user->addresses()->first(); // предполагаем, что у пользователя есть адрес
+
+        try {
+            $squareAddress = new \Square\Models\Address();
+            $squareAddress->setAddressLine1($address->street);
+            $squareAddress->setLocality($address->city);
+            $squareAddress->setPostalCode($address->postal_code ?? '00000');
+            $squareAddress->setAdministrativeDistrictLevel1($address->state ?? 'Unknown');
+            $squareAddress->setCountry('US');
+
+            $location = new \Square\Models\Location();
+            $location->setName($address->name ?? 'Default Location Name');
+            $location->setAddress($squareAddress);
+            $location->setDescription('Description of your location');
+
+            $body = new CreateLocationRequest();
+            $body->setLocation($location);
+
+            $squareClient = new SquareClient([
+                'accessToken' => $accessToken,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
+
+            $apiResponse = $squareClient->getLocationsApi()->createLocation($body);
+
+            if ($apiResponse->isSuccess()) {
+                $locationId = $apiResponse->getResult()->getLocation()->getId();
+
+                SquareLocation::create([
+                    'address_id' => $address->id,
+                    'location_id' => $locationId
+                ]);
+
+                return $this->sendResponse(['location_id' => $locationId], 'Square location created successfully.');
+            } else {
+                return $this->sendError('Failed to create Square location.', 400, ['errors' => $apiResponse->getErrors()]);
+            }
+        } catch (Exception $e) {
+            return $this->sendError('Failed to create Square location.', 500, ['error' => $e->getMessage()]);
         }
     }
 }

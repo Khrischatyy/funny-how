@@ -10,7 +10,7 @@ class SquareToken extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', // или другое поле для ассоциации
+        'user_id',
         'access_token',
         'refresh_token',
         'expires_at',
@@ -18,7 +18,7 @@ class SquareToken extends Model
 
     protected $dates = ['expires_at'];
 
-    public function user() // пример для связывания с моделью User
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
