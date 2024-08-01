@@ -17,7 +17,7 @@ class PaymentController extends BaseController
     public function redirectToSquare()
     {
         $clientId = env('SQUARE_APPLICATION_ID');
-        $redirectUri = route('square.callback');
+        $redirectUri = env('APP_URL') . '/auth/square';
         $scope = 'MERCHANT_PROFILE_READ PAYMENTS_WRITE PAYMENTS_READ';
 
         $url = "https://connect.squareup.com/oauth2/authorize?client_id={$clientId}&scope={$scope}&session=false&redirect_uri={$redirectUri}";
@@ -28,6 +28,7 @@ class PaymentController extends BaseController
     public function handleSquareCallback(Request $request)
     {
         $code = $request->query('code');
+        $redirectUri = env('APP_URL') . '/auth/square';
 
         if (!$code) {
             return $this->sendError('Authorization code not found.', 400);
@@ -44,14 +45,18 @@ class PaymentController extends BaseController
             );
 
             $body->setClientSecret(env('SQUARE_CLIENT_SECRET'));
+
             $body->setCode($code);
-            $body->setRedirectUri(route('square.callback'));
+            $body->setRedirectUri($redirectUri);
 
             $apiResponse = $client->getOAuthApi()->obtainToken($body);
 
             if ($apiResponse->isSuccess()) {
                 $result = $apiResponse->getResult();
                 $user = Auth::user();
+
+                $user->payment_gateway = 'square';
+                $user->save();
 
                 // Сохранение токенов в базу данных
                 SquareToken::updateOrCreate(
@@ -86,7 +91,7 @@ class PaymentController extends BaseController
             if ($apiResponse->isSuccess()) {
                 $locations = $apiResponse->getResult()->getLocations();
 
-                $addressId = $user->addresses()->first()->id;
+                $addressId = $user->company->addresses()->first()->id;
 
                 if (count($locations) > 0) {
                     foreach ($locations as $location) {
