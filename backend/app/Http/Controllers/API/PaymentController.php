@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
+use App\Models\SquareToken;
 use Exception;
 use Illuminate\Http\Request;
 use Square\Models\ObtainTokenRequest;
@@ -40,6 +41,7 @@ class PaymentController extends BaseController
     {
         $code = $request->input('code');
         $isRefresh = $request->input('is_refresh', false);
+        $userId = $request->user()->id; // или другой способ получения идентификатора пользователя
 
         try {
             $client = new SquareClient([
@@ -63,6 +65,16 @@ class PaymentController extends BaseController
 
             if ($apiResponse->isSuccess()) {
                 $result = $apiResponse->getResult();
+
+                // Сохранение токенов в базу данных
+                SquareToken::updateOrCreate(
+                    ['user_id' => $userId],
+                    [
+                        'access_token' => $result->getAccessToken(),
+                        'refresh_token' => $result->getRefreshToken(),
+                        'expires_at' => $result->getExpiresAt(),
+                    ]
+                );
 
                 return $this->sendResponse([
                     'access_token' => $result->getAccessToken(),
