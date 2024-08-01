@@ -304,10 +304,27 @@ const fetchBalance = async () => {
 }
 
 const connectSquareAccount = async () => {
-  const config = useRuntimeConfig()
-  let redirectUriBase = config.public.baseUrlClient
-  // let redirectUriBase = "http://127.0.0.1"
-  window.location.href = `https://connect.squareupsandbox.com/oauth2/authorize?client_id=sandbox-sq0idb-ZZhreupTqmxTkawXNXA1Yw&redirect_uri=${redirectUriBase}%2Fauth%2Fsquare&scope=MERCHANT_PROFILE_READ%20ORDERS_WRITE%20ORDERS_READ%20PAYMENTS_WRITE%20PAYMENTS_WRITE_ADDITIONAL_RECIPIENTS`
+  isLoading.value = true
+  try {
+    const { fetch: getLink } = useApi({
+      url: "/user/payment/square/redirect",
+      auth: true,
+    })
+
+    await getLink().then((res) => {
+      console.log(res)
+      if (res?.url) {
+        window.location.href = res?.url
+      }
+    })
+  } finally {
+    isLoading.value = false
+  }
+
+  // const config = useRuntimeConfig()
+  // let redirectUriBase = config.public.baseUrlClient
+  // // let redirectUriBase = "http://127.0.0.1"
+  // window.location.href = `https://connect.squareupsandbox.com/oauth2/authorize?client_id=sandbox-sq0idb-ZZhreupTqmxTkawXNXA1Yw&redirect_uri=${redirectUriBase}%2Fauth%2Fsquare&scope=MERCHANT_PROFILE_READ%20ORDERS_WRITE%20ORDERS_READ%20PAYMENTS_WRITE%20PAYMENTS_WRITE_ADDITIONAL_RECIPIENTS`
 }
 
 const createAccount = async () => {

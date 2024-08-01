@@ -17,16 +17,17 @@ class PaymentController extends BaseController
     {
         $clientId = env('SQUARE_APPLICATION_ID');
         $redirectUri = env('APP_URL') . '/auth/square';
-        $scope = 'MERCHANT_PROFILE_READ PAYMENTS_WRITE PAYMENTS_READ';
+        $scope = 'MERCHANT_PROFILE_READ PAYMENTS_WRITE PAYMENTS_READ'; 
+        $squareappBaseUrl = env('SQUARE_ENVIRONMENT') == 'production' ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
-        $url = "https://connect.squareup.com/oauth2/authorize?client_id={$clientId}&scope={$scope}&session=false&redirect_uri={$redirectUri}";
+        $url = "{$squareappBaseUrl}/oauth2/authorize?client_id={$clientId}&scope={$scope}&session=false&redirect_uri={$redirectUri}";
 
-        return redirect($url);
+        return response()->json(['url' => $url]);
     }
 
     public function handleSquareCallback(Request $request)
     {
-        $code = $request->query('code');
+        $code = $request->input('code');
         $redirectUri = env('APP_URL') . '/auth/square';
 
         if (!$code) {
@@ -46,6 +47,7 @@ class PaymentController extends BaseController
             $body->setClientSecret(env('SQUARE_CLIENT_SECRET'));
 
             $body->setCode($code);
+            $body->setRedirectUri($redirectUri);
             $body->setRedirectUri($redirectUri);
 
             $apiResponse = $client->getOAuthApi()->obtainToken($body);

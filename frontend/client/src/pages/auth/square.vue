@@ -21,7 +21,10 @@ const route = router.currentRoute.value
 const sessionStore = useSessionStore() // Retrieve session store
 const { user } = storeToRefs(sessionStore)
 const obtainToken = async (code: string) => {
-  const setTokenApi = useApi({ url: "/user/payment/square/token", auth: true })
+  const setTokenApi = useApi({
+    url: "/user/payment/square/callback",
+    auth: true,
+  })
   try {
     const response = await setTokenApi.post({ code })
     if (response?.data) {

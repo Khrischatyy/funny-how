@@ -134,8 +134,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::prefix('payment')->group(function () {
             Route::prefix('square')->group(function () {
-                Route::get('redirect', [PaymentController::class, 'redirectToSquare']);
-                Route::get('callback', [PaymentController::class, 'handleSquareCallback'])->name('square.callback');
+                Route::get('redirect', [PaymentController::class, 'redirectToSquare'])->name('square.connect');
+                Route::post('callback', [PaymentController::class, 'handleSquareCallback'])->name('square.callback');
             });
 
 //            Route::prefix('account')->group(function () {
