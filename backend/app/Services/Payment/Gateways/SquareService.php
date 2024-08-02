@@ -8,6 +8,8 @@ use App\Models\Booking;
 use App\Models\Charge;
 use App\Models\SquareToken;
 use App\Models\User;
+use App\Services\BookingService;
+use App\Services\Payment\PaymentService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Square\Models\CheckoutOptions;
@@ -43,7 +45,7 @@ class SquareService implements PaymentServiceInterface
         }
 
         // Создаем order_id
-        $orderId = $this->createOrder($squareLocation->location_id, $amountOfMoney);
+        $orderId = $this->createOrder($address, $amountOfMoney);
 
         // Создаем объект Money для суммы заказа
         $priceMoney = new Money();
@@ -108,7 +110,7 @@ class SquareService implements PaymentServiceInterface
         }
     }
 
-    public function createOrder(string $locationId, int $amountOfMoney): string
+    public function createOrder(Address $address, int $amountOfMoney): string
     {
         $money = new Money();
         $money->setAmount($amountOfMoney * 100); // сумма в центах
@@ -118,7 +120,7 @@ class SquareService implements PaymentServiceInterface
         $orderLineItem->setName('Booking Payment');
         $orderLineItem->setBasePriceMoney($money);
 
-        $order = new Order($locationId); // передаем location_id как строку
+        $order = new Order($address->squareFirstLocation()->location_id); // Get the location_id from the first SquareLocation
         $order->setLineItems([$orderLineItem]);
 
         $createOrderRequest = new CreateOrderRequest();
@@ -146,6 +148,7 @@ class SquareService implements PaymentServiceInterface
             throw new \Exception('Square API Exception: ' . $e->getMessage());
         }
     }
+
 
 
     public function refundPayment($booking)
@@ -187,10 +190,10 @@ class SquareService implements PaymentServiceInterface
         }
     }
 
-    public function verifyPaymentSession($orderId)
+    public function verifyPaymentSession($orderId, $studioOwner)
     {
         try {
-            $squareToken = SquareToken::where('user_id', Auth::id())->firstOrFail();
+            $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
             $client = new SquareClient([
                 'accessToken' => $squareToken->access_token,
                 'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
@@ -210,9 +213,9 @@ class SquareService implements PaymentServiceInterface
         }
     }
 
-    public function processPaymentSuccess($orderId, $bookingId)
+    public function processPaymentSuccess($orderId, $bookingId, $studioOwner)
     {
-        $payment = $this->verifyPaymentSession($orderId);
+        $payment = $this->verifyPaymentSession($orderId, $studioOwner);
 
         if (!$payment) {
             Log::error('Payment verification failed: Payment is null.');
@@ -228,7 +231,7 @@ class SquareService implements PaymentServiceInterface
             return $validationResult;
         }
 
-        $booking = $this->updateBookingStatus($bookingId, 2);
+        $booking = $this->bookingService->updateBookingStatus($bookingId, 2);
         $this->updateCharge($orderId, $payment->getId());
 
         $totalAmount = $payment->getAmountMoney()->getAmount(); // Amount in cents
@@ -278,11 +281,11 @@ class SquareService implements PaymentServiceInterface
         return $booking;
     }
 
-    protected function updateCharge(string $sessionId, string $paymentIntent): void
+    protected function updateCharge(string $orderId, string $paymentId): void
     {
-        $charge = Charge::where('stripe_session_id', $sessionId)->firstOrFail();
+        $charge = Charge::where('order_id', $orderId)->firstOrFail();
         $charge->update([
-            'stripe_payment_intent' => $paymentIntent, // Use the Square payment ID
+            'square_payment_id' => $paymentId,
         ]);
     }
 

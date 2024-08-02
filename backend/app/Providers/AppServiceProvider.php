@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Services\BookingService;
 use App\Services\CityService;
 use App\Services\CountryService;
+use App\Services\Payment\PaymentService;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\ImageManager;
@@ -28,6 +30,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ImageManager::class, function ($app) {
             return new ImageManager(config('image.driver'));
         });
+
+//        $this->app->singleton(PaymentService::class, function ($app) {
+//            return new PaymentService();
+//        });
+
+//        $this->app->singleton(BookingService::class, function ($app) {
+//            return new BookingService($app->make(PaymentService::class));
+//        });
     }
 
     /**

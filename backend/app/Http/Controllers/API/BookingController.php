@@ -618,7 +618,7 @@ class BookingController extends BaseController
             $studioOwner = $booking->address->company->adminCompany->user;
             $paymentGateway = $studioOwner->payment_gateway;
 
-            $result = $this->paymentService->processPaymentSuccess($orderId, $bookingId, $paymentGateway);
+            $result = $this->paymentService->processPaymentSuccess($orderId, $bookingId, $paymentGateway, $studioOwner);
 
             if (isset($result['error'])) {
                 return $this->sendError($result['error'], 400);

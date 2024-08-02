@@ -64,7 +64,7 @@ class StripeService implements PaymentServiceInterface
         ]);
     }
 
-    public function refundPayment(Booking $booking)
+    public function refundPayment(Booking $booking): array
     {
         try {
             $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
@@ -98,7 +98,7 @@ class StripeService implements PaymentServiceInterface
         }
     }
 
-    public function verifyPaymentSession($sessionId)
+    public function verifyPaymentSession($sessionId, $studioOwner): ?Session
     {
         try {
             Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -111,7 +111,7 @@ class StripeService implements PaymentServiceInterface
         }
     }
 
-    public function processPaymentSuccess($sessionId, $bookingId)
+    public function processPaymentSuccess($sessionId, $bookingId, $studioOwner): array
     {
         // Verify the session
         $session = $this->verifyPaymentSession($sessionId);
@@ -178,14 +178,14 @@ class StripeService implements PaymentServiceInterface
 
 
     // TODO: move it to Booking service
-    private function updateBookingStatus(int $bookingId, int $statusId): Booking
-    {
-        $booking = Booking::findOrFail($bookingId);
-        $booking->status_id = $statusId;
-        $booking->save();
-
-        return $booking;
-    }
+//    private function updateBookingStatus(int $bookingId, int $statusId): Booking
+//    {
+//        $booking = Booking::findOrFail($bookingId);
+//        $booking->status_id = $statusId;
+//        $booking->save();
+//
+//        return $booking;
+//    }
 
     private function updateCharge(string $sessionId, string $paymentIntent): void
     {

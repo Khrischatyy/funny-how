@@ -15,6 +15,7 @@ class PaymentService
     protected $squareService;
 
     public const MINUTE_TO_PAY = 30;
+    public const SERVICE_FEE_PERCENTAGE = 0.04;
 
     public function __construct(StripeService $stripeService, SquareService $squareService)
     {
@@ -41,14 +42,14 @@ class PaymentService
         return $this->getService($gateway)->refundPayment($booking);
     }
 
-    public function verifyPaymentSession($sessionId, $gateway)
+    public function verifyPaymentSession($sessionId, $gateway, $studioOwner)
     {
-        return $this->getService($gateway)->verifyPaymentSession($sessionId);
+        return $this->getService($gateway)->verifyPaymentSession($sessionId, $studioOwner);
     }
 
-    public function processPaymentSuccess($orderId, $bookingId, $gateway)
+    public function processPaymentSuccess($orderId, $bookingId, $gateway, $studioOwner)
     {
-        return $this->getService($gateway)->processPaymentSuccess($orderId, $bookingId);
+        return $this->getService($gateway)->processPaymentSuccess($orderId, $bookingId, $studioOwner);
     }
 
     protected function getService($gateway): PaymentServiceInterface

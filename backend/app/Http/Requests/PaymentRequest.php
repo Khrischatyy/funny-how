@@ -24,7 +24,8 @@ class PaymentRequest extends FormRequest
     public function rules()
     {
         return [
-            'session_id' => 'required|string',
+            'session_id' => 'nullable|string',
+            'order_id' => 'nullable|string',
             'booking_id' => 'required|integer|exists:bookings,id',
         ];
     }

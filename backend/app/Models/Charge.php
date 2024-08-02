@@ -18,6 +18,8 @@ class Charge extends Model
         'status',
         'refund_id',
         'refund_status',
+        'order_id',
+        'square_payment_id',
     ];
 
     public function booking()
