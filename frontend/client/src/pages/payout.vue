@@ -93,7 +93,7 @@
           </button>
         </div>
         <div
-          v-if="user && !user.stripe_account_id"
+          v-if="user && !user.stripe_account_id && !user.payment_gateway"
           class="text-center mt-4 text-gray-400"
         >
           <p class="mb-5">
@@ -114,6 +114,10 @@
           </button>
         </div>
 
+        <div v-if="!isLoading && user.payment_gateway" class="mt-4">
+          <p class="text-gray-400">Connected account</p>
+          <p class="text-white>">{{ user.payment_gateway }}</p>
+        </div>
         <div v-if="!isLoading && payouts.length > 0" class="mt-4">
           <table class="min-w-full bg-white">
             <thead>

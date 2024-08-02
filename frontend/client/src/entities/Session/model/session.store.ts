@@ -29,7 +29,6 @@ export const useSessionStore = defineStore({
   }),
   getters: {
     user(): any {
-      let userJson = this.userInfo
       return this.userObject?.user
     },
     existedCompany(): any {
@@ -95,6 +94,9 @@ export const useSessionStore = defineStore({
     },
     setIsLoading(isLoading: boolean) {
       this.isLoading = isLoading
+    },
+    setPaymentGateway(gateway: string) {
+      this.user.payment_gateway = gateway
     },
     isGuest() {
       return !this.isAuthorized

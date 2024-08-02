@@ -8,7 +8,7 @@ import { Spinner } from "~/src/shared/ui/common"
 import { Particles } from "~/src/shared/ui/components"
 import { navigateTo } from "nuxt/app"
 import { storeToRefs } from "pinia"
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
 // Set the page metadata
 useHead({
   title: "Funny How – Book a Session Time",
@@ -28,6 +28,7 @@ const obtainToken = async (code: string) => {
   try {
     const response = await setTokenApi.post({ code })
     if (response?.data) {
+      sessionStore.setPaymentGateway("square")
       navigateTo("/payout")
     }
   } catch (err) {
@@ -36,13 +37,15 @@ const obtainToken = async (code: string) => {
     isLoading.value = false
   }
 }
-// Getting the code from url
-const code = route.query.code as string | undefined
-if (code) {
-  obtainToken(code)
-} else {
-  router.push("/login")
-}
+onMounted(() => {
+  const code = route.query.code as string | undefined
+  if (code) {
+    obtainToken(code)
+  } else {
+    error.value = "No code found"
+    isLoading.value = false
+  }
+})
 </script>
 
 <template>
