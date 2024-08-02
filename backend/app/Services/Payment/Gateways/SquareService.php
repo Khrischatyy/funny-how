@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\Charge;
 use App\Models\SquareToken;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Square\Models\CheckoutOptions;
 use Square\Models\CreateLocationRequest;
@@ -41,6 +42,9 @@ class SquareService implements PaymentServiceInterface
             throw new \Exception('Address does not have a valid Square location.');
         }
 
+        // Создаем order_id
+        $orderId = $this->createOrder($squareLocation->location_id, $amountOfMoney);
+
         // Создаем объект Money для суммы заказа
         $priceMoney = new Money();
         $priceMoney->setAmount($amountOfMoney * 100); // сумма в центах
@@ -62,9 +66,9 @@ class SquareService implements PaymentServiceInterface
         $checkoutOptions = new CheckoutOptions();
         $checkoutOptions->setRedirectUrl(route('payment.success', [
             'booking_id' => $booking->id,
-            'order_id' => '{ORDER_ID}'
+            'order_id' => $orderId
         ]));
-        $checkoutOptions->setAppFeeMoney($appFeeMoney);
+//        $checkoutOptions->setAppFeeMoney($appFeeMoney);
 
         // Создаем CreatePaymentLinkRequest и устанавливаем QuickPay и CheckoutOptions
         $createPaymentLinkRequest = new CreatePaymentLinkRequest();
@@ -87,7 +91,9 @@ class SquareService implements PaymentServiceInterface
             }
 
             $paymentLink = $response->getResult()->getPaymentLink();
-            $this->createCharge($booking, $paymentLink->getId(), $amountOfMoney, 'USD');
+
+            // Сохраняем order_id в базе данных
+            $this->createCharge($booking, $orderId, $amountOfMoney, 'USD');
 
             return [
                 'payment_url' => $paymentLink->getUrl(),
@@ -99,6 +105,45 @@ class SquareService implements PaymentServiceInterface
         } catch (\Exception $e) {
             Log::error('General Exception: ' . $e->getMessage() . ' with request: ' . json_encode($createPaymentLinkRequest));
             throw new \Exception('General Exception: ' . $e->getMessage());
+        }
+    }
+
+    public function createOrder(string $locationId, int $amountOfMoney): string
+    {
+        $money = new Money();
+        $money->setAmount($amountOfMoney * 100); // сумма в центах
+        $money->setCurrency('USD');
+
+        $orderLineItem = new OrderLineItem('1'); // Количество 1
+        $orderLineItem->setName('Booking Payment');
+        $orderLineItem->setBasePriceMoney($money);
+
+        $order = new Order($locationId); // передаем location_id как строку
+        $order->setLineItems([$orderLineItem]);
+
+        $createOrderRequest = new CreateOrderRequest();
+        $createOrderRequest->setOrder($order);
+
+        try {
+            $squareToken = SquareToken::where('user_id', Auth::id())->firstOrFail();
+            $client = new SquareClient([
+                'accessToken' => $squareToken->access_token,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
+
+            $response = $client->getOrdersApi()->createOrder($createOrderRequest);
+
+            if ($response->isError()) {
+                Log::error('Square Order Creation Error: ' . json_encode($response->getErrors()));
+                throw new \Exception('Square Order Creation Error');
+            }
+
+            $orderId = $response->getResult()->getOrder()->getId();
+            return $orderId;
+
+        } catch (ApiException $e) {
+            Log::error('Square API Exception: ' . $e->getMessage());
+            throw new \Exception('Square API Exception: ' . $e->getMessage());
         }
     }
 
@@ -142,26 +187,32 @@ class SquareService implements PaymentServiceInterface
         }
     }
 
-    public function verifyPaymentSession($sessionId)
+    public function verifyPaymentSession($orderId)
     {
         try {
-            $response = $this->squareClient->getPaymentsApi()->getPayment($sessionId);
+            $squareToken = SquareToken::where('user_id', Auth::id())->firstOrFail();
+            $client = new SquareClient([
+                'accessToken' => $squareToken->access_token,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
+
+            $response = $client->getOrdersApi()->retrieveOrder($orderId);
 
             if ($response->isError()) {
                 Log::error('Square Payment Verification Error: ' . json_encode($response->getErrors()));
                 return null;
             }
 
-            return $response->getResult()->getPayment();
+            return $response->getResult()->getOrder();
         } catch (ApiException $e) {
             Log::error('Square API Exception: ' . $e->getMessage());
             return null;
         }
     }
 
-    public function processPaymentSuccess($sessionId, $bookingId)
+    public function processPaymentSuccess($orderId, $bookingId)
     {
-        $payment = $this->verifyPaymentSession($sessionId);
+        $payment = $this->verifyPaymentSession($orderId);
 
         if (!$payment) {
             Log::error('Payment verification failed: Payment is null.');
@@ -178,7 +229,7 @@ class SquareService implements PaymentServiceInterface
         }
 
         $booking = $this->updateBookingStatus($bookingId, 2);
-        $this->updateCharge($sessionId, $payment->getId());
+        $this->updateCharge($orderId, $payment->getId());
 
         $totalAmount = $payment->getAmountMoney()->getAmount(); // Amount in cents
         $serviceFee = $totalAmount * PaymentService::SERVICE_FEE_PERCENTAGE;
@@ -200,12 +251,13 @@ class SquareService implements PaymentServiceInterface
         ];
     }
 
-    protected function createCharge(Booking $booking, string $paymentLinkId, int $amount, string $currency): void
+    protected function createCharge(Booking $booking, string $orderId, int $amount, string $currency): void
     {
         Charge::create([
             'booking_id' => $booking->id,
-            'square_payment_id' => $paymentLinkId, // Use the Square payment ID
+//            'square_payment_id' => $paymentLinkId, // Use the Square payment ID
             'amount' => $amount,
+            'order_id' => $orderId,
             'currency' => $currency,
         ]);
     }

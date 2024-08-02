@@ -450,7 +450,7 @@ class BookingService
 
             return [
                 'booking' => $booking,
-                'session_id' => $paymentSession['session_id'],
+//                'session_id' => $paymentSession['session_id'],
                 'payment_url' => $paymentUrl,
                 'explanation' => $explanation,
             ];

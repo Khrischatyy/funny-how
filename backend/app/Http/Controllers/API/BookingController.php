@@ -12,6 +12,7 @@ use App\Http\Requests\FilterBookingHistoryRequest;
 use App\Http\Requests\PaymentRequest;
 use App\Services\BookingService;
 use App\Services\Payment\Gateways\StripeService;
+use App\Services\Payment\PaymentService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +22,7 @@ use Illuminate\Http\Request;
 
 class BookingController extends BaseController
 {
-    public function __construct(private BookingService $bookingService, private StripeService $paymentService)
+    public function __construct(private BookingService $bookingService, private PaymentService $paymentService)
     {}
 
     /**
@@ -610,16 +611,20 @@ class BookingController extends BaseController
     public function paymentSuccess(PaymentRequest $request): JsonResponse
     {
         try {
-            $sessionId = $request->input('session_id');
+            $orderId = $request->input('order_id');
             $bookingId = $request->input('booking_id');
 
-            $result = $this->paymentService->processPaymentSuccess($sessionId, $bookingId, $this->bookingService);
+            $booking = $this->bookingService->getBookingById($bookingId);
+            $studioOwner = $booking->address->company->adminCompany->user;
+            $paymentGateway = $studioOwner->payment_gateway;
+
+            $result = $this->paymentService->processPaymentSuccess($orderId, $bookingId, $paymentGateway);
 
             if (isset($result['error'])) {
                 return $this->sendError($result['error'], 400);
             }
 
-            return $this->sendResponse([], $result['success']);
+            return $this->sendResponse([], $result['message']);
         } catch (Exception $e) {
             return $this->sendError('Failed to update booking status after payment.', 500, ['error' => $e->getMessage()]);
         }

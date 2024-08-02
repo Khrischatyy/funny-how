@@ -46,9 +46,9 @@ class PaymentService
         return $this->getService($gateway)->verifyPaymentSession($sessionId);
     }
 
-    public function processPaymentSuccess($sessionId, $bookingId, $gateway)
+    public function processPaymentSuccess($orderId, $bookingId, $gateway)
     {
-        return $this->getService($gateway)->processPaymentSuccess($sessionId, $bookingId);
+        return $this->getService($gateway)->processPaymentSuccess($orderId, $bookingId);
     }
 
     protected function getService($gateway): PaymentServiceInterface
