@@ -6,6 +6,7 @@ use App\Interfaces\PaymentServiceInterface;
 use App\Models\Address;
 use App\Models\Booking;
 use App\Models\Charge;
+use App\Models\SquareToken;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Square\Models\CheckoutOptions;
@@ -14,6 +15,7 @@ use Square\Models\CreateOrderRequest;
 use Square\Models\CreatePaymentLinkRequest;
 use Square\Models\Order;
 use Square\Models\OrderLineItem;
+use Square\Models\QuickPay;
 use Square\SquareClient;
 use Square\Exceptions\ApiException;
 use Square\Models\Money;
@@ -29,45 +31,55 @@ class SquareService implements PaymentServiceInterface
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney, User $studioOwner): array
     {
-        dd('hooray');
         $address = $booking->address;
         $applicationFeePercentage = 0.04; // 4% сервисный сбор
         $applicationFeeAmount = (int)($amountOfMoney * 100 * $applicationFeePercentage); // сумма в центах
 
-        $money = new Money();
-        $money->setAmount($amountOfMoney * 100); // сумма в центах
-        $money->setCurrency('USD');
+        // Проверяем наличие location_id
+        $squareLocation = $address->squareFirstLocation();
+        if (!$squareLocation) {
+            throw new \Exception('Address does not have a valid Square location.');
+        }
 
-        $orderLineItem = new OrderLineItem('1'); // Количество 1
-        $orderLineItem->setName('Booking Payment');
-        $orderLineItem->setBasePriceMoney($money);
+        // Создаем объект Money для суммы заказа
+        $priceMoney = new Money();
+        $priceMoney->setAmount($amountOfMoney * 100); // сумма в центах
+        $priceMoney->setCurrency('USD');
 
-        $order = new Order($address->square_location_id);
-        $order->setLineItems([$orderLineItem]);
-
-        $createOrderRequest = new CreateOrderRequest();
-        $createOrderRequest->setOrder($order);
-
-        $checkoutOptions = new CheckoutOptions();
-        // Устанавливаем redirect URL для обработки успешного платежа
-        $checkoutOptions->setRedirectUrl(route('payment.success', ['booking_id' => $booking->id]));
-
-        $createPaymentLinkRequest = new CreatePaymentLinkRequest($createOrderRequest);
-        $createPaymentLinkRequest->setCheckoutOptions($checkoutOptions);
+        // Создаем QuickPay объект
+        $quickPay = new QuickPay(
+            'Booking Payment for ' . $booking->id,
+            $priceMoney,
+            $squareLocation->location_id
+        );
 
         // Установка комиссии приложения
         $appFeeMoney = new Money();
         $appFeeMoney->setAmount($applicationFeeAmount);
         $appFeeMoney->setCurrency('USD');
 
-        dd($createPaymentLinkRequest, $appFeeMoney);
+        // Создаем CheckoutOptions и устанавливаем redirect URL для обработки успешного платежа
+        $checkoutOptions = new CheckoutOptions();
+        $checkoutOptions->setRedirectUrl(route('payment.success', [
+            'booking_id' => $booking->id,
+            'order_id' => '{ORDER_ID}'
+        ]));
+        $checkoutOptions->setAppFeeMoney($appFeeMoney);
 
-
-        $createPaymentLinkRequest->setAppFeeMoney($appFeeMoney);
+        // Создаем CreatePaymentLinkRequest и устанавливаем QuickPay и CheckoutOptions
+        $createPaymentLinkRequest = new CreatePaymentLinkRequest();
+        $createPaymentLinkRequest->setQuickPay($quickPay);
+        $createPaymentLinkRequest->setCheckoutOptions($checkoutOptions);
 
         try {
-            dd('s');
-            $response = $this->squareClient->getCheckoutApi()->createPaymentLink($createPaymentLinkRequest);
+            // Создаем клиент Square с явным указанием токена
+            $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
+            $client = new SquareClient([
+                'accessToken' => $squareToken->access_token,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
+
+            $response = $client->getCheckoutApi()->createPaymentLink($createPaymentLinkRequest);
 
             if ($response->isError()) {
                 Log::error('Square Checkout Error: ' . json_encode($response->getErrors()));
@@ -84,6 +96,9 @@ class SquareService implements PaymentServiceInterface
         } catch (ApiException $e) {
             Log::error('Square API Exception: ' . $e->getMessage());
             throw new \Exception('Square API Exception: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('General Exception: ' . $e->getMessage() . ' with request: ' . json_encode($createPaymentLinkRequest));
+            throw new \Exception('General Exception: ' . $e->getMessage());
         }
     }
 
@@ -185,11 +200,11 @@ class SquareService implements PaymentServiceInterface
         ];
     }
 
-    protected function createCharge(Booking $booking, string $sessionId, int $amount, string $currency): void
+    protected function createCharge(Booking $booking, string $paymentLinkId, int $amount, string $currency): void
     {
         Charge::create([
             'booking_id' => $booking->id,
-            'stripe_session_id' => $sessionId, // Use the Square payment ID
+            'square_payment_id' => $paymentLinkId, // Use the Square payment ID
             'amount' => $amount,
             'currency' => $currency,
         ]);

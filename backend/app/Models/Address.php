@@ -17,7 +17,7 @@ class Address extends Model
 
     use HasFactory;
 
-    protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone', 'available_balance', 'square_location_id', 'square_capabilities'];
+    protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone', 'available_balance'];
 
     protected $appends = ['is_favorite', 'is_complete', 'stripe_account_id'];
 
@@ -90,6 +90,16 @@ class Address extends Model
     public function favoriteByUsers()
     {
         return $this->belongsToMany(User::class, 'favorite_studios', 'address_id', 'user_id');
+    }
+
+    public function squareLocations()
+    {
+        return $this->hasMany(SquareLocation::class);
+    }
+
+    public function squareFirstLocation()
+    {
+        return $this->squareLocations()->first();
     }
 
     public static function boot()

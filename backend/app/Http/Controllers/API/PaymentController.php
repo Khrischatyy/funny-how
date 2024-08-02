@@ -17,7 +17,7 @@ class PaymentController extends BaseController
     {
         $clientId = env('SQUARE_APPLICATION_ID');
         $redirectUri = env('APP_URL') . '/auth/square';
-        $scope = 'MERCHANT_PROFILE_READ PAYMENTS_WRITE PAYMENTS_READ'; 
+        $scope = 'MERCHANT_PROFILE_READ PAYMENTS_WRITE PAYMENTS_READ PAYMENTS_WRITE_ADDITIONAL_RECIPIENTS ORDERS_WRITE ORDERS_READ';
         $squareappBaseUrl = env('SQUARE_ENVIRONMENT') == 'production' ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
 
         $url = "{$squareappBaseUrl}/oauth2/authorize?client_id={$clientId}&scope={$scope}&session=false&redirect_uri={$redirectUri}";

@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::table('charges', function (Blueprint $table) {
             $table->string('square_payment_id')->nullable();
+            $table->string('order_id')->nullable();
         });
     }
 
@@ -27,6 +28,7 @@ return new class extends Migration
     {
         Schema::table('charges', function (Blueprint $table) {
             $table->dropColumn('square_payment_id');
+            $table->dropColumn('order_id');
         });
     }
 };
