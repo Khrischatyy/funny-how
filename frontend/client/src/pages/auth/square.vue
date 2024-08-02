@@ -28,6 +28,8 @@ const obtainToken = async (code: string) => {
   try {
     const response = await setTokenApi.post({ code })
     if (response?.data) {
+      // Update the user's payment gateway directly, as the user is already logged in
+      // Same happingin in the backend, but we need to update the user's payment gateway in the frontend without additional API calls
       sessionStore.setPaymentGateway("square")
       navigateTo("/payout")
     }
