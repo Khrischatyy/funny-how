@@ -16,7 +16,8 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class BookingController extends BaseController
 {
@@ -700,5 +701,17 @@ class BookingController extends BaseController
         } catch (Exception $e) {
             return $this->sendError('Failed to cancel booking.', 500, ['error' => $e->getMessage()]);
         }
+    }
+
+
+    public function handleWebhook(Request $request)
+    {
+        // Log the webhook payload for testing
+        \Log::info('Webhook received:', $request->all());
+
+        // Process the webhook here
+        // ...
+
+        return response()->json(['status' => 'success'], 200);
     }
 }

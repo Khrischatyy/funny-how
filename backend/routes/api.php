@@ -189,3 +189,4 @@ Route::middleware(['web'])->group(function () {
 });
 
 Route::get('city/{city_id}/studios', [AddressController::class, 'getAddressesInCity'])->where('cityId', '[0-9]+');
+Route::post('/webhook/test', [BookingController::class, 'handleWebhook']);
