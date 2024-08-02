@@ -21,14 +21,15 @@ const isLoading = ref(true)
 const errorMessage = ref("")
 const sessionId = computed(() => route.query.session_id)
 const bookingId = computed(() => route.query.booking_id)
+const order_id = computed(() => route.query.order_id)
 const processPayment = async () => {
   const { post: paymentSuccess } = useApi({
     url: "/address/payment-success",
     // auth: true,
   })
 
-  if (!sessionId.value || !bookingId.value) {
-    errorMessage.value = "Invalid request parameters."
+  if (!bookingId.value || (!sessionId.value && !order_id.value)) {
+    errorMessage.value = "Invalid request parameters." + order_id.value
     isLoading.value = false
     return
   }
@@ -36,6 +37,7 @@ const processPayment = async () => {
   paymentSuccess({
     session_id: sessionId.value,
     booking_id: bookingId.value,
+    order_id: order_id.value,
   })
     .then((response) => {
       if (response.code == 200) {

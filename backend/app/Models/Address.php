@@ -79,7 +79,7 @@ class Address extends Model
         $hasOperatingHours = $this->operatingHours()->exists();
         $hasStripeAccountId = $this->stripe_account_id !== null;
         
-        return $hasPrices && $hasOperatingHours && $hasStripeAccountId;
+        return $hasPrices && $hasOperatingHours && ($hasStripeAccountId || $this->company->adminCompany->user->payment_gateway === 'square');
     }
 
     public function getStripeAccountIdAttribute()
