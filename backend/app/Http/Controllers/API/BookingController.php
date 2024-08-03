@@ -611,12 +611,14 @@ class BookingController extends BaseController
     public function paymentSuccess(PaymentRequest $request): JsonResponse
     {
         try {
-            $orderId = $request->input('order_id');
             $bookingId = $request->input('booking_id');
 
             $booking = $this->bookingService->getBookingById($bookingId);
             $studioOwner = $booking->address->company->adminCompany->user;
             $paymentGateway = $studioOwner->payment_gateway;
+
+            // Get the order_id from the associated charge
+            $orderId = $booking->charge->order_id;
 
             $result = $this->paymentService->processPaymentSuccess($orderId, $bookingId, $paymentGateway, $studioOwner);
 
