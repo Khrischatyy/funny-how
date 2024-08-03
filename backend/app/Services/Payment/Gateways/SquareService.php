@@ -10,16 +10,10 @@ use App\Models\Booking;
 use App\Models\Charge;
 use App\Models\SquareToken;
 use App\Models\User;
-use App\Services\BookingService;
 use App\Services\Payment\PaymentService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Square\Models\CheckoutOptions;
-use Square\Models\CreateLocationRequest;
-use Square\Models\CreateOrderRequest;
 use Square\Models\CreatePaymentLinkRequest;
-use Square\Models\Order;
-use Square\Models\OrderLineItem;
 use Square\Models\QuickPay;
 use Square\SquareClient;
 use Square\Exceptions\ApiException;
@@ -61,11 +55,11 @@ class SquareService implements PaymentServiceInterface
         // Установка комиссии приложения
         $appFeeMoney = new Money();
         $appFeeMoney->setAmount($applicationFeeAmount);
-        $appFeeMoney->setCurrency('USD');
+//        $appFeeMoney->setCurrency('USD');
 
         // Создаем CheckoutOptions и устанавливаем redirect URL для обработки успешного платежа
         $checkoutOptions = new CheckoutOptions();
-        $checkoutOptions->setRedirectUrl(env('APP_URL') . "/api/v1/address/payment-success?booking_id={$booking->id}");
+        $checkoutOptions->setRedirectUrl(env('APP_URL') . "/payment-success?booking_id={$booking->id}");
         $checkoutOptions->setAppFeeMoney($appFeeMoney);
 
         // Создаем CreatePaymentLinkRequest и устанавливаем QuickPay и CheckoutOptions
