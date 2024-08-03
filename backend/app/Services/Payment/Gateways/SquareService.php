@@ -55,12 +55,12 @@ class SquareService implements PaymentServiceInterface
         // Установка комиссии приложения
         $appFeeMoney = new Money();
         $appFeeMoney->setAmount($applicationFeeAmount);
-//        $appFeeMoney->setCurrency('USD');
+        $appFeeMoney->setCurrency('USD');
 
         // Создаем CheckoutOptions и устанавливаем redirect URL для обработки успешного платежа
         $checkoutOptions = new CheckoutOptions();
         $checkoutOptions->setRedirectUrl(env('APP_URL') . "/payment-success?booking_id={$booking->id}");
-        $checkoutOptions->setAppFeeMoney($appFeeMoney);
+//        $checkoutOptions->setAppFeeMoney($appFeeMoney);
 
         // Создаем CreatePaymentLinkRequest и устанавливаем QuickPay и CheckoutOptions
         $createPaymentLinkRequest = new CreatePaymentLinkRequest();
@@ -80,6 +80,8 @@ class SquareService implements PaymentServiceInterface
             if ($response->isError()) {
                 throw new \Exception('Square Checkout Error: ' . json_encode($response->getErrors()));
             }
+
+            Log::info(json_encode($response->getResult()));
 
             $paymentLink = $response->getResult()->getPaymentLink();
             $orderId = $paymentLink->getOrderId();
