@@ -11,8 +11,6 @@ use App\Models\Charge;
 use App\Models\SquareToken;
 use App\Models\User;
 use App\Services\Payment\PaymentService;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Square\Models\CheckoutOptions;
 use Square\Models\CreatePaymentLinkRequest;
 use Square\Models\QuickPay;
@@ -98,46 +96,6 @@ class SquareService implements PaymentServiceInterface
             throw new \Exception('General Exception: ' . $e->getMessage() . ' with request: ' . json_encode($createPaymentLinkRequest));
         }
     }
-//    public function createOrder(Address $address, int $amountOfMoney): string
-//    {
-//        $money = new Money();
-//        $money->setAmount($amountOfMoney * 100); // сумма в центах
-//        $money->setCurrency('USD');
-//
-//        $orderLineItem = new OrderLineItem('1'); // Количество 1
-//        $orderLineItem->setName('Booking Payment');
-//        $orderLineItem->setBasePriceMoney($money);
-//
-//        $order = new Order($address->squareFirstLocation()->location_id); // Get the location_id from the first SquareLocation
-//        $order->setLineItems([$orderLineItem]);
-//
-//        $createOrderRequest = new CreateOrderRequest();
-//        $createOrderRequest->setOrder($order);
-//
-//        try {
-//            $squareToken = SquareToken::where('user_id', Auth::id())->firstOrFail();
-//            $client = new SquareClient([
-//                'accessToken' => $squareToken->access_token,
-//                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
-//            ]);
-//
-//            $response = $client->getOrdersApi()->createOrder($createOrderRequest);
-//
-//            if ($response->isError()) {
-//                Log::error('Square Order Creation Error: ' . json_encode($response->getErrors()));
-//                throw new \Exception('Square Order Creation Error');
-//            }
-//
-//            $orderId = $response->getResult()->getOrder()->getId();
-//            return $orderId;
-//
-//        } catch (ApiException $e) {
-//            Log::error('Square API Exception: ' . $e->getMessage());
-//            throw new \Exception('Square API Exception: ' . $e->getMessage());
-//        }
-//    }
-
-
 
     public function refundPayment($booking, $studioOwner)
     {
@@ -158,7 +116,17 @@ class SquareService implements PaymentServiceInterface
             }
 
             $payment = $paymentResponse->getResult()->getPayment();
-            $availableRefundAmount = $payment->getAmountMoney()->getAmount() - $payment->getRefundedMoney()->getAmount();
+            $amountMoney = $payment->getAmountMoney();
+            $refundedMoney = $payment->getRefundedMoney();
+
+            if ($amountMoney === null || $amountMoney->getAmount() === null) {
+                throw new \Exception('Payment amount not found.');
+            }
+
+            $availableRefundAmount = $amountMoney->getAmount();
+            if ($refundedMoney !== null && $refundedMoney->getAmount() !== null) {
+                $availableRefundAmount -= $refundedMoney->getAmount();
+            }
 
             // Calculate the refund amount
             $refundAmount = $charge->amount * 100; // Convert to cents
@@ -169,14 +137,14 @@ class SquareService implements PaymentServiceInterface
             }
 
             // Create the Money object for the refund amount
-            $amountMoney = new \Square\Models\Money();
-            $amountMoney->setAmount($refundAmount);
-            $amountMoney->setCurrency('USD');
+            $refundMoney = new \Square\Models\Money();
+            $refundMoney->setAmount($refundAmount);
+            $refundMoney->setCurrency('USD');
 
             // Create the refund request
             $refundRequest = new \Square\Models\RefundPaymentRequest(
                 uniqid(), // Idempotency key
-                $amountMoney
+                $refundMoney
             );
             $refundRequest->setPaymentId($charge->square_payment_id);
 
@@ -280,6 +248,15 @@ class SquareService implements PaymentServiceInterface
         ];
     }
 
+    protected function updateBookingStatus(int $bookingId, int $statusId): Booking
+    {
+        $booking = Booking::findOrFail($bookingId);
+        $booking->status_id = $statusId;
+        $booking->save();
+
+        return $booking;
+    }
+
     protected function createCharge(Booking $booking, string $orderId, int $amount, string $currency): void
     {
         Charge::create([
@@ -296,15 +273,6 @@ class SquareService implements PaymentServiceInterface
         $address->available_balance += $amount; // Сохраняем в центах, увеличение или уменьшение баланса
         $address->save();
     }
-
-//    protected function updateBookingStatus(int $bookingId, int $statusId): Booking
-//    {
-//        $booking = Booking::findOrFail($bookingId);
-//        $booking->status_id = $statusId;
-//        $booking->save();
-//
-//        return $booking;
-//    }
 
     protected function updateCharge(string $orderId, string $paymentId): void
     {
@@ -362,47 +330,4 @@ class SquareService implements PaymentServiceInterface
             throw new \Exception('Square API Exception: ' . $e->getMessage());
         }
     }
-
-    public function updateBookingStatus(int $bookingId, int $statusId): Booking
-    {
-        $booking = Booking::findOrFail($bookingId);
-        $booking->status_id = $statusId;
-        $booking->save();
-
-        return $booking;
-    }
-
-//    public function createLocation(Request $request)
-//    {
-//        $address = Address::findOrFail($request->input('address_id'));
-//
-//        $squareAddress = new SquareAddress();
-//        $squareAddress->setAddressLine1($address->street);
-//        $squareAddress->setLocality($address->city);
-//        $squareAddress->setPostalCode($address->postal_code);
-//        $squareAddress->setAdministrativeDistrictLevel1($address->state);
-//        $squareAddress->setCountry('US'); // Установите вашу страну
-//
-//        $location = new \Square\Models\Location();
-//        $location->setName($address->name);
-//        $location->setAddress($squareAddress);
-//
-//        $createLocationRequest = new CreateLocationRequest($location);
-//
-//        try {
-//            $response = $this->squareClient->getLocationsApi()->createLocation($createLocationRequest);
-//
-//            if ($response->isSuccess()) {
-//                $locationId = $response->getResult()->getLocation()->getId();
-//                $address->square_location_id = $locationId;
-//                $address->save();
-//
-//                return redirect()->route('dashboard')->with('success', 'Square location connected successfully.');
-//            } else {
-//                return redirect()->back()->with('error', 'Failed to connect Square location.');
-//            }
-//        } catch (\Exception $e) {
-//            return redirect()->back()->with('error', 'Square API Exception: ' . $e->getMessage());
-//        }
-//    }
 }
