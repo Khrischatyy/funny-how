@@ -11,6 +11,7 @@ use App\Models\Charge;
 use App\Models\SquareToken;
 use App\Models\User;
 use App\Services\Payment\PaymentService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Square\Models\CheckoutOptions;
 use Square\Models\CreatePaymentLinkRequest;
@@ -81,8 +82,6 @@ class SquareService implements PaymentServiceInterface
                 throw new \Exception('Square Checkout Error: ' . json_encode($response->getErrors()));
             }
 
-            Log::info(json_encode($response->getResult()));
-
             $paymentLink = $response->getResult()->getPaymentLink();
             $orderId = $paymentLink->getOrderId();
 
@@ -99,7 +98,6 @@ class SquareService implements PaymentServiceInterface
             throw new \Exception('General Exception: ' . $e->getMessage() . ' with request: ' . json_encode($createPaymentLinkRequest));
         }
     }
-
 //    public function createOrder(Address $address, int $amountOfMoney): string
 //    {
 //        $money = new Money();
@@ -197,11 +195,6 @@ class SquareService implements PaymentServiceInterface
             }
 
             $order = $orderResponse->getResult()->getOrder();
-            $orderState = $order->getState();
-
-            if ($orderState !== 'COMPLETED') {
-                throw new \Exception('Order state not completed.');
-            }
 
             // Retrieve the payment associated with the first tender
             $tenders = $order->getTenders();
@@ -209,13 +202,9 @@ class SquareService implements PaymentServiceInterface
                 throw new \Exception('No tenders found for the order.');
             }
 
-            $tenderId = $tenders[0]->getId();
-            $paymentResponse = $client->getPaymentsApi()->getPayment($tenderId);
-            if ($paymentResponse->isError()) {
-                throw new \Exception('Square Payment Retrieval Error: ' . json_encode($paymentResponse->getErrors()));
-            }
+            $tender = $tenders[0];
 
-            return $paymentResponse->getResult()->getPayment();
+            return $tender->getPaymentId();
         } catch (ApiException $e) {
             throw new \Exception('Square API Exception: ' . $e->getMessage());
         }
@@ -223,21 +212,24 @@ class SquareService implements PaymentServiceInterface
 
     public function processPaymentSuccess($orderId, $bookingId, $studioOwner)
     {
-        $payment = $this->verifyPaymentSession($orderId, $studioOwner);
+        $paymentId = $this->verifyPaymentSession($orderId, $studioOwner);
 
-        if (!$payment) {
+        if (!$paymentId) {
             throw new \Exception('Payment verification failed: Payment is null.');
         }
 
-        $validationResult = $this->validatePayment($payment);
+        $validationResult = $this->validatePayment($paymentId, $studioOwner);
         if (!$validationResult['success']) {
             return $validationResult;
         }
 
-        $booking = $this->bookingService->updateBookingStatus($bookingId, 2);
-        $this->updateCharge($orderId, $payment->getId());
+        $booking = $this->updateBookingStatus($bookingId, 2);
 
-        $totalAmount = $payment->getTotalMoney()->getAmount(); // Amount in cents
+
+        $this->updateCharge($orderId, $paymentId);
+
+
+        $totalAmount = $this->getPaymentAmount($paymentId, $studioOwner); // Amount in cents
         $serviceFee = $totalAmount * PaymentService::SERVICE_FEE_PERCENTAGE;
         $amountToStudio = $totalAmount - $serviceFee;
 
@@ -274,14 +266,14 @@ class SquareService implements PaymentServiceInterface
         $address->save();
     }
 
-    protected function updateBookingStatus(int $bookingId, int $statusId): Booking
-    {
-        $booking = Booking::findOrFail($bookingId);
-        $booking->status_id = $statusId;
-        $booking->save();
-
-        return $booking;
-    }
+//    protected function updateBookingStatus(int $bookingId, int $statusId): Booking
+//    {
+//        $booking = Booking::findOrFail($bookingId);
+//        $booking->status_id = $statusId;
+//        $booking->save();
+//
+//        return $booking;
+//    }
 
     protected function updateCharge(string $orderId, string $paymentId): void
     {
@@ -291,13 +283,62 @@ class SquareService implements PaymentServiceInterface
         ]);
     }
 
-    protected function validatePayment($payment): array
+    protected function validatePayment($tenderId, $studioOwner): array
     {
-        if ($payment->getStatus() !== 'COMPLETED') {
-            throw new \Exception('Payment not completed.');
-        }
+        try {
+            $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
+            $client = new SquareClient([
+                'accessToken' => $squareToken->access_token,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
 
-        return ['success' => true];
+            // Retrieve the payment associated with the tender ID
+            $paymentResponse = $client->getPaymentsApi()->getPayment($tenderId);
+            if ($paymentResponse->isError()) {
+                throw new \Exception('Square Payment Retrieval Error: ' . json_encode($paymentResponse->getErrors()));
+            }
+
+            $payment = $paymentResponse->getResult()->getPayment();
+            if ($payment->getStatus() !== 'COMPLETED') {
+                throw new \Exception('Payment not completed.');
+            }
+
+            return ['success' => true];
+        } catch (ApiException $e) {
+            throw new \Exception('Square API Exception: ' . $e->getMessage());
+        }
+    }
+
+    protected function getPaymentAmount($paymentId, $studioOwner)
+    {
+
+        $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
+        $client = new SquareClient([
+            'accessToken' => $squareToken->access_token,
+            'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+        ]);
+
+        try {
+            $paymentResponse = $client->getPaymentsApi()->getPayment($paymentId);
+
+            if ($paymentResponse->isError()) {
+                throw new \Exception('Square Payment Retrieval Error: ' . json_encode($paymentResponse->getErrors()));
+            }
+
+            $payment = $paymentResponse->getResult()->getPayment();
+            return $payment->getTotalMoney()->getAmount();
+        } catch (ApiException $e) {
+            throw new \Exception('Square API Exception: ' . $e->getMessage());
+        }
+    }
+
+    public function updateBookingStatus(int $bookingId, int $statusId): Booking
+    {
+        $booking = Booking::findOrFail($bookingId);
+        $booking->status_id = $statusId;
+        $booking->save();
+
+        return $booking;
     }
 
 //    public function createLocation(Request $request)

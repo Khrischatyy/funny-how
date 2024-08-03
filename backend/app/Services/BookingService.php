@@ -565,14 +565,7 @@ class BookingService
         return Booking::findOrFail($bookingId);
     }
 
-    public function updateBookingStatus(int $bookingId, int $statusId): Booking
-    {
-        $booking = Booking::findOrFail($bookingId);
-        $booking->status_id = $statusId;
-        $booking->save();
 
-        return $booking;
-    }
 
     private function regular($operatingHours, $dayOfWeek)
     {

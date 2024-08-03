@@ -608,7 +608,7 @@ class BookingController extends BaseController
      *     @OA\Response(response="500", description="Internal Server Error")
      * )
      */
-    public function paymentSuccess(PaymentRequest $request): JsonResponse
+    public function paymentSuccess(Request $request): JsonResponse
     {
         try {
             $bookingId = $request->input('booking_id');
@@ -616,8 +616,6 @@ class BookingController extends BaseController
             $booking = $this->bookingService->getBookingById($bookingId);
             $studioOwner = $booking->address->company->adminCompany->user;
             $paymentGateway = $studioOwner->payment_gateway;
-
-            // Get the order_id from the associated charge
             $orderId = $booking->charge->order_id;
 
             $result = $this->paymentService->processPaymentSuccess($orderId, $bookingId, $paymentGateway, $studioOwner);
