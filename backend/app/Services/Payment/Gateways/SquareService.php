@@ -11,6 +11,7 @@ use App\Models\Charge;
 use App\Models\SquareToken;
 use App\Models\User;
 use App\Services\Payment\PaymentService;
+use Illuminate\Support\Facades\Log;
 use Square\Models\CheckoutOptions;
 use Square\Models\CreatePaymentLinkRequest;
 use Square\Models\QuickPay;
@@ -97,85 +98,96 @@ class SquareService implements PaymentServiceInterface
         }
     }
 
-    public function refundPayment($booking, $studioOwner)
-    {
-        try {
-            $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
-
-            $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
-            $client = new SquareClient([
-                'accessToken' => $squareToken->access_token,
-                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
-            ]);
-
-            // Retrieve the payment to check the available amount for refund
-            $paymentResponse = $client->getPaymentsApi()->getPayment($charge->square_payment_id);
-
-            if ($paymentResponse->isError()) {
-                throw new \Exception('Square Payment Retrieval Error: ' . json_encode($paymentResponse->getErrors()));
-            }
-
-            $payment = $paymentResponse->getResult()->getPayment();
-            $amountMoney = $payment->getAmountMoney();
-            $refundedMoney = $payment->getRefundedMoney();
-
-            if ($amountMoney === null || $amountMoney->getAmount() === null) {
-                throw new \Exception('Payment amount not found.');
-            }
-
-            $availableRefundAmount = $amountMoney->getAmount();
-            if ($refundedMoney !== null && $refundedMoney->getAmount() !== null) {
-                $availableRefundAmount -= $refundedMoney->getAmount();
-            }
-
-            // Calculate the refund amount
-            $refundAmount = $charge->amount * 100; // Convert to cents
-
-            // Check if the refund amount exceeds the available amount to refund
-            if ($refundAmount > $availableRefundAmount) {
-                throw new \Exception('Requested refund amount exceeds the available amount to refund.');
-            }
-
-            // Create the Money object for the refund amount
-            $refundMoney = new \Square\Models\Money();
-            $refundMoney->setAmount($refundAmount);
-            $refundMoney->setCurrency('USD');
-
-            // Create the refund request
-            $refundRequest = new \Square\Models\RefundPaymentRequest(
-                uniqid(), // Idempotency key
-                $refundMoney
-            );
-            $refundRequest->setPaymentId($charge->square_payment_id);
-
-            $response = $client->getRefundsApi()->refundPayment($refundRequest);
-
-            if ($response->isError()) {
-                throw new \Exception('Square Refund Error: ' . json_encode($response->getErrors()));
-            }
-
-            $refund = $response->getResult()->getRefund();
-            $charge->update([
-                'refund_id' => $refund->getId(),
-                'refund_status' => $refund->getStatus(),
-            ]);
-
-            // Update balance and booking status
-            $this->updateBalance($booking->address_id, -$charge->amount);
-            $this->updateBookingStatus($booking->id, 3);
-
-            return [
-                'success' => true,
-                'code' => 200,
-                'message' => 'Refund processed successfully and booking status updated.',
-            ];
-
-        } catch (ApiException $e) {
-            throw new \Exception('Square API Exception: ' . $e->getMessage());
-        } catch (\Exception $e) {
-            throw new \Exception('General Exception: ' . $e->getMessage());
-        }
-    }
+//    public function refundPayment($booking, $studioOwner)
+//    {
+//        try {
+//            $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
+//
+//            $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
+//            $client = new SquareClient([
+//                'accessToken' => $squareToken->access_token,
+//                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+//            ]);
+//
+//            // Retrieve the payment to check the available amount for refund
+//            $paymentResponse = $client->getPaymentsApi()->getPayment($charge->square_payment_id);
+//
+//            if ($paymentResponse->isError()) {
+//                throw new \Exception('Square Payment Retrieval Error: ' . json_encode($paymentResponse->getErrors()));
+//            }
+//
+//            $payment = $paymentResponse->getResult()->getPayment();
+//            $amountMoney = $payment->getAmountMoney();
+//            $refundedMoney = $payment->getRefundedMoney();
+//
+//            if ($amountMoney === null || $amountMoney->getAmount() === null) {
+//                throw new \Exception('Payment amount not found.');
+//            }
+//
+//            $totalPaidAmount = $amountMoney->getAmount(); // Total amount paid in cents
+//            $totalRefundedAmount = $refundedMoney ? $refundedMoney->getAmount() : 0; // Total amount refunded in cents
+//
+//            // Calculate the available amount to refund
+//            $availableRefundAmount = $totalPaidAmount - $totalRefundedAmount;
+//
+//            // Calculate the refund amount
+//            $refundAmount = $charge->amount * 100; // Convert to cents
+//
+//            // Debug information
+//            Log::info('Total Paid Amount: ' . $totalPaidAmount);
+//            Log::info('Total Refunded Amount: ' . $totalRefundedAmount);
+//            Log::info('Available Refund Amount: ' . $availableRefundAmount);
+//            Log::info('Refund Amount Requested: ' . $refundAmount);
+//
+//            // Check if the refund amount exceeds the available amount to refund
+//            if ($refundAmount > $availableRefundAmount) {
+//                throw new \Exception('Requested refund amount exceeds the available amount to refund.');
+//            }
+//
+//            if ($availableRefundAmount <= 0) {
+//                throw new \Exception('No available amount to refund.');
+//            }
+//
+//            // Create the Money object for the refund amount
+//            $refundMoney = new \Square\Models\Money();
+//            $refundMoney->setAmount($refundAmount);
+//            $refundMoney->setCurrency('USD');
+//
+//            // Create the refund request
+//            $refundRequest = new \Square\Models\RefundPaymentRequest(
+//                uniqid(), // Idempotency key
+//                $refundMoney
+//            );
+//            $refundRequest->setPaymentId($charge->square_payment_id);
+//
+//            $response = $client->getRefundsApi()->refundPayment($refundRequest);
+//
+//            if ($response->isError()) {
+//                throw new \Exception('Square Refund Error: ' . json_encode($response->getErrors()));
+//            }
+//
+//            $refund = $response->getResult()->getRefund();
+//            $charge->update([
+//                'refund_id' => $refund->getId(),
+//                'refund_status' => $refund->getStatus(),
+//            ]);
+//
+//            // Update balance and booking status
+//            $this->updateBalance($booking->address_id, -$charge->amount);
+//            $this->updateBookingStatus($booking->id, 3);
+//
+//            return [
+//                'success' => true,
+//                'code' => 200,
+//                'message' => 'Refund processed successfully and booking status updated.',
+//            ];
+//
+//        } catch (ApiException $e) {
+//            throw new \Exception('Square API Exception: ' . $e->getMessage());
+//        } catch (\Exception $e) {
+//            throw new \Exception('General Exception: ' . $e->getMessage());
+//        }
+//    }
 
     public function verifyPaymentSession($orderId, $studioOwner)
     {
@@ -246,6 +258,118 @@ class SquareService implements PaymentServiceInterface
             'code' => 200,
             'message' => 'Payment successful and booking status updated.',
         ];
+    }
+
+    public function refundPayment($booking, $studioOwner)
+    {
+        try {
+            $charge = $this->getChargeForBooking($booking->id);
+            $client = $this->createSquareClient($studioOwner->id);
+
+            $payment = $this->retrievePayment($client, $charge->square_payment_id);
+            $this->validateRefundAmount($payment, $charge->amount);
+
+            $refund = $this->createRefund($client, $charge, $payment);
+            $this->updateChargeAfterRefund($charge, $refund);
+            $this->updateBalanceAndBookingStatus($booking, $charge->amount);
+
+            return [
+                'success' => true,
+                'code' => 200,
+                'message' => 'Refund processed successfully and booking status updated.',
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception('General Exception: ' . $e->getMessage());
+        }
+    }
+
+    private function getChargeForBooking($bookingId)
+    {
+        return Charge::where('booking_id', $bookingId)->firstOrFail();
+    }
+
+    private function createSquareClient($userId)
+    {
+        $squareToken = SquareToken::where('user_id', $userId)->firstOrFail();
+        return new SquareClient([
+            'accessToken' => $squareToken->access_token,
+            'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+        ]);
+    }
+
+    private function retrievePayment($client, $paymentId)
+    {
+        $paymentResponse = $client->getPaymentsApi()->getPayment($paymentId);
+
+        if ($paymentResponse->isError()) {
+            throw new \Exception('Square Payment Retrieval Error: ' . json_encode($paymentResponse->getErrors()));
+        }
+
+        return $paymentResponse->getResult()->getPayment();
+    }
+
+    private function validateRefundAmount($payment, $refundAmount)
+    {
+        $amountMoney = $payment->getAmountMoney();
+        $refundedMoney = $payment->getRefundedMoney();
+
+        if ($amountMoney === null || $amountMoney->getAmount() === null) {
+            throw new \Exception('Payment amount not found.');
+        }
+
+        $totalPaidAmount = $amountMoney->getAmount(); // Total amount paid in cents
+        $totalRefundedAmount = $refundedMoney ? $refundedMoney->getAmount() : 0; // Total amount refunded in cents
+
+        $availableRefundAmount = $totalPaidAmount - $totalRefundedAmount;
+        $refundAmountCents = $refundAmount * 100; // Convert to cents
+
+        Log::info('Total Paid Amount: ' . $totalPaidAmount);
+        Log::info('Total Refunded Amount: ' . $totalRefundedAmount);
+        Log::info('Available Refund Amount: ' . $availableRefundAmount);
+        Log::info('Refund Amount Requested: ' . $refundAmountCents);
+
+        if ($refundAmountCents > $availableRefundAmount) {
+            throw new \Exception('Requested refund amount exceeds the available amount to refund.');
+        }
+
+        if ($availableRefundAmount <= 0) {
+            throw new \Exception('No available amount to refund.');
+        }
+    }
+
+    private function createRefund($client, $charge, $payment)
+    {
+        $refundMoney = new \Square\Models\Money();
+        $refundMoney->setAmount($charge->amount * 100); // Convert to cents
+        $refundMoney->setCurrency('USD');
+
+        $refundRequest = new \Square\Models\RefundPaymentRequest(
+            uniqid(), // Idempotency key
+            $refundMoney
+        );
+        $refundRequest->setPaymentId($charge->square_payment_id);
+
+        $response = $client->getRefundsApi()->refundPayment($refundRequest);
+
+        if ($response->isError()) {
+            throw new \Exception('Square Refund Error: ' . json_encode($response->getErrors()));
+        }
+
+        return $response->getResult()->getRefund();
+    }
+
+    private function updateChargeAfterRefund($charge, $refund)
+    {
+        $charge->update([
+            'refund_id' => $refund->getId(),
+            'refund_status' => $refund->getStatus(),
+        ]);
+    }
+
+    private function updateBalanceAndBookingStatus($booking, $amount)
+    {
+        $this->updateBalance($booking->address_id, -$amount);
+        $this->updateBookingStatus($booking->id, 3);
     }
 
     protected function updateBookingStatus(int $bookingId, int $statusId): Booking
