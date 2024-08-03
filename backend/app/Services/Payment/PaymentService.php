@@ -37,9 +37,10 @@ class PaymentService
         }
     }
 
-    public function refundPayment(Booking $booking, $gateway)
+    public function refundPayment($booking, $studioOwner)
     {
-        return $this->getService($gateway)->refundPayment($booking);
+        $gateway = $studioOwner->payment_gateway;
+        return $this->getService($gateway)->refundPayment($booking, $studioOwner);
     }
 
     public function verifyPaymentSession($sessionId, $gateway, $studioOwner)

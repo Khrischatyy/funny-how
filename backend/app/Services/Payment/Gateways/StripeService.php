@@ -64,7 +64,7 @@ class StripeService implements PaymentServiceInterface
         ]);
     }
 
-    public function refundPayment(Booking $booking): array
+    public function refundPayment(Booking $booking, $studioOwner): array
     {
         try {
             $charge = Charge::where('booking_id', $booking->id)->firstOrFail();

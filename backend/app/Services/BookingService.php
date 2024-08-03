@@ -540,7 +540,8 @@ class BookingService
             }
 
             if ($booking->status_id == 2) { // Check if the booking is paid
-                 $this->paymentService->refundPayment($booking); // Call refundPayment method
+                $studioOwner = $booking->address->company->adminCompany->user;
+                $this->paymentService->refundPayment($booking, $studioOwner); // Call refundPayment method
 
                 $booking->status_id = 3; // Status "cancelled"
                 $booking->save();

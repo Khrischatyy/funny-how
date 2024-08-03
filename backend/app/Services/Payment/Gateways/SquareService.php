@@ -139,21 +139,51 @@ class SquareService implements PaymentServiceInterface
 
 
 
-    public function refundPayment($booking)
+    public function refundPayment($booking, $studioOwner)
     {
         try {
             $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
-            $refundBody = new \Square\Models\CreateRefundRequest(
-                $charge->stripe_session_id, // Use the Square payment ID
-                uniqid(), // idempotency key
-                new Money($charge->amount * 100, 'USD')
-            );
 
-            $response = $this->squareClient->getRefundsApi()->createRefund($refundBody);
+            $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
+            $client = new SquareClient([
+                'accessToken' => $squareToken->access_token,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
+
+            // Retrieve the payment to check the available amount for refund
+            $paymentResponse = $client->getPaymentsApi()->getPayment($charge->square_payment_id);
+
+            if ($paymentResponse->isError()) {
+                throw new \Exception('Square Payment Retrieval Error: ' . json_encode($paymentResponse->getErrors()));
+            }
+
+            $payment = $paymentResponse->getResult()->getPayment();
+            $availableRefundAmount = $payment->getAmountMoney()->getAmount() - $payment->getRefundedMoney()->getAmount();
+
+            // Calculate the refund amount
+            $refundAmount = $charge->amount * 100; // Convert to cents
+
+            // Check if the refund amount exceeds the available amount to refund
+            if ($refundAmount > $availableRefundAmount) {
+                throw new \Exception('Requested refund amount exceeds the available amount to refund.');
+            }
+
+            // Create the Money object for the refund amount
+            $amountMoney = new \Square\Models\Money();
+            $amountMoney->setAmount($refundAmount);
+            $amountMoney->setCurrency('USD');
+
+            // Create the refund request
+            $refundRequest = new \Square\Models\RefundPaymentRequest(
+                uniqid(), // Idempotency key
+                $amountMoney
+            );
+            $refundRequest->setPaymentId($charge->square_payment_id);
+
+            $response = $client->getRefundsApi()->refundPayment($refundRequest);
 
             if ($response->isError()) {
-                Log::error('Square Refund Error: ' . json_encode($response->getErrors()));
-                throw new \Exception('Square Refund Error');
+                throw new \Exception('Square Refund Error: ' . json_encode($response->getErrors()));
             }
 
             $refund = $response->getResult()->getRefund();
@@ -173,8 +203,9 @@ class SquareService implements PaymentServiceInterface
             ];
 
         } catch (ApiException $e) {
-            Log::error('Square API Exception: ' . $e->getMessage());
             throw new \Exception('Square API Exception: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception('General Exception: ' . $e->getMessage());
         }
     }
 
