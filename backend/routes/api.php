@@ -121,29 +121,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('update-photo', [UserController::class, 'updatePhoto']);
         Route::get('available-balance', [PayoutController::class, 'getAvailableBalance']);
 
-//        Route::prefix('stripe')->group(function () {
-//            Route::post('create-account', [StripeController::class, 'createAccount']);
-//
-//            Route::prefix('account')->group(function () {
-//                Route::get('link', [StripeController::class, 'createAccountLink']);
-//                Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
-//                Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
-//                Route::get('balance', [StripeController::class, 'retrieveBalance']);
-//            });
-//        });
+        Route::prefix('stripe')->group(function () {
+            Route::post('create-account', [StripeController::class, 'createAccount']);
+        });
 
         Route::prefix('payment')->group(function () {
             Route::prefix('square')->group(function () {
                 Route::get('redirect', [PaymentController::class, 'redirectToSquare'])->name('square.connect');
                 Route::post('callback', [PaymentController::class, 'handleSquareCallback'])->name('square.callback');
             });
+        });
 
-//            Route::prefix('account')->group(function () {
-//                Route::get('link', [StripeController::class, 'createAccountLink']);
-//                Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
-//                Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
-//                Route::get('balance', [StripeController::class, 'retrieveBalance']);
-//            });
+        //вот эти роуты надо сделать общими (balance), что делают
+        Route::prefix('account')->group(function () {
+            Route::get('link', [StripeController::class, 'createAccountLink']);
+            Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
+            Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
+            Route::get('balance', [StripeController::class, 'retrieveBalance']);
         });
 
 

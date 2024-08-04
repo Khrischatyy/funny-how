@@ -13,35 +13,35 @@ use Stripe\Stripe;
 
 class StripeController extends BaseController
 {
-    public function createAccount(): JsonResponse
-    {
-        try {
-            $user = Auth::user();
-            Stripe::setApiKey(env('STRIPE_SECRET'));
-
-            // Create Stripe account if it doesn't exist
-            if (!$user->stripe_account_id) {
-                $account = Account::create([
-                    'type' => 'express',
-                    'country' => 'US',
-                    'email' => $user->email,
-                    'capabilities' => [
-                        'card_payments' => ['requested' => true],
-                        'transfers' => ['requested' => true],
-                    ],
-                    'business_type' => 'individual',
-                ]);
-
-                // Save the Stripe Account ID in the database
-                $user->stripe_account_id = $account->id;
-                $user->save();
-            }
-
-            return $this->sendResponse(['account_id' => $user->stripe_account_id], 'Stripe account created successfully.');
-        } catch (ApiErrorException $e) {
-            return $this->sendError('Failed to create Stripe account.', 500, ['error' => $e->getMessage()]);
-        }
-    }
+//    public function createAccount(): JsonResponse
+//    {
+//        try {
+//            $user = Auth::user();
+//            Stripe::setApiKey(env('STRIPE_SECRET'));
+//
+//            // Create Stripe account if it doesn't exist
+//            if (!$user->stripe_account_id) {
+//                $account = Account::create([
+//                    'type' => 'express',
+//                    'country' => 'US',
+//                    'email' => $user->email,
+//                    'capabilities' => [
+//                        'card_payments' => ['requested' => true],
+//                        'transfers' => ['requested' => true],
+//                    ],
+//                    'business_type' => 'individual',
+//                ]);
+//
+//                // Save the Stripe Account ID in the database
+//                $user->stripe_account_id = $account->id;
+//                $user->save();
+//            }
+//
+//            return $this->sendResponse(['account_id' => $user->stripe_account_id], 'Stripe account created successfully.');
+//        } catch (ApiErrorException $e) {
+//            return $this->sendError('Failed to create Stripe account.', 500, ['error' => $e->getMessage()]);
+//        }
+//    }
 
     public function createAccountLink(): JsonResponse
     {
