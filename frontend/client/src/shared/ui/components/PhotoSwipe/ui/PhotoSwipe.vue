@@ -6,7 +6,9 @@
     role="dialog"
     aria-hidden="true"
   ></div>
-  <ScrollContainer justify-content="start">
+  <ScrollContainer
+      :justify-content="displayedPhotos.length >= 3 ? 'start' : 'center'"
+      justofy-content-mobile="start">
     <div
       v-for="(photo, index) in displayedPhotos"
       :key="index"

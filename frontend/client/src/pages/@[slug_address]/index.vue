@@ -182,7 +182,7 @@
             v-if="address"
             class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
-            <div class="relative w-full flex items-center mt-10">
+            <div class="relative w-full flex flex-col items-center mt-10">
               <div class="flex items-center flex-col z-[60] w-full">
                <FSelect
                    class="w-full"
@@ -191,7 +191,25 @@
                    placeholder="Choose Room"
                    :options="roomsOptions" />
               </div>
+
             </div>
+
+          </div>
+          <div
+              v-if="address && rentingForm.room_id"
+              class="max-w-[514px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+          >
+            <div v-if="rentingForm.room_id" class="flex items-center flex-col z-[50] w-full">
+              <RoomCard
+                  class=" w-full"
+                  :room="address?.rooms?.find((room) => room.id === rentingForm.room_id)"
+              />
+            </div>
+          </div>
+          <div
+              v-if="address"
+              class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+          >
             <div v-if="rentingForm.room_id" class="relative w-full flex items-center mt-10">
               <div class="flex items-center flex-col w-full">
                 <SelectPicker
@@ -415,6 +433,7 @@ import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue"
 import { Clipboard } from "~/src/shared/ui/common/Clipboard"
 import FSelect from "~/src/shared/ui/common/Input/FSelect.vue"
 import { IconStatus } from "~/src/shared/ui/common/Icon/Filter"
+import {RoomCard} from "~/src/entities/Studio";
 
 const route = useRoute()
 const addressSlug = ref(route.params.slug_address)
