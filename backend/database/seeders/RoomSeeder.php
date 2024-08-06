@@ -35,7 +35,7 @@ class RoomSeeder extends Seeder
         ],
             ['id']);
 
-        DB::statement("SELECT setval(pg_get_serial_sequence('addresses', 'id'), coalesce(max(id)+1, 1), false) FROM addresses");
+        DB::statement("SELECT setval(pg_get_serial_sequence('rooms', 'id'), coalesce(max(id)+1, 1), false) FROM rooms");
 
     }
 }
