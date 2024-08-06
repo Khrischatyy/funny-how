@@ -8,12 +8,17 @@ use App\Jobs\BookingConfirmationOwnerJob;
 use App\Models\Address;
 use App\Models\Booking;
 use App\Models\Charge;
+use App\Models\SquareLocation;
 use App\Models\SquareToken;
 use App\Models\User;
 use App\Services\Payment\PaymentService;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Square\Models\CheckoutOptions;
 use Square\Models\CreatePaymentLinkRequest;
+use Square\Models\ObtainTokenRequest;
 use Square\Models\QuickPay;
 use Square\SquareClient;
 use Square\Exceptions\ApiException;
@@ -98,97 +103,6 @@ class SquareService implements PaymentServiceInterface
         }
     }
 
-//    public function refundPayment($booking, $studioOwner)
-//    {
-//        try {
-//            $charge = Charge::where('booking_id', $booking->id)->firstOrFail();
-//
-//            $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
-//            $client = new SquareClient([
-//                'accessToken' => $squareToken->access_token,
-//                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
-//            ]);
-//
-//            // Retrieve the payment to check the available amount for refund
-//            $paymentResponse = $client->getPaymentsApi()->getPayment($charge->square_payment_id);
-//
-//            if ($paymentResponse->isError()) {
-//                throw new \Exception('Square Payment Retrieval Error: ' . json_encode($paymentResponse->getErrors()));
-//            }
-//
-//            $payment = $paymentResponse->getResult()->getPayment();
-//            $amountMoney = $payment->getAmountMoney();
-//            $refundedMoney = $payment->getRefundedMoney();
-//
-//            if ($amountMoney === null || $amountMoney->getAmount() === null) {
-//                throw new \Exception('Payment amount not found.');
-//            }
-//
-//            $totalPaidAmount = $amountMoney->getAmount(); // Total amount paid in cents
-//            $totalRefundedAmount = $refundedMoney ? $refundedMoney->getAmount() : 0; // Total amount refunded in cents
-//
-//            // Calculate the available amount to refund
-//            $availableRefundAmount = $totalPaidAmount - $totalRefundedAmount;
-//
-//            // Calculate the refund amount
-//            $refundAmount = $charge->amount * 100; // Convert to cents
-//
-//            // Debug information
-//            Log::info('Total Paid Amount: ' . $totalPaidAmount);
-//            Log::info('Total Refunded Amount: ' . $totalRefundedAmount);
-//            Log::info('Available Refund Amount: ' . $availableRefundAmount);
-//            Log::info('Refund Amount Requested: ' . $refundAmount);
-//
-//            // Check if the refund amount exceeds the available amount to refund
-//            if ($refundAmount > $availableRefundAmount) {
-//                throw new \Exception('Requested refund amount exceeds the available amount to refund.');
-//            }
-//
-//            if ($availableRefundAmount <= 0) {
-//                throw new \Exception('No available amount to refund.');
-//            }
-//
-//            // Create the Money object for the refund amount
-//            $refundMoney = new \Square\Models\Money();
-//            $refundMoney->setAmount($refundAmount);
-//            $refundMoney->setCurrency('USD');
-//
-//            // Create the refund request
-//            $refundRequest = new \Square\Models\RefundPaymentRequest(
-//                uniqid(), // Idempotency key
-//                $refundMoney
-//            );
-//            $refundRequest->setPaymentId($charge->square_payment_id);
-//
-//            $response = $client->getRefundsApi()->refundPayment($refundRequest);
-//
-//            if ($response->isError()) {
-//                throw new \Exception('Square Refund Error: ' . json_encode($response->getErrors()));
-//            }
-//
-//            $refund = $response->getResult()->getRefund();
-//            $charge->update([
-//                'refund_id' => $refund->getId(),
-//                'refund_status' => $refund->getStatus(),
-//            ]);
-//
-//            // Update balance and booking status
-//            $this->updateBalance($booking->address_id, -$charge->amount);
-//            $this->updateBookingStatus($booking->id, 3);
-//
-//            return [
-//                'success' => true,
-//                'code' => 200,
-//                'message' => 'Refund processed successfully and booking status updated.',
-//            ];
-//
-//        } catch (ApiException $e) {
-//            throw new \Exception('Square API Exception: ' . $e->getMessage());
-//        } catch (\Exception $e) {
-//            throw new \Exception('General Exception: ' . $e->getMessage());
-//        }
-//    }
-
     public function verifyPaymentSession($orderId, $studioOwner)
     {
         try {
@@ -229,14 +143,9 @@ class SquareService implements PaymentServiceInterface
             throw new \Exception('Payment verification failed: Payment is null.');
         }
 
-        $validationResult = $this->validatePayment($paymentId, $studioOwner);
-        if (!$validationResult['success']) {
-            return $validationResult;
-        }
+        $this->validatePayment($paymentId, $studioOwner);
 
         $booking = $this->updateBookingStatus($bookingId, 2);
-
-
         $this->updateCharge($orderId, $paymentId);
 
 
@@ -280,6 +189,130 @@ class SquareService implements PaymentServiceInterface
             ];
         } catch (\Exception $e) {
             throw new \Exception('General Exception: ' . $e->getMessage());
+        }
+    }
+
+    public function getSquareRedirectUrl()
+    {
+        $clientId = env('SQUARE_APPLICATION_ID');
+        $redirectUri = env('APP_URL') . '/auth/square';
+        $scope = 'MERCHANT_PROFILE_READ PAYMENTS_WRITE PAYMENTS_READ ORDERS_WRITE ORDERS_READ';
+        $squareappBaseUrl = env('SQUARE_ENVIRONMENT') == 'production' ? 'https://connect.squareup.com' : 'https://connect.squareupsandbox.com';
+
+        return "{$squareappBaseUrl}/oauth2/authorize?client_id={$clientId}&scope={$scope}&session=false&redirect_uri={$redirectUri}";
+    }
+
+    public function handleSquareCallback(Request $request)
+    {
+        $code = $request->input('code');
+        $redirectUri = env('APP_URL') . '/auth/square';
+
+        if (!$code) {
+            throw new Exception('Authorization code not found.', 400);
+        }
+
+        $client = new SquareClient([
+            'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+        ]);
+
+        $body = new ObtainTokenRequest(
+            env('SQUARE_APPLICATION_ID'),
+            'authorization_code'
+        );
+
+        $body->setClientSecret(env('SQUARE_CLIENT_SECRET'));
+        $body->setCode($code);
+        $body->setRedirectUri($redirectUri);
+
+        $apiResponse = $client->getOAuthApi()->obtainToken($body);
+
+        if ($apiResponse->isError()) {
+            throw new Exception('Failed to obtain token.', 400, ['errors' => $apiResponse->getErrors()]);
+        }
+
+        $result = $apiResponse->getResult();
+        $user = Auth::user();
+
+        $user->payment_gateway = 'square';
+        $user->save();
+
+        $squareLocationId = $this->getLocation($user, $result->getAccessToken());
+
+        // Save tokens in the database
+        SquareToken::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'access_token' => $result->getAccessToken(),
+                'refresh_token' => $result->getRefreshToken(),
+                'expires_at' => $result->getExpiresAt(),
+                'square_location_id' => $squareLocationId, // Save the square_location_id
+            ]
+        );
+
+        return $user;
+    }
+
+    protected function getLocation($user, $accessToken)
+    {
+        try {
+            $client = new SquareClient([
+                'accessToken' => $accessToken,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
+
+            $apiResponse = $client->getLocationsApi()->retrieveLocation('main');
+
+            if ($apiResponse->isError()) {
+                throw new Exception('Failed to retrieve location.', 400, ['errors' => $apiResponse->getErrors()]);
+            }
+
+            $location = $apiResponse->getResult()->getLocation();
+
+            if (!$location) {
+                throw new Exception('Main location not found.', 404);
+            }
+
+            $addressId = $user->company->addresses()->first()->id;
+
+            // Save location in the database
+            $squareLocation = SquareLocation::updateOrCreate(
+                ['address_id' => $addressId],
+                ['location_id' => $location->getId()]
+            );
+
+            return $squareLocation->id; // Return the id of the SquareLocation
+        } catch (Exception $e) {
+            throw new Exception('Failed to retrieve location.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    public function retrieveAccount(User $user)
+    {
+        try {
+            $squareToken = SquareToken::where('user_id', $user->id)->with('location')->firstOrFail();
+
+            if (!$squareToken->square_location_id) {
+                throw new Exception('Square Location ID not found for the user.', 404);
+            }
+
+            $client = new SquareClient([
+                'accessToken' => $squareToken->access_token,
+                'environment' => env('SQUARE_ENVIRONMENT', 'sandbox')
+            ]);
+
+            $response = $client->getLocationsApi()->retrieveLocation($squareToken->location->location_id);
+
+            if ($response->isError()) {
+                throw new Exception('Square location retrieval error: ' . json_encode($response->getErrors()), 500);
+            }
+
+            $location = $response->getResult()->getLocation();
+
+            return $location;
+        } catch (ApiException $e) {
+            throw new Exception('Square API Exception: ' . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception('Failed to retrieve Square location: ' . $e->getMessage(), 500);
         }
     }
 
@@ -434,7 +467,6 @@ class SquareService implements PaymentServiceInterface
 
     protected function getPaymentAmount($paymentId, $studioOwner)
     {
-
         $squareToken = SquareToken::where('user_id', $studioOwner->id)->firstOrFail();
         $client = new SquareClient([
             'accessToken' => $squareToken->access_token,

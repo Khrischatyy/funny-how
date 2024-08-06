@@ -11,4 +11,5 @@ interface PaymentServiceInterface
     public function refundPayment(Booking $booking, $studioOwner);
     public function verifyPaymentSession($sessionId, $studioOwner);
     public function processPaymentSuccess($sessionId, $bookingId, $studioOwner);
+    public function retrieveAccount(User $user);
 }

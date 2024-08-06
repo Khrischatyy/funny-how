@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('square_locations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('address_id');
-            $table->string('location_id');
+            $table->string('location_id')->unique();
             $table->timestamps();
 
             $table->foreign('address_id')->references('id')->on('addresses')->onDelete('cascade');

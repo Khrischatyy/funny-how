@@ -12,6 +12,7 @@ use App\Http\Controllers\API\{AddressController,
     PaymentController,
     PayoutController,
     RoomController,
+    SquareController,
     StripeController,
     UserController};
 use App\Http\Controllers\Auth\GoogleController;
@@ -139,17 +140,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::prefix('stripe')->group(function () {
                 Route::post('create-account', [StripeController::class, 'createAccount']);
                 Route::get('refresh', [StripeController::class, 'refreshAccountLink']);
+                Route::get('balance', [StripeController::class, 'retrieveBalance']);
             });
 
             Route::prefix('square')->group(function () {
-                Route::get('redirect', [PaymentController::class, 'redirectToSquare'])->name('square.connect');
-                Route::post('callback', [PaymentController::class, 'handleSquareCallback'])->name('square.callback');
+                //done
+                Route::get('redirect', [SquareController::class, 'redirectToSquare']);
+                //done
+                Route::post('callback', [SquareController::class, 'handleSquareCallback']);
             });
 
-            //вот эти роуты надо сделать общими (balance), что делают
             Route::prefix('account')->group(function () {
-                Route::get('retrieve', [StripeController::class, 'retrieveAccount']);
-                Route::get('balance', [StripeController::class, 'retrieveBalance']);
+                //pending
+                Route::get('retrieve', [PaymentController::class, 'retrieveAccount']);
             });
         });
 

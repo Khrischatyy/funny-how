@@ -17,11 +17,15 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id'); // или другое поле для ассоциации с пользователем/адресом/компанией
             $table->string('access_token');
+
+            $table->bigInteger('square_location_id')->unsigned()->nullable();
+            $table->foreign('square_location_id')->references('id')->on('square_locations')->onDelete('cascade');
+
             $table->string('refresh_token');
             $table->timestamp('expires_at');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); // пример для связывания с таблицей users
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -40,7 +40,7 @@ class PaymentService
     public function refundPayment($booking, $studioOwner)
     {
         $gateway = $studioOwner->payment_gateway;
-        return $this->getService($gateway)->refundPayment($booking, $studioOwner);
+        return $this->getService($gateway)->refundPayment($booking);
     }
 
     public function verifyPaymentSession($sessionId, $gateway, $studioOwner)
@@ -51,6 +51,18 @@ class PaymentService
     public function processPaymentSuccess($orderId, $bookingId, $gateway, $studioOwner)
     {
         return $this->getService($gateway)->processPaymentSuccess($orderId, $bookingId, $studioOwner);
+    }
+
+    public function retrieveAccount(User $user)
+    {
+        $paymentGateway = $user->payment_gateway;
+        return $this->getService($paymentGateway)->retrieveAccount($user);
+    }
+
+    public function retrieveBalance(User $user)
+    {
+        $paymentGateway = $user->payment_gateway;
+        return $this->getService($paymentGateway)->retrieveBalance($user);
     }
 
     protected function getService($gateway): PaymentServiceInterface

@@ -12,6 +12,8 @@ use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Stripe\Account;
+use Stripe\AccountLink;
 use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Stripe;
@@ -52,16 +54,6 @@ class StripeService implements PaymentServiceInterface
             Log::error("Payment failed: " . $e->getMessage());
             throw new Exception("Payment failed: " . $e->getMessage());
         }
-    }
-
-    public function createCharge(Booking $booking, string $sessionId, int $amount, string $currency): void
-    {
-        Charge::create([
-            'booking_id' => $booking->id,
-            'stripe_session_id' => $sessionId,
-            'amount' => $amount,
-            'currency' => $currency,
-        ]);
     }
 
     public function refundPayment(Booking $booking, $studioOwner): array
@@ -153,6 +145,104 @@ class StripeService implements PaymentServiceInterface
         ];
     }
 
+    public function retrieveAccount($user)
+    {
+        try {
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            if (!$user->stripe_account_id) {
+                throw new Exception('Stripe account not found.', 404);
+            }
+
+            $account = Account::retrieve($user->stripe_account_id);
+
+            return $account;
+        } catch (Exception $e) {
+            throw new Exception('Failed to retrieve Stripe account. ' . $e->getMessage(), 500);
+        }
+    }
+
+    public function createAccount($user): array
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        if (!$user->stripe_account_id) {
+            $account = Account::create([
+                'type' => 'express',
+                'country' => 'US',
+                'email' => $user->email,
+                'capabilities' => [
+                    'card_payments' => ['requested' => true],
+                    'transfers' => ['requested' => true],
+                ],
+                'business_type' => 'individual',
+            ]);
+
+            $user->stripe_account_id = $account->id;
+            $user->save();
+        }
+
+        $accountLink = $this->createAccountLink($user->stripe_account_id);
+
+        return [
+            'url' => $accountLink->url,
+        ];
+    }
+
+    public function refreshAccountLink($user): array
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        if (!$user->stripe_account_id) {
+            throw new Exception('No Stripe account found.', 404);
+        }
+
+        $accountLink = $this->createAccountLink($user->stripe_account_id);
+
+        return [
+            'url' => $accountLink->url,
+        ];
+    }
+
+    private function createAccountLink(string $stripeAccountId): AccountLink
+    {
+        return AccountLink::create([
+            'account' => $stripeAccountId,
+            'refresh_url' => env('APP_URL') . '/stripe/refresh',
+            'return_url' => env('APP_URL') . '/stripe/complete',
+            'type' => 'account_onboarding',
+        ]);
+    }
+
+    public function retrieveBalance($user)
+    {
+        try {
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            if (!$user->stripe_account_id) {
+                throw new Exception('Stripe account ID not found for the user.', 404);
+            }
+
+            $balance = Balance::retrieve([
+                'stripe_account' => $user->stripe_account_id,
+            ]);
+
+            return $balance;
+        } catch (Exception $e) {
+            throw new Exception('Failed to retrieve balance. ' . $e->getMessage(), 500);
+        }
+    }
+
+    public function createCharge(Booking $booking, string $sessionId, int $amount, string $currency): void
+    {
+        Charge::create([
+            'booking_id' => $booking->id,
+            'stripe_session_id' => $sessionId,
+            'amount' => $amount,
+            'currency' => $currency,
+        ]);
+    }
+
     private function validateSession(Session $session): array
     {
         if ($session->expires_at < time()) {
@@ -176,8 +266,6 @@ class StripeService implements PaymentServiceInterface
         return ['success' => true];
     }
 
-
-//     TODO: move it to Booking service
     private function updateBookingStatus(int $bookingId, int $statusId): Booking
     {
         $booking = Booking::findOrFail($bookingId);
