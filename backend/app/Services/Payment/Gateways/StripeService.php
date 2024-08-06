@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Stripe\Account;
 use Stripe\AccountLink;
+use Stripe\Balance;
 use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Stripe;
@@ -183,6 +184,9 @@ class StripeService implements PaymentServiceInterface
         }
 
         $accountLink = $this->createAccountLink($user->stripe_account_id);
+
+        $user->payment_gateway = 'stripe';
+        $user->save();
 
         return [
             'url' => $accountLink->url,
