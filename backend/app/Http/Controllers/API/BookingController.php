@@ -472,8 +472,8 @@ class BookingController extends BaseController
     public function getReservationAvailableStartTime(AvailableStartTimeRequest $request): JsonResponse
     {
         $date = $request->query('date');
-        $addressId = $request->query('address_id');
-        $availableStartTimes = $this->bookingService->getAvailableStartTime($date, $addressId);
+        $roomId = $request->query('room_id');
+        $availableStartTimes = $this->bookingService->getAvailableStartTime($date, $roomId);
 
         return $this->sendResponse($availableStartTimes, 'Available start time retrieved successfully.');
     }
@@ -526,10 +526,10 @@ class BookingController extends BaseController
     public function getReservationAvailableEndTime(AvailableEndTimeRequest $request): JsonResponse
     {
         $date = $request->query('date');
-        $addressId = $request->query('address_id');
+        $roomId = $request->query('room_id');
         $startTime = $request->query('start_time');
 
-        $availableEndTime = $this->bookingService->getAvailableEndTime($date, $addressId, $startTime);
+        $availableEndTime = $this->bookingService->getAvailableEndTime($date, $roomId, $startTime);
 
         return $this->sendResponse($availableEndTime, 'Available end time retrieved successfully.');
     }
@@ -661,11 +661,11 @@ class BookingController extends BaseController
      */
     public function calculatePrice(CalculatePriceRequest $request): JsonResponse
     {
-        $addressId = $request->input('address_id');
+        $roomId = $request->input('room_id');
         $startTime = $request->input('start_time');
         $endTime = $request->input('end_time');
 
-        $totalPrice = $this->bookingService->getTotalCost($startTime, $endTime, $addressId);
+        $totalPrice = $this->bookingService->getTotalCost($startTime, $endTime, $roomId);
 
         return $this->sendResponse($totalPrice, 'Total price received');
     }

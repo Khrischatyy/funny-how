@@ -4,6 +4,9 @@ import { IconDown, IconTrash } from "~/src/shared/ui/common"
 import { useApi } from "~/src/lib/api"
 const emit = defineEmits(["update-studios"])
 const prices = ref([])
+const props = defineProps<{
+      room_id?: number,
+    }>()
 
 const pricesList = [
   { hours: 1 },
@@ -59,13 +62,14 @@ function addSamplePrices() {
 const studio = inject("studioForPopup")
 
 onMounted(async () => {
-  getPrices()
+  if(props.room_id)
+    getPrices()
 })
 
 function getPrices() {
-  isLoading.value = true
+  isLoading.value = false
   const { fetch } = useApi({
-    url: `/address/${studio.value.id}/prices`,
+    url: `/room/${props.room_id}/prices`,
     auth: true,
   })
   fetch()
@@ -81,7 +85,7 @@ function getPrices() {
 function sendPrice(price) {
   isLoading.value = true
   const { post } = useApi({
-    url: `/address/${studio.value.id}/prices`,
+    url: `/room/${props.room_id}/prices`,
     auth: true,
   })
 
@@ -98,6 +102,7 @@ function sendPrice(price) {
         }
       })
       isLoading.value = false
+      emit("update-studios")
     })
     .catch((error) => {
       console.error(error)
@@ -107,7 +112,7 @@ function sendPrice(price) {
 function deletePrice(price) {
   isLoading.value = true
   const { delete: callDeletePrice } = useApi({
-    url: `/address/prices?address_id=${studio.value.id}&address_prices_id=${price.id}`,
+    url: `/room/prices?address_id=${props.room_id}&address_prices_id=${price.id}`,
     auth: true,
   })
 

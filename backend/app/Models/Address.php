@@ -19,11 +19,28 @@ class Address extends Model
 
     protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone', 'available_balance'];
 
-    protected $appends = ['is_favorite', 'is_complete', 'stripe_account_id'];
+    protected $appends = ['is_favorite', 'is_complete', 'stripe_account_id', 'prices', 'photos'];
 
     protected $casts = [
         'square_capabilities' => 'array',
     ];
+
+    public function rooms()
+    {
+        return $this->hasMany(Room::class);
+    }
+    public function getPricesAttribute()
+    {
+        return $this->rooms->flatMap(function ($room) {
+            return $room->prices;
+        });
+    }
+    public function getPhotosAttribute()
+    {
+        return $this->rooms->flatMap(function ($room) {
+            return $room->photos;
+        });
+    }
 
     public function equipments()
     {
@@ -47,20 +64,12 @@ class Address extends Model
             ->withPivot('address_id', 'badge_id');
     }
 
-    public function prices()
-    {
-        return $this->hasMany(AddressPrice::class)->where('is_enabled', true);
-    }
 
     public function city()
     {
         return $this->belongsTo(City::class);
     }
 
-    public function photos()
-    {
-        return $this->hasMany(AddressPhoto::class, 'address_id', 'id');
-    }
 
     public function operatingHours()
     {
@@ -75,11 +84,11 @@ class Address extends Model
 
     public function getIsCompleteAttribute()
     {
-        $hasPrices = $this->prices()->exists();
         $hasOperatingHours = $this->operatingHours()->exists();
         $hasStripeAccountId = $this->stripe_account_id !== null;
+        $hasSquareGateway = $this->company->adminCompany->user->payment_gateway === 'square';
         
-        return $hasPrices && $hasOperatingHours && ($hasStripeAccountId || $this->company->adminCompany->user->payment_gateway === 'square');
+        return $hasOperatingHours && ($hasStripeAccountId || $hasSquareGateway);
     }
 
     public function getStripeAccountIdAttribute()

@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\AddressPrice;
+use App\Models\RoomPrice;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class AddressPriceSeeder extends Seeder
+class RoomPriceSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -16,16 +16,16 @@ class AddressPriceSeeder extends Seeder
      */
     public function run()
     {
-        AddressPrice::upsert([
+        RoomPrice::upsert([
             [
-                'address_id' => 1,
+                'room_id' => 1,
                 'hours' => 1,
                 'is_enabled' => true,
                 'total_price' => 50,
                 'price_per_hour' => 50,
             ],
             [
-                'address_id' => 1,
+                'room_id' => 1,
                 'hours' => 4,
                 'is_enabled' => true,
                 'total_price' => 80,
@@ -33,21 +33,21 @@ class AddressPriceSeeder extends Seeder
             ],
 
             [
-                'address_id' => 2,
+                'room_id' => 2,
                 'hours' => 1,
                 'is_enabled' => true,
                 'total_price' => 50,
                 'price_per_hour' => 50,
             ],
             [
-                'address_id' => 2,
+                'room_id' => 2,
                 'hours' => 4,
                 'is_enabled' => true,
                 'total_price' => 80,
                 'price_per_hour' => 20,
             ],
             [
-                'address_id' => 2,
+                'room_id' => 2,
                 'hours' => 8,
                 'is_enabled' => true,
                 'total_price' => 100,

@@ -24,7 +24,7 @@ class CalculatePriceRequest extends FormRequest
     public function rules()
     {
         return [
-            'address_id' => 'required|integer|exists:address_prices,address_id',
+            'room_id' => 'required|integer|exists:room_prices,room_id',
             'start_time' => 'required|date_format:Y-m-d\TH:i',
             'end_time' => 'required|date_format:Y-m-d\TH:i',
         ];

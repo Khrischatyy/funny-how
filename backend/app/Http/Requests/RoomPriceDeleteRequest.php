@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddressPriceDeleteRequest extends FormRequest
+class RoomPriceDeleteRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,8 @@ class AddressPriceDeleteRequest extends FormRequest
     public function rules()
     {
         return [
-            'address_id' => 'required|int|exists:addresses,id',
-            'address_prices_id' => 'required|int|exists:address_prices,id',
+            'room_id' => 'required|int|exists:addresses,id',
+            'room_price_id' => 'required|int|exists:address_prices,id',
         ];
     }
 }

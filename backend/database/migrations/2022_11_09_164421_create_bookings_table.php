@@ -22,9 +22,9 @@ return new class extends Migration
             $table->text('temporary_payment_link')->after('end_date')->nullable();
             $table->timestamp('temporary_payment_link_expires_at')->after('temporary_payment_link')->nullable();
 
-            $table->unsignedBigInteger('address_id');
+            $table->unsignedBigInteger('room_id');
 
-            $table->foreign('address_id')->references('id')->on('addresses')
+            $table->foreign('room_id')->references('id')->on('rooms')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('user_id');

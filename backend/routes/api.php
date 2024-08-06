@@ -11,6 +11,7 @@ use App\Http\Controllers\API\{AddressController,
     OperatingHourController,
     PaymentController,
     PayoutController,
+    RoomController,
     StripeController,
     UserController};
 use App\Http\Controllers\Auth\GoogleController;
@@ -75,16 +76,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('toggle-favorite-studio', [AddressController::class, 'toggleFavorite']);
 
         //prices
-        Route::post('{address_id}/prices', [AddressController::class, 'createOrUpdateAddressPrice']);
-        Route::delete('prices', [AddressController::class, 'deleteAddressPrices']);
         Route::post('clients', [UserController::class, 'getClients']);
-        Route::get('{address_id}/prices', [AddressController::class, 'getAddressPrices'])->where('address_id', '[0-9]+');
 
         //booking routes
         Route::post('operating-hours', [OperatingHourController::class, 'setOperatingHours']);
         Route::get('operating-hours', [OperatingHourController::class, 'getOperatingHours']);
-        Route::post('reservation', [BookingController::class, 'bookAddress']);
-        Route::post('cancel-booking', [BookingController::class, 'cancelBooking']);
 
         Route::put('/{address_slug}/update-slug', [AddressController::class, 'updateSlug']);
 
@@ -108,9 +104,26 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('{address_id}/equipment', [EquipmentController::class, 'getEquipmentsByAddressId'])->where('address_id', '[0-9]+');
         });
     });
+
+    Route::prefix('room')->group(function () {
+
+        Route::post('add-room', [RoomController::class, 'createRoom']);
+
+        //prices
+        Route::post('{room_id}/prices', [RoomController::class, 'createOrUpdatePrice']);
+        Route::delete('prices', [RoomController::class, 'deletePrices']);
+        Route::get('{room_id}/prices', [RoomController::class, 'getPrices'])->where('room_id', '[0-9]+');
+
+        //booking routes
+        Route::post('reservation', [BookingController::class, 'bookAddress']);
+        Route::post('cancel-booking', [BookingController::class, 'cancelBooking']);
+
+        Route::put('/{room}/update-name', [RoomController::class, 'updateName']);
+    });
+
     Route::prefix('photos')->group(function () {
-        Route::post('/upload', [AddressController::class, 'uploadAddressPhotos']);
-        Route::post('/update-index', [AddressController::class, 'updatePhotoIndex']);
+        Route::post('/upload', [RoomController::class, 'uploadPhotos']);
+        Route::post('/update-index', [RoomController::class, 'updatePhotoIndex']);
     });
 
 

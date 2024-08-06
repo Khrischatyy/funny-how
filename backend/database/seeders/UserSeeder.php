@@ -36,6 +36,7 @@ class UserSeeder extends Seeder
                 'firstname' => 'Rus',
                 'email' => 'fhrushadaev@gmail.com',
                 'password' => '$2y$10$Gqg3FGE3X0rOZ3q1etepx.qZ6sGsBW7.SwpSCrhKOh1ENWoSpwBya',
+                'stripe_account_id' => 'acct_1J5J9vKZzvZ2Zz9z',
                 'updated_at' => now(),
                 'created_at' => now()
             ]

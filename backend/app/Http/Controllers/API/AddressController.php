@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\AddressPhotosRequest;
-use App\Http\Requests\AddressPriceDeleteRequest;
-use App\Http\Requests\AddressPricesRequest;
 use App\Http\Requests\AddressRequest;
 use App\Http\Requests\BrandRequest;
 use App\Http\Requests\DeleteAddressRequest;
@@ -14,9 +11,10 @@ use App\Http\Requests\ToggleFavoriteStudioRequest;
 use App\Http\Requests\UpdatePhotoIndexRequest;
 use App\Http\Requests\UpdateSlugRequest;
 use App\Models\Address;
-use App\Models\AddressPrice;
+use App\Models\Room;
 use App\Repositories\AddressRepository;
 use App\Services\AddressService;
+use App\Services\RoomService;
 use App\Services\CityService;
 use App\Services\CompanyService;
 use Exception;
@@ -28,6 +26,7 @@ class AddressController extends BaseController
 {
     public function __construct(public AddressRepository $addressRepository,
                                 public AddressService $addressService,
+                                public RoomService $roomService,
                                 public CityService $cityService,
                                 public CompanyService $companyService)
     {}
@@ -78,62 +77,6 @@ class AddressController extends BaseController
             return $this->sendError('Address not found.', 404);
         } catch (Exception $e) {
             return $this->sendError('Failed to retrieve address.', 500, ['error' => $e->getMessage()]);
-        }
-    }
-
-    /**
-     * @OA\Post(
-     *     path="/address/{address_id}/photos",
-     *     summary="Upload photos for an address",
-     *     tags={"Address"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="address_id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer"),
-     *         description="The ID of the address"
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             @OA\Property(property="photos", type="array", @OA\Items(type="string", format="binary")),
-     *             @OA\Property(property="index", type="string", example="1")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Photos uploaded successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="array",
-     *                 @OA\Items(type="object",
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="path", type="string", example="photos/1.jpg"),
-     *                     @OA\Property(property="address_id", type="integer", example=1),
-     *                     @OA\Property(property="index", type="string", example="1")
-     *                 )
-     *             ),
-     *             @OA\Property(property="message", type="string", example="Photos uploaded successfully."),
-     *             @OA\Property(property="code", type="integer", example=200)
-     *         )
-     *     ),
-     *     @OA\Response(response="404", description="Address not found"),
-     *     @OA\Response(response="500", description="Failed to upload photos")
-     * )
-     */
-    public function uploadAddressPhotos(AddressPhotosRequest $request): JsonResponse
-    {
-        $address_id = (int) $request->input('address_id');
-
-        try {
-            $result = $this->addressService->uploadAddressPhotos($request, $address_id);
-
-            return $this->sendResponse($result['photos'], 'Photos uploaded successfully.');
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError('Address not found.', 404);
-        } catch (Exception $e) {
-            return $this->sendError('Failed to upload photos.', 500, ['error' => $e->getMessage()]);
         }
     }
 
@@ -263,11 +206,14 @@ class AddressController extends BaseController
 
         $address = $this->addressService->createAddress($request, $city, $company);
 
+        $room = $this->addDefaultRoom($address);
+
         $this->addDefaultHours($address->id);
 
         return $this->sendResponse([
             'slug' => $company->slug,
-            'address_id' => $address->id
+            'address_id' => $address->id,
+            'room_id' => $room->id
         ], 'Company and address added');
     }
 
@@ -323,204 +269,10 @@ class AddressController extends BaseController
             $address = $this->addressService->createAddress($request, $city, $company);
             $address->company_slug = $company->slug;
 
+            $room = $this->addDefaultRoom($address);
             return $this->sendResponse($address, 'Address created successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to create address.', 500, ['error' => $e->getMessage()]);
-        }
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/address/{address_id}/prices",
-     *     summary="Get prices for an address",
-     *     tags={"Prices"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="address_id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer"),
-     *         description="The ID of the address"
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Prices updated successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="array",
-     *                 @OA\Items(type="object",
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="hours", type="integer", example=1),
-     *                     @OA\Property(property="total_price", type="number", format="float", example=60.00),
-     *                     @OA\Property(property="price_per_hour", type="number", format="float", example=60.00),
-     *                     @OA\Property(property="is_enabled", type="boolean", example=true)
-     *                 )
-     *             ),
-     *             @OA\Property(property="message", type="string", example="Prices updated successfully."),
-     *             @OA\Property(property="code", type="integer", example=200)
-     *         )
-     *     ),
-     *     @OA\Response(response="404", description="Address not found"),
-     *     @OA\Response(response="500", description="Failed to retrieve prices")
-     * )
-     */
-    public function getAddressPrices($address_id): JsonResponse
-    {
-        try {
-            $address = Address::with('prices')->findOrFail($address_id);
-            return $this->sendResponse($address->prices, 'Studio prices retrieved successfully.');
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError('Address not found.', 404);
-        } catch (Exception $e) {
-            return $this->sendError('Failed to retrieve studio prices.', 500, ['error' => $e->getMessage()]);
-        }
-    }
-
-    /**
-     * @OA\Post(
-     *     path="/address/{address_id}/prices",
-     *     summary="Create or update prices for an address",
-     *     tags={"Prices"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="address_id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer"),
-     *         description="The ID of the address"
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"hours", "total_price", "is_enabled"},
-     *             @OA\Property(property="hours", type="integer", example=1),
-     *             @OA\Property(property="total_price", type="number", format="float", example=60.00),
-     *             @OA\Property(property="is_enabled", type="boolean", example=true),
-     *             @OA\Property(property="address_price_id", type="integer", example=1)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Prices updated successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="array",
-     *                 @OA\Items(type="object",
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="address_id", type="integer", example=1),
-     *                     @OA\Property(property="hours", type="integer", example=1),
-     *                     @OA\Property(property="is_enabled", type="boolean", example=true),
-     *                     @OA\Property(property="total_price", type="string", example="50.00"),
-     *                     @OA\Property(property="price_per_hour", type="string", example="50.00")
-     *                 )
-     *             ),
-     *             @OA\Property(property="message", type="string", example="Prices updated successfully."),
-     *             @OA\Property(property="code", type="integer", example=200)
-     *         )
-     *     ),
-     *     @OA\Response(response="404", description="Address or price entry not found"),
-     *     @OA\Response(response="500", description="Failed to update prices")
-     * )
-     */
-    public function createOrUpdateAddressPrice(AddressPricesRequest $request, int $address_id): JsonResponse
-    {
-        $hours = $request->input('hours');
-        $total_price = $request->input('total_price');
-        $is_enabled = $request->input('is_enabled');
-
-        $address_price_id = $request->input('id');
-
-        try {
-            $address = Address::findOrFail($address_id);
-
-            // Calculate price per hour
-            $price_per_hour = $total_price / $hours;
-
-            if ($address_price_id) {
-                // Find the existing price entry
-                $price_entry = $address->prices()->findOrFail($address_price_id);
-
-                // Update the existing price entry
-                $price_entry->update([
-                    'hours' => $hours,
-                    'total_price' => $total_price,
-                    'price_per_hour' => $price_per_hour,
-                    'is_enabled' => $is_enabled,
-                ]);
-            } else {
-                // Create the new price entry
-                $address->prices()->create([
-                    'address_id' => $address_id,
-                    'hours' => $hours,
-                    'total_price' => $total_price,
-                    'price_per_hour' => $price_per_hour,
-                    'is_enabled' => $is_enabled,
-                ]);
-            }
-
-            return $this->sendResponse($address->prices, 'Studio prices updated successfully.');
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError('Address or price entry not found.', 404);
-        } catch (Exception $e) {
-            return $this->sendError('Failed to update studio prices.', 500, ['error' => $e->getMessage()]);
-        }
-    }
-
-    /**
-     * @OA\Delete(
-     *     path="/address/prices",
-     *     summary="Delete a price for an address",
-     *     tags={"Prices"},
-     *     security={{"sanctum":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"address_id", "address_prices_id"},
-     *             @OA\Property(property="address_id", type="integer", example=1),
-     *             @OA\Property(property="address_prices_id", type="integer", example=1)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Price deleted successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="array",
-     *                 @OA\Items(type="object",
-     *                     @OA\Property(property="id", type="integer", example=2),
-     *                     @OA\Property(property="address_id", type="integer", example=1),
-     *                     @OA\Property(property="hours", type="integer", example=4),
-     *                     @OA\Property(property="is_enabled", type="boolean", example=true),
-     *                     @OA\Property(property="total_price", type="string", example="80.00"),
-     *                     @OA\Property(property="price_per_hour", type="string", example="20.00")
-     *                 )
-     *             ),
-     *             @OA\Property(property="message", type="string", example="Studio price deleted successfully."),
-     *             @OA\Property(property="code", type="integer", example=200)
-     *         )
-     *     ),
-     *     @OA\Response(response="404", description="Price not found for the given address"),
-     *     @OA\Response(response="500", description="Failed to delete price")
-     * )
-     */
-    public function deleteAddressPrices(AddressPriceDeleteRequest $request): JsonResponse
-    {
-        $address_id = $request->input('address_id');
-        $address_price_id = $request->input('address_prices_id');
-
-
-        try {
-            $price = AddressPrice::with(['company'])->where('address_id', $address_id)->where('id', $address_price_id)->firstOrFail();
-            $price->delete();
-
-            // Fetch the updated list of prices for the address
-            $prices = Address::with('prices')->findOrFail($address_id)->prices;
-
-            return $this->sendResponse($prices, 'Studio price deleted successfully.', 200);
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError('Price not found for the given address.', 404);
-        } catch (Exception $e) {
-            return $this->sendError('Failed to delete studio price.', 500, ['error' => $e->getMessage()]);
         }
     }
 
@@ -656,53 +408,7 @@ class AddressController extends BaseController
         }
     }
 
-    /**
-     * @OA\Patch(
-     *     path="/photos/update-index",
-     *     summary="Update the index of a photo",
-     *     tags={"Photos"},
-     *     security={{"sanctum":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"photo_id", "index"},
-     *             @OA\Property(property="photo_id", type="integer", example=1, description="The ID of the photo"),
-     *             @OA\Property(property="index", type="integer", example=1, description="New index for the photo")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="Photo index updated successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="path", type="string", example="photos/1.jpg"),
-     *                 @OA\Property(property="address_id", type="integer", example=1),
-     *                 @OA\Property(property="index", type="integer", example=1)
-     *             ),
-     *             @OA\Property(property="message", type="string", example="Photo index updated successfully."),
-     *             @OA\Property(property="code", type="integer", example=200)
-     *         )
-     *     ),
-     *     @OA\Response(response="404", description="Photo not found"),
-     *     @OA\Response(response="500", description="Failed to update photo index")
-     * )
-     */
-    public function updatePhotoIndex(UpdatePhotoIndexRequest $request): JsonResponse
-    {
-        $photo_id = $request->input('address_photo_id');
 
-        try {
-            $result = $this->addressService->updatePhotoIndex($request, $photo_id);
-
-            return $this->sendResponse($result, 'Photo index updated successfully.');
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError('Photo not found.', 404);
-        } catch (Exception $e) {
-            return $this->sendError('Failed to update photo index.', 500, ['error' => $e->getMessage()]);
-        }
-    }
 
     /**
      * @OA\Get(
@@ -1006,5 +712,10 @@ class AddressController extends BaseController
         } catch (Exception $e) {
             return $this->sendError('Failed to add price.', 500, ['error' => $e->getMessage()]);
         }
+    }
+
+    private function addDefaultRoom(Address $address): Room | JsonResponse
+    {
+        return $this->roomService->createRoom('Room1', $address);
     }
 }

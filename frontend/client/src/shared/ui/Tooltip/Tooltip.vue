@@ -56,7 +56,7 @@ const tooltipStyle = computed(() => ({
 }
 .tooltip {
   position: absolute;
-  z-index: 1000;
+  z-index: 9999;
   background-color: black;
   color: white;
   padding: 8px;

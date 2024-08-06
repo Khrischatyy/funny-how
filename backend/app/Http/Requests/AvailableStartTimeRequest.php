@@ -24,7 +24,7 @@ class AvailableStartTimeRequest extends FormRequest
     public function rules()
     {
         return [
-            'address_id' => 'required|int|exists:addresses,id',
+            'room_id' => 'required|int|exists:rooms,id',
             'date' => 'required|date_format:Y-m-d',
         ];
     }

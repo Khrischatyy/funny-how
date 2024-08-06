@@ -217,7 +217,7 @@ function routeBack() {
 }
 
 function routeNext() {
-  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/badges`)
+  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/badges?room_id=${route.query.room_id}`)
 }
 
 function signOut() {

@@ -183,43 +183,22 @@
             class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
             <div class="relative w-full flex items-center mt-10">
+              <div class="flex items-center flex-col z-[60] w-full">
+               <FSelect
+                   class="w-full"
+                   modelKey="id"
+                   v-model="rentingForm.room_id"
+                   placeholder="Choose Room"
+                   :options="roomsOptions" />
+              </div>
+            </div>
+            <div v-if="rentingForm.room_id" class="relative w-full flex items-center mt-10">
               <div class="flex items-center flex-col w-full">
                 <SelectPicker
                   :timezone="address?.timezone"
                   class="w-full z-50"
                   @dateSelected="dateChanged($event, 'date')"
                 />
-              </div>
-            </div>
-
-            <div class="relative hidden w-full flex items-center">
-              <div class="flex items-center">
-                <select
-                  v-model="rentingForm.date"
-                  class="w-full opacity-0 absolute top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"
-                  name="workday"
-                >
-                  <option v-for="day in rentingList" :value="day.date">
-                    {{ day.name }}
-                  </option>
-                </select>
-              </div>
-              <div
-                class="relative w-full flex items-center pointer-events-none"
-              >
-                <input
-                  disabled
-                  :value="rentingForm.date"
-                  placeholder="Day"
-                  class="w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
-                  name="workday"
-                />
-                <span class="absolute right-5 text-neutral-700 cursor-pointer"
-                  >Day</span
-                >
-                <span class="absolute right-0 cursor-pointer">
-                  <IconDown />
-                </span>
               </div>
             </div>
 
@@ -445,6 +424,11 @@ const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
 provide("address", address)
 
 const addressId = computed(() => address.value?.id)
+const roomsOptions = computed(() => address.value?.rooms.map((room) => ({
+  id: room.id,
+  name: room.name,
+  label: room.name,
+})))
 const pageTitle: Ref<string> = computed(() => {
   return address.value
     ? `${address.value.company.name} | Recording Studio`
@@ -478,6 +462,7 @@ type StudioFormValues = {
   end_time: string
 }
 const rentingForm = ref({
+  room_id: "",
   address_id: "",
   date: "",
   anotherDate: "",
@@ -622,7 +607,7 @@ function handlePaymentStatus(event: MessageEvent) {
 
 async function getStartSlots() {
   const { fetch: fetchStartSlots } = useApi({
-    url: `/address/reservation/start-time?address_id=${address?.value?.id}&date=${rentingForm.value.date}`,
+    url: `/address/reservation/start-time?room_id=${rentingForm.value.room_id}&date=${rentingForm.value.date}`,
   })
 
   fetchStartSlots().then((response) => {
@@ -632,7 +617,7 @@ async function getStartSlots() {
 
 async function getEndSlots(start_time: string) {
   const { fetch: getEndSlots } = useApi({
-    url: `/address/reservation/end-time?address_id=${address?.value.id}&date=${rentingForm.value.date}&start_time=${start_time}`,
+    url: `/address/reservation/end-time?room_id=${rentingForm.value.room_id}&date=${rentingForm.value.date}&start_time=${start_time}`,
   })
 
   getEndSlots().then((response) => {
@@ -648,7 +633,7 @@ const calculatePrice = () => {
   })
 
   getPrice({
-    address_id: addressId.value,
+    room_id: rentingForm.value.room_id,
     start_time:
       rentingForm.value.start_time.date +
       "T" +
@@ -692,6 +677,14 @@ watch(
     }
   },
 )
+watch(
+  () => rentingForm.value.room_id,
+  (newVal) => {
+    if (newVal) {
+      rentingForm.value.date = ""
+    }
+  },
+)
 export type reservationResponse = {
   address_id: number
   start_time: string
@@ -708,7 +701,7 @@ watchEffect(() => {
   if (
     rentingForm.value.start_time ||
     rentingForm.value.end_time ||
-    rentingForm.value.date
+    rentingForm.value.date || rentingForm.value.room_id
   ) {
     bookingError.value = ""
   }
@@ -716,13 +709,13 @@ watchEffect(() => {
 function book() {
   isLoading.value = true
   const { post: bookTime } = useApi({
-    url: `/address/reservation`,
+    url: `/room/reservation`,
     auth: true,
   })
 
   const bookingData = {
     addressSlug: addressSlug.value,
-    address_id: address.value?.id,
+    room_id: rentingForm.value.room_id,
     date: rentingForm.value.date,
     start_time: rentingForm.value.start_time.time,
     end_time: rentingForm.value.end_time.time,

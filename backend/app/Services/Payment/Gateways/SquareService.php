@@ -30,7 +30,7 @@ class SquareService implements PaymentServiceInterface
 
     public function createPaymentSession(Booking $booking, int $amountOfMoney, User $studioOwner): array
     {
-        $address = $booking->address;
+        $address = $booking->room->address;
         $applicationFeePercentage = 0.04; // 4% сервисный сбор
         $applicationFeeAmount = (int)($amountOfMoney * 100 * $applicationFeePercentage); // сумма в центах
 

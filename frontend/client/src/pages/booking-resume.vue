@@ -22,7 +22,7 @@ const bookingId = computed(() => route.query.booking_id)
 
 type BookingDataType = {
   addressSlug: string
-  address_id: number
+  room_id: number
   date: string
   start_time: string
   end_time: string
@@ -34,7 +34,7 @@ const bookingError = ref("")
 function book(data) {
   isLoading.value = true
   const { post: bookTime } = useApi({
-    url: `/address/reservation`,
+    url: `/reservation`,
     auth: true,
   })
 

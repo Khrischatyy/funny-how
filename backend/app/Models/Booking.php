@@ -11,7 +11,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'address_id', 'start_time', 'end_time', 'user_id', 'date', 'status_id', 'end_date', 'temporary_payment_link', 'temporary_payment_link_expires_at'
+        'room_id', 'start_time', 'end_time', 'user_id', 'date', 'status_id', 'end_date', 'temporary_payment_link', 'temporary_payment_link_expires_at'
     ];
 
     public function status()
@@ -19,9 +19,13 @@ class Booking extends Model
         return $this->belongsTo(BookingStatus::class);
     }
 
-    public function address()
+    public function room()
     {
-        return $this->belongsTo(Address::class, 'address_id');
+        return $this->belongsTo(Room::class, 'room_id');
+    }
+
+    public function address(){
+        return $this->room->address;
     }
 
     public function user()

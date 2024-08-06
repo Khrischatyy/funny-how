@@ -111,7 +111,7 @@ function filterUnassigned(obj) {
 function sendPrice(price) {
   isLoading.value = true
   const { post: updatePrice } = useApi({
-    url: `/address/${route.params.id}/prices`,
+    url: `/room/${route.query.room_id}/prices`,
     auth: true,
   })
 
@@ -137,7 +137,7 @@ function sendPrice(price) {
 function deletePrice(price, index) {
   isLoading.value = true
   const { delete: removePrice } = useApi({
-    url: `/address/prices?address_id=${route.params.id}&address_prices_id=${price.id}`,
+    url: `/room/prices?room_id=${route.query.room_id}&room_price_id=${price.id}`,
     auth: true,
   })
 
@@ -159,7 +159,7 @@ function deletePrice(price, index) {
 function getPrices() {
   isLoading.value = true
   const { fetch: fetchPrices } = useApi({
-    url: `/address/${route.params.id}/prices`,
+    url: `/room/${route.query.room_id}/prices`,
     auth: true,
   })
 

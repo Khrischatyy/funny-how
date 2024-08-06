@@ -154,11 +154,11 @@ function isBadge(badgeId: number, badges): boolean {
 }
 
 function routeBack() {
-  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/hours`)
+  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/hours?room_id=${route.query.room_id}`)
 }
 
 function routeNext() {
-  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/prices`)
+  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/prices?room_id=${route.query.room_id}`)
 }
 
 function signOut() {

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdatePhotoIndexRequest extends FormRequest
+class RoomRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,8 @@ class UpdatePhotoIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'room_photo_id' => 'required|integer|exists:room_photos,id',
-            'index' => 'required|integer|min:0',
+            'name' => 'required|string',
+            'address_id' => 'required|integer|exists:addresses,id',
         ];
     }
 }

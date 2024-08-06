@@ -11,6 +11,7 @@ use App\Jobs\SendEmailJob;
 use App\Models\Address;
 use App\Models\Booking;
 use App\Models\OperatingHour;
+use App\Models\Room;
 use App\Models\StudioClosure;
 use App\Services\Payment\PaymentService;
 use Carbon\Carbon;
@@ -34,7 +35,7 @@ class BookingService
 
     public function getBookings($userId, $type)
     {
-        $query = Booking::where('user_id', $userId)->with(['user', 'address.company', 'address.photos', 'address.badges', 'status']);
+        $query = Booking::where('user_id', $userId)->with(['user', 'address.company', 'address.rooms', 'address.badges', 'status']);
 
         if ($type === 'history') {
             $query->where('date', '<', now());
@@ -129,13 +130,14 @@ class BookingService
         return $results;
     }
 
-    public function getAvailableStartTime(string $date, int $addressId): array
+    public function getAvailableStartTime(string $date, int $room_id): array
     {
-        $address = Address::findOrFail($addressId);
-        if (!$address) {
-            throw new ModelNotFoundException("Address not found");
+        $room = Room::findOrFail($room_id);
+        $addressId = $room->address->id;
+        if (!$room) {
+            throw new ModelNotFoundException("Room not found");
         }
-        $timezone = $address->timezone;
+        $timezone = $room->address->timezone;
 
         $date = Carbon::parse($date, $timezone)->startOfDay();
         Log::info('Date in getAvailableStartTime: ' . $date);
@@ -166,7 +168,7 @@ class BookingService
         Log::info('Now: ' . $now);
        
         // Исключаем бронирования со статусами cancel, pending и expired
-        $bookings = Booking::where('address_id', $addressId)
+        $bookings = Booking::where('room_id', $room_id)
             ->where('date', $date->toDateString())
             ->whereHas('status', function ($query) {
                 // Исключаем статусы cancel и expired, если pending or paid, то оставляем
@@ -238,13 +240,14 @@ class BookingService
         return $availableStartTimes;
     }
 
-    public function getAvailableEndTime(string $date, int $addressId, string $startTime): array
+    public function getAvailableEndTime(string $date, int $room_id, string $startTime): array
     {
-        $address = Address::findOrFail($addressId);
-        if (!$address) {
-            throw new ModelNotFoundException("Address not found");
+        $room = Room::findOrFail($room_id);
+        $addressId = $room->address->id;
+        if (!$room) {
+            throw new ModelNotFoundException("Room not found");
         }
-        $timezone = $address->timezone;
+        $timezone = $room->address->timezone;
 
         $date = Carbon::parse($date, $timezone)->startOfDay();
         $startTime = Carbon::parse($date->toDateString() . ' ' . $startTime, $timezone);
@@ -274,7 +277,7 @@ class BookingService
             throw new BookingException('Start time is outside of operating hours', 422);
         }
 
-        $bookings = Booking::where('address_id', $addressId)
+        $bookings = Booking::where('room_id', $room_id)
             ->where(function ($query) use ($date, $startTime) {
                 $query->whereDate('date', '>=', $date->toDateString())
                     ->whereTime('start_time', '>=', $startTime->toTimeString());
@@ -351,7 +354,7 @@ class BookingService
         return $availableEndTimes;
     }
 
-    public function getTotalCost(string $startTime, string $endTime, int $addressId)
+    public function getTotalCost(string $startTime, string $endTime, int $roomId)
     {
         // Parse the new datetime format for start and end times
         $start = Carbon::parse($startTime);
@@ -361,8 +364,8 @@ class BookingService
         $hours = $end->diffInHours($start);
 
         // Fetch the enabled address prices for the given address_id
-        $addressPrices = DB::table('address_prices')
-            ->where('address_id', $addressId)
+        $addressPrices = DB::table('room_prices')
+            ->where('room_id', $roomId)
             ->where('is_enabled', true)
             ->orderBy('hours', 'desc')
             ->get();
@@ -393,10 +396,11 @@ class BookingService
     public function bookAddress(BookingRequest $request): array
     {
         try {
-            $addressId = $request->input('address_id');
-            $address = Address::findOrFail($addressId);
-
-            $timezone = $address->timezone;
+            $roomId = $request->input('room_id');
+            $room = Room::findOrFail($roomId);
+            $address = $room->address;
+            $addressId = $address->id;
+            $timezone = $room->address->timezone;
 
             $bookingDate = Carbon::parse($request->input('date'), $timezone)->format('Y-m-d');
             $startTime = Carbon::parse($request->input('start_time'), $timezone);
@@ -409,16 +413,16 @@ class BookingService
 
             $userWhoBooks = Auth::user();
 
-            $this->validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone);
+            $this->validateStudioAvailability($roomId, $addressId, $bookingDate, $startTime, $endTime, $timezone);
 
             // Get the total cost and explanation
-            $costDetails = $this->getTotalCost($startTime->toDateTimeString(), $endTime->toDateTimeString(), $addressId);
+            $costDetails = $this->getTotalCost($startTime->toDateTimeString(), $endTime->toDateTimeString(), $roomId);
             $amount = $costDetails['total_price'];
             $explanation = $costDetails['explanation'];
 
             // Create and save the booking to get an ID
             $booking = Booking::create([
-                'address_id' => $addressId,
+                'room_id' => $roomId,
                 'start_time' => $startTime,
                 'end_time' => $endTime,
                 'user_id' => $userWhoBooks->id,
@@ -460,7 +464,7 @@ class BookingService
         }
     }
 
-    private function validateStudioAvailability($addressId, $bookingDate, $startTime, $endTime, $timezone): void
+    private function validateStudioAvailability($roomId, $addressId, $bookingDate, $startTime, $endTime, $timezone): void
     {
         // Set the timezone for the current date and time match that user timezone, assuming that server timezone is UTC
         $currentDateTime = Carbon::now($timezone);
@@ -494,14 +498,14 @@ class BookingService
             }
         }
 
-        if ($this->isTimeSlotTaken($addressId, $startTime, $endTime, $bookingDate->format('Y-m-d'))) {
+        if ($this->isTimeSlotTaken($addressId, $roomId, $startTime, $endTime, $bookingDate->format('Y-m-d'))) {
             throw new BookingException('Studio is already booked for the requested time slot', 400);
         }
     }
 
-    private function isTimeSlotTaken($addressId, $startTime, $endTime, $date): bool
+    private function isTimeSlotTaken($addressId, $roomId, $startTime, $endTime, $date): bool
     {
-        return Booking::where('address_id', $addressId)
+        return Booking::where('room_id', $roomId)
             ->whereDate('date', '=', $date)
             ->where('start_time', '<', $endTime)
             ->where('end_time', '>', $startTime)

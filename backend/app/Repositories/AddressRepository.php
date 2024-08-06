@@ -15,7 +15,7 @@ class AddressRepository implements AddressRepositoryInterface
     public function getAddressByCityId(int $cityId): Collection
     {
         $addresses = Address::where('city_id', $cityId)
-            ->with(['badges', 'photos', 'prices', 'company', 'operatingHours'])
+            ->with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])
             ->get()->filter(function ($address) {
                 return $address->is_complete;
             })->values();
@@ -34,7 +34,7 @@ class AddressRepository implements AddressRepositoryInterface
     public function getMyAddresses(int $companyId): Collection
     {
         $addresses = Address::where('company_id', $companyId)
-            ->with(['badges', 'photos', 'prices', 'company', 'operatingHours'])
+            ->with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])
             ->get();
         foreach ($addresses as $address) {
             if ($address->company->logo) {
@@ -52,13 +52,13 @@ class AddressRepository implements AddressRepositoryInterface
         $company = Company::where('slug', $slug)->firstOrFail();
 
         return Address::where('company_id', $company->id)
-            ->with(['badges', 'photos', 'prices', 'company', 'operatingHours'])
+            ->with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])
             ->get();
     }
 
     public function getAddressBySlug(string $slug): Address
     {
-        $address = Address::with(['badges', 'photos', 'prices' => function ($query) {
+        $address = Address::with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices' => function ($query) {
             $query->where('is_enabled', true);
         }, 'company', 'operatingHours', 'equipments.type'])
             ->where('slug', $slug)
@@ -75,7 +75,7 @@ class AddressRepository implements AddressRepositoryInterface
 
     public function getAllStudios(): Collection
     {
-        $addresses = Address::with(['badges', 'photos', 'prices', 'company', 'operatingHours'])->get();
+        $addresses = Address::with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])->get();
         foreach ($addresses as $address) {
             if ($address->company->logo) {
                 $address->company->logo_url = Storage::disk('s3')->url($address->company->logo);

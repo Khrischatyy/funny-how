@@ -18,8 +18,8 @@
             class="border-dashed border-2 border-opacity-50 hover:border-opacity-100 cursor-pointer"
             @update-studios="fetchStudios"
             :is-delete="true"
-            v-for="studio in myStudios"
-            @click="editStudio(studio)"
+            v-for="(studio, index) in myStudios"
+            @click="editStudio(index)"
             :key="`${studio.id}_${updateKey}`"
             :studio="studio"
           />
@@ -27,6 +27,7 @@
       </div>
       <AddStudioModal
         v-if="showPopup"
+        :studio-for-popup="studioForPopup"
         :show-popup="showPopup"
         @update-studios="fetchStudios"
         @closePopup="closePopup"
@@ -114,6 +115,7 @@ const fetchStudios = async () => {
   isLoading.value = true
   myStudios.value = await getMyStudiosFilter(filterShow)
 
+  studioForPopup.value = myStudios.value[indexForPopup.value]
   isLoading.value = false
 
   updateKey.value += 1
@@ -135,9 +137,11 @@ const togglePopup = () => {
 }
 
 const studioForPopup = ref<Studio | null>(null)
+const indexForPopup = ref(0)
 
-const editStudio = (studio: any) => {
-  studioForPopup.value = studio
+const editStudio = (studioIndex: any) => {
+  indexForPopup.value = studioIndex
+  studioForPopup.value = myStudios.value[studioIndex]
   showPopup.value = true
 }
 provide("studioForPopup", studioForPopup)

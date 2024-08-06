@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddressPhotosRequest extends FormRequest
+class RoomPricesRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +24,10 @@ class AddressPhotosRequest extends FormRequest
     public function rules()
     {
         return [
-            'address_id' => 'required|exists:addresses,id',
-            'photos' => 'required|array',
-            'photos.*' => 'required|file|mimes:jpeg,png,jpg,gif,svg,heic,heif|max:5120',
+            'hours' => 'required|integer|in:1,4,8,12,24',
+            'total_price' => 'required|numeric|min:0',
+            'is_enabled' => 'required|boolean',
+            'id' => 'sometimes|integer'
         ];
     }
 }

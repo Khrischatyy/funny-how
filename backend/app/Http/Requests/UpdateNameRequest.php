@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddressPricesRequest extends FormRequest
+class UpdateNameRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,7 @@ class AddressPricesRequest extends FormRequest
     public function rules()
     {
         return [
-            'hours' => 'required|integer|in:1,4,8,12,24',
-            'total_price' => 'required|numeric|min:0',
-            'is_enabled' => 'required|boolean',
-            'address_price_id' => 'sometimes|integer'
+            'new_name' => 'required|string'
         ];
     }
 }
