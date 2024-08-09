@@ -44,3 +44,6 @@ export { default as IconNumbers } from "./IconNumbers.vue"
 
 export { default as IconCredit } from "./IconCredit.vue"
 export { default as IconDollar } from "./IconDollar.vue"
+
+export { default as IconStripe } from "./IconStripe.vue"
+export { default as IconSquare } from "./IconSquare.vue"

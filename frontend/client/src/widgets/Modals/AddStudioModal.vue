@@ -333,7 +333,7 @@ const updateSlug = () => {
             <BadgesChoose v-model="studioForm.badges"/>
           </div>
           <div
-              v-if="!studio.stripe_account_id"
+              v-if="!studio.stripe_account_id && !studio.is_complete"
               class="payouts w-full flex-col flex gap-1.5 mt-3.5"
           >
             <div
@@ -342,11 +342,11 @@ const updateSlug = () => {
               <div
                   class="flex-col w-full justify-start items-start gap-1.5 flex"
               >
-                <div class="w-wull justify-between items-center flex">
+                <div class="w-full justify-between items-center flex">
                   <div
                       class="text-red w-full text-sm font-normal tracking-wide"
                   >
-                    Connect yout stripe account
+                    Setup your payouts information
                   </div>
                 </div>
               </div>
