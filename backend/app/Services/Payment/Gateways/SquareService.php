@@ -154,11 +154,10 @@ class SquareService implements PaymentServiceInterface
         $amountToStudio = $totalAmount - $serviceFee;
 
         // Update balance
-        $this->updateBalance($booking->address_id, $amountToStudio);
+        $this->updateBalance($booking->room->address->id, $amountToStudio);
 
         // Dispatch jobs
         $userWhoBooksEmail = $booking->user->email;
-        $studioOwner = $booking->address->company->adminCompany->user;
         dispatch(new BookingConfirmationJob($booking, $userWhoBooksEmail, $totalAmount));
         dispatch(new BookingConfirmationOwnerJob($booking, $studioOwner, $totalAmount));
 
@@ -401,7 +400,7 @@ class SquareService implements PaymentServiceInterface
 
     private function updateBalanceAndBookingStatus($booking, $amount)
     {
-        $this->updateBalance($booking->address_id, -$amount);
+        $this->updateBalance($booking->room->address->id, -$amount);
         $this->updateBookingStatus($booking->id, 3);
     }
 

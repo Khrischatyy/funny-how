@@ -6,14 +6,14 @@
       <div class="flex justify-start items-center gap-5">
         <div class="h-[35px] w-[35px]">
           <img
-            :src="booking.address.company.logo_url || defaultLogo"
+            :src="booking.room.address.company.logo_url || defaultLogo"
             alt="Logo"
             class="h-auto w-full object-cover"
           />
         </div>
         <div>
           <h3 class="text-xl font-bold text-white">
-            {{ booking.address.company.name }}
+            {{ booking.room.address.company.name }}
           </h3>
           <p
             :style="`color:${getColorHex(getColor(booking.status.id))}`"
@@ -26,17 +26,17 @@
       <div class="flex items-center gap-3 cursor-pointer hover:opacity-70">
         <IconLike
           @click="toggleFavorite"
-          :icon-active="booking?.address.is_favorite"
-          :icon-color="booking?.address.is_favorite ? '#FD9302' : 'white'"
+          :icon-active="booking?.room?.address.is_favorite"
+          :icon-color="booking?.room?.address.is_favorite ? '#FD9302' : 'white'"
         />
       </div>
     </div>
     <div class="flex gap-3 justify-between items-center relative">
       <div class="w-full relative">
-        <Clipboard :text-to-copy="booking.address.street">
+        <Clipboard :text-to-copy="booking.room.address.street">
           <div class="flex items-center relative gap-2">
             <IconAddress class="opacity-20" />
-            <p class="text-white">{{ booking.address.street }}</p>
+            <p class="text-white">{{ booking.room.address.street }}</p>
           </div>
         </Clipboard>
       </div>
@@ -134,7 +134,7 @@ const toggleFavorite = () => {
     auth: true,
   })
 
-  setFavorite({ address_id: props.booking?.address.id }).then(() => {
+  setFavorite({ address_id: props.booking?.room?.address.id }).then(() => {
     emit("onFavoriteChange", props.booking.id)
   })
 }

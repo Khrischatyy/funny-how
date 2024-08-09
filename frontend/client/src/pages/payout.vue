@@ -324,8 +324,8 @@ const connectSquareAccount = async () => {
 
     await getLink().then((res) => {
       console.log(res)
-      if (res?.url) {
-        window.location.href = res?.url
+      if (res?.data?.url) {
+        window.location.href = res?.data?.url
       }
     })
   } finally {

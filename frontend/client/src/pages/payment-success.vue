@@ -28,8 +28,8 @@ const processPayment = async () => {
     // auth: true,
   })
 
-  if (!bookingId.value || (!sessionId.value && !order_id.value)) {
-    errorMessage.value = "Invalid request parameters." + order_id.value
+  if (!bookingId.value) {
+    errorMessage.value = "Invalid request parameters"
     isLoading.value = false
     return
   }
@@ -37,7 +37,6 @@ const processPayment = async () => {
   paymentSuccess({
     session_id: sessionId.value,
     booking_id: bookingId.value,
-    order_id: order_id.value,
   })
     .then((response) => {
       if (response.code == 200) {

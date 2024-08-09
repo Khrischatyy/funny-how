@@ -4,16 +4,16 @@
   >
     <div class="flex w-auto justify-between items-center">
       <div class="flex justify-start items-center gap-5">
-        <div v-if="booking?.address.company.logo_url" class="h-[35px] w-[35px]">
+        <div v-if="booking?.room?.address.company.logo_url" class="h-[35px] w-[35px]">
           <img
-            :src="booking?.address.company.logo_url"
+            :src="booking?.room?.address.company.logo_url"
             alt="Logo"
             class="h-auto w-full object-cover"
           />
         </div>
         <div class="flex flex-col gap-2">
           <h3 class="text-xl font-bold text-white">
-            {{ booking?.address.company.name }}
+            {{ booking?.room?.address.company.name }}
           </h3>
           <Clipboard
             :text-to-copy="
@@ -49,12 +49,12 @@
     <div
       class="flex w-auto flex-col sm:flex-row gap-8 min-w-[210px] justify-center items-start sm:items-center"
     >
-      <Clipboard :text-to-copy="booking?.address.street">
+      <Clipboard :text-to-copy="booking?.room?.address.street">
         <div class="flex items-center relative gap-2">
           <IconAddress class="opacity-20" />
           <div class="flex flex-col group-hover:opacity-100">
             <span class="text-white opacity-20">Address</span>
-            <p class="text-white">{{ booking?.address.street }}</p>
+            <p class="text-white">{{ booking?.room?.address.street }}</p>
           </div>
         </div>
       </Clipboard>

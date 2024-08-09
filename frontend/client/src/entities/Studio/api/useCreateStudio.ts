@@ -70,7 +70,7 @@ export function useCreateStudio() {
       const response = await post(formData)
       //response returns slug of the created brand and address_id
       useSessionStore().setBrand(response?.data.slug || "")
-      const room_id = response?.data?.rooms?.[0]?.id
+      const room_id = response?.data?.room_id
       navigateTo(
         `/company/@${response?.data?.slug}/setup/${response?.data?.address_id}/hours?room_id=${room_id}`,
       )

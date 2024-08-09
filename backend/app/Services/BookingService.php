@@ -51,14 +51,15 @@ class BookingService
     public function filterBookings($userId, $status, $date, $time, $search, $type)
     {
         $query = Booking::where('user_id', $userId)
-        ->orWhereHas('address.company.adminCompany', function ($query) use ($userId) {
-            $query->where('admin_id', $userId);
-        })
-        ->with(['address.company', 'address.badges', 'status', 'user']);
-    
-        // Add a join to the addresses table to get the timezone
-        $query->join('addresses', 'bookings.address_id', '=', 'addresses.id');
-    
+            ->orWhereHas('room.address.company.adminCompany', function ($query) use ($userId) {
+                $query->where('admin_id', $userId);
+            })
+            ->with(['room.address.company', 'room.address.badges', 'status', 'user']);
+
+        // Add a join to the addresses table through room
+        $query->join('rooms', 'bookings.room_id', '=', 'rooms.id')
+            ->join('addresses', 'rooms.address_id', '=', 'addresses.id');
+
         // Filter by type (history or upcoming)
         $query->where(function ($q) use ($type) {
             if ($type === 'history') {
@@ -68,46 +69,33 @@ class BookingService
             }
         });
 
-        // Execute the query and log the results for debugging
-        $results = $query->select('bookings.*')->paginate(self::BOOKING_PAGINATE_COUNT);
-
-        $results->each(function ($booking) {
-            Log::info('Booking Details:', [
-                'booking_date' => $booking->date,
-                'address_timezone' => $booking->address->timezone,
-                'converted_current_time' => now()->timezone($booking->address->timezone)->toDateTimeString()
-            ]);
-        });
-
-        return $results;
-    
         // Filter by status
         if ($status) {
             $query->whereHas('status', function ($query) use ($status) {
                 $query->where('name', $status);
             });
         }
-    
+
         // Filter by date
         if ($date) {
             $query->whereDate('date', Carbon::parse($date, $timezone));
         }
-    
+
         // Filter by time
         if ($time) {
             $parsedTime = Carbon::parse($time, $timezone);
             $query->whereTime('start_time', '<=', $parsedTime)
                 ->whereTime('end_time', '>=', $parsedTime);
         }
-    
+
         // Filter by search term
         if ($search) {
             $lowerSearch = strtolower($search);
             $query->where(function ($q) use ($lowerSearch) {
-                $q->whereHas('address.company', function ($q2) use ($lowerSearch) {
+                $q->whereHas('room.address.company', function ($q2) use ($lowerSearch) {
                     $q2->whereRaw('LOWER(name) LIKE ?', ["%$lowerSearch%"]);
                 })
-                    ->orWhereHas('address', function ($q3) use ($lowerSearch) {
+                    ->orWhereHas('room.address', function ($q3) use ($lowerSearch) {
                         $q3->whereRaw('LOWER(street) LIKE ?', ["%$lowerSearch%"]);
                     });
             });
@@ -122,8 +110,8 @@ class BookingService
         $results->each(function ($booking) {
             Log::info('Booking Details:', [
                 'booking_date' => $booking->date,
-                'address_timezone' => $booking->address->timezone,
-                'converted_current_time' => now()->timezone($booking->address->timezone)->toDateTimeString()
+                'address_timezone' => $booking->room->address->timezone,
+                'converted_current_time' => now()->timezone($booking->room->address->timezone)->toDateTimeString()
             ]);
         });
 

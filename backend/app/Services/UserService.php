@@ -76,7 +76,7 @@ class UserService
         }
 
         $clients = User::whereHas('bookings', function ($query) use ($company) {
-            $query->whereHas('address', function ($query) use ($company) {
+            $query->whereHas('room.address', function ($query) use ($company) {
                 $query->where('company_id', $company->id);
             });
         })

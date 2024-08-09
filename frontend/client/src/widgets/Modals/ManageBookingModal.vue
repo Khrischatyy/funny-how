@@ -32,7 +32,7 @@ const closePopup = () => {
 const cancelBooking = async () => {
   isLoading.value = true
   const { post: cancelBooking } = useApi({
-    url: "/address/cancel-booking",
+    url: "/room/cancel-booking",
     auth: true,
   })
 
@@ -46,10 +46,10 @@ const cancelBooking = async () => {
 }
 
 const getFirstPhoto = computed(() => {
-  if (!props.booking.address.photos || !props.booking.address.photos.length) {
+  if (!props.booking.room.photos || !props.booking.room.photos.length) {
     return ""
   }
-  return props.booking.address.photos[0].url
+  return props.booking.room.photos[0].url
 })
 </script>
 
@@ -65,14 +65,14 @@ const getFirstPhoto = computed(() => {
       <div class="flex justify-start items-center gap-5">
         <div class="h-[35px] w-[35px]">
           <img
-            :src="booking.address.company.logo_url || defaultLogo"
+            :src="booking?.room?.address.company.logo_url || defaultLogo"
             alt="Logo"
             class="h-auto w-full object-cover"
           />
         </div>
         <div>
           <h3 class="text-xl font-bold text-white">
-            {{ booking.address.company.name }}
+            {{ booking?.room?.address.company.name }}
           </h3>
           <p
             :class="`text-${getColor(booking.status.id)}`"
@@ -88,8 +88,8 @@ const getFirstPhoto = computed(() => {
         class="flex items-center gap-3 cursor-pointer justify-end hover:opacity-70"
       >
         <IconLike
-          :icon-active="booking?.address.isFavorite"
-          :icon-color="booking?.address.isFavorite ? '#FD9302' : 'white'"
+          :icon-active="booking?.room?.address.isFavorite"
+          :icon-color="booking?.room?.address.isFavorite ? '#FD9302' : 'white'"
         />
       </div>
     </template>
@@ -99,7 +99,7 @@ const getFirstPhoto = computed(() => {
         <div v-if="getFirstPhoto" class="w-full relative">
           <img
             :src="getFirstPhoto"
-            :alt="booking.address.company.name"
+            :alt="booking?.room?.address.company.name"
             class="w-full max-h-48 object-cover rounded-[10px]"
           />
         </div>
@@ -108,8 +108,8 @@ const getFirstPhoto = computed(() => {
             <IconStar class="opacity-20" />
             <div class="relative flex flex-col gap-0.5">
               <span class="text-white opacity-20 text-sm">Rating</span>
-              <span :class="`${getRatingColor(booking.address.rating)}`">{{
-                booking.address.rating
+              <span :class="`${getRatingColor(booking.room.address.rating)}`">{{
+                booking.room.address.rating
               }}</span>
             </div>
           </div>
@@ -117,7 +117,7 @@ const getFirstPhoto = computed(() => {
             <IconAddress class="opacity-20" />
             <div class="relative flex flex-col gap-0.5">
               <span class="text-white opacity-20 text-sm">Address</span>
-              <span>{{ booking.address.street }}</span>
+              <span>{{ booking.room.address.street }}</span>
             </div>
           </div>
         </div>

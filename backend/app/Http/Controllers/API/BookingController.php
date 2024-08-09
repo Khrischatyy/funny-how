@@ -614,7 +614,7 @@ class BookingController extends BaseController
             $bookingId = $request->input('booking_id');
 
             $booking = $this->bookingService->getBookingById($bookingId);
-            $studioOwner = $booking->address->company->adminCompany->user;
+            $studioOwner = $booking->room->address->company->adminCompany->user;
             $paymentGateway = $studioOwner->payment_gateway;
             $orderId = $booking->charge->order_id;
 
