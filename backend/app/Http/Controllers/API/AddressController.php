@@ -408,8 +408,6 @@ class AddressController extends BaseController
         }
     }
 
-
-
     /**
      * @OA\Get(
      *     path="/map/studios",
@@ -622,6 +620,55 @@ class AddressController extends BaseController
             return $this->sendResponse($result, 'Favorite status toggled successfully.');
         } catch (Exception $e) {
             return $this->sendError('Failed to toggle favorite status.', 500, ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/{address_id}/list",
+     *     summary="Get list of addresses available to the user",
+     *     tags={"Addresses"},
+     *     @OA\Parameter(
+     *         name="address_id",
+     *         in="path",
+     *         description="Address ID",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Addresses retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array",
+     *                 @OA\Items(type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="street", type="string", example="123 Main St"),
+     *                     @OA\Property(property="city", type="string", example="New York"),
+     *                     @OA\Property(property="state", type="string", example="NY"),
+     *                     @OA\Property(property="postal_code", type="string", example="10001")
+     *                 )
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Addresses retrieved successfully."),
+     *             @OA\Property(property="code", type="integer", example=200)
+     *         )
+     *     ),
+     *     @OA\Response(response="400", description="Bad Request"),
+     *     @OA\Response(response="500", description="Internal Server Error")
+     * )
+     */
+    public function listAddresses(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+
+            $addresses = $this->addressService->listUserAddresses($user);
+
+            return $this->sendResponse($addresses, 'Addresses retrieved successfully.');
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Address not found.', 404);
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve addresses.', 500, ['error' => $e->getMessage()]);
         }
     }
 

@@ -93,6 +93,24 @@ class AddressService
         }
     }
 
+    public function listUserAddresses(User $user)
+    {
+        // Retrieve the company associated with the user
+        $adminCompany = $user->adminCompany;
+
+        if (!$adminCompany) {
+            // Handle case where the user does not have an associated company
+            throw new Exception('User does not have an associated company.');
+        }
+
+        $companyId = $adminCompany->company_id;
+
+        // Retrieve the addresses associated with this company
+        $addresses = Address::where('company_id', $companyId)->select('id', 'company_id', 'street')->get();
+
+        return $addresses;
+    }
+
     public function deleteAddress(int $address_id): void
     {
         $address = Address::findOrFail($address_id);

@@ -14,12 +14,11 @@ use Illuminate\Support\Str;
  */
 class Address extends Model
 {
-
     use HasFactory;
 
     protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone', 'available_balance'];
 
-    protected $appends = ['is_favorite', 'is_complete', 'stripe_account_id', 'prices', 'photos'];
+    protected $appends = ['is_favorite', 'is_complete', 'prices', 'photos'];
 
     protected $casts = [
         'square_capabilities' => 'array',
@@ -29,12 +28,29 @@ class Address extends Model
     {
         return $this->hasMany(Room::class);
     }
+
     public function getPricesAttribute()
     {
         return $this->rooms->flatMap(function ($room) {
             return $room->prices;
         });
     }
+
+    public function getIsFavoriteAttribute()
+    {
+        $userId = Auth::id();
+        return $this->favoriteByUsers()->where('user_id', $userId)->exists();
+    }
+
+    public function getIsCompleteAttribute()
+    {
+        $hasOperatingHours = $this->operatingHours()->exists();
+
+        $hasPaymentGateway = $this->company->adminCompany->user->payment_gateway !== null;
+
+        return $hasOperatingHours && $hasPaymentGateway;
+    }
+
     public function getPhotosAttribute()
     {
         return $this->rooms->flatMap(function ($room) {
@@ -64,36 +80,14 @@ class Address extends Model
             ->withPivot('address_id', 'badge_id');
     }
 
-
     public function city()
     {
         return $this->belongsTo(City::class);
     }
 
-
     public function operatingHours()
     {
         return $this->hasMany(OperatingHour::class);
-    }
-
-    public function getIsFavoriteAttribute()
-    {
-        $userId = Auth::id();
-        return $this->favoriteByUsers()->where('user_id', $userId)->exists();
-    }
-
-    public function getIsCompleteAttribute()
-    {
-        $hasOperatingHours = $this->operatingHours()->exists();
-        $hasStripeAccountId = $this->stripe_account_id !== null;
-        $hasSquareGateway = $this->company->adminCompany->user->payment_gateway === 'square';
-        
-        return $hasOperatingHours && ($hasStripeAccountId || $hasSquareGateway);
-    }
-
-    public function getStripeAccountIdAttribute()
-    {
-        return $this->company->adminCompany->user->stripe_account_id;
     }
 
     public function favoriteByUsers()
