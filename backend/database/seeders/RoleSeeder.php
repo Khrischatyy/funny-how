@@ -31,6 +31,14 @@ class RoleSeeder extends Seeder
             ]
         );
 
+        Role::updateOrCreate(
+            ['id' => 3],
+            [
+                'name' => 'studio_engineer',
+                'guard_name' => 'web',
+            ]
+        );
+
         DB::statement("SELECT setval(pg_get_serial_sequence('roles', 'id'), coalesce(max(id)+1, 1), false) FROM roles");
     }
 }

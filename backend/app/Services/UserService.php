@@ -3,10 +3,21 @@
 namespace App\Services;
 
 use App\Http\Requests\UserUpdateRequest;
+use App\Jobs\SendStaffInvitationJob;
+use App\Mail\StaffInvitationMail;
+use App\Models\Address;
+use App\Models\AdminCompany;
 use App\Models\Company;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
+use Illuminate\Validation\ValidationException;
 
 class UserService
 {
@@ -17,6 +28,98 @@ class UserService
         $this->imageService = $imageService;
     }
 
+    public function addStaff(Request $request, Address $address): User
+    {
+        // Extract all necessary input data at the beginning
+        $name = $request->input('name');
+        $email = $request->input('email');
+        $roleName = $request->input('role');
+        $ratePerHour = $request->input('rate_per_hour');
+
+        // Fetch the role dynamically based on the provided data
+        $role = Role::where('name', $roleName)->firstOrFail();
+
+        // Generate a random password
+        $randomPassword = Str::random(12);
+
+        // Create the user with the given data
+        $user = User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => Hash::make($randomPassword),
+        ]);
+
+        // Assign the role to the user
+        $user->assignRole($role);
+
+        // Save the rate per hour in the engineer_rates table
+        $user->engineerRate()->create(['rate_per_hour' => $ratePerHour]);
+
+        // Attach the address to the engineer
+        $user->addresses()->attach($address->id);
+
+        // Generate the password reset link
+        $resetUrl = $this->generatePasswordResetLink($user);
+
+
+        // Dispatch the job to send an invitation email with the reset link
+
+        dispatch(new SendStaffInvitationJob($user, $resetUrl, $roleName));
+
+        return $user;
+    }
+
+    public function generatePasswordResetLink(User $user): string
+    {
+        $token = Password::createToken($user);
+        $email = $user->email;
+        $resetUrl = url(env('APP_URL') . '/reset-password?token=' . $token . '&email=' . $email);
+
+        return $resetUrl;
+    }
+
+    public function sendResetLink(string $email)
+    {
+        $status = Password::sendResetLink(['email' => $email]);
+
+        if ($status == Password::RESET_LINK_SENT) {
+            return __('passwords.sent');
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [__($status)],
+        ]);
+    }
+
+    public function resetUserPassword(Request $request): JsonResponse
+    {
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->input('password')),
+                ])->save();
+
+                Auth::login($user);
+            }
+        );
+
+        if ($status == Password::PASSWORD_RESET) {
+            $user = Auth::user();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json([
+                "message" => "Password reset successfully",
+                "role" => $user->getRoleNames()->first(),
+                "token" => $token,
+                "company_slug" => $user->addresses->first()->company->slug ?? null,
+                "has_company" => $user->addresses->isNotEmpty(),
+            ]);
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [__($status)],
+        ]);
+    }
 
     public function updateUser(User $user, UserUpdateRequest $request): User
     {
@@ -42,7 +145,6 @@ class UserService
 
         return $user;
     }
-
 
     public function updateUserPhoto(User $user, $photo): string
     {

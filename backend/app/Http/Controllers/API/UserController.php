@@ -307,17 +307,13 @@ class UserController extends BaseController
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate(['email' => 'required|email']);
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
 
-        if ($status == Password::RESET_LINK_SENT) {
-            return $this->sendResponse([], __('passwords.sent'), 200);
+        try {
+            $message = $this->userService->sendResetLink($request->input('email'));
+            return $this->sendResponse([], $message, 200);
+        } catch (ValidationException $e) {
+            return $this->sendError('Failed to send reset link.', 422, $e->errors());
         }
-
-        throw ValidationException::withMessages([
-            'email' => [__($status)],
-        ]);
     }
 
     /**
@@ -355,33 +351,8 @@ class UserController extends BaseController
             'email' => 'required|email',
             'password' => 'required|confirmed|min:8',
         ]);
-    
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                ])->save();
 
-                Auth::login($user);
-            }
-        );
-    
-        if ($status == Password::PASSWORD_RESET) {
-            $user = Auth::user();
-            $token = $user->createToken('auth_token')->plainTextToken;
-            return $this->sendResponse([
-                "message" => "Password reset successfully",
-                "role" => $user->getRoleNames()->first(),
-                "token" => $token,
-                "company_slug" => $user->company->slug ?? null,
-                "has_company" => AdminCompany::where('admin_id', $user->id)->exists(),
-            ], 'Password reset successfully.');
-        }
-    
-        throw ValidationException::withMessages([
-            'email' => [__($status)],
-        ]);
+        return $this->userService->resetUserPassword($request->only('email', 'password', 'password_confirmation', 'token'));
     }
     
     /**

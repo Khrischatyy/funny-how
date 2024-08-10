@@ -79,6 +79,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->getRoleNames()->first();
     }
 
+    public function engineerRate()
+    {
+        return $this->hasOne(EngineerRate::class);
+    }
+
     public function sendEmailVerificationNotification()
     {
         // Генерация URL для верификации email
@@ -88,6 +93,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // Отправка кастомного письма
         SendVerifyEmailJob::dispatch($this, $verificationUrl);
+    }
+
+    //к каким адресам привязан инженер
+    public function addresses()
+    {
+        return $this->belongsToMany(Address::class, 'engineer_addresses');
     }
 
     /**
