@@ -8,10 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-/**
- * @method static findOrFail(int $addressId)
- * @method static create(array $array)
- */
 class Address extends Model
 {
     use HasFactory;
@@ -19,10 +15,6 @@ class Address extends Model
     protected $fillable = ['latitude', 'longitude', 'street', 'city_id', 'company_id', 'is_favorite', 'slug', 'timezone', 'available_balance'];
 
     protected $appends = ['is_favorite', 'is_complete', 'prices', 'photos'];
-
-    protected $casts = [
-        'square_capabilities' => 'array',
-    ];
 
     public function rooms()
     {
@@ -44,6 +36,7 @@ class Address extends Model
 
     public function getIsCompleteAttribute()
     {
+        return true;
         $hasOperatingHours = $this->operatingHours()->exists();
 
         $hasPaymentGateway = $this->company->adminCompany->user->payment_gateway !== null;
@@ -62,6 +55,11 @@ class Address extends Model
     {
         return $this->belongsToMany(Equipment::class, 'address_equipment', 'address_id', 'equipment_id')
             ->withPivot('address_id', 'equipment_id');
+    }
+
+    public function engineers()
+    {
+        return $this->belongsToMany(User::class, 'engineer_addresses', 'address_id', 'user_id')->select('firstname', 'lastname', 'username', 'profile_photo');
     }
 
     public function company()
@@ -95,14 +93,9 @@ class Address extends Model
         return $this->belongsToMany(User::class, 'favorite_studios', 'address_id', 'user_id');
     }
 
-    public function squareLocations()
+    public function squareLocation()
     {
-        return $this->hasMany(SquareLocation::class);
-    }
-
-    public function squareFirstLocation()
-    {
-        return $this->squareLocations()->first();
+        return $this->hasOne(SquareLocation::class);
     }
 
     public static function boot()

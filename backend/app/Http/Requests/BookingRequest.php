@@ -29,6 +29,7 @@ class BookingRequest extends FormRequest
             'end_date' => 'required|date_format:Y-m-d',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
+            'engineer_id' => 'nullable|integer|exists:users,id',
         ];
     }
 }

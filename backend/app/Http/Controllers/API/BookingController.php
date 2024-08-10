@@ -664,8 +664,9 @@ class BookingController extends BaseController
         $roomId = $request->input('room_id');
         $startTime = $request->input('start_time');
         $endTime = $request->input('end_time');
+        $engineerId = $request->input('engineer_id'); // Retrieve the engineer_id from the request
 
-        $totalPrice = $this->bookingService->getTotalCost($startTime, $endTime, $roomId);
+        $totalPrice = $this->bookingService->getTotalCost($startTime, $endTime, $roomId, $engineerId);
 
         return $this->sendResponse($totalPrice, 'Total price received');
     }

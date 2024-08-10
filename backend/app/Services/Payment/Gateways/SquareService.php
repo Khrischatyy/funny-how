@@ -39,8 +39,8 @@ class SquareService implements PaymentServiceInterface
         $applicationFeePercentage = 0.04; // 4% сервисный сбор
         $applicationFeeAmount = (int)($amountOfMoney * 100 * $applicationFeePercentage); // сумма в центах
 
-        // Проверяем наличие location_id
-        $squareLocation = $address->squareFirstLocation();
+        $squareLocation = $address->squareLocation;
+
         if (!$squareLocation) {
             throw new \Exception('Address does not have a valid Square location.');
         }

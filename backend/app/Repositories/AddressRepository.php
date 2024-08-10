@@ -58,9 +58,18 @@ class AddressRepository implements AddressRepositoryInterface
 
     public function getAddressBySlug(string $slug): Address
     {
-        $address = Address::with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices' => function ($query) {
-            $query->where('is_enabled', true);
-        }, 'company', 'operatingHours', 'equipments.type'])
+        $address = Address::with([
+            'badges',
+            'rooms',
+            'rooms.photos',
+            'rooms.prices' => function ($query) {
+                $query->where('is_enabled', true);
+            },
+            'company',
+            'operatingHours',
+            'equipments.type',
+            'engineers' // Include engineers relationship
+        ])
             ->where('slug', $slug)
             ->firstOrFail();
 

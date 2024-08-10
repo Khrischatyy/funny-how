@@ -342,7 +342,7 @@ class BookingService
         return $availableEndTimes;
     }
 
-    public function getTotalCost(string $startTime, string $endTime, int $roomId)
+    public function getTotalCost(string $startTime, string $endTime, int $roomId, ?int $engineerId = null)
     {
         // Parse the new datetime format for start and end times
         $start = Carbon::parse($startTime);
@@ -374,6 +374,17 @@ class BookingService
         $totalPrice = $hours * $applicablePrice->price_per_hour;
         $explanation = "The price is based on {$hours} hours at a rate of {$applicablePrice->price_per_hour} per hour, using the package for {$applicablePrice->hours} hours.";
 
+        // If an engineer is selected, add the engineer's hourly rate to the total price
+        if ($engineerId) {
+            $engineerRate = DB::table('engineer_rates')
+                ->where('user_id', $engineerId)
+                ->value('rate_per_hour');
+
+            if ($engineerRate) {
+                $totalPrice += $hours * $engineerRate;
+                $explanation .= " An engineer was selected, adding {$engineerRate} per hour for a total of " . ($hours * $engineerRate) . ".";
+            }
+        }
 
         return [
             'total_price' => $totalPrice,
@@ -389,6 +400,8 @@ class BookingService
             $address = $room->address;
             $addressId = $address->id;
             $timezone = $room->address->timezone;
+            //проверять прикреплен ли engineer к адресу
+            $engineerId = $request->input('engineer_id');
 
             $bookingDate = Carbon::parse($request->input('date'), $timezone)->format('Y-m-d');
             $startTime = Carbon::parse($request->input('start_time'), $timezone);
@@ -404,7 +417,7 @@ class BookingService
             $this->validateStudioAvailability($roomId, $addressId, $bookingDate, $startTime, $endTime, $timezone);
 
             // Get the total cost and explanation
-            $costDetails = $this->getTotalCost($startTime->toDateTimeString(), $endTime->toDateTimeString(), $roomId);
+            $costDetails = $this->getTotalCost($startTime->toDateTimeString(), $endTime->toDateTimeString(), $roomId, $engineerId);
             $amount = $costDetails['total_price'];
             $explanation = $costDetails['explanation'];
 

@@ -27,6 +27,7 @@ class CalculatePriceRequest extends FormRequest
             'room_id' => 'required|integer|exists:room_prices,room_id',
             'start_time' => 'required|date_format:Y-m-d\TH:i',
             'end_time' => 'required|date_format:Y-m-d\TH:i',
+            'engineer_id' => 'nullable|integer|exists:users,id',
         ];
     }
 }
