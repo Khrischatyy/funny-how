@@ -36,12 +36,12 @@ class Address extends Model
 
     public function getIsCompleteAttribute()
     {
-        return true;
         $hasOperatingHours = $this->operatingHours()->exists();
 
-        $hasPaymentGateway = $this->company->adminCompany->user->payment_gateway !== null;
+        $hasStipeGateway = $this->company->adminCompany->user->stripe_id !== null;
+        $hasSquareGateway = $this->company->adminCompany->user->payment_gateway === 'square';
 
-        return $hasOperatingHours && $hasPaymentGateway;
+        return $hasOperatingHours && ($hasStipeGateway|| $hasSquareGateway);
     }
 
     public function getPhotosAttribute()
