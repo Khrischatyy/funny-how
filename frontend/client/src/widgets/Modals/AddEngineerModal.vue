@@ -11,7 +11,8 @@ import {Spinner} from "~/src/shared/ui/common/Spinner"
 
 const props = withDefaults(
     defineProps<{
-      showPopup: boolean
+      showPopup: boolean,
+      addresses:  {id: number | string, name: string}[],
     }>(),
     {
       showPopup: false,
@@ -22,36 +23,29 @@ const isLoading = ref(false)
 const engineer = reactive({
   address: "",
   name: "",
-  role: "1",
+  role: "studio_engineer",
   email: "",
 })
 
 const roles = [
   {
-    id: 1,
+    id: 'studio_engineer',
     name: "Engineer",
     label: "Engineer",
   },
 ]
-const addresses = [{
-  id: 1,
-  name: "123 Main St, New York, NY 10001",
-  label: "123 Main St, New York, NY 10001",
-}, {
-  id: 2,
-  name: "456 Main St, New York, NY 10001",
-  label: "456 Main St, New York, NY 10001",
-}, {
-  id: 3,
-  name: "789 Main St, New York, NY 10001",
-  label: "789 Main St, New York, NY 10001",
+
+type Engineer = {
+  address: string
+  name: string
+  role: string
+  email: string
 }
-]
 
 const emit = defineEmits<{
   (e: "togglePopup"): void
   (e: "closePopup"): void
-  (e: "onCreateEngineer"): void
+  (e: "onCreateEngineer", engineer: Engineer): void
 }>()
 
 const closePopup = () => {
@@ -59,28 +53,26 @@ const closePopup = () => {
 }
 const createEngineer = async () => {
   isLoading.value = true
-  // const { post: cancelBooking } = useApi({
-  //   url: "/room/cancel-booking",
-  //   auth: true,
-  // })
-  //
-  // await cancelBooking({
-  //   booking_id: props.booking?.id,
+  //api/v1/address/{address_id}/staff
+
+  const {post: createEngineer} = useApi({
+    url: `/address/${engineer.address}/staff`,
+    auth: true,
+  })
+
+  // await createEngineer({
+  //   name: engineer.name,
+  //   role: engineer.role,
+  //   email: engineer.email,
   // }).then((response) => {
   //   isLoading.value = false
-  //   emit("onCancelBooking", response.data)
+  //   emit("onCreateEngineer", response?.data)
   //   closePopup()
   // })
-  emit("onCreateEngineer")
+
+  emit("onCreateEngineer", engineer)
   closePopup()
 }
-
-const getFirstPhoto = computed(() => {
-  if (!props.booking.room.photos || !props.booking.room.photos.length) {
-    return ""
-  }
-  return props.booking.room.photos[0].url
-})
 </script>
 
 <template>
