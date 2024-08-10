@@ -105,8 +105,11 @@ class AddressService
 
         $companyId = $adminCompany->company_id;
 
-        // Retrieve the addresses associated with this company
-        $addresses = Address::where('company_id', $companyId)->select('id', 'company_id', 'street')->get();
+        // Retrieve the addresses associated with this company using the DB facade
+        $addresses = DB::table('addresses')
+            ->where('company_id', $companyId)
+            ->select('id', 'street')
+            ->get();
 
         return $addresses;
     }
