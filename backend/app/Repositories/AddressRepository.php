@@ -15,18 +15,24 @@ class AddressRepository implements AddressRepositoryInterface
     public function getAddressByCityId(int $cityId): Collection
     {
         $addresses = Address::where('city_id', $cityId)
-            ->with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])
-            ->get()->filter(function ($address) {
+            ->with([
+                'badges',
+                'rooms',
+                'rooms.photos',
+                'rooms.prices',
+                'company',
+                'operatingHours'
+            ])
+            ->get()
+            ->filter(function ($address) {
                 return $address->is_complete;
-            })->values();
-
-        foreach ($addresses as $address) {
-            if ($address->company->logo) {
-                $address->company->logo_url = Storage::disk('s3')->url($address->company->logo);
-            } else {
-                $address->company->logo_url = null;
-            }
-        }
+            })
+            ->each(function ($address) {
+                $address->company->logo_url = $address->company->logo
+                    ? Storage::disk('s3')->url($address->company->logo)
+                    : null;
+            })
+            ->values();
 
         return $addresses;
     }

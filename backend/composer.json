@@ -16,7 +16,6 @@
         "laravel/tinker": "^2.7",
         "league/flysystem-aws-s3-v3": "^3.0",
         "php-amqplib/php-amqplib": "^3.7",
-        "sentry/sentry-laravel": "^4.7",
         "spatie/laravel-image-optimizer": "^1.8",
         "spatie/laravel-permission": "6.7.0",
         "square/square": "^37.1",
