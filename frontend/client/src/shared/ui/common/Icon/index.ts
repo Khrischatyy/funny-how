@@ -47,3 +47,5 @@ export { default as IconDollar } from "./IconDollar.vue"
 
 export { default as IconStripe } from "./IconStripe.vue"
 export { default as IconSquare } from "./IconSquare.vue"
+
+export { default as IconTeam } from "./IconTeam.vue"

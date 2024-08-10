@@ -69,6 +69,7 @@
       <div class="subhead__title px-2 md:px-4">
         <h1 class="text-3xl font-bold">{{ subheadTitle }}</h1>
       </div>
+      <slot name="action" />
     </div>
   </div>
 </template>
@@ -84,6 +85,7 @@ import { storeToRefs } from "pinia"
 
 const props = withDefaults(
   defineProps<{
+    action?: string
     subhead?: boolean
     subheadTitle?: string
     hideLoginButton?: boolean

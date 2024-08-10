@@ -5,10 +5,15 @@
   >
     <Header
       :subhead="true"
+      :action="$attrs.action as string"
       :show-menu="true"
       :subhead-title="$attrs.title as string"
       @toggleSideMenu="toggleSideMenu"
-    />
+    >
+      <template #action>
+        <slot name="action" />
+      </template>
+    </Header>
     <div class="flex flex-1 overflow-hidden">
       <SideMenu
         :is-data-loading="isLoading"
@@ -63,6 +68,7 @@ interface MenuItem {
   path: string
   link?: string
 }
+
 import {
   IconMic,
   IconBooking,
@@ -71,7 +77,7 @@ import {
   IconHistory,
   IconClose,
   IconCredit,
-  IconDollar,
+  IconDollar, IconTeam,
 } from "~/src/shared/ui/common"
 
 const sideMenuTemplate: MenuItem[] = [
@@ -88,6 +94,13 @@ const sideMenuTemplate: MenuItem[] = [
     path: "/icons/my-studios.svg",
     link: "/studios",
     role: USER_ROLE,
+  },
+  {
+    name: "Team",
+    icon: IconTeam,
+    path: "/icons/my-studios.svg",
+    link: "/team",
+    role: STUDIO_OWNER_ROLE,
   },
   {
     name: "Booking management",

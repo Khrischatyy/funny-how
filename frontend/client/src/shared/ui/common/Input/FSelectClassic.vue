@@ -8,6 +8,7 @@ const props = defineProps<{
   options: { id: number | string; name: string }[]
   modelValue: string | number | null
   size?: "sm" | "md" | "lg"
+  wide?: boolean
   error?: string | boolean
 }>()
 
@@ -34,7 +35,7 @@ watch(
 </script>
 
 <template>
-  <div class="w-full max-w-96 relative">
+  <div :class="wide ? 'max-w-full' : 'max-w-96'" class="w-full relative">
     <div
       :class="label ? 'mb-1.5' : 'mb-0'"
       class="label-action grid grid-cols-[max-content,max-content] justify-between items-center w-full"
