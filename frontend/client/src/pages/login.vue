@@ -220,7 +220,7 @@ const bookingData = computed(() => {
       </div>
     </div>
 
-    <div class="auth-panel bg-[#000000] relative">
+    <div class="auth-panel bg-black relative">
       <div
         class="w-full h-full flex sm:grid items-start lg:items-center justify-center mb-0 md:md-10"
       >
@@ -290,7 +290,7 @@ const bookingData = computed(() => {
             {{ getAuthTitleByName(step) }}
           </div>
           <div
-            class="relative h-full w-full m-2 md:m-0 md:w-96 min-h-auto sm:min-h-[500px] flex justify-start items-center bg-gradient-to-b from-[#000] via-[#000] to-transparent rounded-xl p-5 z-10"
+            class="relative h-full w-full m-2 md:m-0 md:w-96 min-h-auto sm:min-h-[500px] flex justify-start items-center bg-gradient-to-b from-black via-black to-transparent rounded-xl p-5 z-10"
           >
             <div
               v-if="step == 'auth' && !session?.isAuthorized"

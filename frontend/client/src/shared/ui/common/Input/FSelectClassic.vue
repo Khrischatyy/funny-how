@@ -8,6 +8,7 @@ const props = defineProps<{
   options: { id: number | string; name: string }[]
   modelValue: string | number | null
   size?: "sm" | "md" | "lg"
+  thin?: boolean
   wide?: boolean
   error?: string | boolean
 }>()
@@ -76,7 +77,8 @@ watch(
     </div>
     <div class="relative flex items-center pointer-events-none">
       <div
-        class="w-full flex justify-start items-center gap-2 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 hover:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+          :class="thin ? 'h-10' : 'h-11'"
+        class="w-full flex justify-start items-center gap-2 px-3 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 hover:border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
       >
         <slot name="icon" />
         {{

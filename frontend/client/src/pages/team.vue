@@ -5,13 +5,26 @@
       class="text-white flex flex-col min-h-screen"
       name="dashboard"
     >
+      <Spinner :is-loading="isLoading"/>
       <template #action>
+        <div class="flex gap-2">
+
         <button @click="createEngineerPopup" class="subhead__actions outline-none hover:opacity-70 flex justify-center items-center rounded-[10px] border border-dashed w-auto px-10">
           Add Engineer
         </button>
+        </div>
       </template>
       <div class="container mx-auto px-2 md:px-4">
         <div class="grid grid-cols-1 gap-6">
+          <FSelectClassic
+              :thin="true"
+              v-if="addressesForPopup.length"
+              v-model="activeAddress"
+              :options="addressesForPopup"
+              size="sm"
+              class="w-60"
+              @change="getTeammates($event)"
+          />
           <TeammateRow
             class="border border-white border-opacity-30"
             v-for="teammate in teammates"
@@ -22,6 +35,7 @@
         </div>
         <AddEngineerModal
           v-if="showPopup"
+          :active-address="activeAddress"
           :addresses="addressesForPopup"
           @on-create-engineer="handleCreateEngineer"
           :showPopup="showPopup"
@@ -57,7 +71,7 @@ import { useSessionStore } from "~/src/entities/Session"
 import TeammateRow from "~/src/entities/User/ui/TeammateRow.vue";
 import {storeToRefs} from "#imports";
 import AddEngineerModal from "~/src/widgets/Modals/AddEngineerModal.vue";
-import {IconUser} from "~/src/shared/ui/common";
+import {FSelectClassic, IconUser, Spinner} from "~/src/shared/ui/common";
 const showPopup = ref(false)
 
 type Teammate = {
@@ -75,15 +89,16 @@ const teammates = ref<Teammate[]>([])
 const addressesForPopup = ref<{ id: number; name: string; label: string; }[]>([]);
 const currentPage = ref(1)
 const lastPage = ref(1)
-const isLoading = ref(false)
+const isLoading = ref(true)
 const session = useSessionStore()
 const {brand} = storeToRefs(session)
 const companySlug = brand
-onMounted(() => {
-  getTeammate()
-  getAddresses()
+onMounted(async () => {
+  await getAddresses()
+  await getTeammates()
 })
 
+const activeAddress = ref();
 
 const closePopup = () => {
   showPopup.value = false
@@ -102,61 +117,50 @@ const handleDismissTeammate = (teammate: Teammate) => {
   teammates.value = teammates.value.filter((t) => t.id !== teammate.id)
 }
 
-const getAddresses = () => {
+const getAddresses = async () => {
+  isLoading.value = true
   const {fetch: fetchAddresses} = useApi({
-    url: `/addresses`,
+    url: `/address/list`,
+    auth: true,
   });
 
-  addressesForPopup.value = [
-    {
-      id: 1,
-      name: "123 Main St, New York, NY 10001",
-      label: "123 Main St, New York, NY 10001",
-    },
-    {
-      id: 2,
-      name: "456 Main St, New York, NY 10001",
-      label: "456 Main St, New York, NY 10001",
-    },
-    {
-      id: 3,
-      name: "789 Main St, New York, NY 10001",
-      label: "789 Main St, New York, NY 10001",
-    },
-  ];
-  // fetchAddresses().then((response) => {
-  //   console.log(response);
-  // });
+  await fetchAddresses().then((response) => {
+   //response is response.data id, street
+    addressesForPopup.value = response?.data.map((address: { id: number; street: string }) => ({
+      id: address.id,
+      name: address.street,
+      label: address.street,
+    }));
+    activeAddress.value = addressesForPopup.value[0].id;
+  }).finally(() => {
+    isLoading.value = false;
+  });
 };
 
-const getTeammate = async (page = 1) => {
+const getTeammates = async (address_id = addressesForPopup.value[0].id) => {
   isLoading.value = true
-  const { post: fetchTeammate } = useApi({
-    url: `/address/teammates`,
+  const { fetch: fetchTeammates } = useApi({
+    url: `/address/${address_id}/staff`,
     auth: true,
   })
 
-  teammates.value = [
-    {
-      id: 1,
-      profile_photo: "https://ci3.googleusercontent.com/meips/ADKq_NZn5DMzFQ0KRAiIsaLGFh2pig3G3dmm6D9HucwY4tJjL0bO8mw-_Zg2NgPmw0isoBoVJlc9edBYSA=s0-d-e1-ft#https://funny-how.com/mail/logo.png",
-      role: "Engineer",
-      address: "123 Main St, New York, NY 10001",
-      username: "Tony Soprano",
-      phone: "+1234567890",
-      email: "",
-      booking_count: 5,
-    }]
-  // fetchClients({
-  //
-  // })
-  //   .then((response) => {
-  //     clients.value = response?.data
-  //
-  //     isLoading.value = false
-  //   })
-  //   .catch((error) => {
-  //     console.error("Error fetching bookings:", error)
-  //   })
+  if (!address_id) {
+    isLoading.value = false
+    return
+  }
+  fetchTeammates().then((response) => {
+    teammates.value = response.data.map((teammate: { id: number; role: string; username: string; phone: string; email: string; booking_count: number; address: string; profile_photo: string }) => ({
+      id: teammate.id,
+      role: teammate.roles[0].name == 'studio_engineer' ? 'Engineer' : 'Manager',
+      username: teammate.username,
+      phone: teammate.phone,
+      email: teammate.email,
+      booking_count: teammate.booking_count,
+      address: addressesForPopup.value.find((address) => address.id === teammate.pivot.address_id) || '',
+      profile_photo: teammate.profile_photo,
+    }))
+    console.log('teammates', response.data)
+    isLoading.value = false
+  })
 }
 </script>

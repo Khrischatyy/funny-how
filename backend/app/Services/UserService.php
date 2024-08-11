@@ -44,7 +44,7 @@ class UserService
 
         // Create the user with the given data
         $user = User::create([
-            'name' => $name,
+            'username' => $name,
             'email' => $email,
             'password' => Hash::make($randomPassword),
         ]);
@@ -67,6 +67,21 @@ class UserService
         dispatch(new SendStaffInvitationJob($user, $resetUrl, $roleName));
 
         return $user;
+    }
+
+    public function listStaff(Address $address)
+    {
+        //return with role
+        return $address->users()->with('roles')->get();
+    }
+
+    public function removeStaff(Address $address, int $staffId)
+    {
+        $staff = $address->users()->findOrFail($staffId);
+
+        $address->users()->detach($staffId);
+
+        return $staff;
     }
 
     public function generatePasswordResetLink(User $user): string

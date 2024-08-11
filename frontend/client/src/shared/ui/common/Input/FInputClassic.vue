@@ -6,7 +6,7 @@ const props = withDefaults(
   defineProps<{
     label?: string
     placeholder?: string
-    modelValue: string | number | null
+    modelValue?: string | number | null
     type?: string
     size?: "sm" | "md" | "lg"
     wide?: boolean

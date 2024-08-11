@@ -70,7 +70,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         //team
         Route::post('{address_id}/staff', [StaffController::class, 'addStaff']);
-        Route::post('list', [AddressController::class, 'listAddresses']);
+        Route::get('{address_id}/staff', [StaffController::class, 'listStaff']);
+        Route::delete('{address_id}/staff/{staff_id}', [StaffController::class, 'removeStaff']);
+        Route::get('list', [AddressController::class, 'listAddresses']);
 
         //badges routes
         Route::get('{address_id}/badges', [BadgeController::class, 'getAddressBadges']);

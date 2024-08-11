@@ -173,8 +173,9 @@ function getPrices() {
 }
 
 function routeBack() {
-  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/badges`)
+  navigateTo(`/company/@${route.params.slug}/setup/${route.params.id}/badges?room_id=${route.query.room_id}`)
 }
+
 
 function routeNext() {
   navigateTo(`/my-studios`)

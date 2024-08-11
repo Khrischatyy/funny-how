@@ -13,6 +13,7 @@ const props = withDefaults(
     defineProps<{
       showPopup: boolean,
       addresses:  {id: number | string, name: string}[],
+      activeAddress: string | number,
     }>(),
     {
       showPopup: false,
@@ -21,7 +22,7 @@ const props = withDefaults(
 const isLoading = ref(false)
 
 const engineer = reactive({
-  address: "",
+  address: props.activeAddress,
   name: "",
   role: "studio_engineer",
   email: "",
@@ -51,27 +52,76 @@ const emit = defineEmits<{
 const closePopup = () => {
   emit("closePopup")
 }
+
+
+const isErrorVisible = ref(false)
+
+const errorFromServer = ref("")
+
+const isFormValid = computed(() => {
+  return !!engineer.address && !!engineer.name && !!engineer.email && !!engineer.role && !!engineer.rate_per_hour
+})
+
+const showError = (field: string) => {
+  return !engineer[field] ? `field is required` : ""
+}
+
+
 const createEngineer = async () => {
   isLoading.value = true
   //api/v1/address/{address_id}/staff
 
+  isErrorVisible.value = false
+  if (!isFormValid.value) {
+    isErrorVisible.value = true
+    isLoading.value = false
+    return
+  }
   const {post: createEngineer} = useApi({
     url: `/address/${engineer.address}/staff`,
     auth: true,
   })
 
-  // await createEngineer({
-  //   name: engineer.name,
-  //   role: engineer.role,
-  //   email: engineer.email,
-  // }).then((response) => {
-  //   isLoading.value = false
-  //   emit("onCreateEngineer", response?.data)
-  //   closePopup()
-  // })
+  await createEngineer({
+    name: engineer.name,
+    role: engineer.role,
+    email: engineer.email,
+    rate_per_hour: 0,
+  }).then((response) => {
+    isLoading.value = false
+    // teammates.value = response.data.map((teammate: { id: number; role: string; username: string; phone: string; email: string; booking_count: number; address: string; profile_photo: string }) => ({
+    //   id: teammate.id,
+    //   role: teammate.roles[0].name == 'studio_engineer' ? 'Engineer' : 'Manager',
+    //   username: teammate.username,
+    //   phone: teammate.phone,
+    //   email: teammate.email,
+    //   booking_count: teammate.booking_count,
+    //   address: addressesForPopup.value.find((address) => address.id === teammate.pivot.address_id) || '',
+    //   profile_photo: teammate.profile_photo,
+    // }))
+    let teammate = {
+      id: response.data.id,
+      address: props.addresses.find((address) => address.id == engineer.address),
+      username: engineer.name,
+      role: 'Engineer',
+      email: engineer.email,
+    }
+    emit("onCreateEngineer", teammate)
+    closePopup()
+  }).catch((error) => {
+    isLoading.value = false
+    console.error('error creating engineer', error)
+    // ///
+    // {
+    //   "email": [
+    //   "The email has already been taken."
+    // ]
+    // }
+    errorFromServer.value = error.message
+  })
 
-  emit("onCreateEngineer", engineer)
-  closePopup()
+  // emit("onCreateEngineer", engineer)
+  // closePopup()
 }
 </script>
 
@@ -101,6 +151,7 @@ const createEngineer = async () => {
               <FSelectClassic
                   :wide="true"
                   label="Address"
+                  :error="isErrorVisible ? showError('address') : ''"
                   size="lg"
                   v-model="engineer.address"
                   :options="addresses"
@@ -112,14 +163,33 @@ const createEngineer = async () => {
         <div class="w-full relative flex justify-start gap-10 items-center">
           <div class="flex w-full justify-start gap-2">
             <div class="relative w-full flex flex-col gap-0.5">
-              <FInputClassic label="Name" :wide="true" v-model="engineer.name" placeholder="Enter name" class="w-full"/>
+              <FInputClassic label="Name" :error="isErrorVisible ? showError('name') : ''" :wide="true" v-model="engineer.name" placeholder="Enter name" class="w-full"/>
             </div>
           </div>
         </div>
         <div class="w-full relative flex justify-start gap-10 items-center">
           <div class="flex w-full justify-start gap-2">
             <div class="relative w-full flex flex-col gap-0.5">
-              <FInputClassic label="E-mail" :wide="true" v-model="engineer.email" placeholder="Enter e-mail" class="w-full"/>
+              <FInputClassic label="E-mail" :wide="true"
+                             :error="isErrorVisible ? showError('email') : ''"
+                             v-model="engineer.email" placeholder="Enter e-mail" class="w-full"/>
+            </div>
+          </div>
+        </div>
+        <div class="w-full relative flex justify-start gap-10 items-center">
+          <div class="flex w-full justify-start gap-2">
+            <div class="relative w-full flex flex-col gap-0.5">
+              <FInputClassic label="Rate per hour"
+                             :error="isErrorVisible ? showError('rate_per_hour') : ''"
+                             type="number" :wide="true" v-model="engineer.rate_per_hour" placeholder="Enter engineer's rate per hour" class="w-full">
+                <template #icon>
+                  <div
+                      class="text-white text-xl font-normal tracking-wide opacity-20"
+                  >
+                    $
+                  </div>
+                </template>
+              </FInputClassic>
             </div>
           </div>
         </div>
@@ -130,10 +200,21 @@ const createEngineer = async () => {
                   :wide="true"
                   label="Role"
                   size="lg"
+                  :error="isErrorVisible ? showError('role') : ''"
                   v-model="engineer.role"
                   :options="roles"
                   placeholder="Select role"
                   class="w-full"/>
+            </div>
+          </div>
+        </div>
+        <div v-if="errorFromServer" class="w-full relative flex justify-start gap-10 items-center">
+          <div class="flex w-full justify-start gap-2">
+            <div class="relative w-full
+             text-red-500 text-sm font-medium tracking-wide
+             text-center
+             flex flex-col gap-0.5">
+            {{errorFromServer}}
             </div>
           </div>
         </div>

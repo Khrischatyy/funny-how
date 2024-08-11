@@ -154,6 +154,7 @@ import {IconCredit, IconSquare, IconStripe, Spinner} from "~/src/shared/ui/commo
 import {useApi} from "../lib/api"
 import {useSessionStore} from "../entities/Session"
 import {storeToRefs} from "pinia"
+import {navigateTo} from "nuxt/app";
 
 type StripAccountDataType = {
   id: string
@@ -396,6 +397,11 @@ const toggleSideMenu = () => {
 onMounted(async () => {
   if (!user.value) {
     await session.fetchUserInfo()
+  }
+  if(!user.value.company){
+    if(process.client) {
+      navigateTo("/create")
+    }
   }
   isLoading.value = false
   if (user.value && user.value.stripe_account_id) {

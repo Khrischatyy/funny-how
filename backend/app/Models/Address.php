@@ -34,6 +34,11 @@ class Address extends Model
         return $this->favoriteByUsers()->where('user_id', $userId)->exists();
     }
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'engineer_addresses', 'address_id', 'user_id');
+    }
+
     public function getIsCompleteAttribute()
     {
         $hasOperatingHours = $this->operatingHours()->exists();

@@ -25,6 +25,7 @@ import { Loader } from "@googlemaps/js-api-loader"
 import axios from "axios"
 import { isBadgeTaken } from "~/src/shared/utils/checkBadge"
 import { useRouter } from "vue-router"
+import {useApi} from "~/src/lib/api";
 definePageMeta({
   middleware: ["auth"],
 })
@@ -61,63 +62,40 @@ onMounted(async () => {
   const config = useRuntimeConfig()
   session.value = useSessionStore()
   getBadges()
-  getAddressId()
 })
 
 function filterUnassigned(obj) {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== ""))
 }
 
-function toogleBadge(badge_id) {
-  const config = useRuntimeConfig()
+async function toogleBadge(badge_id) {
+  const {post: updateBadge} = useApi({
+    url: `/address/${route.params.id}/badge`,
+    auth: true,
+  })
 
   let data = {
     badge_id: badge_id,
   }
 
-  let requestConfig = {
-    method: "post",
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/${route.params.id}/badge`,
-    data: data,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "multipart/form-data",
-      Authorization: "Bearer " + useSessionStore().accessToken,
-    },
-  }
-  axios.defaults.headers.common["X-Api-Client"] = `web`
-  axios
-    .request(requestConfig)
-    .then((response) => {
-      badges.value.taken_badges = response.data.data
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+  await updateBadge(data).then((response) => {
+    badges.value.taken_badges = response.data
+  }).catch((error) => {
+    console.error(error)
+  })
 }
 function getBadges() {
-  const config = useRuntimeConfig()
 
-  let requestConfig = {
-    method: "get",
-    credentials: true,
-    url: `${config.public.apiBaseClient}/address/${route.params.id}/badges`,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "multipart/form-data",
-      Authorization: "Bearer " + useSessionStore().accessToken,
-    },
-  }
-  axios.defaults.headers.common["X-Api-Client"] = `web`
-  axios
-    .request(requestConfig)
-    .then((response) => {
-      badges.value = response.data.data
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+  const {fetch: listBadges} = useApi({
+    url: `/address/${route.params.id}/badges`,
+    auth: true,
+  })
+
+  listBadges().then((response) => {
+    badges.value = response.data
+  }).catch((error) => {
+    console.error(error)
+  })
 }
 
 function getAddressId() {

@@ -40,8 +40,6 @@ export class ErrorHandler {
     const status = response?.status || error.response?.status
     const errorData = response
 
-    console.error("Error:", response)
-
     // Define common error messages based on status codes
     const nativeMessages: Record<number, string> = {
       401: "Authorization error",

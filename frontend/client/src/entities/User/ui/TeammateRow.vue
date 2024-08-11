@@ -16,7 +16,7 @@
       </div>
     </div>
     <div
-        class="flex w-auto flex-col lg:flex-row basis-full gap-8 min-w-[210px] justify-end items-start lg:items-center">
+        class="flex w-auto flex-col lg:grid lg:grid-cols-3 basis-full gap-8 min-w-[210px] justify-end items-start lg:items-center">
       <Clipboard v-if="teammate?.phone" :text-to-copy="teammate?.phone">
         <div class="flex items-center  max-w-[250px]  relative gap-2 ">
           <IconPhone class="opacity-20"/>
@@ -35,12 +35,12 @@
           </div>
         </div>
       </Clipboard>
-      <Clipboard v-if="teammate?.address" :text-to-copy="teammate?.address">
+      <Clipboard v-if="teammate?.address" :text-to-copy="teammate?.address?.name">
         <div class="flex max-w-[250px] items-center relative gap-2 group-hours-block group">
           <IconAddress class="opacity-20 w-10 h-10"/>
           <div class="flex flex-col group-hover:opacity-100">
             <span class="text-white opacity-20">Where working</span>
-            <span class="text-white">{{ teammate?.address }}</span>
+            <span class="text-white">{{ teammate?.address?.name }}</span>
           </div>
         </div>
       </Clipboard>
@@ -51,9 +51,12 @@
           <span class="text-white">{{ teammate?.booking_count }}</span>
         </div>
       </div>
+    </div>
+    <div
+        class="flex w-auto flex-col lg:flex-row basis-auto justify-end items-start lg:items-center">
       <button
           @click="dismissTeammateAction"
-          class="w-full max-w-[150px] h-11 hover:opacity-90 border border-red-500 rounded-[10px] text-red-500 bg-red-500 bg-opacity-5 text-sm font-medium tracking-wide"
+          class="w-full max-w-[150px] px-10 h-11 hover:opacity-90 border border-red-500 rounded-[10px] text-red-500 bg-red-500 bg-opacity-5 text-sm font-medium tracking-wide"
       >
         Dismiss
       </button>
@@ -98,7 +101,10 @@ type Teammate = {
   phone: string
   email: string
   booking_count: number
-  address: string
+  address: {
+    id: number
+    name: string
+  }
   profile_photo: string
 }
 
@@ -117,17 +123,17 @@ const copyToClipboard = (text: string) => {
 };
 
 const dismissTeammateAction = async () => {
-  const {post: dismissTeammate} = useApi({
-    url: `/address/${props.teammate.address}/staff/${props.teammate.id}/dismiss`,
+  const {delete: dismissTeammate} = useApi({
+    url: `/address/${props.teammate?.address?.id}/staff/${props.teammate.id}`,
     auth: true,
   });
 
-  // await dismissTeammate('').then(() => {
-  //   console.log('dismissed');
-  //   emit('dismissTeammate', props.teammate);
-  // });
-  console.log('dismissed');
-  emit('onDismissTeammate', props.teammate);
+  await dismissTeammate().then((response) => {
+    console.log('dismissed', response);
+    emit('onDismissTeammate', props.teammate);
+  });
+  // console.log('dismissed');
+  // emit('onDismissTeammate', props.teammate);
 };
 
 </script>

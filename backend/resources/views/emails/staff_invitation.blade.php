@@ -10,7 +10,7 @@
     </div>
     <div style="padding: 20px; text-align: left; font-size:18px;color:#fff;">
         <h1 style="color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 20px;">Invitation to Join as Studio Engineer</h1>
-        <p>Dear {{ $user->name }},</p>
+        <p>Dear {{ $user->username }},</p>
         <p>You have been invited to join our team as a Studio Engineer. To accept the invitation, please reset your password by clicking the link below:</p>
         <p>
             <a href="{{ $resetLink }}" style="color: #ffffff; font-weight: bold;">Reset Your Password</a>

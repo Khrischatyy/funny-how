@@ -113,7 +113,12 @@ const filterShow = reactive([
 const updateKey = ref(0)
 const fetchStudios = async () => {
   isLoading.value = true
-  myStudios.value = await getMyStudiosFilter(filterShow)
+  myStudios.value = await getMyStudiosFilter(filterShow).catch(() => {
+    if(process.client) {
+      navigateTo("/create")
+      return;
+    }
+  })
 
   studioForPopup.value = myStudios.value[indexForPopup.value]
   isLoading.value = false
@@ -122,7 +127,13 @@ const fetchStudios = async () => {
 }
 
 const fetchCities = async () => {
-  cities.value = await getCities()
+  cities.value = await getCities().catch(() => {
+    if(process.client) {
+      navigateTo("/create")
+      return;
+    }
+  })
+
 }
 
 const handleFiltersChange = (newFilters) => {
@@ -156,8 +167,8 @@ const toggleSideMenu = () => {
   }
 }
 
-onMounted(() => {
-  fetchCities()
-  fetchStudios()
+onMounted(async () => {
+  await fetchCities()
+  await fetchStudios()
 })
 </script>
