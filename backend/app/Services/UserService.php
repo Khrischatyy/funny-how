@@ -72,7 +72,7 @@ class UserService
     public function listStaff(Address $address)
     {
         //return with role
-        return $address->users()->with('roles')->get();
+        return $address->users()->with(['roles', 'engineerRate'])->get();
     }
 
     public function removeStaff(Address $address, int $staffId)

@@ -193,13 +193,12 @@
               </div>
 
             </div>
-
           </div>
           <div
               v-if="address && rentingForm.room_id"
               class="max-w-[514px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
-            <div v-if="rentingForm.room_id" class="flex items-center flex-col z-[50] w-full">
+            <div v-if="rentingForm.room_id" class="flex items-center flex-col z-[58] w-full">
               <RoomCard
                   class=" w-full"
                   :room="address?.rooms?.find((room) => room.id === rentingForm.room_id)"
@@ -208,6 +207,23 @@
           </div>
           <div
               v-if="address"
+              class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+          >
+            <div class="relative w-full flex flex-col items-center mt-10">
+              <div class="flex items-center flex-col z-[55] w-full">
+                <FSelect
+                    class="w-full"
+                    modelKey="id"
+                    v-model="rentingForm.engineer_id"
+                    placeholder="Choose Engineer"
+                    :options="teammatesOptions" />
+              </div>
+
+            </div>
+
+          </div>
+          <div
+              v-if="address && rentingForm.engineer_id"
               class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
             <div v-if="rentingForm.room_id" class="relative w-full flex items-center mt-10">
@@ -434,13 +450,20 @@ import { Clipboard } from "~/src/shared/ui/common/Clipboard"
 import FSelect from "~/src/shared/ui/common/Input/FSelect.vue"
 import { IconStatus } from "~/src/shared/ui/common/Icon/Filter"
 import {RoomCard} from "~/src/entities/Studio";
-
+import {useTeammates} from "~/src/entities/User/api";
 const route = useRoute()
 const addressSlug = ref(route.params.slug_address)
 const bookingError = ref("")
 const { address, pending, error } = useAddress(addressSlug.value)
 const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
 provide("address", address)
+
+const { getTeammates, teammates, isLoading: isLoadingTeammates } = useTeammates()
+const teammatesOptions = computed(() => teammates.value.map((teammate) => ({
+  id: teammate.id,
+  name: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
+  label: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
+})))
 
 const addressId = computed(() => address.value?.id)
 const roomsOptions = computed(() => address.value?.rooms.map((room) => ({
@@ -482,6 +505,7 @@ type StudioFormValues = {
 }
 const rentingForm = ref({
   room_id: "",
+  engineer_id: "",
   address_id: "",
   date: "",
   anotherDate: "",
@@ -610,6 +634,7 @@ onBeforeMount(() => {
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll)
   window.addEventListener("message", handlePaymentStatus)
+  await getTeammates(addressId.value)
 })
 
 onUnmounted(() => {
