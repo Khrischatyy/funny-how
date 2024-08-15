@@ -454,7 +454,7 @@ import {useTeammates} from "~/src/entities/User/api";
 const route = useRoute()
 const addressSlug = ref(route.params.slug_address)
 const bookingError = ref("")
-const { address, pending, error } = useAddress(addressSlug.value)
+const { address } = useAddress(addressSlug.value)
 const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
 provide("address", address)
 
@@ -465,7 +465,6 @@ const teammatesOptions = computed(() => teammates.value.map((teammate) => ({
   label: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
 })))
 
-const addressId = computed(() => address.value?.id)
 const roomsOptions = computed(() => address.value?.rooms.map((room) => ({
   id: room.id,
   name: room.name,
@@ -634,7 +633,6 @@ onBeforeMount(() => {
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll)
   window.addEventListener("message", handlePaymentStatus)
-  await getTeammates(addressId.value)
 })
 
 onUnmounted(() => {
@@ -748,6 +746,12 @@ watchEffect(() => {
     rentingForm.value.date || rentingForm.value.room_id
   ) {
     bookingError.value = ""
+  }
+})
+
+watch(address, async () => {
+  if (address.value) {
+    await getTeammates(address.value.id)
   }
 })
 function book() {

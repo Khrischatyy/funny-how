@@ -26,6 +26,7 @@ const engineer = reactive({
   name: "",
   role: "studio_engineer",
   email: "",
+  rate_per_hour: 0,
 })
 
 const roles = [
@@ -41,6 +42,7 @@ type Engineer = {
   name: string
   role: string
   email: string
+  rate_per_hour: number
 }
 
 const emit = defineEmits<{
@@ -86,7 +88,7 @@ const createEngineer = async () => {
     name: engineer.name,
     role: engineer.role,
     email: engineer.email,
-    rate_per_hour: 0,
+    rate_per_hour: engineer.rate_per_hour,
   }).then((response) => {
     isLoading.value = false
     // teammates.value = response.data.map((teammate: { id: number; role: string; username: string; phone: string; email: string; booking_count: number; address: string; profile_photo: string }) => ({

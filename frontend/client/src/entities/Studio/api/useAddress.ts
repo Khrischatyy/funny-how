@@ -73,6 +73,7 @@ export function useAddress(slug: string | RouteParamValue[]) {
     auth: true,
   })
 
+  console.log("getBrand", resolvedSlug)
   //useAsyncData helps to serve it server-side
   const {
     data: address,
