@@ -28,7 +28,7 @@ class UserService
         $this->imageService = $imageService;
     }
 
-    public function addStaff(Request $request, Address $address): User
+    public function addMember(Request $request, Address $address): User
     {
         // Extract all necessary input data at the beginning
         $name = $request->input('name');
@@ -69,10 +69,17 @@ class UserService
         return $user;
     }
 
-    public function listStaff(Address $address)
+    public function listMembers($company_id)
     {
-        //return with role
-        return $address->users()->with(['roles', 'engineerRate'])->get();
+        // Get all addresses associated with the company
+        $addresses = Address::where('company_id', $company_id)->get();
+
+        // Retrieve users associated with these addresses, including roles and engineerRate
+        $staff = $addresses->flatMap(function ($address) {
+            return $address->users()->with(['roles', 'engineerRate'])->get();
+        });
+
+        return $staff;
     }
 
     public function removeStaff(Address $address, int $staffId)
@@ -80,8 +87,6 @@ class UserService
         $staff = $address->users()->findOrFail($staffId);
 
         $address->users()->detach($staffId);
-
-        return $staff;
     }
 
     public function generatePasswordResetLink(User $user): string
@@ -215,5 +220,13 @@ class UserService
                 'booking_count' => $client->bookings_count,
             ];
         });
+    }
+
+    public function checkEmail(string $queryEmail)
+    {
+        // Implement logic to find emails by letter for users with role 'studio_engineer'
+        return User::where('email', 'LIKE', "%$queryEmail%")
+            ->role('studio_engineer', 'web')
+            ->get(['firstname', 'email']); // Возвращаем имя и email
     }
 }

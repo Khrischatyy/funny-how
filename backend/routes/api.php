@@ -13,7 +13,7 @@ use App\Http\Controllers\API\{AddressController,
     PayoutController,
     RoomController,
     SquareController,
-    StaffController,
+    TeamController,
     StripeController,
     UserController};
 use App\Http\Controllers\Auth\GoogleController;
@@ -66,12 +66,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 //        Route::post('/logout', [LogoutController::class, 'destroy']);
     });
+
+    //team
+    Route::prefix('team')->group(function () {
+        Route::prefix('member')->group(function () {
+            Route::post('', [TeamController::class, 'addMember']);
+            Route::get('', [TeamController::class, 'listMembers']);
+            Route::delete('', [TeamController::class, 'removeMember']);
+        });
+
+        Route::get('email/check', [TeamController::class, 'checkMemberEmail']);
+    });
+
+
     Route::prefix('address')->group(function () {
 
-        //team
-        Route::post('{address_id}/staff', [StaffController::class, 'addStaff']);
-        Route::get('{address_id}/staff', [StaffController::class, 'listStaff']);
-        Route::delete('{address_id}/staff/{staff_id}', [StaffController::class, 'removeStaff']);
+
+
         Route::get('list', [AddressController::class, 'listAddresses']);
 
         //badges routes

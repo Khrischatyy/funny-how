@@ -90,6 +90,7 @@ class AddressRepository implements AddressRepositoryInterface
 
     public function getAllStudios(): Collection
     {
+        //исправить выводить только студии которые у компании есть user->adminCompany
         $addresses = Address::with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])->get();
         foreach ($addresses as $address) {
             if ($address->company->logo) {

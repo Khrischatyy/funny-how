@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StaffRequest extends FormRequest
+class DeleteTeamMemberRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,13 +21,11 @@ class StaffRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'role' => 'required|string|in:studio_engineer,studio_manager',
-            'rate_per_hour' => 'required|numeric|min:0',
+            'address_id' => 'required|integer|exists:addresses,id',
+            'member_id' => 'required|integer|exists:users,id',
         ];
     }
 }
