@@ -74,7 +74,7 @@ class AddressRepository implements AddressRepositoryInterface
             'company',
             'operatingHours',
             'equipments.type',
-            'engineers' // Include engineers relationship
+            'engineers.engineerRate' // Include engineers relationship
         ])
             ->where('slug', $slug)
             ->firstOrFail();

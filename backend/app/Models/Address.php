@@ -64,7 +64,7 @@ class Address extends Model
 
     public function engineers()
     {
-        return $this->belongsToMany(User::class, 'engineer_addresses', 'address_id', 'user_id')->select('firstname', 'lastname', 'username', 'profile_photo');
+        return $this->belongsToMany(User::class, 'engineer_addresses', 'address_id', 'user_id')->select('users.id', 'firstname', 'lastname', 'username', 'profile_photo');
     }
 
     public function company()

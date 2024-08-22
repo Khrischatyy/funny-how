@@ -450,7 +450,6 @@ import { Clipboard } from "~/src/shared/ui/common/Clipboard"
 import FSelect from "~/src/shared/ui/common/Input/FSelect.vue"
 import { IconStatus } from "~/src/shared/ui/common/Icon/Filter"
 import {RoomCard} from "~/src/entities/Studio";
-import {useTeammates} from "~/src/entities/User/api";
 const route = useRoute()
 const addressSlug = ref(route.params.slug_address)
 const bookingError = ref("")
@@ -458,8 +457,7 @@ const { address } = useAddress(addressSlug.value)
 const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
 provide("address", address)
 
-const { getTeammates, teammates, isLoading: isLoadingTeammates } = useTeammates()
-const teammatesOptions = computed(() => teammates.value.map((teammate) => ({
+const teammatesOptions = computed(() => address?.value?.engineers?.map((teammate) => ({
   id: teammate.id,
   name: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
   label: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
