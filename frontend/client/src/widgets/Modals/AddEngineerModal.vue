@@ -8,6 +8,7 @@ import IconStar from "~/src/shared/ui/common/Icon/IconStar.vue"
 import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue"
 import {useApi} from "~/src/lib/api"
 import {Spinner} from "~/src/shared/ui/common/Spinner"
+import {debounce} from "@antfu/utils";
 
 const props = withDefaults(
     defineProps<{
@@ -69,6 +70,21 @@ const showError = (field: string) => {
 }
 
 
+const checkEngineerEmail = debounce(700,async () => {
+  const {fetch: checkEmail} = useApi({
+    url: `/team/email/check?q=${engineer.email}`,
+    auth: true,
+  })
+
+  if(!engineer.email) return
+
+  await checkEmail().then((response) => {
+    console.log('response', response)
+  }).catch((error) => {
+    console.error('error checking email', error)
+  })
+})
+
 const createEngineer = async () => {
   isLoading.value = true
   //api/v1/address/{address_id}/staff
@@ -79,8 +95,9 @@ const createEngineer = async () => {
     isLoading.value = false
     return
   }
+
   const {post: createEngineer} = useApi({
-    url: `/address/${engineer.address}/staff`,
+    url: `team/member`,
     auth: true,
   })
 
@@ -89,6 +106,7 @@ const createEngineer = async () => {
     role: engineer.role,
     email: engineer.email,
     rate_per_hour: engineer.rate_per_hour,
+    address_id: engineer.address,
   }).then((response) => {
     isLoading.value = false
     // teammates.value = response.data.map((teammate: { id: number; role: string; username: string; phone: string; email: string; booking_count: number; address: string; profile_photo: string }) => ({
@@ -173,6 +191,7 @@ const createEngineer = async () => {
           <div class="flex w-full justify-start gap-2">
             <div class="relative w-full flex flex-col gap-0.5">
               <FInputClassic label="E-mail" :wide="true"
+                             @change="checkEngineerEmail"
                              :error="isErrorVisible ? showError('email') : ''"
                              v-model="engineer.email" placeholder="Enter e-mail" class="w-full"/>
             </div>

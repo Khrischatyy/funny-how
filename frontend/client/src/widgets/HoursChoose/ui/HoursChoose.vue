@@ -198,7 +198,7 @@ const getDayMean = (day: number) => {
 
 <template>
   <div
-    class="relative w-full max-w-96 flex-col justify-start items-center gap-1.5 flex"
+    class="relative w-full flex-col justify-start items-center gap-1.5 flex"
   >
     <div class="flex-col w-full justify-start items-start gap-1.5 flex">
       <div class="w-full justify-between items-start inline-flex">
@@ -229,11 +229,9 @@ const getDayMean = (day: number) => {
               class="w-full top-0 px-3 h-11 outline-none rounded-[10px] focus:border-white border border-white border-opacity-20 bg-transparent text-white text-sm font-medium tracking-wide"
               name="workday"
             >
-              <optgroup v-for="mode in modes" :label="mode.description">
-                <option class="text-white" :value="mode.id">
+                <option v-for="mode in modes" class="text-white" :value="mode.id">
                   {{ mode.label }}
                 </option>
-              </optgroup>
             </select>
             <span
               v-if="workHours.mode_id != 3"
@@ -279,9 +277,9 @@ const getDayMean = (day: number) => {
       <div
         v-for="(hour, index) in 7"
         v-if="workHours.mode_id == 3"
-        class="max-w-96 justify-center items-center gap-2.5 inline-flex"
+        class="w-full justify-center items-center gap-2.5 inline-flex"
       >
-        <div class="w-full max-w-96">
+        <div class="w-full ">
           <input
             disabled
             :placeholder="getDayMean(workHours.eachDay[index].day_of_week)"

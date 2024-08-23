@@ -91,6 +91,7 @@ export type PopupType =
   | "warning"
   | "small"
   | "medium"
+  | "large"
 
 const props = withDefaults(
   defineProps<{
@@ -118,6 +119,7 @@ const props = withDefaults(
       :class="{
         'max-w-lg mx-auto': props.type == 'small',
         'max-w-3xl': props.type == 'medium',
+        'max-w-6xl': props.type == 'large',
       }"
       :style="{ transform: `translateY(${modalPosition}px)` }"
       class="modal-content flex flex-col gap-5 bg-[#171717] rounded-[10px] shadow-lg w-full p-6 relative z-20"

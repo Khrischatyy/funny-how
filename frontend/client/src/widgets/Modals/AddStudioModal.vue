@@ -209,7 +209,7 @@ const updateSlug = () => {
 </script>
 
 <template>
-  <Popup :title="'Add Studio'" :open="showPopup" @close="closePopup">
+  <Popup :title="'Add Studio'" type="large" :open="showPopup" @close="closePopup">
     <template #header>
       <div class="input-container flex gap-2">
         <div v-if="studio.company.logo_url" class="logo">
@@ -219,42 +219,34 @@ const updateSlug = () => {
               class="w-[40px] h-[40px] object-cover rounded-[10px]"
           />
         </div>
-        <div class="name">
-          <FInputClassic
-              :placeholder="studio.company.name"
-              :disabled="true"
-              v-model="studioForm.name"
-          />
+        <div class="name font-bold text-xl">
+          Studio edit
         </div>
       </div>
     </template>
     <template #body>
       <div class="photos mb-5">
+        <div class="text-white text-sm font-normal tracking-wide opacity-20 mb-1">
+          Room
+        </div>
         <div
           :class="[
             studio?.rooms.length > 0
-              ? 'sm:grid-cols-[1fr_250px] grid-rows-3'
+              ? 'sm:grid-cols-1 grid-rows-1'
               : '',
             { 'grid-rows-1': studio?.rooms.length === 0 },
           ]"
           class="grid-cols-1 sm:grid-rows-1 grid gap-5"
         >
           <div
-              class="grid grid-cols-1 grid-rows-1 gap-5 max-h-60"
+              class="grid grid-cols-1 grid-rows-1 gap-5"
           >
-            <div :key="roomUpdateKey" class="mt-5 sm:mt-0 w-full">
-              <ScrollContainer
-                  v-if="studio?.rooms.length > 0"
-                  justify-content="start"
-                  class="rounded-[10px] h-full"
-                  :key="roomUpdateKey"
-                  theme="default"
-                  main-color="#171717"
-              >
+            <div :key="roomUpdateKey" class="mt-5 sm:mt-0 w-full flex flex-wrap gap-2">
+
                 <div
                     v-for="(room, index) in studio?.rooms.sort((a, b) => a.id - b.id)"
 
-                    class="max-h-30 w-[250px] bg-transparent scrollElement no-margin"
+                    class="max-h-30 w-[150px] sm:w-[250px] bg-transparent scrollElement no-margin"
                 >
                   <RoomCard
                       @click="addRoom(room.id)"
@@ -263,31 +255,32 @@ const updateSlug = () => {
                       @update-studios="emit('update-studios')"/>
 
                 </div>
-              </ScrollContainer>
+              <div
+                  @dragover.prevent="onDragOver"
+                  @dragleave="onDragLeave"
+                  @drop.prevent="onDrop"
+                  class="add-photo w-[150px] lg:w-[250px] h-[150px] lg:h-[234px]"
+              >
+                <input
+                    ref="fileInputRef"
+                    type="file"
+                    multiple
+                    @change="onFileChange"
+                    style="display: none"
+                />
+                <AddStudioButton
+                    :border-opacity="isDragOver ? '100' : '20'"
+                    type="room"
+                    title="Add Room"
+                    @click="displayNewRoomPopup"
+                />
+              </div>
             </div>
           </div>
-          <input
-              ref="fileInputRef"
-              type="file"
-              multiple
-              @change="onFileChange"
-              style="display: none"
-          />
-          <div
-              @dragover.prevent="onDragOver"
-              @dragleave="onDragLeave"
-              @drop.prevent="onDrop"
-              class="add-photo"
-          >
-            <AddStudioButton
-                :border-opacity="isDragOver ? '100' : '20'"
-                title="Add Room"
-                @click="displayNewRoomPopup"
-            />
-          </div>
+
         </div>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div class="w-full flex flex-col gap-5">
           <div class="name w-full flex-col flex gap-1.5">
             <div
@@ -323,12 +316,12 @@ const updateSlug = () => {
               </template>
             </FInputClassic>
           </div>
-
-        </div>
-        <div class="w-full flex-col flex gap-1.5">
           <div class="equipment w-full flex-col flex gap-1.5">
             <EquipmentChoose v-model="studioForm.equipment"/>
           </div>
+
+        </div>
+        <div class="w-full flex-col flex gap-1.5">
           <div class="badgees w-full flex-col flex gap-1.5">
             <BadgesChoose v-model="studioForm.badges"/>
           </div>
@@ -367,15 +360,15 @@ const updateSlug = () => {
               </div>
             </div>
           </div>
-        </div>
-        <div class="w-full">
-          <div class="hours w-full flex-col flex gap-1.5">
+          <div class="hours w-full mt-3.5 flex-col flex gap-1.5">
             <HoursChoose
                 @update-studios="emit('update-studios')"
                 v-model="studioForm.hours"
             />
           </div>
         </div>
+
+
       </div>
       <Teleport v-if="showRoomPopup" to="body">
         <AddRoomModal

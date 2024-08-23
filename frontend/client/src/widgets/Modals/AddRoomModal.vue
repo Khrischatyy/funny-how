@@ -56,7 +56,7 @@ type Room = {
 const studio = inject("studioForPopup")
 
 
-const isLoading = ref(false)
+const isLoading = ref(true)
 
 const studioForm = reactive({
   name: "",
@@ -306,10 +306,13 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
     // Handle errors, show user feedback
   }
 }
+const isReady = () => {
+  isLoading.value = false
+}
 </script>
 
 <template>
-  <Popup :title="'Add Room'" type="medium" :open="showPopup" @close="closePopup">
+  <Popup :title="'Add Room'" type="small" :open="showPopup" @close="closePopup">
     <template #header>
       <div class="input-container text-white text-2xl flex gap-2">{{room?.name || 'Add room'}}</div>
     </template>
@@ -329,7 +332,7 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
         <div
           :class="[
             studioForm?.photos.length > 0
-              ? 'sm:grid-cols-[1fr_250px] grid-rows-3'
+              ? 'sm:grid-cols-[1fr] grid-rows-1'
               : '',
             { 'grid-rows-1': studioForm?.photos.length === 0 },
           ]"
@@ -342,6 +345,41 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
             class="grid grid-cols-1 grid-rows-1 gap-5 max-h-full"
           >
             <div
+                :class="{
+                hidden:
+                  studioForm?.photos.length == 0,
+              }"
+                class="mt-5 sm:mt-0"
+            >
+
+                <div
+                    v-for="(photo, index) in studioForm?.photos.slice(0, 1)"
+                    draggable="true"
+                    @dragstart="
+                    handleDragStart($event, findRealIndexByUrl(photo.url))
+                  "
+                    @dragover.prevent
+                    @dragenter="
+                    handleDragEnter($event, findRealIndexByUrl(photo.url))
+                  "
+                    @dragend="handleDragEnd"
+                    class="drag-item h-[237px] w-[full] bg-white shadow rounded-[10px] scrollElement no-margin"
+                >
+                  <img
+                      :src="photo.url"
+                      @click.stop="
+                      () =>
+                        openGallery(
+                          displayedPhotos,
+                          findRealIndexByUrl(photo.url),
+                        )
+                    "
+                      alt="cover photo"
+                      class="w-full h-full object-cover rounded-[10px]"
+                  />
+                </div>
+            </div>
+            <div
               :class="{
                 'w-[fit-content]':
                   studioForm?.photos.length == 1,
@@ -351,14 +389,14 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
               class="mt-5 sm:mt-0"
             >
               <ScrollContainer
-                v-if="studioForm?.photos.length > 0"
+                v-if="studioForm?.photos.length > 1"
                 justify-content="start"
                 class="rounded-[10px] h-full"
                 theme="default"
                 main-color="#171717"
               >
                 <div
-                  v-for="(photo, index) in studioForm?.photos"
+                  v-for="(photo, index) in studioForm?.photos.slice(1, studioForm?.photos.length)"
                   draggable="true"
                   @dragstart="
                     handleDragStart($event, findRealIndexByUrl(photo.url))
@@ -368,7 +406,7 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
                     handleDragEnter($event, findRealIndexByUrl(photo.url))
                   "
                   @dragend="handleDragEnd"
-                  class="drag-item h-full w-[250px] bg-white shadow rounded-[10px] scrollElement no-margin"
+                  class="drag-item h-[94px] w-[148px] bg-white shadow rounded-[10px] scrollElement no-margin"
                 >
                   <img
                     :src="photo.url"
@@ -386,28 +424,32 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
               </ScrollContainer>
             </div>
           </div>
+
+        </div>
+        <div class="add-photo mt-5">
           <input
-            ref="fileInputRef"
-            type="file"
-            multiple
-            @change="onFileChange"
-            style="display: none"
+              ref="fileInputRef"
+              type="file"
+              multiple
+              @change="onFileChange"
+              style="display: none"
           />
           <div
-            @dragover.prevent="onDragOver"
-            @dragleave="onDragLeave"
-            @drop.prevent="onDrop"
-            class="add-photo"
+              @dragover.prevent="onDragOver"
+              @dragleave="onDragLeave"
+              @drop.prevent="onDrop"
+              class="add-photo"
           >
             <AddStudioButton
-              :border-opacity="isDragOver ? '100' : '20'"
-              title="Add Photo"
-              @click="openFileDialog"
+                :border-opacity="isDragOver ? '100' : '20'"
+                title="Add Photo"
+                type="room"
+                @click="openFileDialog"
             />
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="grid grid-cols-1 lg:grid-cols-1 gap-5">
         <div class="w-full flex flex-col gap-5">
           <div class="slug w-full flex-col flex gap-1.5">
             <div
@@ -430,15 +472,15 @@ const updatePhotoOrder = async (photoId: number, newIndex: number) => {
               </template>
             </FInputClassic>
           </div>
-
-        </div>
-        <div class="price w-full flex-col flex gap-1.5">
           <PriceChoose
               :room_id="room?.id"
+              @is-ready="isReady"
               @update-studios="emit('update-studios')"
               v-model="studioForm.price"
           />
+
         </div>
+
       </div>
     </template>
   </Popup>

@@ -16,15 +16,6 @@
       </template>
       <div class="container mx-auto px-2 md:px-4">
         <div class="grid grid-cols-1 gap-6">
-          <FSelectClassic
-              :thin="true"
-              v-if="addressesForPopup.length"
-              v-model="activeAddress"
-              :options="addressesForPopup"
-              size="sm"
-              class="w-60"
-              @change="getTeammates($event)"
-          />
           <TeammateRow
             class="border border-white border-opacity-30"
             v-for="teammate in teammates"
@@ -137,17 +128,14 @@ const getAddresses = async () => {
   });
 };
 
-const getTeammates = async (address_id = addressesForPopup.value[0].id) => {
+const getTeammates = async () => {
   isLoading.value = true
   const { fetch: fetchTeammates } = useApi({
-    url: `/address/${address_id}/staff`,
+    url: `/team/member`,
     auth: true,
   })
 
-  if (!address_id) {
-    isLoading.value = false
-    return
-  }
+
   fetchTeammates().then((response) => {
     teammates.value = response.data.map((teammate: { id: number; role: string; username: string; phone: string; email: string; booking_count: number; address: string; profile_photo: string }) => ({
       id: teammate.id,
@@ -159,7 +147,6 @@ const getTeammates = async (address_id = addressesForPopup.value[0].id) => {
       address: addressesForPopup.value.find((address) => address.id === teammate.pivot.address_id) || '',
       profile_photo: teammate.profile_photo,
     }))
-    console.log('teammates', response.data)
     isLoading.value = false
   })
 }

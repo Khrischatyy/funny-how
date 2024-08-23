@@ -1,11 +1,27 @@
 <template>
   <div
-    class="bg-black p-4 rounded-md shadow-lg flex flex-col justify-between relative"
+    class="bg-black h-[150px] sm:h-[234px] rounded-md shadow-lg flex flex-col justify-between relative"
   >
     <div class="flex justify-between items-start mb-4">
-      <div class="flex justify-start items-center gap-5">
-        <div>
-          <h3 class="text-2xl font-bold font-[BebasNeue] text-white">
+      <button
+          v-if="displayedPhotos.length > 1"
+          @click.stop="prevPhoto"
+          class="cursor-pointer w-auto opacity-60 hover:opacity-100 rounded-tr-[10px] rounded-tb-[10px] backdrop-blur-[1px] h-full bg-gradient-to-r to-transparent rounded-lg absolute flex items-center justify-start left-0 border-none p-0 z-10"
+      >
+        <IconLeft iconType="thin" />
+      </button>
+      <button
+          v-if="displayedPhotos.length > 1"
+          @click.stop="nextPhoto"
+          class="cursor-pointer w-auto opacity-60 hover:opacity-100 rounded-tl-[10px] rounded-bl-[10px] backdrop-blur-[1px] h-full bg-gradient-to-l to-transparent rounded-lg absolute flex items-center justify-end right-0 border-none p-0 z-10"
+      >
+        <IconRight iconType="thin" />
+      </button>
+      <div class="flex justify-start w-full rounded-md z-50 items-center gap-5">
+        <div
+            :class="{ 'bg-gradient-to-t from-transparent to-black': displayedPhotos.length > 1 }"
+            class="w-full rounded-md p-4">
+          <h3 class="text-l text-white">
             {{ room.name }}
           </h3>
         </div>
@@ -19,28 +35,28 @@
       </div>
     </div>
 
-    <div class="mt-4 flex gap-3 justify-between items-center relative">
-      <PhotoSwipe
-        v-if="displayedPhotos"
-        :key="photosUpdated"
-        :photos="displayedPhotos"
-        ref="photoSwipe"
-      />
+    <div
+        :style="`background: url(${displayedPhotos[currentIndex]?.path}) #2e2e2e no-repeat center center / cover;`"
+        class="flex gap-3 h-full w-full justify-center items-center absolute top-0 left-0 rounded-md cursor-pointer">
+      <IconPhotoPlaceholder
+          class="h-[50px] sm:h-[120px]"
+          v-if="displayedPhotos.length === 0" />
     </div>
-    <div class="mt-4 flex gap-3 justify-between items-center">
+    <div class="mt-4 flex gap-3 justify-between rounded-md items-center">
       <div
-        @mouseenter="showTooltip($event, generateTooltipContent('price'))"
+        @mouseenter="generateTooltipContent('price') && showTooltip($event, generateTooltipContent('price'))"
         @click.stop="showTooltip($event, generateTooltipContent('price'))"
         @mouseleave="hideTooltip"
-        class="flex items-center gap-2 relative group-price group"
+        :class="{ 'bg-gradient-to-b from-transparent to-black': displayedPhotos.length > 1 }"
+        class="flex p-4 items-center rounded-md z-50 w-full gap-2 relative group-price group"
       >
         <IconPrice class="opacity-20 group-hover:opacity-100" />
-        <div class="flex flex-col group-hover:opacity-100">
+        <div class="flex flex-col gap-2 group-hover:opacity-100">
           <span
-            class="text-white opacity-20 font-['BebasNeue'] group-hover:opacity-100"
+            class="text-white opacity-20 text-sm group-hover:opacity-100"
             >Price</span
           >
-          <span class="text-white font-['BebasNeue']">{{ primaryPrice }}</span>
+          <span class="text-white text-xs">{{ primaryPrice }}</span>
         </div>
       </div>
     </div>
@@ -108,7 +124,7 @@ import {
   IconLeft,
   IconLike,
   IconMic,
-  IconMonitor,
+  IconMonitor, IconPhotoPlaceholder,
   IconRight,
   IconTrash,
 } from "~/src/shared/ui/common"
@@ -180,6 +196,22 @@ const displayedPhotos = computed(() => {
     ? props.room.photos.sort((a, b) => a.index - b.index)
     : defaultPhotos
 })
+
+const prevPhoto = () => {
+  if (currentIndex.value === 0) {
+    currentIndex.value = displayedPhotos.value.length - 1
+  } else {
+    currentIndex.value--
+  }
+}
+
+const nextPhoto = () => {
+  if (currentIndex.value === displayedPhotos.value.length - 1) {
+    currentIndex.value = 0
+  } else {
+    currentIndex.value++
+  }
+}
 
 function generateTooltipContent(type) {
   if (type === "price") {

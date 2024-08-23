@@ -2,7 +2,7 @@
 import { inject, onMounted, ref } from "vue"
 import { IconDown, IconTrash } from "~/src/shared/ui/common"
 import { useApi } from "~/src/lib/api"
-const emit = defineEmits(["update-studios"])
+const emit = defineEmits(["update-studios", "is-ready"])
 const prices = ref([])
 const props = defineProps<{
       room_id?: number,
@@ -67,7 +67,7 @@ onMounted(async () => {
 })
 
 function getPrices() {
-  isLoading.value = false
+  isLoading.value = true
   const { fetch } = useApi({
     url: `/room/${props.room_id}/prices`,
     auth: true,
@@ -76,9 +76,12 @@ function getPrices() {
     .then((response) => {
       prices.value = response.data
       isLoading.value = false
+
     })
     .catch((error) => {
       console.error(error)
+    }).finally(() => {
+      emit("is-ready")
     })
 }
 
