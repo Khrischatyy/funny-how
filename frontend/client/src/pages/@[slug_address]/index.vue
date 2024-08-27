@@ -48,7 +48,7 @@
         v-if="address && address.is_complete"
         class="relative w-full flex-col justify-start items-center gap-2.5 flex"
       >
-        <div class="p-5 md:p-0 max-w-96">
+        <div class="p-5 md:p-0 max-w-96 sm:max-w-3xl sm:w-full flex flex-col items-center justify-center">
           <div
             class="max-w-96 w-full flex items-center justify-center gap-2 mt-5 mb-5"
           >
@@ -117,7 +117,7 @@
               class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
             >
               <div
-                v-for="price in address.prices"
+                v-for="price in uniquePrices"
                 class="price-tag flex flex-col gap-1 text-white justify-center items-center"
               >
                 <div class="mb-2">
@@ -178,32 +178,35 @@
               />
             </div>
           </div>
-          <div
-            v-if="address"
-            class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
-          >
-            <div class="relative w-full flex flex-col items-center mt-10">
-              <div class="flex items-center flex-col z-[60] w-full">
-               <FSelect
-                   class="w-full"
-                   modelKey="id"
-                   v-model="rentingForm.room_id"
-                   placeholder="Choose Room"
-                   :options="roomsOptions" />
-              </div>
+<!--          <div-->
+<!--            v-if="address"-->
+<!--            class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"-->
+<!--          >-->
+<!--            <div class="relative w-full flex flex-col items-center mt-10">-->
+<!--              <div class="flex items-center flex-col z-[60] w-full">-->
+<!--               <FSelect-->
+<!--                   class="w-full"-->
+<!--                   modelKey="id"-->
+<!--                   v-model="rentingForm.room_id"-->
+<!--                   placeholder="Choose Room"-->
+<!--                   :options="roomsOptions" />-->
+<!--              </div>-->
 
-            </div>
-          </div>
+<!--            </div>-->
+<!--          </div>-->
+          <div class="sm:max-w-3xl flex w-full justify-center">
           <div
-              v-if="address && rentingForm.room_id"
-              class="max-w-[514px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+              v-if="address"
+              class="flex flex-wrap m-auto gap-3 items-center justify-between sm:justify-center w-full mb-10 text-center"
           >
-            <div v-if="rentingForm.room_id" class="flex items-center flex-col z-[58] w-full">
+            <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)" @click="chooseRoom(room.id)" class="flex max-w-[165px] sm:max-w-[150px] max-h-[150px] items-center z-[58] w-full">
               <RoomCard
-                  class=" w-full"
-                  :room="address?.rooms?.find((room) => room.id === rentingForm.room_id)"
+                  class="w-full"
+                  :class="room.id === rentingForm.room_id ? 'border border-white' : 'border border-transparent'"
+                  :room="room"
               />
             </div>
+          </div>
           </div>
           <div
               v-if="address"
@@ -223,7 +226,7 @@
 
           </div>
           <div
-              v-if="address && rentingForm.engineer_id"
+              v-if="address"
               class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
             <div v-if="rentingForm.room_id" class="relative w-full flex items-center mt-10">
@@ -457,11 +460,27 @@ const { address } = useAddress(addressSlug.value)
 const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
 provide("address", address)
 
-const teammatesOptions = computed(() => address?.value?.engineers?.map((teammate) => ({
-  id: teammate.id,
-  name: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
-  label: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
-})))
+const teammatesOptions = computed(() => {
+  // Check if the address and engineers are defined
+  const engineers = address?.value?.engineers ?? [];
+
+  // Map engineers to the desired format
+  const options = engineers.map((teammate) => ({
+    id: teammate.id,
+    name: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
+    label: `${teammate.username} / $${teammate?.engineer_rate?.rate_per_hour}`,
+  }));
+
+  // Add the first option "No Engineer"
+  options.unshift({
+    id: null,
+    name: "No Engineer",
+    label: "No Engineer",
+  });
+
+  return options;
+});
+
 
 const roomsOptions = computed(() => address.value?.rooms.map((room) => ({
   id: room.id,
@@ -666,6 +685,19 @@ async function getEndSlots(start_time: string) {
 }
 const calculatedPrice = ref(0)
 
+const chooseRoom = (roomId: string) => {
+  rentingForm.value.room_id = roomId
+  getStartSlots()
+}
+
+const uniquePrices = computed(() => {
+  return address.value?.prices.reduce((acc, price) => {
+    if (!acc.find((p) => p.hours === price.hours)) {
+      acc.push(price)
+    }
+    return acc
+  }, [])
+})
 const calculatePrice = () => {
   const { post: getPrice } = useApi({
     url: `/address/calculate-price`,

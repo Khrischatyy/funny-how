@@ -21,6 +21,7 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RoomController extends BaseController
 {
@@ -116,11 +117,12 @@ class RoomController extends BaseController
     public function deletePrices(RoomPriceDeleteRequest $request): JsonResponse
     {
         $room_id = $request->input('room_id');
-        $room_price_id = $request->input('price_id');
+        $room_price_id = $request->input('room_price_id');
 
 
         try {
             $price = RoomPrice::where('room_id', $room_id)->where('id', $room_price_id)->firstOrFail();
+            Log::info('price', [$price]);
             $price->delete();
 
             // Fetch the updated list of prices for the address
@@ -128,7 +130,7 @@ class RoomController extends BaseController
 
             return $this->sendResponse($prices, 'Room price deleted successfully.', 200);
         } catch (ModelNotFoundException $e) {
-            return $this->sendError('Room not found for the given address.', 404);
+            return $this->sendError('Room or RoomPrice not found', 500);
         } catch (Exception $e) {
             return $this->sendError('Failed to delete room price.', 500, ['error' => $e->getMessage()]);
         }

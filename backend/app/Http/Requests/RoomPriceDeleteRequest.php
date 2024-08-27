@@ -24,8 +24,8 @@ class RoomPriceDeleteRequest extends FormRequest
     public function rules()
     {
         return [
-            'room_id' => 'required|int|exists:addresses,id',
-            'room_price_id' => 'required|int|exists:address_prices,id',
+            'room_id' => 'required|int|exists:rooms,id',
+            'room_price_id' => 'required|int|exists:room_prices,id',
         ];
     }
 }

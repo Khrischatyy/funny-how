@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-black h-[150px] sm:h-[234px] rounded-md shadow-lg flex flex-col justify-between relative"
+    class="bg-black h-full max-h-[150px] sm:max-h-[234px] rounded-md shadow-lg flex flex-col justify-between relative"
   >
     <div class="flex justify-between items-start mb-4">
       <button

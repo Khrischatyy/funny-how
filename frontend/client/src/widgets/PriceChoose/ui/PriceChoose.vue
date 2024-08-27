@@ -115,7 +115,7 @@ function sendPrice(price) {
 function deletePrice(price) {
   isLoading.value = true
   const { delete: callDeletePrice } = useApi({
-    url: `/room/prices?address_id=${props.room_id}&address_prices_id=${price.id}`,
+    url: `/room/prices?address_id=${props.room_id}&room_price_id=${price.id}&room_id=${props.room_id}`,
     auth: true,
   })
 
