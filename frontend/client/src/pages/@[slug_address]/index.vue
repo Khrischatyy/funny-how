@@ -178,22 +178,6 @@
               />
             </div>
           </div>
-<!--          <div-->
-<!--            v-if="address"-->
-<!--            class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"-->
-<!--          >-->
-<!--            <div class="relative w-full flex flex-col items-center mt-10">-->
-<!--              <div class="flex items-center flex-col z-[60] w-full">-->
-<!--               <FSelect-->
-<!--                   class="w-full"-->
-<!--                   modelKey="id"-->
-<!--                   v-model="rentingForm.room_id"-->
-<!--                   placeholder="Choose Room"-->
-<!--                   :options="roomsOptions" />-->
-<!--              </div>-->
-
-<!--            </div>-->
-<!--          </div>-->
           <div class="sm:max-w-3xl flex w-full justify-center">
           <div
               v-if="address"
@@ -706,6 +690,7 @@ const calculatePrice = () => {
 
   getPrice({
     room_id: rentingForm.value.room_id,
+    engineer_id: rentingForm.value.engineer_id,
     start_time:
       rentingForm.value.start_time.date +
       "T" +
@@ -754,6 +739,25 @@ watch(
   (newVal) => {
     if (newVal) {
       rentingForm.value.date = ""
+      rentingForm.value.start_time = {
+        time: "",
+        date: "",
+      }
+      rentingForm.value.end_time = {
+        time: "",
+        date: "",
+      }
+      calculatedPrice.value = 0
+
+    }
+  },
+)
+
+watch(
+  () => rentingForm.value.engineer_id,
+  (newVal) => {
+    if (newVal && rentingForm.value.start_time && rentingForm.value.end_time) {
+      calculatePrice()
     }
   },
 )
@@ -779,11 +783,9 @@ watchEffect(() => {
   }
 })
 
-watch(address, async () => {
-  if (address.value) {
-    await getTeammates(address.value.id)
-  }
-})
+// watch(address, async () => {
+//
+// })
 function book() {
   isLoading.value = true
   const { post: bookTime } = useApi({
@@ -875,6 +877,9 @@ const displayedPhotos: SlideData[] = computed(() =>
 )
 const mainContainer = ref<HTMLElement | null>(null)
 onMounted(() => {
+  // if(address?.value?.rooms?.length == 0)
+    rentingForm.value.room_id = address?.value?.rooms[0].id
+
   photoContainer.value?.addEventListener("animationend", () => {
     mainContainer.value.style.overflow = "inherit"
   })
