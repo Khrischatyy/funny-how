@@ -330,7 +330,7 @@ const updateSlug = () => {
               class="payouts w-full flex-col flex gap-1.5 mt-3.5"
           >
             <div
-                class="relative w-full flex-col justify-start items-center gap-2.5 flex"
+                class="relative w-full flex-col justify-start items-center gap-1.5 flex"
             >
               <div
                   class="flex-col w-full justify-start items-start gap-1.5 flex"

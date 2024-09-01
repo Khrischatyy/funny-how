@@ -66,12 +66,16 @@
       </div>
     </div>
 
-    <div class="mt-4 flex gap-3 justify-between items-center relative">
+    <div class="mt-4 flex gap-3 items-center justify-between relative">
       <PhotoSwipe
-        v-if="displayedPhotos"
+        v-if="displayedPhotos.length > 0"
         :photos="displayedPhotos"
         ref="photoSwipe"
       />
+      <IconPhotoPlaceholder
+          v-for="photo in 3"
+          class="h-[80px] sm:h-[80px]"
+          v-if="displayedPhotos.length === 0" />
     </div>
 
     <div class="mt-5 flex gap-3 w-full justify-center items-center relative">
@@ -179,7 +183,7 @@ import {
   IconLeft,
   IconLike,
   IconMic,
-  IconMonitor,
+  IconMonitor, IconPhotoPlaceholder,
   IconRight,
   IconTrash,
 } from "~/src/shared/ui/common"

@@ -42,7 +42,7 @@
           class="h-[50px] sm:h-[120px]"
           v-if="displayedPhotos.length === 0" />
     </div>
-    <div class="mt-4 flex gap-3 justify-between rounded-md items-center">
+    <div class="mt-0 sm:mt-4 flex gap-3 justify-between rounded-md items-center">
       <div
         @mouseenter="generateTooltipContent('price') && showTooltip($event, generateTooltipContent('price'))"
         @click.stop="showTooltip($event, generateTooltipContent('price'))"

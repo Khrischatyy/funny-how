@@ -181,7 +181,7 @@
           <div class="sm:max-w-3xl flex w-full justify-center">
           <div
               v-if="address"
-              class="flex flex-wrap m-auto gap-3 items-center justify-between sm:justify-center w-full mb-10 text-center"
+              class="flex flex-wrap m-auto gap-3 items-center justify-center w-full mb-10 text-center"
           >
             <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)" @click="chooseRoom(room.id)" class="flex max-w-[165px] sm:max-w-[150px] max-h-[150px] items-center z-[58] w-full">
               <RoomCard
@@ -634,6 +634,12 @@ onBeforeMount(() => {
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll)
   window.addEventListener("message", handlePaymentStatus)
+
+  rentingForm.value.room_id = address?.value?.rooms[0].id
+
+  photoContainer.value?.addEventListener("animationend", () => {
+    mainContainer.value.style.overflow = "inherit"
+  })
 })
 
 onUnmounted(() => {
@@ -876,14 +882,6 @@ const displayedPhotos: SlideData[] = computed(() =>
   })),
 )
 const mainContainer = ref<HTMLElement | null>(null)
-onMounted(() => {
-  // if(address?.value?.rooms?.length == 0)
-    rentingForm.value.room_id = address?.value?.rooms[0].id
-
-  photoContainer.value?.addEventListener("animationend", () => {
-    mainContainer.value.style.overflow = "inherit"
-  })
-})
 const showPopup = ref(false)
 const showLoginPopup = ref(false)
 const openEquipmentsPopup = () => {
