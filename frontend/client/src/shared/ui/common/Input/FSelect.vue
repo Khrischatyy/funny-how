@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { IconDown } from "~/src/shared/ui/common"
-import { computed, onMounted, ref, watch } from "vue"
+import {IconDown} from "~/src/shared/ui/common"
+import {computed, onMounted, ref, watch} from "vue"
 
 export type OptionType = {
   id: number | string
@@ -48,17 +48,17 @@ const toggleDropdown = () => {
 }
 
 watch(
-  () => props.modelValue,
-  (newValue) => {
-    value.value = newValue
-  },
+    () => props.modelValue,
+    (newValue) => {
+      value.value = newValue
+    },
 )
 
 const valueShow = computed(() => {
   if (props.modelKey) {
     return (
-      props.options.find((option) => option[props.modelKey] == value.value)
-        ?.label || props.placeholder
+        props.options.find((option) => option[props.modelKey] == value.value)
+            ?.label || props.placeholder
     )
   }
 
@@ -68,8 +68,8 @@ const valueShow = computed(() => {
   }
 
   return (
-    props.options.find((option) => option.id == value.value)?.label ||
-    props.placeholder
+      props.options.find((option) => option.id == value.value)?.label ||
+      props.placeholder
   )
 })
 
@@ -96,68 +96,68 @@ watch(showOptions, (newValue) => {
 </script>
 <template>
   <div
-    :class="{
+      :class="{
       'w-full': props.size === 'lg',
       'w-72': props.size === 'md',
       'w-52': props.size === 'sm',
     }"
-    class="w-full max-w-96 relative"
+      class="w-full max-w-96 relative"
   >
     <div
-      :class="label ? 'mb-1.5' : 'mb-0'"
-      class="label-action grid grid-cols-[max-content,max-content] justify-between items-center w-full"
+        :class="label ? 'mb-1.5' : 'mb-0'"
+        class="label-action grid grid-cols-[max-content,max-content] justify-between items-center w-full"
     >
       <div
-        v-if="label"
-        :class="{
+          v-if="label"
+          :class="{
           'opacity-20': props.size === 'sm',
           'opacity-100': props.size === 'md' || props.size === 'lg',
         }"
-        class="text-white text-sm font-normal tracking-wide"
+          class="text-white text-sm font-normal tracking-wide"
       >
         {{ label }}
       </div>
       <div
-        v-if="error"
-        class="text-right text-red-500 text-sm font-normal tracking-wide"
+          v-if="error"
+          class="text-right text-red-500 text-sm font-normal tracking-wide"
       >
         {{ error }}
       </div>
     </div>
     <div class="relative">
       <div
-        ref="optionsChoose"
-        :class="['relative w-full flex items-center', showOptions ? '' : '']"
-        class="h-[61px] cursor-pointer border-white border-double border-t border-l border-r pr-9"
-        @click="toggleDropdown"
+          ref="optionsChoose"
+          :class="['relative w-full flex items-center', showOptions ? '' : '']"
+          class="h-[61px] cursor-pointer border-white border-double border-t border-l border-r pr-9"
+          @click="toggleDropdown"
       >
         <div
-          class="w-full whitespace-nowrap overflow-hidden flex border-right justify-start items-center gap-2 px-3 min-h-[61px] h-full outline-none bg-transparent text-white font-[BebasNeue] text-2xl font-medium tracking-wide"
+            class="w-full whitespace-nowrap overflow-hidden flex border-right justify-start items-center gap-2 px-3 min-h-[61px] h-full outline-none bg-transparent text-white font-[BebasNeue] text-2xl font-medium tracking-wide"
         >
-          <slot name="icon" />
+          <slot name="icon"/>
           {{ valueShow }}
         </div>
         <span class="absolute -right-[1px] mr-2 mb-1 cursor-pointer">
-          <IconDown :rotation="showOptions ? 180 : 0" />
+          <IconDown :rotation="showOptions ? 180 : 0"/>
         </span>
       </div>
       <div
-        ref="optionsContainer"
-        :class="[
+          ref="optionsContainer"
+          :class="[
           'select-options',
           showOptions ? 'max-h-64 border-t mt-3' : 'max-h-0 ',
           scroll ? 'overflow-y-auto' : 'overflow-hidden',
         ]"
-        class="select-options custom-transition absolute top-full left-0 border-l border-r border-b border-white h-auto w-full z-10 bg-black"
+          class="select-options custom-transition absolute top-full left-0 border-l border-r border-b border-white h-auto w-full bg-black"
       >
         <ul class="w-full h-full">
           <li
-            v-if="props.options.length === 0"
-            class="option cursor-pointer text-2xl hover:opacity-60 py-4"
+              v-if="props.options.length === 0"
+              class="option cursor-pointer text-2xl hover:opacity-60 py-4"
           >
             <div class="w-full h-full flex items-center justify-center px-5">
               <div
-                class="text-white text-left font-[BebasNeue] font-medium tracking-wide w-full"
+                  class="text-white text-left font-[BebasNeue] font-medium tracking-wide w-full"
               >
                 No options available
               </div>
@@ -165,20 +165,20 @@ watch(showOptions, (newValue) => {
           </li>
           <template :key="option.name" v-for="(option, index) in props.options">
             <li
-              @click="handleChange(option)"
-              class="option cursor-pointer text-2xl hover:opacity-60 py-4"
+                @click="handleChange(option)"
+                class="option cursor-pointer text-2xl hover:opacity-60 py-4"
             >
               <div class="w-full h-full flex items-center justify-center px-5">
                 <div
-                  class="text-white text-left font-[BebasNeue] font-medium tracking-wide w-full"
+                    class="text-white text-left font-[BebasNeue] font-medium tracking-wide w-full"
                 >
                   {{ option.label }}
                 </div>
               </div>
             </li>
             <div
-              v-if="index != props.options.length - 1"
-              class="border-b border-white mx-5"
+                v-if="index != props.options.length - 1"
+                class="border-b border-white mx-5"
             ></div>
           </template>
         </ul>
@@ -191,9 +191,11 @@ watch(showOptions, (newValue) => {
 .custom-transition {
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
+
 .border-right {
   position: relative;
 }
+
 .border-right::after {
   content: "";
   position: absolute;

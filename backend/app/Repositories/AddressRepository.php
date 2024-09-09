@@ -102,4 +102,25 @@ class AddressRepository implements AddressRepositoryInterface
 
         return $addresses;
     }
+
+    public function getCitiesByCompany(int $companyId)
+    {
+        return Address::where('company_id', $companyId)
+            ->with('city:id,name')
+            ->get()
+            ->pluck('city')
+            ->unique('id')
+            ->values();
+    }
+
+    public function getRandomStudio(): Address
+    {
+        $address = Address::
+        whereHas('company.adminCompany.user', function ($query) {
+            $query->whereNotNull('stripe_id')->orWhere('payment_gateway', 'square');
+        })->whereHas('operatingHours')->with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])
+        ->inRandomOrder()->first();
+
+        return $address;
+    }
 }

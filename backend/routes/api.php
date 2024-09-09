@@ -198,10 +198,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('brand', [AddressController::class, 'createBrand']); // company + address created
 
     Route::get('my-studios', [AddressController::class, 'getMyAddresses']);
+
     Route::get('{slug}/studios', [AddressController::class, 'getAddressesByCompanySlug']);
 
 
 });
+
+Route::get('random-studio', [AddressController::class, 'getRandomStudio']);
 Route::get('map/studios', [AddressController::class, 'getAllStudios']);
 Route::prefix('countries')->group(function () {
     Route::get('/', [CountryController::class, 'getCountries']);

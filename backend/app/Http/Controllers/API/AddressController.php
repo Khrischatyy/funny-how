@@ -765,4 +765,14 @@ class AddressController extends BaseController
     {
         return $this->roomService->createRoom('Room1', $address);
     }
+
+    public function getRandomStudio(): JsonResponse
+    {
+        try {
+            $studio = $this->addressService->getRandomStudio();
+            return $this->sendResponse($studio, 'Random studio retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->sendError('Failed to retrieve random studio.', 500, ['error' => $e->getMessage()]);
+        }
+    }
 }

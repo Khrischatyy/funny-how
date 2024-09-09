@@ -204,4 +204,9 @@ class AddressService
 
         return $query->with(['city', 'company'])->get();
     }
+
+    public function getRandomStudio(): Address
+    {
+        return $this->addressRepository->getRandomStudio();
+    }
 }

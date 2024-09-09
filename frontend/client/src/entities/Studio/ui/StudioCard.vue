@@ -1,10 +1,10 @@
 <template>
   <div
-    class="bg-black p-4 rounded-md shadow-lg flex flex-col justify-between relative"
+      class="bg-black p-4 rounded-md shadow-lg flex flex-col justify-between relative"
   >
     <div class="flex justify-between items-start mb-4">
       <div class="flex justify-start items-center gap-5">
-        <img :src="logoSrc" alt="Logo" class="h-[35px] w-[35px]" />
+        <img :src="logoSrc" alt="Logo" class="h-[35px] w-[35px]"/>
         <div>
           <h3 class="text-2xl font-bold font-[BebasNeue] text-white">
             {{ studio.company.name }}
@@ -17,50 +17,49 @@
         </div>
       </div>
       <div
-        v-if="isDelete"
-        @click.stop="openPopup()"
-        class="flex items-center gap-3 cursor-pointer hover:opacity-70"
+          v-if="isDelete"
+          @click.stop="openPopup()"
+          class="flex items-center gap-3 cursor-pointer hover:opacity-70"
       >
-        <IconTrash />
+        <IconTrash/>
       </div>
       <div
-        v-else
-        class="flex flex-col items-center gap-3 cursor-pointer hover:opacity-70"
+          v-else
+          class="flex flex-col items-center gap-3 cursor-pointer hover:opacity-70"
       >
         <div style="font-size: 1.5rem" class="text-white font-[BebasNeue]">
-          Rating
         </div>
       </div>
     </div>
     <div
-      class="flex flex-col justify-center items-center absolute left-0 top-0 w-full h-full"
-      v-if="!studio.is_complete"
+        class="flex flex-col justify-center items-center absolute left-0 top-0 w-full h-full"
+        v-if="!studio.is_complete"
     >
       <div
-        class="absolute bg-black bg-opacity-50 z-20 backdrop-blur-[15px] rounded-[10px] left-0 top-0 w-full h-full"
+          class="absolute bg-black bg-opacity-50 z-20 backdrop-blur-[15px] rounded-[10px] left-0 top-0 w-full h-full"
       ></div>
       <div
-        class="flex justify-start z-30 items-center gap-2 px-5 py-2 rounded-[10px] bg-red-500 bg-opacity-0 border-opacity-0 border border-red-500"
+          class="flex justify-start z-30 items-center gap-2 px-5 py-2 rounded-[10px] bg-red-500 bg-opacity-0 border-opacity-0 border border-red-500"
       >
         <div class="iconInfo z-30">
-          <IconStatus />
+          <IconStatus/>
         </div>
         <div class="textInfo z-30">
           <span class="text-white font-['BebasNeue']"
-            >Complete setup to publish your studio
+          >Complete setup to publish your studio
           </span>
         </div>
       </div>
       <div
-        v-if="!studio?.stripe_account_id"
-        class="flex justify-start z-30 items-center gap-2 px-5 py-2 rounded-[10px] bg-red-500 bg-opacity-0 border-opacity-0 border border-red-500"
+          v-if="!studio?.stripe_account_id"
+          class="flex justify-start z-30 items-center gap-2 px-5 py-2 rounded-[10px] bg-red-500 bg-opacity-0 border-opacity-0 border border-red-500"
       >
         <div class="iconInfo z-30">
-          <IconDollar />
+          <IconDollar/>
         </div>
         <div class="textInfo z-30">
           <span class="text-white font-['BebasNeue']"
-            >Add Payout Information
+          >Add Payout Information
           </span>
         </div>
       </div>
@@ -68,52 +67,54 @@
 
     <div class="mt-4 flex gap-3 items-center justify-between relative">
       <PhotoSwipe
-        v-if="displayedPhotos.length > 0"
-        :photos="displayedPhotos"
-        ref="photoSwipe"
+          v-if="displayedPhotos.length > 0"
+          :photos="displayedPhotos"
+          ref="photoSwipe"
+          :theme="theme"
+          :main-color="mainColor"
       />
       <IconPhotoPlaceholder
           v-for="photo in 3"
           class="h-[80px] sm:h-[80px]"
-          v-if="displayedPhotos.length === 0" />
+          v-if="displayedPhotos.length === 0"/>
     </div>
 
     <div class="mt-5 flex gap-3 w-full justify-center items-center relative">
       <BadgesList
-        class="justify-center-important"
-        :badges="displayedBadges.slice(0, 4)"
+          class="justify-center-important"
+          :badges="displayedBadges.slice(0, 4)"
       />
     </div>
     <div class="mt-4 flex gap-3 justify-between items-center">
       <div
-        @mouseenter="showTooltip($event, generateTooltipContent('hours'))"
-        @click.stop="showTooltip($event, generateTooltipContent('hours'))"
-        @mouseleave="hideTooltip"
-        class="flex items-center relative group-hours-block group"
+          @mouseenter="showTooltip($event, generateTooltipContent('hours'))"
+          @click.stop="showTooltip($event, generateTooltipContent('hours'))"
+          @mouseleave="hideTooltip"
+          class="flex items-center relative group-hours-block group"
       >
-        <IconClock class="opacity-20 group-hover:opacity-100" />
+        <IconClock class="opacity-20 group-hover:opacity-100"/>
         <div class="flex flex-col group-hover:opacity-100">
           <span
-            class="text-white opacity-20 font-['BebasNeue'] group-hover:opacity-100"
-            >Working Hours</span
+              class="text-white opacity-20 font-['BebasNeue'] group-hover:opacity-100"
+          >Working Hours</span
           >
           <span class="text-white font-['BebasNeue']">{{
-            todayWorkingHours
-          }}</span>
+              todayWorkingHours
+            }}</span>
         </div>
       </div>
 
       <div
-        @mouseenter="showTooltip($event, generateTooltipContent('price'))"
-        @click.stop="showTooltip($event, generateTooltipContent('price'))"
-        @mouseleave="hideTooltip"
-        class="flex items-center gap-2 relative group-price group"
+          @mouseenter="showTooltip($event, generateTooltipContent('price'))"
+          @click.stop="showTooltip($event, generateTooltipContent('price'))"
+          @mouseleave="hideTooltip"
+          class="flex items-center gap-2 relative group-price group"
       >
-        <IconPrice class="opacity-20 group-hover:opacity-100" />
+        <IconPrice class="opacity-20 group-hover:opacity-100"/>
         <div class="flex flex-col group-hover:opacity-100">
           <span
-            class="text-white opacity-20 font-['BebasNeue'] group-hover:opacity-100"
-            >Price</span
+              class="text-white opacity-20 font-['BebasNeue'] group-hover:opacity-100"
+          >Price</span
           >
           <span class="text-white font-['BebasNeue']">{{ primaryPrice }}</span>
         </div>
@@ -126,10 +127,10 @@
     </Tooltip>
     <Teleport v-if="showPopup" to="body">
       <Popup
-        :title="'Delete Studio'"
-        type="small"
-        :open="showPopup"
-        @close="closePopup"
+          :title="'Delete Studio'"
+          type="small"
+          :open="showPopup"
+          @close="closePopup"
       >
         <template #header>
           <h1 class="text-white text-[22px]/[26px]">
@@ -139,28 +140,28 @@
         <template #body>
           <div class="equipment w-full flex flex-col gap-2">
             <FInputClassic
-              label="Type in Delete studio to confirm"
-              placeholder="Type in Delete studio"
-              v-model="deleteConfirmation"
+                label="Type in Delete studio to confirm"
+                placeholder="Type in Delete studio"
+                v-model="deleteConfirmation"
             />
           </div>
         </template>
         <template #footer>
           <div class="flex justify-between items-center gap-2 w-full">
             <button
-              @click="closePopup"
-              class="w-full h-11 p-3.5 hover:opacity-90 bg-transparent rounded-[10px] text-white border-white border text-sm font-medium tracking-wide"
+                @click="closePopup"
+                class="w-full h-11 p-3.5 hover:opacity-90 bg-transparent rounded-[10px] text-white border-white border text-sm font-medium tracking-wide"
             >
               Cancel
             </button>
             <button
-              :disabled="deleteConfirmation.toLowerCase() !== 'delete studio'"
-              :class="{
+                :disabled="deleteConfirmation.toLowerCase() !== 'delete studio'"
+                :class="{
                 'opacity-80':
                   deleteConfirmation.toLowerCase() !== 'delete studio',
               }"
-              @click="deleteStudio()"
-              class="w-full h-11 p-3.5 hover:opacity-80 bg-white rounded-[10px] text-neutral-700 border-white border text-sm font-medium tracking-wide"
+                @click="deleteStudio()"
+                class="w-full h-11 p-3.5 hover:opacity-80 bg-white rounded-[10px] text-neutral-700 border-white border text-sm font-medium tracking-wide"
             >
               Delete
             </button>
@@ -172,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref } from "vue"
+import {computed, inject, ref} from "vue"
 import IconPrice from "~/src/shared/ui/common/Icon/Filter/IconPrice.vue"
 import {
   FInputClassic,
@@ -194,14 +195,14 @@ import defaultLogo from "~/src/shared/assets/image/studio.png"
 import defaultPhoto3_1 from "~/src/shared/assets/image/skeleton-studio-card/music-studio.png"
 import defaultPhoto3_2 from "~/src/shared/assets/image/skeleton-studio-card/studio.png"
 import defaultPhoto3_3 from "~/src/shared/assets/image/skeleton-studio-card/studio-microphone.png"
-import { ScrollContainer } from "~/src/shared/ui/common/ScrollContainer"
-import { Tooltip } from "~/src/shared/ui/Tooltip"
-import { PhotoSwipe } from "~/src/shared/ui/components/PhotoSwipe"
+import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer"
+import {Tooltip} from "~/src/shared/ui/Tooltip"
+import {PhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe"
 import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue"
-import { Clipboard } from "~/src/shared/ui/common/Clipboard"
-import { Popup } from "~/src/shared/ui/components"
-import { useApi } from "~/src/lib/api"
-import { IconStatus } from "~/src/shared/ui/common/Icon/Filter"
+import {Clipboard} from "~/src/shared/ui/common/Clipboard"
+import {Popup} from "~/src/shared/ui/components"
+import {useApi} from "~/src/lib/api"
+import {IconStatus} from "~/src/shared/ui/common/Icon/Filter"
 
 const props = defineProps({
   studio: {
@@ -211,6 +212,14 @@ const props = defineProps({
   isDelete: {
     type: Boolean,
     default: false,
+  },
+  theme: {
+    type: String,
+    default: "default",
+  },
+  mainColor: {
+    type: String,
+    default: "black",
   },
 })
 
@@ -231,7 +240,7 @@ const ICON_MAP = {
   rent: IconBooking,
 }
 
-const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
+const {tooltipData, showTooltip, hideTooltip} = inject("tooltipData")
 
 const currentIndex = ref(0)
 const badgeIndex = ref(0)
@@ -242,14 +251,14 @@ const logoSrc = computed(() => {
 
 const displayedPhotos = computed(() => {
   let defaultPhotos = [
-    { url: defaultPhoto3_1 },
-    { url: defaultPhoto3_2 },
-    { url: defaultPhoto3_3 },
+    {url: defaultPhoto3_1},
+    {url: defaultPhoto3_2},
+    {url: defaultPhoto3_3},
   ]
 
   return props.studio.photos
-    ? props.studio.photos.sort((a, b) => a.index - b.index)
-    : defaultPhotos
+      ? props.studio.photos.sort((a, b) => a.index - b.index)
+      : defaultPhotos
 })
 
 const displayedBadges = computed(() => {
@@ -275,33 +284,34 @@ function generateTooltipContent(type) {
 
     // Map over the sorted hours to create formatted strings
     return hours
-      .map((hour) => {
-        const dayName =
-          hour.day_of_week === null ? "Everyday" : daysOfWeek[hour.day_of_week]
-        const timeString = hour.is_closed
-          ? "Closed"
-          : `${hour.open_time.substring(0, 5)} - ${hour.close_time.substring(
-              0,
-              5,
-            )}`
-        return `${dayName}: ${timeString}`
-      })
-      .join("\n")
+        .map((hour) => {
+          const dayName =
+              hour.day_of_week === null ? "Everyday" : daysOfWeek[hour.day_of_week]
+          const timeString = hour.is_closed
+              ? "Closed"
+              : `${hour.open_time.substring(0, 5)} - ${hour.close_time.substring(
+                  0,
+                  5,
+              )}`
+          return `${dayName}: ${timeString}`
+        })
+        .join("\n")
   } else if (type === "price") {
     return props.studio.prices
-      .map((price) => {
-        return `${price.total_price} / ${price.hours} hour`
-      })
-      .join("\n")
+        .map((price) => {
+          return `${price.total_price} / ${price.hours} hour`
+        })
+        .join("\n")
   }
 }
+
 const deleteStudio = () => {
-  const { post: deleteAddress } = useApi({
+  const {post: deleteAddress} = useApi({
     url: `/address/delete-studio`,
     auth: true,
   })
 
-  deleteAddress({ address_id: props.studio.id }).then(() => {
+  deleteAddress({address_id: props.studio.id}).then(() => {
     emit("update-studios")
     closePopup()
   })
@@ -316,7 +326,7 @@ const primaryPrice = computed(() => {
   if (props.studio.prices && props.studio.prices.length > 0) {
     const price = props.studio.prices[0]
     return `$${parseInt(price.total_price)} / ${
-      price.hours > 1 ? price.hours + " hours" : "hour"
+        price.hours > 1 ? price.hours + " hours" : "hour"
     }`
   }
   return ""
