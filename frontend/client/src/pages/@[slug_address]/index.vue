@@ -1,76 +1,77 @@
 <template>
   <div
-    ref="mainContainer"
-    class="grid min-h-screen pb-[400px] overflow-hidden h-full bg-black"
-    style="min-height: -webkit-fill-available"
+      ref="mainContainer"
+      class="grid min-h-screen pb-[400px] overflow-hidden h-full bg-black"
+      style="min-height: -webkit-fill-available"
   >
-    <Spinner :is-loading="!address" />
+    <Spinner :is-loading="!address"/>
     <div
-      v-if="address && address.is_complete && address.photos.length > 0"
-      ref="photoContainer"
-      style="width: -webkit-fill-available"
-      class="photo-container animate__animated animate__fadeInDown w-full max-h-[250px] max-w-full backdrop-blur p-0 py-5 md:p-10"
+        v-if="address && address.is_complete && address.photos.length > 0"
+        ref="photoContainer"
+        style="width: -webkit-fill-available"
+        class="photo-container animate__animated animate__fadeInDown w-full max-h-[250px] max-w-full backdrop-blur p-0 py-5 md:p-10"
     >
       <div
-        ref="pswpElement"
-        class="pswp"
-        tabindex="-1"
-        role="dialog"
-        aria-hidden="true"
+          ref="pswpElement"
+          class="pswp"
+          tabindex="-1"
+          role="dialog"
+          aria-hidden="true"
       ></div>
       <ScrollContainer
-        v-if="address?.photos?.length > 0"
-        :justify-content="address?.photos?.length >= 7 ? 'start' : 'center'"
-        justofy-content-mobile="start"
-        class="rounded-[10px] h-full"
-        theme="default"
-        main-color="#171717"
+          v-if="address?.photos?.length > 0"
+          :justify-content="address?.photos?.length >= 7 ? 'start' : 'center'"
+          justofy-content-mobile="start"
+          class="rounded-[10px] h-full"
+          theme="default"
+          main-color="#171717"
       >
         <div
-          v-for="(photo, index) in address?.photos.sort(
+            v-for="(photo, index) in address?.photos.sort(
             (a, b) => a.index - b.index,
           )"
-          class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement"
+            class="max-h-30 max-w-[250px] bg-white shadow rounded-[10px] scrollElement"
         >
           <img
-            :src="photo.path"
-            @click.stop="() => openGallery(displayedPhotos, index)"
-            alt="cover photo"
-            class="w-full h-full object-cover rounded-[10px]"
+              :src="photo.path"
+              @click.stop="() => openGallery(displayedPhotos, index)"
+              alt="cover photo"
+              class="w-full h-full object-cover rounded-[10px]"
           />
         </div>
       </ScrollContainer>
     </div>
     <div
-      class="info-container w-full animate__animated animate__fadeInRight h-full flex-col justify-between items-start gap-7 inline-flex"
+        class="info-container w-full animate__animated animate__fadeInRight h-full flex-col justify-between items-start gap-7 inline-flex"
     >
       <div
-        v-if="address && address.is_complete"
-        class="relative w-full flex-col justify-start items-center gap-2.5 flex"
+          v-if="address && address.is_complete"
+          class="relative w-full flex-col justify-start items-center gap-2.5 flex"
       >
         <div class="p-5 md:p-0 max-w-96 sm:max-w-3xl sm:w-full flex flex-col items-center justify-center">
           <div
-            class="max-w-96 w-full flex items-center justify-center gap-2 mt-5 mb-5"
+              class="max-w-96 w-full flex items-center justify-center gap-2 mt-5 mb-5"
           >
             <div
-              class="text-white w-full flex flex-col justify-center items-center text-5xl font-bold"
+                class="text-white w-full flex flex-col justify-center items-center text-5xl font-bold"
             >
               <div
-                @click="navigateTo('/studios')"
-                class="text-white cursor-pointer w-full opacity-20 hover:opacity-100 mb-3 flex gap-3 justify-end items-center text-xs font-['Montserrat'] font-normal tracking-wide"
+                  @click="navigateTo('/studios')"
+                  class="text-white cursor-pointer w-full opacity-20 hover:opacity-100 mb-3 flex gap-3 justify-end items-center text-xs font-['Montserrat'] font-normal tracking-wide"
               >
-                <IconBackDraw class="w-3" /> All Studios
+                <IconBackDraw class="w-3"/>
+                All Studios
               </div>
               <div
-                class="text-white w-full opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
+                  class="text-white w-full opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
               >
                 Studio name
               </div>
               <div class="flex gap-5 w-full">
                 <div v-if="address?.company?.logo_url">
                   <img
-                    :src="address?.company?.logo_url"
-                    class="h-10 w-10 object-contain"
+                      :src="address?.company?.logo_url"
+                      class="h-10 w-10 object-contain"
                   />
                 </div>
                 <div class="font-[BebasNeue] w-full text-left">
@@ -80,51 +81,51 @@
             </div>
           </div>
           <div
-            class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+              class="max-w-96 w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
             <div
-              class="text-white mb-10 text-5xl font-light text-left tracking-wide"
+                class="text-white mb-10 text-5xl font-light text-left tracking-wide"
             >
               <div
-                class="text-white opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
+                  class="text-white opacity-20 mb-3 text-sm font-['Montserrat'] font-normal tracking-wide"
               >
                 Address
               </div>
               <Clipboard :text-to-copy="address?.street">
                 <div class="flex gap-5 w-full">
                   <div>
-                    <IconAddress class="h-10 w-10 object-contain" />
+                    <IconAddress class="h-10 w-10 object-contain"/>
                   </div>
                   <div class="font-[BebasNeue] text-4xl w-full text-left">
-                    {{ address?.street }}<br />
+                    {{ address?.street }}<br/>
                   </div>
                 </div>
               </Clipboard>
             </div>
             <div
-              class="max-w-[300px] w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center"
-              style="width: -webkit-fill-available"
+                class="max-w-[300px] w-full justify-start gap-2.5 items-center inline-flex mb-10 text-center"
+                style="width: -webkit-fill-available"
             >
               <BadgesList
-                justify-content="center"
-                theme="default"
-                size="lg"
-                style="width: -webkit-fill-available"
-                :badges="address?.badges"
+                  justify-content="center"
+                  theme="default"
+                  size="lg"
+                  style="width: -webkit-fill-available"
+                  :badges="address?.badges"
               />
             </div>
             <div
-              class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
+                class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
             >
               <div
-                v-for="price in uniquePrices"
-                class="price-tag flex flex-col gap-1 text-white justify-center items-center"
+                  v-for="price in uniquePrices"
+                  class="price-tag flex flex-col gap-1 text-white justify-center items-center"
               >
                 <div class="mb-2">
-                  <IconPricetag />
+                  <IconPricetag/>
                 </div>
                 <div
-                  class="font-[BebasNeue] text-3xl flex justify-center items-center"
+                    class="font-[BebasNeue] text-3xl flex justify-center items-center"
                 >
                   {{ price.hours }} HOUR{{ price.hours > 1 ? "S" : "" }}
                 </div>
@@ -132,78 +133,90 @@
               </div>
             </div>
             <div
-              class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
+                class="max-w-96 w-full justify-center gap-3.5 items-center flex mb-10 text-center"
             >
               <div
-                class="price-tag flex gap-2 font-[BebasNeue] text-4xl text-white justify-center items-center"
+                  class="price-tag flex gap-2 font-[BebasNeue] text-4xl text-white justify-center items-center"
               >
                 Rating:
                 <span :class="getRatingColor(address?.rating)">{{
-                  address?.rating
-                }}</span>
+                    address?.rating
+                  }}</span>
               </div>
             </div>
             <div
-              v-if="address?.equipments.length > 0"
-              @click="openEquipmentsPopup"
-              class="relative flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
+                v-if="address?.equipments.length > 0"
+                @click="openEquipmentsPopup"
+                class="relative flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
             >
               <button
-                class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
+                  class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
               >
                 Equipments
               </button>
             </div>
           </div>
           <div
-            class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+              class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
             <div class="w-full max-w-[514px] h-[313px] relative">
               <a
-                :href="`https://www.google.com/maps?q=${address?.latitude},${address?.longitude}`"
-                target="_blank"
-                class="nav group absolute z-10 w-full h-full group bg-black cursor-pointer bg-opacity-70 hover:bg-opacity-90 transition duration-300 flex justify-center items-center"
+                  :href="`https://www.google.com/maps?q=${address?.latitude},${address?.longitude}`"
+                  target="_blank"
+                  class="nav group absolute z-10 w-full h-full group bg-black cursor-pointer bg-opacity-70 hover:bg-opacity-90 transition duration-300 flex justify-center items-center"
               >
                 <div
-                  class="navigate-button font-[BebasNeue] group-hover:scale-115 transition duration-300 text-2xl text-white flex gap-3 justify-center items-center"
+                    class="navigate-button font-[BebasNeue] group-hover:scale-115 transition duration-300 text-2xl text-white flex gap-3 justify-center items-center"
                 >
-                  <IconNav class="w-[20px] h-[20px]" /> Direction
+                  <IconNav class="w-[20px] h-[20px]"/>
+                  Direction
                 </div>
               </a>
               <GoogleMap
-                class=""
-                :logo="address?.company.logo_url"
-                :lat="address?.latitude"
-                :lng="address?.longitude"
+                  class=""
+                  :logo="address?.company.logo_url"
+                  :lat="address?.latitude"
+                  :lng="address?.longitude"
               />
             </div>
           </div>
-          <div class="sm:max-w-3xl flex w-full justify-center">
-          <div
-              v-if="address"
-              class="flex flex-wrap m-auto gap-3 items-center justify-center w-full mb-10 text-center"
-          >
-            <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)" @click="chooseRoom(room.id)" class="flex max-w-[165px] sm:max-w-[150px] max-h-[150px] items-center z-[58] w-full">
-              <RoomCard
-                  class="w-full"
-                  :class="room.id === rentingForm.room_id ? 'border border-white' : 'border border-transparent'"
-                  :room="room"
-              />
+          <div class="sm:max-w-3xl flex w-full justify-center mb-10">
+            <div
+                v-if="address?.rooms.length > 0"
+                class="flex flex-col flex-wrap m-auto gap-3 items-center justify-center w-full text-center"
+            >
+              <div
+                  class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+              >
+                Choose Room
+              </div>
+              <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)" @click="chooseRoom(room.id)"
+                   class="flex max-w-[165px] sm:max-w-[150px] max-h-[150px] items-center z-[58] w-full">
+                <RoomCard
+                    class="w-full"
+                    :class="room.id === rentingForm.room_id ? 'border border-white' : 'border border-transparent'"
+                    :room="room"
+                />
+              </div>
             </div>
           </div>
-          </div>
           <div
               v-if="address"
-              class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
+              class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col text-center mb-10"
           >
-            <div class="relative w-full flex flex-col items-center mt-10">
+            <div
+                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+            >
+              Engineer
+            </div>
+            <div class="relative w-full flex flex-col items-center">
               <div class="flex items-center flex-col z-[55] w-full">
                 <FSelect
                     class="w-full"
                     modelKey="id"
                     v-model="rentingForm.engineer_id"
                     placeholder="Choose Engineer"
-                    :options="teammatesOptions" />
+                    :options="teammatesOptions"/>
               </div>
 
             </div>
@@ -213,146 +226,152 @@
               v-if="address"
               class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
-            <div v-if="rentingForm.room_id" class="relative w-full flex items-center mt-10">
+            <div
+                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+            >
+              Choose Day
+            </div>
+            <div v-if="rentingForm.room_id" class="relative w-full flex items-center">
               <div class="flex items-center flex-col w-full">
                 <SelectPicker
-                  :timezone="address?.timezone"
-                  class="w-full z-50"
-                  @dateSelected="dateChanged($event, 'date')"
+                    :timezone="address?.timezone"
+                    class="w-full z-50"
+                    @dateSelected="dateChanged($event, 'date')"
                 />
               </div>
             </div>
 
             <div
-              v-if="rentingForm.date == 'another-day'"
-              class="relative w-full flex items-center mt-3"
+                v-if="rentingForm.date == 'another-day'"
+                class="relative w-full flex items-center mt-3"
             >
               <div class="flex items-center">
                 <input
-                  v-model="rentingForm.anotherDate"
-                  name="date"
-                  type="date"
-                  ref="dateInput"
-                  class="w-full px-3 h-11 outline-none rounded-[10px] opacity-0 absolute focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+                    v-model="rentingForm.anotherDate"
+                    name="date"
+                    type="date"
+                    ref="dateInput"
+                    class="w-full px-3 h-11 outline-none rounded-[10px] opacity-0 absolute focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
                 />
               </div>
               <div
-                @click="openDatePicker('date')"
-                class="relative w-full flex items-center"
+                  @click="openDatePicker('date')"
+                  class="relative w-full flex items-center"
               >
                 <input
-                  :value="rentingForm.anotherDate"
-                  placeholder="Choose Another Day"
-                  class="pointer-events-none w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
-                  name="workday"
+                    :value="rentingForm.anotherDate"
+                    placeholder="Choose Another Day"
+                    class="pointer-events-none w-full px-3 h-11 outline-none rounded-[10px] focus:border-white border border-neutral-700 border-opacity-100 bg-transparent text-white text-sm font-medium tracking-wide"
+                    name="workday"
                 />
                 <span class="absolute right-5 text-neutral-700 cursor-pointer"
-                  >Day</span
+                >Day</span
                 >
                 <span class="absolute right-0 cursor-pointer">
-                  <IconDown />
+                  <IconDown/>
                 </span>
               </div>
             </div>
+
             <div
-              v-if="rentingForm.date && hoursAvailableStart.length == 0"
-              class="relative w-full flex flex-col max-w-[212px] items-center"
+                v-if="rentingForm.date && hoursAvailableStart.length == 0"
+                class="relative w-full flex flex-col max-w-[212px] items-center"
             >
               <div
-                class="flex gap-2 font-[BebasNeue] text-l text-white justify-center mt-5 mb-2 items-center"
+                  class="flex gap-2 font-[BebasNeue] text-l text-white justify-center mt-5 mb-2 items-center"
               >
                 No available slots at this time
               </div>
             </div>
             <div
-              v-if="rentingForm.date && hoursAvailableStart.length > 0"
-              class="relative w-full max-w-[212px] flex flex-col items-center"
+                v-if="rentingForm.date && hoursAvailableStart.length > 0"
+                class="relative w-full max-w-[212px] flex flex-col items-center mt-10"
             >
               <div
-                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+                  class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
               >
                 Start From
               </div>
               <TimeSelect
-                :key="rentingForm.date"
-                class="z-40"
-                :available-hours="hoursAvailableStart"
-                label="Start From"
-                placeholder="Choose Start Time"
-                renting-form="rentingForm"
-                @timeChanged="timeChanged($event, 'start_time')"
+                  :key="rentingForm.date"
+                  class="z-40"
+                  :available-hours="hoursAvailableStart"
+                  label="Start From"
+                  placeholder="Choose Start Time"
+                  renting-form="rentingForm"
+                  @timeChanged="timeChanged($event, 'start_time')"
               />
             </div>
 
             <div
-              v-if="
+                v-if="
                 rentingForm['start_time'] &&
                 rentingForm.date &&
                 hoursAvailableEnd.length > 0
               "
-              class="relative w-full flex flex-col max-w-[212px] mb-10 items-center"
+                class="relative w-full flex flex-col max-w-[212px] mb-10 items-center"
             >
               <div
-                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+                  class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
               >
                 To
               </div>
               <TimeSelect
-                class="z-30"
-                :key="rentingForm.start_time.time && rentingForm.date"
-                :available-hours="hoursAvailableEnd"
-                label="To"
-                placeholder="Choose End Time"
-                renting-form="rentingForm"
-                @timeChanged="timeChanged($event, 'end_time')"
+                  class="z-30"
+                  :key="rentingForm.start_time.time && rentingForm.date"
+                  :available-hours="hoursAvailableEnd"
+                  label="To"
+                  placeholder="Choose End Time"
+                  renting-form="rentingForm"
+                  @timeChanged="timeChanged($event, 'end_time')"
               />
             </div>
           </div>
           <div
-            :key="rentingForm.start_time.time"
-            v-if="calculatedPrice"
-            class="flex-col mb-14 relative justify-center items-center gap-1.5 flex animate__animated animate__fadeInDown"
+              :key="rentingForm.start_time.time"
+              v-if="calculatedPrice"
+              class="flex-col mb-14 relative justify-center items-center gap-1.5 flex animate__animated animate__fadeInDown"
           >
             <div
-              class="relative w-full max-w-48 mx-auto mb-5 flex justify-between items-center animate__animated animate__fadeInDown"
+                class="relative w-full max-w-48 mx-auto mb-5 flex justify-between items-center animate__animated animate__fadeInDown"
             >
               <div class="text-white text-4xl font-[BebasNeue]">Price:</div>
               <div
-                @click.stop="
+                  @click.stop="
                   showTooltip($event, calculatedPrice?.explanation || '')
                 "
-                @mouseenter="
+                  @mouseenter="
                   showTooltip($event, calculatedPrice?.explanation || '')
                 "
-                @mouseleave="hideTooltip"
-                @touchstart="
+                  @mouseleave="hideTooltip"
+                  @touchstart="
                   showTooltip($event, calculatedPrice?.explanation || '')
                 "
-                @touchend="hideTooltip"
-                class="text-white text-4xl flex items-center justify-between gap-2 relative font-[BebasNeue]"
+                  @touchend="hideTooltip"
+                  class="text-white text-4xl flex items-center justify-between gap-2 relative font-[BebasNeue]"
               >
                 <span
-                  class="text-white text-4xl flex gap-2 relative font-[BebasNeue]"
-                  >$<DisplayNumber :value="calculatedPrice?.total_price"
+                    class="text-white text-4xl flex gap-2 relative font-[BebasNeue]"
+                >$<DisplayNumber :value="calculatedPrice?.total_price"
                 /></span>
-                <IconStatus />
+                <IconStatus/>
               </div>
             </div>
             <div v-if="isLoading" class="spinner-container">
               <div class="spinner"></div>
             </div>
-            <Spinner :is-loading="isLoading" />
+            <Spinner :is-loading="isLoading"/>
             <div class="flex justify-center items-center flex-col gap-2">
               <div
-                class="text-white opacity-70 text-sm font-normal font-['Montserrat'] tracking-wide"
+                  class="text-white opacity-70 text-sm font-normal font-['Montserrat'] tracking-wide"
               >
                 We accept
               </div>
               <div class="justify-center items-center flex gap-5 mb-10">
-                <IconApplePay />
-                <IconGooglePay />
-                <IconVisa />
-                <IconMastercard />
+                <IconApplePay/>
+                <IconGooglePay/>
+                <IconVisa/>
+                <IconMastercard/>
               </div>
             </div>
             <div v-if="bookingError" class="errors mb-5">
@@ -360,11 +379,11 @@
             </div>
 
             <div
-              @click="book()"
-              class="relative w-full flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
+                @click="book()"
+                class="relative w-full flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
             >
               <button
-                class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
+                  class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
               >
                 Rent
               </button>
@@ -374,22 +393,22 @@
       </div>
     </div>
     <EquipmentsModal
-      v-if="showPopup"
-      :showPopup="showPopup"
-      @closePopup="closePopup"
+        v-if="showPopup"
+        :showPopup="showPopup"
+        @closePopup="closePopup"
     />
     <LoginModal
-      v-if="showLoginPopup"
-      :show-popup="showLoginPopup"
-      @close-popup="closeLoginPopup"
+        v-if="showLoginPopup"
+        :show-popup="showLoginPopup"
+        @close-popup="closeLoginPopup"
     />
   </div>
 </template>
 <script setup lang="ts">
-import { useHead } from "@unhead/vue"
-import { definePageMeta, storeToRefs, useRuntimeConfig } from "#imports"
-import { useSessionStore } from "~/src/entities/Session"
-import { EquipmentsModal, LoginModal } from "~/src/widgets/Modals"
+import {useHead} from "@unhead/vue"
+import {definePageMeta, storeToRefs, useRuntimeConfig} from "#imports"
+import {useSessionStore} from "~/src/entities/Session"
+import {EquipmentsModal, LoginModal} from "~/src/widgets/Modals"
 import {
   computed,
   inject,
@@ -402,7 +421,7 @@ import {
   watch,
   watchEffect,
 } from "vue"
-import { navigateTo, useRoute } from "nuxt/app"
+import {navigateTo, useRoute} from "nuxt/app"
 import {
   type StudioFormValues,
   useCreateStudioFormStore,
@@ -420,28 +439,29 @@ import {
   Spinner,
 } from "~/src/shared/ui/common"
 import GoogleMap from "~/src/widgets/GoogleMap.vue"
-import { SelectPicker } from "~/src/features/DatePicker"
-import { TimeSelect } from "~/src/widgets"
-import { type ResponseBrand, useAddress } from "~/src/entities/Studio/api"
+import {SelectPicker} from "~/src/features/DatePicker"
+import {TimeSelect} from "~/src/widgets"
+import {type ResponseBrand, useAddress} from "~/src/entities/Studio/api"
 import BadgesList from "~/src/widgets/BadgesChoose/ui/BadgesList.vue"
-import { ScrollContainer } from "~/src/shared/ui/common/ScrollContainer"
-import { usePhotoSwipe } from "~/src/shared/ui/components/PhotoSwipe"
-import type { SlideData } from "photoswipe"
-import { useApi } from "~/src/lib/api"
+import {ScrollContainer} from "~/src/shared/ui/common/ScrollContainer"
+import {usePhotoSwipe} from "~/src/shared/ui/components/PhotoSwipe"
+import type {SlideData} from "photoswipe"
+import {useApi} from "~/src/lib/api"
 import paymentSystems from "~/src/shared/assets/image/payment_systems.png"
-import { useSeoMeta } from "unhead"
-import { DisplayNumber } from "~/src/shared/ui/components"
-import { getRatingColor } from "~/src/shared/utils"
+import {useSeoMeta} from "unhead"
+import {DisplayNumber} from "~/src/shared/ui/components"
+import {getRatingColor} from "~/src/shared/utils"
 import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue"
-import { Clipboard } from "~/src/shared/ui/common/Clipboard"
+import {Clipboard} from "~/src/shared/ui/common/Clipboard"
 import FSelect from "~/src/shared/ui/common/Input/FSelect.vue"
-import { IconStatus } from "~/src/shared/ui/common/Icon/Filter"
+import {IconStatus} from "~/src/shared/ui/common/Icon/Filter"
 import {RoomCard} from "~/src/entities/Studio";
+
 const route = useRoute()
 const addressSlug = ref(route.params.slug_address)
 const bookingError = ref("")
-const { address } = useAddress(addressSlug.value)
-const { tooltipData, showTooltip, hideTooltip } = inject("tooltipData")
+const {address} = useAddress(addressSlug.value)
+const {tooltipData, showTooltip, hideTooltip} = inject("tooltipData")
 provide("address", address)
 
 const teammatesOptions = computed(() => {
@@ -473,25 +493,25 @@ const roomsOptions = computed(() => address.value?.rooms.map((room) => ({
 })))
 const pageTitle: Ref<string> = computed(() => {
   return address.value
-    ? `${address.value.company.name} | Recording Studio`
-    : "Loading..."
+      ? `${address.value.company.name} | Recording Studio`
+      : "Loading..."
 })
 
 const pageDescription: Ref<string> = computed(() => {
   return address.value && address.value.prices.length > 0
-    ? `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`
-    : "Book a session only at Funny-How.com"
+      ? `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`
+      : "Book a session only at Funny-How.com"
 })
 const studioFirstPhoto: Ref<string> = computed(() => {
   return address.value && address?.value?.photos.length > 0
-    ? address?.value?.photos[0].url
-    : "/meta/open-graph-image.png"
+      ? address?.value?.photos[0].url
+      : "/meta/open-graph-image.png"
 })
 const isLoading = ref(false)
 
 const session = useSessionStore()
 
-const { isAuthorized } = storeToRefs(session)
+const {isAuthorized} = storeToRefs(session)
 
 const dateInput = ref<HTMLInputElement | null>(null)
 const end_time = ref<HTMLInputElement | null>(null)
@@ -524,9 +544,9 @@ tomorrow.setDate(today.getDate() + 1)
 const hoursAvailableStart = ref([])
 const hoursAvailableEnd = ref([])
 const rentingList = [
-  { name: "today", date: "" },
-  { name: "tomorrow", date: "" },
-  { name: "another-day", date: "another-day" },
+  {name: "today", date: ""},
+  {name: "tomorrow", date: ""},
+  {name: "another-day", date: "another-day"},
 ]
 rentingList[0].date = today.toISOString().split("T")[0]
 rentingList[1].date = tomorrow.toISOString().split("T")[0]
@@ -535,22 +555,22 @@ const setSeoMeta = () => {
   useSeoMeta({
     title: () => `${address.value?.company.name} - Funny How`,
     description: () =>
-      `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
+        `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
     ogTitle: `${address.value?.company.name} - Funny How`,
     ogDescription: () =>
-      `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
+        `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
     ogImage: () => `${address?.value?.photos[0].url}`,
     ogUrl: route.fullPath,
     twitterTitle: () => `${address.value?.company.name} - Funny How`,
     twitterDescription: () =>
-      `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
+        `Book a session at ${address.value.company.name} from $${address.value.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
     twitterImage: `${address?.value?.photos[0].url}`,
     twitterCard: "summary",
   })
 
   useHead({
     title: pageTitle,
-    meta: [{ name: "description", content: pageDescription.value }],
+    meta: [{name: "description", content: pageDescription.value}],
     htmlAttrs: {
       lang: "en",
     },
@@ -567,32 +587,32 @@ const setSeoMeta = () => {
 useSeoMeta({
   title: () => `${address.value?.company.name} - Funny How`,
   description: () =>
-    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
+      `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
   ogTitle: `${address.value?.company.name} - Funny How`,
   ogDescription: () =>
-    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
+      `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
   ogImage: () => {
     const photos = address?.value?.photos
     return photos && photos.length > 0
-      ? photos[0].url
-      : "/meta/open-graph-image.png"
+        ? photos[0].url
+        : "/meta/open-graph-image.png"
   },
   ogUrl: route.fullPath,
   twitterTitle: () => `${address.value?.company.name} - Funny How`,
   twitterDescription: () =>
-    `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
+      `Book a session at ${address.value?.company.name} from $${address.value?.prices[0]?.price_per_hour}/hour. Only at Funny-How.com`,
   twitterImage: () => {
     const photos = address?.value?.photos
     return photos && photos.length > 0
-      ? photos[0].url
-      : "/meta/open-graph-image.png"
+        ? photos[0].url
+        : "/meta/open-graph-image.png"
   },
   twitterCard: "summary",
 })
 
 useHead({
   title: pageTitle,
-  meta: [{ name: "description", content: pageDescription }],
+  meta: [{name: "description", content: pageDescription}],
   htmlAttrs: {
     lang: "en",
   },
@@ -618,8 +638,8 @@ const handleScroll = () => {
     photoContainer.value.style.height = `${maxHeight}px`
   } else {
     const newHeight = Math.max(
-      minHeight,
-      maxHeight - (scrollPosition - scrollThreshold),
+        minHeight,
+        maxHeight - (scrollPosition - scrollThreshold),
     )
     photoContainer.value.style.height = `${newHeight}px`
   }
@@ -635,11 +655,12 @@ onMounted(async () => {
   window.addEventListener("scroll", handleScroll)
   window.addEventListener("message", handlePaymentStatus)
 
-  rentingForm.value.room_id = address?.value?.rooms[0].id
-
   photoContainer.value?.addEventListener("animationend", () => {
     mainContainer.value.style.overflow = "inherit"
   })
+  if (address?.value?.rooms?.length > 0) {
+    rentingForm.value.room_id = address?.value?.rooms[0].id
+  }
 })
 
 onUnmounted(() => {
@@ -655,7 +676,7 @@ function handlePaymentStatus(event: MessageEvent) {
 }
 
 async function getStartSlots() {
-  const { fetch: fetchStartSlots } = useApi({
+  const {fetch: fetchStartSlots} = useApi({
     url: `/address/reservation/start-time?room_id=${rentingForm.value.room_id}&date=${rentingForm.value.date}`,
   })
 
@@ -665,7 +686,7 @@ async function getStartSlots() {
 }
 
 async function getEndSlots(start_time: string) {
-  const { fetch: getEndSlots } = useApi({
+  const {fetch: getEndSlots} = useApi({
     url: `/address/reservation/end-time?room_id=${rentingForm.value.room_id}&date=${rentingForm.value.date}&start_time=${start_time}`,
   })
 
@@ -673,6 +694,7 @@ async function getEndSlots(start_time: string) {
     hoursAvailableEnd.value = response.data
   })
 }
+
 const calculatedPrice = ref(0)
 
 const chooseRoom = (roomId: string) => {
@@ -689,7 +711,7 @@ const uniquePrices = computed(() => {
   }, [])
 })
 const calculatePrice = () => {
-  const { post: getPrice } = useApi({
+  const {post: getPrice} = useApi({
     url: `/address/calculate-price`,
     auth: true,
   })
@@ -698,74 +720,74 @@ const calculatePrice = () => {
     room_id: rentingForm.value.room_id,
     engineer_id: rentingForm.value.engineer_id,
     start_time:
-      rentingForm.value.start_time.date +
-      "T" +
-      rentingForm.value.start_time.time,
+        rentingForm.value.start_time.date +
+        "T" +
+        rentingForm.value.start_time.time,
     end_time:
-      rentingForm.value.end_time.date + "T" + rentingForm.value.end_time.time,
+        rentingForm.value.end_time.date + "T" + rentingForm.value.end_time.time,
   }).then((response) => {
     calculatedPrice.value = response.data
   })
 }
 
 watch(
-  () => rentingForm.value.start_time,
-  (newVal) => {
-    if (newVal && rentingForm.value.end_time) {
-      calculatedPrice.value = 0
-      rentingForm.value.end_time = {
-        time: "",
-        date: "",
+    () => rentingForm.value.start_time,
+    (newVal) => {
+      if (newVal && rentingForm.value.end_time) {
+        calculatedPrice.value = 0
+        rentingForm.value.end_time = {
+          time: "",
+          date: "",
+        }
       }
-    }
-  },
+    },
 )
 watch(
-  () => rentingForm.value.end_time,
-  (newVal) => {
-    if (newVal && rentingForm.value.end_time.time) {
-      calculatePrice()
-    }
-  },
+    () => rentingForm.value.end_time,
+    (newVal) => {
+      if (newVal && rentingForm.value.end_time.time) {
+        calculatePrice()
+      }
+    },
 )
 watch(
-  () => rentingForm.value.date,
-  (newVal) => {
-    if (newVal) {
-      calculatedPrice.value = 0
-      rentingForm.value.end_time = {
-        time: "",
-        date: "",
+    () => rentingForm.value.date,
+    (newVal) => {
+      if (newVal) {
+        calculatedPrice.value = 0
+        rentingForm.value.end_time = {
+          time: "",
+          date: "",
+        }
       }
-    }
-  },
+    },
 )
 watch(
-  () => rentingForm.value.room_id,
-  (newVal) => {
-    if (newVal) {
-      rentingForm.value.date = ""
-      rentingForm.value.start_time = {
-        time: "",
-        date: "",
-      }
-      rentingForm.value.end_time = {
-        time: "",
-        date: "",
-      }
-      calculatedPrice.value = 0
+    () => rentingForm.value.room_id,
+    (newVal) => {
+      if (newVal) {
+        rentingForm.value.date = ""
+        rentingForm.value.start_time = {
+          time: "",
+          date: "",
+        }
+        rentingForm.value.end_time = {
+          time: "",
+          date: "",
+        }
+        calculatedPrice.value = 0
 
-    }
-  },
+      }
+    },
 )
 
 watch(
-  () => rentingForm.value.engineer_id,
-  (newVal) => {
-    if (newVal && rentingForm.value.start_time && rentingForm.value.end_time) {
-      calculatePrice()
-    }
-  },
+    () => rentingForm.value.engineer_id,
+    (newVal) => {
+      if (rentingForm.value.start_time.date && rentingForm.value.end_time.date) {
+        calculatePrice()
+      }
+    },
 )
 export type reservationResponse = {
   address_id: number
@@ -781,20 +803,18 @@ export type reservationResponse = {
 const responseQuote = ref({})
 watchEffect(() => {
   if (
-    rentingForm.value.start_time ||
-    rentingForm.value.end_time ||
-    rentingForm.value.date || rentingForm.value.room_id
+      rentingForm.value.start_time ||
+      rentingForm.value.end_time ||
+      rentingForm.value.date || rentingForm.value.room_id
   ) {
     bookingError.value = ""
   }
+
 })
 
-// watch(address, async () => {
-//
-// })
 function book() {
   isLoading.value = true
-  const { post: bookTime } = useApi({
+  const {post: bookTime} = useApi({
     url: `/room/reservation`,
     auth: true,
   })
@@ -802,6 +822,7 @@ function book() {
   const bookingData = {
     addressSlug: addressSlug.value,
     room_id: rentingForm.value.room_id,
+    engineer_id: rentingForm.value.engineer_id,
     date: rentingForm.value.date,
     start_time: rentingForm.value.start_time.time,
     end_time: rentingForm.value.end_time.time,
@@ -816,32 +837,33 @@ function book() {
     return
   }
   bookTime(bookingData)
-    .then((response) => {
-      responseQuote.value = response.data
-      isLoading.value = false
-      //Delete bookingData from local storage if success and redirect to payment
-      localStorage.removeItem("bookingData")
-      if (response.data?.payment_url) {
-        window.location.href = response.data?.payment_url
-      }
-    })
-    .catch((error) => {
-      localStorage.removeItem("bookingData")
-      bookingError.value = error.errors.error
-      isLoading.value = false
-    })
+      .then((response) => {
+        responseQuote.value = response.data
+        isLoading.value = false
+        //Delete bookingData from local storage if success and redirect to payment
+        localStorage.removeItem("bookingData")
+        if (response.data?.payment_url) {
+          window.location.href = response.data?.payment_url
+        }
+      })
+      .catch((error) => {
+        localStorage.removeItem("bookingData")
+        bookingError.value = error.errors.error
+        isLoading.value = false
+      })
 }
+
 function pay(url: string) {
   const paymentWindow = window.open(
-    url,
-    "_blank",
-    "width=800,height=600,toolbar=0,location=0,menubar=0",
+      url,
+      "_blank",
+      "width=800,height=600,toolbar=0,location=0,menubar=0",
   )
 
   const checkWindowClosed = setInterval(() => {
     if (paymentWindow && paymentWindow.closed) {
       clearInterval(checkWindowClosed)
-      window.postMessage({ status: "closed" }, window.location.origin)
+      window.postMessage({status: "closed"}, window.location.origin)
     }
   }, 500)
 }
@@ -858,6 +880,7 @@ function openDatePicker(input) {
 type DateReponse = {
   date: string
 }
+
 function dateChanged(newDate: DateReponse, input: keyof StudioFormValues) {
   rentingForm.value[input] = newDate?.date
   getStartSlots()
@@ -873,13 +896,13 @@ function timeChanged(newDate: string, input: keyof StudioFormValues) {
   rentingForm.value[input] = newDate
 }
 
-const { pswpElement, openGallery } = usePhotoSwipe()
+const {pswpElement, openGallery} = usePhotoSwipe()
 const displayedPhotos: SlideData[] = computed(() =>
-  address?.value.photos.map((photo) => ({
-    src: photo.path,
-    w: photo.file?.width || 1200, // Default width if not specified
-    h: photo.file?.height || 900, // Default height if not specified
-  })),
+    address?.value.photos.map((photo) => ({
+      src: photo.path,
+      w: photo.file?.width || 1200, // Default width if not specified
+      h: photo.file?.height || 900, // Default height if not specified
+    })),
 )
 const mainContainer = ref<HTMLElement | null>(null)
 const showPopup = ref(false)
@@ -903,9 +926,11 @@ const closeLoginPopup = () => {
 :deep(html) {
   background-color: rgb(15 14 14);
 }
+
 .shadow-text {
   text-shadow: 2px 3px 1px rgba(0, 0, 0, 0.8), 12px 14px 1px rgba(0, 0, 0, 0.8);
 }
+
 .checkbox-wrapper {
   display: flex;
   gap: 5px;
@@ -945,6 +970,7 @@ const closeLoginPopup = () => {
     }
   }
 }
+
 select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -952,6 +978,7 @@ select {
   text-overflow: "";
   cursor: pointer;
 }
+
 .photo-container {
   top: 0; // Adjust this value based on your header or desired offset
   transition: height 0.1s ease-in-out; // Smooth transition for height change

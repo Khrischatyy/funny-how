@@ -395,11 +395,11 @@ const toggleSideMenu = () => {
 }
 
 onMounted(async () => {
-  if (!user.value) {
+  if (!user?.value?.company) {
     await session.fetchUserInfo()
   }
-  if(!user.value.company){
-    if(process.client) {
+  if (!user.value.company) {
+    if (process.client) {
       navigateTo("/create")
     }
   }
