@@ -3,7 +3,7 @@
 ### Technologies used in Docker 💻
 
 | Technology | Version |
-| ---------- | ------- |
+|------------|---------|
 | Laravel    | ^9.19   |
 | Nginx      | 1.20    |
 | Postgres   | 16      |
@@ -12,6 +12,9 @@
 | Vue.js     | 3.4.19  |
 | Cashier    | 14.14   |
 | RabbitMQ   | 3.13.4  |
+| Socket.io  | ^4.7.2  |
+| Express.js | 4.18.2  |
+| Redis      | 7.0     |
 
 ## Swagger documentation is available in a dev environment **after** launch containers: [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
