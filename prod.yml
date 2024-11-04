@@ -133,6 +133,28 @@ services:
       php /app/artisan queue:work --sleep=3 --tries=3"
     restart: always
 
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - funny
+
+  websocket-server:
+    build:
+      context: ./websocket
+      dockerfile: Dockerfile-prod
+    container_name: websocket-server
+    command: "npm start"
+    ports:
+      - "6001:6001"
+    depends_on:
+      - redis
+    networks:
+      - funny
+
   scheduler:
     build:
       context: ./backend/php/

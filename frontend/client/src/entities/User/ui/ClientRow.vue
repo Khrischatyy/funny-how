@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-black p-4 rounded-md shadow-lg flex flex-col sm:flex-row gap-10 justify-start">
+  <div class="bg-black p-4 rounded-md shadow-lg flex flex-col sm:flex-row gap-10 justify-between p-5">
     <div class="flex w-auto justify-start items-center">
-      <div class="flex justify-start  items-center gap-5">
+      <div class="flex justify-start items-center gap-5">
         <div v-if="client?.profile_photo" class="h-[35px] w-[35px]">
           <img :src="client?.profile_photo" alt="Logo" class="h-auto w-full object-cover" />
         </div>
@@ -9,7 +9,7 @@
           <h3 class="text-xl font-bold text-white">{{ client?.firstname }}</h3>
           <Clipboard v-if="client?.username" :text-to-copy="phoneNormalizer(client?.username)">
             <div class="group flex relative gap-2 items-center justify-start">
-              <p class="font-['Montserrat']">{{client?.username}}</p>
+              <p class="font-['Montserrat']">{{ client?.username }}</p>
             </div>
           </Clipboard>
         </div>
@@ -17,7 +17,7 @@
     </div>
     <div class="flex w-auto flex-col sm:flex-row gap-8 min-w-[210px] justify-center items-start sm:items-center">
       <Clipboard v-if="client?.phone" :text-to-copy="client?.phone">
-        <div class="flex items-center relative gap-2 ">
+        <div class="flex items-center relative gap-2">
           <IconPhone class="opacity-20" />
           <div class="flex flex-col group-hover:opacity-100">
             <span class="text-white opacity-20">Phone</span>
@@ -42,6 +42,10 @@
         </div>
       </div>
     </div>
+
+    <!-- Используем компонент ChatModal -->
+    <ChatModal :client="client" />
+
     <Tooltip>
       Phone: {{ tooltipData.content }}
     </Tooltip>
@@ -60,10 +64,11 @@ import {
   IconUser
 } from "~/src/shared/ui/common";
 import IconAddress from "~/src/shared/ui/common/Icon/IconAddress.vue";
-import {getStatus, getColor, phoneNormalizer} from "~/src/shared/utils";
-import {inject, ref} from "vue";
-import {Tooltip} from "~/src/shared/ui/Tooltip";
-import {Clipboard} from "~/src/shared/ui/common/Clipboard";
+import { inject, ref } from "vue";
+import { Tooltip } from "~/src/shared/ui/Tooltip";
+import { Clipboard } from "~/src/shared/ui/common/Clipboard";
+import ChatModal from "~/src/widgets/Modals/ChatModal.vue";
+
 const { tooltipData, showTooltip, hideTooltip } = inject('tooltipData');
 
 type Client = {
@@ -75,21 +80,7 @@ type Client = {
   booking_count: number
 }
 
-const copySuccess = ref(false); // State to track copy success
-const props = defineProps<{
-  client: Client;
-}>();
-
-
-const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text).then(() => {
-    copySuccess.value = true; // Show notification
-    setTimeout(() => copySuccess.value = false, 2000); // Hide after 2 seconds
-  }).catch(err => {
-    console.error('Failed to copy:', err);
-  });
-};
-
+const props = defineProps<{ client: Client }>();
 </script>
 
 <style scoped>

@@ -35,6 +35,13 @@ use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
 */
 
 Route::middleware(['auth:sanctum'])->group(function () {
+
+    Route::prefix('chat')->group(function () {
+        Route::post('/send', [ChatController::class, 'sendMessage']);
+        Route::get('/history/{userId}', [ChatController::class, 'getMessageHistory']);
+    });
+
+
     Route::prefix('auth')->group(function () {
 
         // Retrieve the verification limiter configuration for verification attempts

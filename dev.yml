@@ -73,6 +73,29 @@ services:
     networks:
       - funny
 
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - funny
+
+  websocket-server:
+    build:
+      context: ./websocket
+      dockerfile: Dockerfile
+    container_name: websocket-server
+    command: "npm run dev"
+    ports:
+      - "6001:6001"
+    volumes:
+      - ./websocket:/app
+    depends_on:
+      - redis
+    networks:
+      - funny
+
   swagger:
     image: swaggerapi/swagger-ui
     container_name: swagger
