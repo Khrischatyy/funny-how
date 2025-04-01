@@ -141,23 +141,33 @@ nginx-reload-prod:
 seeds-prod:
 	@docker compose -f prod.yml run --rm backend sh -c "php artisan db:seed --class=DatabaseSeederProd --force"
 
+# SSL management
+
 renew-ssl:
 	@echo "Обновление SSL-сертификатов..."
 	docker run --rm \
 	  -v $(PWD)/proxy/certbot/conf/:/etc/letsencrypt/ \
 	  -v $(PWD)/proxy/certbot/www/:/var/www/certbot/ \
 	  certbot/certbot renew --quiet
-	docker-compose exec -T nginx nginx -s reload
+	@echo "Настраиваем права доступа..."
+	@sudo chmod -R 755 $(PWD)/proxy/certbot/conf/
+	@sudo chown -R $(shell whoami):$(shell id -gn) $(PWD)/proxy/certbot/conf/
+	docker compose -f prod.yml exec nginx nginx -s reload
 	@echo "✅ SSL-сертификаты обновлены"
 
 setup-ssl:
 	@echo "Настройка SSL-сертификатов..."
+	@chmod +x proxy/certbot/setup-ssl.sh
+	@if docker ps -a | grep -q "nginx-certbot"; then \
+		echo "Останавливаем существующий контейнер nginx-certbot..."; \
+		docker stop nginx-certbot; \
+		docker rm nginx-certbot; \
+	fi
 	cd proxy/certbot && ./setup-ssl.sh funny-how.com
 	@echo "Перезапуск docker-compose..."
-	docker-compose down
-	docker-compose up -d
+	docker compose -f prod.yml down
+	docker compose -f prod.yml up -d
 	@echo "✅ SSL-сертификаты настроены и сервисы перезапущены"
-
 
 # CAUTION: This will remove all Docker containers, volumes, and networks.
 clean-all:
