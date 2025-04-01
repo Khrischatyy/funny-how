@@ -141,6 +141,23 @@ nginx-reload-prod:
 seeds-prod:
 	@docker compose -f prod.yml run --rm backend sh -c "php artisan db:seed --class=DatabaseSeederProd --force"
 
+renew-ssl:
+	@echo "Обновление SSL-сертификатов..."
+	docker run --rm \
+	  -v $(PWD)/proxy/certbot/conf/:/etc/letsencrypt/ \
+	  -v $(PWD)/proxy/certbot/www/:/var/www/certbot/ \
+	  certbot/certbot renew --quiet
+	docker-compose exec -T nginx nginx -s reload
+	@echo "✅ SSL-сертификаты обновлены"
+
+setup-ssl:
+	@echo "Настройка SSL-сертификатов..."
+	cd proxy/certbot && ./setup-ssl.sh funny-how.com
+	@echo "Перезапуск docker-compose..."
+	docker-compose down
+	docker-compose up -d
+	@echo "✅ SSL-сертификаты настроены и сервисы перезапущены"
+
 
 # CAUTION: This will remove all Docker containers, volumes, and networks.
 clean-all:
