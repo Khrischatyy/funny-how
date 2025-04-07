@@ -24,8 +24,16 @@ class Booking extends Model
         return $this->belongsTo(Room::class, 'room_id');
     }
 
-    public function address(){
-        return $this->room->address;
+    public function address()
+    {
+        return $this->hasOneThrough(
+            Address::class,
+            Room::class,
+            'id', // Foreign key on rooms table
+            'id', // Foreign key on addresses table
+            'room_id', // Local key on bookings table
+            'address_id' // Local key on rooms table
+        );
     }
 
     public function user()

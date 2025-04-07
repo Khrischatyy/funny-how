@@ -616,9 +616,16 @@ class BookingController extends BaseController
             $booking = $this->bookingService->getBookingById($bookingId);
             $studioOwner = $booking->room->address->company->adminCompany->user;
             $paymentGateway = $studioOwner->payment_gateway;
-            $orderId = $booking->charge->order_id;
+            $charge = $booking->charge;
 
-            $result = $this->paymentService->processPaymentSuccess($orderId, $bookingId, $paymentGateway, $studioOwner);
+            if (!$charge || !$charge->stripe_session_id) {
+                return $this->sendError('Missing Stripe session ID for booking.', 400);
+            }
+
+            $sessionId = $charge->stripe_session_id;
+
+            $result = $this->paymentService->processPaymentSuccess($sessionId, $bookingId, $paymentGateway, $studioOwner);
+
 
             if (isset($result['error'])) {
                 return $this->sendError($result['error'], 400);

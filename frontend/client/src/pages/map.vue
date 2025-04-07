@@ -16,13 +16,20 @@ useHead({
 })
 
 const studios = ref([])
+const isLoading = ref(true)
+
 onMounted(async () => {
   const { fetch: getStudios } = useApi({
     url: "/map/studios",
   })
-  getStudios().then((response) => {
+  try {
+    const response = await getStudios()
     studios.value = response.data.filter((studio) => studio.is_complete)
-  })
+  } catch (error) {
+    console.error('Failed to fetch studios:', error)
+  } finally {
+    isLoading.value = false
+  }
 })
 </script>
 
@@ -35,12 +42,18 @@ onMounted(async () => {
       :hide-login-button="true"
       class="absolute z-50 bottom-0 left-0 md:bottom-[unset] md:left-[unset]"
     />
-    <GoogleMap
-      :lat="'34.0199732'"
-      v-if="studios.length > 0"
-      :markers="studios"
-      :lng="'-118.266289'"
-    />
+    <ClientOnly>
+      <div v-if="!isLoading">
+        <GoogleMap
+          :lat="34.0199732"
+          :lng="-118.266289"
+          :markers="studios"
+        />
+      </div>
+      <div v-else class="flex items-center justify-center h-full">
+        <div class="text-white text-xl">Loading map...</div>
+      </div>
+    </ClientOnly>
   </div>
 </template>
 

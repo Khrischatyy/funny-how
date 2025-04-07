@@ -30,12 +30,27 @@ class StripeService implements PaymentServiceInterface
                 throw new \Exception("Studio owner does not have a Stripe account.");
             }
 
-            $session = $studioOwner->checkoutCharge($amountOfMoney * 100, 'Payment for studio reservation', 1, [
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            $session = \Stripe\Checkout\Session::create([
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'product_data' => [
+                            'name' => 'Payment for studio reservation',
+                        ],
+                        'unit_amount' => $amountOfMoney * 100, // в центах
+                    ],
+                    'quantity' => 1,
+                ]],
+                'mode' => 'payment',
                 'success_url' => env('APP_URL') . '/payment-success?session_id={CHECKOUT_SESSION_ID}&booking_id=' . $booking->id,
                 'cancel_url' => env('APP_URL') . '/cancel-booking',
                 'payment_intent_data' => [
-                    'application_fee_amount' => $amountOfMoney * 100 * self::SERVICE_FEE_PERCENTAGE,
-                    'transfer_data' => ['destination' => $studioOwner->stripe_account_id],
+                    'application_fee_amount' => intval($amountOfMoney * 100 * self::SERVICE_FEE_PERCENTAGE),
+                    'transfer_data' => [
+                        'destination' => $studioOwner->stripe_account_id,
+                    ],
                 ],
                 'metadata' => [
                     'booking_id' => $booking->id,
@@ -107,7 +122,7 @@ class StripeService implements PaymentServiceInterface
     public function processPaymentSuccess($sessionId, $bookingId, $studioOwner): array
     {
         // Verify the session
-        $session = $this->verifyPaymentSession($sessionId);
+        $session = $this->verifyPaymentSession($sessionId, $studioOwner);
 
         if (!$session) {
             Log::error('Payment verification failed: Session is null.');
@@ -132,9 +147,9 @@ class StripeService implements PaymentServiceInterface
         $amountToStudio = $totalAmount - $serviceFee;
 
         // Обновим баланс студии
-        $this->updateBalance($booking->address_id, $amountToStudio);
+        $this->updateBalance($booking->address->id, $amountToStudio);
 
-        $userWhoBooksEmail = $booking->user->email; 
+        $userWhoBooksEmail = $booking->user->email;
         $studioOwner =  $booking->address->company->adminCompany->user;
         dispatch(new BookingConfirmationJob($booking, $userWhoBooksEmail, $totalAmount));
         dispatch(new BookingConfirmationOwnerJob($booking, $studioOwner, $totalAmount));

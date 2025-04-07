@@ -45,9 +45,9 @@ npm-install-package:
 npm-install-save-dev:
 	@docker compose -f dev.yml run --rm frontend sh -c "npm install --save-dev"
 
-update-frontend:
-	@docker compose -f dev.yml stop frontend
-	@docker compose -f dev.yml up -d frontend
+rebuild-frontend-prod:
+	@docker compose -f prod.yml build frontend
+	@docker compose -f prod.yml up -d frontend
 
 
 update-frontend-prod:
