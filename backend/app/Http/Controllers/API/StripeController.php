@@ -20,6 +20,7 @@ class StripeController extends BaseController
     public function createAccount(): JsonResponse
     {
         try {
+
             $user = Auth::user();
             $accountData = $this->stripeService->createAccount($user);
             return $this->sendResponse($accountData, 'Account link created successfully.');
