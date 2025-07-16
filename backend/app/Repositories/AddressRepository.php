@@ -21,6 +21,7 @@ class AddressRepository implements AddressRepositoryInterface
                 'rooms.photos',
                 'rooms.prices',
                 'company',
+                'company.adminCompany.user',
                 'operatingHours'
             ])
             ->get()
@@ -31,6 +32,11 @@ class AddressRepository implements AddressRepositoryInterface
                 $address->company->logo_url = $address->company->logo
                     ? Storage::disk('s3')->url($address->company->logo)
                     : null;
+                
+                // Add user_id to company object
+                if ($address->company->adminCompany && $address->company->adminCompany->user) {
+                    $address->company->user_id = $address->company->adminCompany->user->id;
+                }
             })
             ->values();
 
@@ -40,7 +46,16 @@ class AddressRepository implements AddressRepositoryInterface
     public function getMyAddresses(int $companyId): Collection
     {
         $addresses = Address::where('company_id', $companyId)
-            ->with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])
+            ->with([
+                'badges',
+                'rooms',
+                'rooms.photos',
+                'rooms',
+                'rooms.prices',
+                'company',
+                'company.adminCompany.user',
+                'operatingHours'
+            ])
             ->get();
         foreach ($addresses as $address) {
             if ($address->company->logo) {
@@ -48,6 +63,11 @@ class AddressRepository implements AddressRepositoryInterface
                 $address->company->logo_url = Storage::disk('s3')->url($address->company->logo);
             } else {
                 $address->company->logo_url = null;
+            }
+
+            // Add user_id to company object
+            if ($address->company->adminCompany && $address->company->adminCompany->user) {
+                $address->company->user_id = $address->company->adminCompany->user->id;
             }
         }
         return $addresses;
@@ -57,9 +77,27 @@ class AddressRepository implements AddressRepositoryInterface
     {
         $company = Company::where('slug', $slug)->firstOrFail();
 
-        return Address::where('company_id', $company->id)
-            ->with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])
+        $addresses = Address::where('company_id', $company->id)
+            ->with([
+                'badges',
+                'rooms',
+                'rooms.photos',
+                'rooms',
+                'rooms.prices',
+                'company',
+                'company.adminCompany.user',
+                'operatingHours'
+            ])
             ->get();
+
+        // Add user_id to company object for each address
+        foreach ($addresses as $address) {
+            if ($address->company->adminCompany && $address->company->adminCompany->user) {
+                $address->company->user_id = $address->company->adminCompany->user->id;
+            }
+        }
+
+        return $addresses;
     }
 
     public function getAddressBySlug(string $slug): Address
@@ -72,9 +110,10 @@ class AddressRepository implements AddressRepositoryInterface
                 $query->where('is_enabled', true);
             },
             'company',
+            'company.adminCompany.user',
             'operatingHours',
             'equipments.type',
-            'engineers.engineerRate' // Include engineers relationship
+            'engineers.engineerRate'
         ])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -85,18 +124,37 @@ class AddressRepository implements AddressRepositoryInterface
             $address->company->logo_url = null;
         }
 
+        // Add user_id to company object
+        if ($address->company->adminCompany && $address->company->adminCompany->user) {
+            $address->company->user_id = $address->company->adminCompany->user->id;
+        }
+
         return $address;
     }
 
     public function getAllStudios(): Collection
     {
-        //исправить выводить только студии которые у компании есть user->adminCompany
-        $addresses = Address::with(['badges', 'rooms', 'rooms.photos', 'rooms', 'rooms.prices', 'company', 'operatingHours'])->get();
+        $addresses = Address::with([
+            'badges',
+            'rooms',
+            'rooms.photos',
+            'rooms',
+            'rooms.prices',
+            'company',
+            'company.adminCompany.user',
+            'operatingHours'
+        ])->get();
+
         foreach ($addresses as $address) {
             if ($address->company->logo) {
                 $address->company->logo_url = Storage::disk('s3')->url($address->company->logo);
             } else {
                 $address->company->logo_url = null;
+            }
+
+            // Add user_id to company object
+            if ($address->company->adminCompany && $address->company->adminCompany->user) {
+                $address->company->user_id = $address->company->adminCompany->user->id;
             }
         }
 

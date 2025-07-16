@@ -5,7 +5,8 @@ pull:
 
 # MANIPULATE CONTAINER
 
-update-dev-container: stop clean build composer db start
+update-dev-container: stop build composer start
+update-dev-container-no-db: stop build composer start-no-db
 update-prod-container: pull build-prod composer-prod start-prod migrate-prod seeds-prod declare-queue-prod optimize-prod
 
 # DEV
@@ -18,6 +19,9 @@ build:
 
 start:
 	@docker compose -f dev.yml up
+
+start-no-db:
+	@docker compose -f dev.yml up --scale db=0
 
 logs:
 	@docker compose -f dev.yml logs -f $(container)
@@ -49,6 +53,10 @@ rebuild-frontend-prod:
 	@docker compose -f prod.yml build frontend
 	@docker compose -f prod.yml up -d frontend
 
+
+update-frontend:
+	@docker compose -f dev.yml stop frontend
+	@docker compose -f dev.yml up -d frontend
 
 update-frontend-prod:
 	@docker compose -f prod.yml stop frontend

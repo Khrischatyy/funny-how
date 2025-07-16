@@ -81,21 +81,6 @@ services:
     networks:
       - funny
 
-  websocket-server:
-    build:
-      context: ./websocket
-      dockerfile: Dockerfile
-    container_name: websocket-server
-    command: "npm run dev"
-    ports:
-      - "6001:6001"
-    volumes:
-      - ./websocket:/app
-    depends_on:
-      - redis
-    networks:
-      - funny
-
   swagger:
     image: swaggerapi/swagger-ui
     container_name: swagger
@@ -164,6 +149,29 @@ services:
       - .env
     command: php /app/artisan schedule:work --verbose --no-interaction
     restart: always
+
+  chat:
+    build:
+      context: ./frontend/chat
+      dockerfile: Dockerfile
+    container_name: chat
+    ports:
+      - "6001:6001"
+    environment:
+      - NODE_ENV=development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_HOST=${DB_HOST}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=5432
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+      - db
+    networks:
+      - funny
 
 networks:
   funny:

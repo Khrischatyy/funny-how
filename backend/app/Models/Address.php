@@ -43,7 +43,7 @@ class Address extends Model
     {
         $hasOperatingHours = $this->operatingHours()->exists();
 
-        $hasStipeGateway = $this->company->adminCompany->user->stripe_id !== null;
+        $hasStipeGateway = $this->company->adminCompany->user->stripe_account_id !== null;
         $hasSquareGateway = $this->company->adminCompany->user->payment_gateway === 'square';
 
         return $hasOperatingHours && ($hasStipeGateway|| $hasSquareGateway);

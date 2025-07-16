@@ -15,7 +15,8 @@ use App\Http\Controllers\API\{AddressController,
     SquareController,
     TeamController,
     StripeController,
-    UserController};
+    UserController,
+    MessageController};
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
@@ -35,12 +36,6 @@ use Laravel\Fortify\Http\Controllers\{AuthenticatedSessionController,
 */
 
 Route::middleware(['auth:sanctum'])->group(function () {
-
-    Route::prefix('chat')->group(function () {
-        Route::post('/send', [ChatController::class, 'sendMessage']);
-        Route::get('/history/{userId}', [ChatController::class, 'getMessageHistory']);
-    });
-
 
     Route::prefix('auth')->group(function () {
 
@@ -208,6 +203,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('{slug}/studios', [AddressController::class, 'getAddressesByCompanySlug']);
 
+    Route::prefix('messages')->group(function () {
+        Route::post('/', [MessageController::class, 'store']);
+        Route::post('/history', [MessageController::class, 'history']);
+        Route::get('/chats', [MessageController::class, 'chats']);
+        Route::get('/chats/{id}', [MessageController::class, 'chatDetails']);
+    });
 
 });
 

@@ -137,6 +137,13 @@ const sideMenuTemplate: MenuItem[] = [
     link: "/payout",
     role: STUDIO_OWNER_ROLE,
   },
+  {
+    name: "Chats",
+    icon: IconHistory,
+    path: "/icons/chat.svg",
+    link: "/chats",
+    role: STUDIO_OWNER_ROLE,
+  },
 ]
 
 interface MenuItem {

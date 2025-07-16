@@ -31,12 +31,14 @@
     "@stripe/stripe-js": "^4.1.0",
     "@tsparticles/all": "^3.2.2",
     "@types/dotenv": "^8.2.0",
+    "@types/socket.io-client": "^3.0.0",
     "@types/three": "^0.162.0",
     "@vueuse/nuxt": "^10.5.0",
     "animate.css": "^4.1.1",
     "axios": "^1.5.1",
     "photoswipe": "^5.4.4",
     "pinia": "^2.1.7",
+    "socket.io-client": "^4.8.1",
     "three": "^0.161.0",
     "vue3-google-map": "^0.20.0"
   }

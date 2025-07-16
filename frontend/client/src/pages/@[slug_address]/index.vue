@@ -155,6 +155,17 @@
                 Equipments
               </button>
             </div>
+            <div
+                v-if="!isOwner"
+                @click="openChatPopup"
+                class="relative flex items-center m-auto cursor-pointer max-w-[211px] input border border-white border-double"
+            >
+              <button
+                  class="w-full px-3 h-11 font-['BebasNeue'] flex justify-center items-center outline-none bg-transparent text-white text-2xl text-center font-medium tracking-wide"
+              >
+                Chat
+              </button>
+            </div>
           </div>
           <div
               class="max-w-[514px] w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
@@ -180,20 +191,17 @@
               />
             </div>
           </div>
-          <div class="sm:max-w-3xl flex w-full justify-center mb-10">
-            <div
-                v-if="address?.rooms.length > 0"
-                class="flex flex-col flex-wrap m-auto gap-3 items-center justify-center w-full text-center"
-            >
-              <div
-                  class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
-              >
-                Choose Room
-              </div>
-              <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)" @click="chooseRoom(room.id)"
-                   class="flex max-w-[165px] sm:max-w-[150px] max-h-[150px] items-center z-[58] w-full">
+          <div v-if="address?.rooms.length > 0" 
+               class="flex flex-col items-center w-full text-center">
+            <div class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center">
+              CHOOSE ROOM
+            </div>
+            <div class="flex flex-row gap-4 justify-center w-full max-w-[1200px] overflow-x-auto">
+              <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)" 
+                   @click="chooseRoom(room.id)"
+                   class="flex-shrink-0 w-[300px] h-[300px]">
                 <RoomCard
-                    class="w-full"
+                    class="w-full h-full"
                     :class="room.id === rentingForm.room_id ? 'border border-white' : 'border border-transparent'"
                     :room="room"
                 />
@@ -391,6 +399,14 @@
           </div>
         </div>
       </div>
+      <div v-if="isOwner && customers.length">
+        <div class="mb-4 text-white">Выберите клиента для чата:</div>
+        <div class="flex flex-col gap-2 mb-6">
+          <button v-for="id in customers" :key="id" @click="openChatWithCustomer(id)" class="bg-gray-800 text-white rounded px-4 py-2 hover:bg-blue-600">
+            Чат с клиентом #{{ id }}
+          </button>
+        </div>
+      </div>
     </div>
     <EquipmentsModal
         v-if="showPopup"
@@ -401,6 +417,13 @@
         v-if="showLoginPopup"
         :show-popup="showLoginPopup"
         @close-popup="closeLoginPopup"
+    />
+    <ChatModal
+      v-if="showChatPopup && ((isOwner && selectedCustomerId) || (!isOwner && address?.company?.user_id))"
+      :showPopup="showChatPopup"
+      :studioId="address?.id"
+      :recipientId="isOwner ? selectedCustomerId : address?.company?.user_id"
+      @closePopup="showChatPopup = false"
     />
   </div>
 </template>
@@ -456,6 +479,7 @@ import {Clipboard} from "~/src/shared/ui/common/Clipboard"
 import FSelect from "~/src/shared/ui/common/Input/FSelect.vue"
 import {IconStatus} from "~/src/shared/ui/common/Icon/Filter"
 import {RoomCard} from "~/src/entities/Studio";
+import ChatModal from '~/src/components/ChatModal.vue'
 
 const route = useRoute()
 const addressSlug = ref(route.params.slug_address)
@@ -661,6 +685,7 @@ onMounted(async () => {
   if (address?.value?.rooms?.length > 0) {
     rentingForm.value.room_id = address?.value?.rooms[0].id
   }
+  if (isOwner.value) fetchCustomersForOwner()
 })
 
 onUnmounted(() => {
@@ -919,6 +944,56 @@ const closePopup = () => {
 const closeLoginPopup = () => {
   showLoginPopup.value = false
 }
+
+const showChatPopup = ref(false)
+const isAuth = ref(false)
+const studioId = ref(null)
+const studioOwnerId = ref(null)
+
+const openChatPopup = () => {
+  console.log('[chat][debug] Opening chat popup')
+  console.log('[chat][debug] isOwner:', isOwner.value)
+  console.log('[chat][debug] address?.company?.user_id:', address.value?.company?.user_id)
+  console.log('[chat][debug] selectedCustomerId:', selectedCustomerId.value)
+  showChatPopup.value = true
+}
+
+const closeChatPopup = () => {
+  showChatPopup.value = false
+}
+
+watchEffect(() => {
+  console.log('address:', address.value);
+  console.log('user_id:', address.value?.company?.user_id);
+  console.log('showChatPopup:', showChatPopup.value);
+});
+
+const isOwner = computed(() => session.user?.id === address.value?.company?.user_id)
+const selectedCustomerId = ref(null)
+const customers = ref([])
+
+async function fetchCustomersForOwner() {
+  // Получаем всю историю сообщений для адреса (можно оптимизировать на бэкенде)
+  const { fetch } = useApi({
+    url: `/messages/history?address_id=${address.value.id}&user_id=${session.user?.id}`,
+    auth: true
+  })
+  const response = await fetch()
+  if (response?.data) {
+    // Собираем уникальные customer_id (sender_id, не равные owner)
+    const ids = new Set()
+    response.data.forEach(msg => {
+      if (msg.sender_id !== session.user?.id) ids.add(msg.sender_id)
+      if (msg.recipient_id !== session.user?.id) ids.add(msg.recipient_id)
+    })
+    customers.value = Array.from(ids)
+  }
+}
+
+function openChatWithCustomer(customerId) {
+  selectedCustomerId.value = customerId
+  showChatPopup.value = true
+}
 </script>
 
 <style scoped lang="scss">
@@ -980,8 +1055,8 @@ select {
 }
 
 .photo-container {
-  top: 0; // Adjust this value based on your header or desired offset
-  transition: height 0.1s ease-in-out; // Smooth transition for height change
-  z-index: 1000; // Ensure the photo container is above other content
+  top: 0;
+  transition: height 0.1s ease-in-out;
+  z-index: 1000;
 }
 </style>

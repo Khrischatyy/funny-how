@@ -29,6 +29,7 @@ export type AddressFull = {
     created_at: string
     updated_at: string
     logo_url: string
+    user_id: number
   }
   badges: {
     id: number
