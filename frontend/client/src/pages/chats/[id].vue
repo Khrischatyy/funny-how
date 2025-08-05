@@ -168,7 +168,7 @@ const isConnected = ref(false)
 const connectSocket = () => {
   try {
     console.log('[chat] Connecting to WebSocket...')
-    const host = import.meta.env.VITE_WEBSOCKET_HOST || 'http://127.0.0.1:6001'
+    const host = window.location.hostname === 'localhost' ? 'http://localhost:6001' : 'https://funny-how.com'
     console.log('[chat] WebSocket host:', host)
     const token = session.value.accessToken
     console.log('[chat] Using token:', token)
