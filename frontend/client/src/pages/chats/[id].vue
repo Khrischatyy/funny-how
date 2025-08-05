@@ -25,7 +25,7 @@
         </div>
 
         <!-- Messages -->
-        <div 
+        <div
           ref="messagesContainer"
           class="flex-1 overflow-y-auto py-4 space-y-4"
           @scroll="handleScroll"
@@ -39,21 +39,21 @@
           </div>
 
           <template v-else>
-            <div v-for="message in messages" :key="message.id" 
+            <div v-for="message in messages" :key="message.id"
                  :class="[
                    'flex',
                    message.sender_id === currentUserId ? 'justify-end' : 'justify-start'
                  ]"
             >
-              <div 
+              <div
                 :class="[
                   'max-w-[70%] rounded-lg p-3',
-                  message.sender_id === currentUserId 
-                    ? 'bg-blue-500 text-white' 
+                  message.sender_id === currentUserId
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-700 text-white'
                 ]"
               >
-                <p class="text-sm">{{ message.message }}</p>
+                <p class="text-sm">{{ message.content }}</p>
                 <p class="text-xs mt-1 opacity-70">
                   {{ formatTime(message.created_at) }}
                 </p>
@@ -122,10 +122,22 @@ import { io } from 'socket.io-client'
 
 type Message = {
   id: number
-  message: string
+  content: string
   sender_id: number
   recipient_id: number
+  address_id: number
+  is_read: boolean
   created_at: string
+  updated_at: string
+}
+
+type ChatResponse = {
+  id: string
+  customer_name: string
+  address_name: string
+  customer_id: string
+  address_id: number
+  messages: Message[]
 }
 
 type Chat = {
@@ -143,7 +155,7 @@ const messagesContainer = ref<HTMLElement | null>(null)
 const messages = ref<Message[]>([])
 const chat = ref<Chat | null>(null)
 const newMessage = ref('')
-const isLoading = ref(false)
+const isLoading = ref(true)
 const isSending = ref(false)
 const error = ref('')
 const page = ref(1)
@@ -228,17 +240,56 @@ onUnmounted(() => {
 })
 
 const fetchChatDetails = async () => {
+  isLoading.value = true
+  error.value = ''
+
   try {
     const { fetch } = useApi({
       url: `/messages/chats/${chatId.value}`,
       auth: true
     })
 
-    const response = await fetch() as { data: Chat }
-    chat.value = response.data
+    const response = await fetch() as { data: ChatResponse }
+    const chatData = response.data
+
+    chat.value = {
+      id: Number(chatData.id),
+      customer_name: chatData.customer_name,
+      address_name: chatData.address_name,
+      customer_id: Number(chatData.customer_id),
+      address_id: chatData.address_id
+    }
+
+    if (chatData.messages && Array.isArray(chatData.messages)) {
+      messages.value = chatData.messages
+      nextTick(() => scrollToBottom())
+    }
   } catch (err) {
     console.error('Error fetching chat details:', err)
     error.value = 'Failed to load chat details'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const fetchMessages = async (isInitial = false) => {
+  if (isLoading.value) return
+
+  if (isInitial) {
+    page.value = 1
+    hasMore.value = true
+  }
+
+  isLoading.value = true
+
+  try {
+    // If using pagination in the future, you can implement it here
+    // Currently, all messages are returned from the chatDetails endpoint
+  } catch (err) {
+    console.error('Error fetching messages:', err)
+    error.value = 'Failed to load messages'
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -246,21 +297,52 @@ const sendMessage = async () => {
   if (!newMessage.value.trim() || isSending.value || !chat.value) return
 
   isSending.value = true
-  
+
   try {
-    console.log('[chat][debug] emit private-message', {
-      recipientId: chat.value.customer_id,
-      message: newMessage.value,
-      addressId: chat.value.address_id
+    // First try to send via API directly
+    const { fetch } = useApi({
+      url: '/messages',
+      method: 'POST',
+      auth: true,
+      body: {
+        recipient_id: chat.value.customer_id,
+        content: newMessage.value,
+        address_id: chat.value.address_id
+      }
     })
 
-    socket.value.emit('private-message', {
-      recipientId: chat.value.customer_id,
-      message: newMessage.value,
-      addressId: chat.value.address_id
-    })
+    await fetch()
 
+    // Also try via socket if connected
+    if (isConnected.value && socket.value) {
+      console.log('[chat][debug] emit private-message', {
+        recipientId: chat.value.customer_id,
+        message: newMessage.value,
+        addressId: chat.value.address_id
+      })
+
+      socket.value.emit('private-message', {
+        recipientId: chat.value.customer_id,
+        message: newMessage.value,
+        addressId: chat.value.address_id
+      })
+    }
+
+    // Add the message to the local messages list immediately
+    const newMsg: Message = {
+      id: Date.now(), // Temporary ID
+      content: newMessage.value,
+      sender_id: Number(currentUserId.value),
+      recipient_id: chat.value.customer_id,
+      address_id: chat.value.address_id,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
+    messages.value.push(newMsg)
     newMessage.value = ''
+    nextTick(() => scrollToBottom())
   } catch (err) {
     console.error('Error sending message:', err)
     error.value = 'Failed to send message'
@@ -271,10 +353,10 @@ const sendMessage = async () => {
 
 const handleScroll = () => {
   if (!messagesContainer.value) return
-  
+
   const { scrollTop } = messagesContainer.value
   if (scrollTop === 0 && hasMore.value) {
-    fetchMessages(true)
+    fetchMessages(false)
   }
 }
 
@@ -297,4 +379,4 @@ const getInitials = (name: string) => {
     .toUpperCase()
     .slice(0, 2)
 }
-</script> 
+</script>

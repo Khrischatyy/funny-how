@@ -142,7 +142,7 @@ const sideMenuTemplate: MenuItem[] = [
     icon: IconHistory,
     path: "/icons/chat.svg",
     link: "/chats",
-    role: STUDIO_OWNER_ROLE,
+    role: "",
   },
 ]
 
