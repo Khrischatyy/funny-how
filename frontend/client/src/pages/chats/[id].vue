@@ -5,7 +5,7 @@
       class="text-white flex flex-col min-h-screen"
       name="dashboard"
     >
-      <div class="container mx-auto px-2 md:px-4 h-full flex flex-col">
+      <div class="container mx-auto px-2 md:px-4 h-full flex flex-col" style="height: calc(100vh - 100px);">
         <!-- Header -->
         <div class="py-4 border-b border-gray-700 flex items-center justify-between">
           <div class="flex items-center space-x-3">
@@ -27,7 +27,7 @@
         <!-- Messages -->
         <div
           ref="messagesContainer"
-          class="flex-1 overflow-y-auto py-4 space-y-4"
+          class="flex-1 overflow-y-auto py-4 space-y-4 flex flex-col-reverse"
           @scroll="handleScroll"
         >
           <div v-if="isLoading" class="flex justify-center items-center py-8">
@@ -39,22 +39,26 @@
           </div>
 
           <template v-else>
-            <div v-for="message in messages" :key="message.id"
+            <div v-for="message in [...messages].reverse()" :key="message.id"
                  :class="[
-                   'flex',
+                   'flex mb-4',
                    message.sender_id === currentUserId ? 'justify-end' : 'justify-start'
                  ]"
             >
-              <div
-                :class="[
-                  'max-w-[70%] rounded-lg p-3',
-                  message.sender_id === currentUserId
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-700 text-white'
-                ]"
-              >
-                <p class="text-sm">{{ message.content }}</p>
-                <p class="text-xs mt-1 opacity-70">
+              <div class="flex flex-col max-w-[80%]" :class="message.sender_id === currentUserId ? 'items-end' : 'items-start'">
+                <div
+                  :class="[
+                    'message-content p-3 word-break-break-word',
+                    message.sender_id === currentUserId
+                      ? 'own-bubble bg-[#4a90e2] text-white'
+                      : 'other-bubble bg-[#232323] text-white'
+                  ]"
+                >
+                  <span class="sender-label text-xs font-bold block mb-1" v-if="message.sender_id === currentUserId">You</span>
+                  <span class="sender-label text-xs font-bold block mb-1" v-else>{{ chat?.customer_name || 'User' }}</span>
+                  <p class="text-sm">{{ message.content }}</p>
+                </div>
+                <p class="message-time text-xs mt-1 text-gray-400">
                   {{ formatTime(message.created_at) }}
                 </p>
               </div>
@@ -69,12 +73,12 @@
               v-model="newMessage"
               type="text"
               placeholder="Type a message..."
-              class="flex-1 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="flex-1 bg-[#232323] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white border-opacity-20"
               :disabled="isSending"
             />
             <button
               type="submit"
-              class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+              class="bg-[#4a90e2] text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
               :disabled="!newMessage.trim() || isSending"
             >
               <span v-if="!isSending">Send</span>
@@ -110,6 +114,51 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.message-content {
+  border-radius: 15px;
+  max-width: 320px;
+  word-break: break-word;
+  margin-bottom: 2px;
+}
+
+.own-bubble {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 15px;
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  align-self: flex-end;
+}
+
+.other-bubble {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 15px;
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  align-self: flex-start;
+}
+
+.sender-label {
+  opacity: 0.7;
+  margin-bottom: 2px;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
+  margin-bottom: 8px;
+}
+
+/* Hide scrollbar but keep functionality */
+.overflow-y-auto {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 </style>
 
@@ -357,15 +406,17 @@ const sendMessage = async () => {
 const handleScroll = () => {
   if (!messagesContainer.value) return
 
-  const { scrollTop } = messagesContainer.value
-  if (scrollTop === 0 && hasMore.value) {
+  const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value
+  // With flex-col-reverse, we load more when reaching the end (top of the reversed view)
+  if (Math.abs(scrollHeight - clientHeight - scrollTop) < 10 && hasMore.value) {
     fetchMessages(false)
   }
 }
 
 const scrollToBottom = () => {
   if (!messagesContainer.value) return
-  messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+  // With flex-col-reverse, scrollTop = 0 is already at the bottom (latest messages)
+  messagesContainer.value.scrollTop = 0
 }
 
 const formatTime = (time: string) => {
