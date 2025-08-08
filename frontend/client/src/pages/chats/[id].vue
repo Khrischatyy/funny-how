@@ -244,12 +244,14 @@ const fetchChatDetails = async () => {
   error.value = ''
 
   try {
-    const { fetch } = useApi({
+    // Using POST request to get chat details with the user ID
+    const { post } = useApi({
       url: `/messages/chats/${chatId.value}`,
-      auth: true
+      auth: true,
+      body: {}
     })
 
-    const response = await fetch() as { data: ChatResponse }
+    const response = await post() as { data: ChatResponse }
     const chatData = response.data
 
     chat.value = {
@@ -300,18 +302,19 @@ const sendMessage = async () => {
 
   try {
     // First try to send via API directly
-    const { fetch } = useApi({
+    const { post } = useApi({
       url: '/messages',
-      method: 'POST',
-      auth: true,
-      body: {
-        recipient_id: chat.value.customer_id,
-        content: newMessage.value,
-        address_id: chat.value.address_id
-      }
+      auth: true
     })
 
-    await fetch()
+    const messageData = {
+      recipient_id: parseInt(String(chat.value.customer_id), 10),
+      content: newMessage.value.trim(),
+      address_id: parseInt(String(chat.value.address_id), 10)
+    }
+
+    console.log('Sending message data:', messageData)
+    await post(messageData)
 
     // Also try via socket if connected
     if (isConnected.value && socket.value) {

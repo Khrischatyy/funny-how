@@ -207,7 +207,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [MessageController::class, 'store']);
         Route::post('/history', [MessageController::class, 'history']);
         Route::get('/chats', [MessageController::class, 'chats']);
-        Route::get('/chats/{id}', [MessageController::class, 'chatDetails']);
+        Route::post('/chats/{id}', [MessageController::class, 'chatDetails']);
     });
 
 });
