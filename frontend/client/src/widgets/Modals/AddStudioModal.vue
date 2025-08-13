@@ -395,7 +395,7 @@ const updateSlug = () => {
               <FInputClassic
                   :wide="true"
                   label="Name"
-                  placeholder="Room 1 / Room 2 / Space Room"
+                  placeholder="e.g Room 1 / Studio A / Space Room"
                   v-model="newRoom.name"
               />
             </div>

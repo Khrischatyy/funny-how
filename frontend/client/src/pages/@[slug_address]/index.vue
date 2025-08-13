@@ -6,7 +6,7 @@
   >
     <Spinner :is-loading="!address"/>
     <div
-        v-if="address && address.is_complete && address.photos.length > 0"
+        v-if="address && address.is_complete"
         ref="photoContainer"
         style="width: -webkit-fill-available"
         class="photo-container animate__animated animate__fadeInDown w-full max-h-[250px] max-w-full backdrop-blur p-0 py-5 md:p-10"
@@ -18,6 +18,11 @@
           role="dialog"
           aria-hidden="true"
       ></div>
+      <div v-if="address?.photos?.length === 0" class="w-full flex justify-center items-center">
+        <div class="text-white text-2xl font-[BebasNeue] text-center">
+          Studio owner didn't add photos
+        </div>
+      </div>
       <ScrollContainer
           v-if="address?.photos?.length > 0"
           :justify-content="address?.photos?.length >= 7 ? 'start' : 'center'"
@@ -191,13 +196,13 @@
               />
             </div>
           </div>
-          <div v-if="address?.rooms.length > 0" 
+          <div v-if="address?.rooms.length > 0"
                class="flex flex-col items-center w-full text-center">
             <div class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center">
               CHOOSE ROOM
             </div>
             <div class="flex flex-row gap-4 justify-center w-full max-w-[1200px] overflow-x-auto">
-              <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)" 
+              <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)"
                    @click="chooseRoom(room.id)"
                    class="flex-shrink-0 w-[300px] h-[300px]">
                 <RoomCard

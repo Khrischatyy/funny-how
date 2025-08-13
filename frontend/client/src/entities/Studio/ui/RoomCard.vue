@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-black h-full max-h-[150px] sm:max-h-[234px] rounded-md shadow-lg flex flex-col justify-between relative"
+    class="bg-[#010907] h-full max-h-[150px] sm:max-h-[234px] rounded-md shadow-lg flex flex-col justify-between relative border border-dashed border-white  duration-300 hover:scale-105 transform-gpu origin-center m-4"
   >
     <div class="flex justify-between items-start mb-4">
       <button
@@ -37,10 +37,11 @@
 
     <div
         :style="`background: url(${displayedPhotos[currentIndex]?.path}) #2e2e2e no-repeat center center / cover;`"
-        class="flex gap-3 h-full w-full justify-center items-center absolute top-0 left-0 rounded-md cursor-pointer">
-      <IconPhotoPlaceholder
-          class="h-[50px] sm:h-[120px]"
-          v-if="displayedPhotos.length === 0" />
+        class="flex flex-col gap-1 h-full w-full justify-center items-center absolute top-0 left-0 rounded-md cursor-pointer">
+      <div v-if="displayedPhotos.length === 0" class="flex flex-col items-center justify-center">
+        <IconPhotoPlaceholder class="h-[50px] sm:h-[100px]" />
+        <p class="text-white opacity-5 text-xs font-medium mt-1">Photo is not added</p>
+      </div>
     </div>
     <div class="mt-0 sm:mt-4 flex gap-3 justify-between rounded-md items-center">
       <div
@@ -53,10 +54,10 @@
         <IconPrice class="opacity-20 group-hover:opacity-100" />
         <div class="flex flex-col gap-2 group-hover:opacity-100">
           <span
-            class="text-white opacity-20 text-sm group-hover:opacity-100"
+            class="text-white opacity-20 text-sm group-hover:opacity-100 w-full text-left"
             >Price</span
           >
-          <span class="text-white text-xs">{{ primaryPrice }}</span>
+          <span class="text-white text-xs w-full text-left">{{ primaryPrice }}</span>
         </div>
       </div>
     </div>

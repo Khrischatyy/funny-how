@@ -219,7 +219,7 @@ const deleteEquipment = (id: number) => {
         <div class="justify-center w-full items-center gap-2.5 inline-flex">
           <button
             @click="togglePopup"
-            class="w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-700 border-white border text-sm font-medium tracking-wide"
+            class="w-full h-11 p-3.5 hover:opacity-90 bg-white rounded-[10px] text-neutral-700 border-white border text-sm font-medium tracking-wide mt-2"
           >
             Add equipment
           </button>
