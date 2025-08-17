@@ -198,13 +198,13 @@
           </div>
           <div v-if="address?.rooms.length > 0"
                class="flex flex-col items-center w-full text-center">
-            <div class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center">
-              CHOOSE ROOM
+            <div class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 items-center underline underline-offset-4 mb-5">
+              ROOM:
             </div>
             <div class="flex flex-row gap-4 justify-center w-full max-w-[1200px] overflow-x-auto">
               <div v-for="room in address?.rooms.filter(r => r.prices.length > 0)"
                    @click="chooseRoom(room.id)"
-                   class="flex-shrink-0 w-[300px] h-[300px]">
+                   class="flex-shrink-0 w-[150px] md:w-[250px] lg:w-[300px] h-[150px] md:h-[250px] lg:h-[300px]">
                 <RoomCard
                     class="w-full h-full"
                     :class="room.id === rentingForm.room_id ? 'border border-white' : 'border border-transparent'"
@@ -218,9 +218,9 @@
               class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col text-center mb-10"
           >
             <div
-                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+                class="underline underline-offset-4 flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-10 md:mt-10 mb-2 items-center"
             >
-              Engineer
+              Engineer:
             </div>
             <div class="relative w-full flex flex-col items-center">
               <div class="flex items-center flex-col z-[55] w-full">
@@ -240,9 +240,9 @@
               class="max-w-[212px] m-auto w-full justify-between gap-1.5 items-center flex-col mb-10 text-center"
           >
             <div
-                class="flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mt-5 mb-2 items-center"
+                class="underline underline-offset-4 flex gap-2 font-[BebasNeue] text-4xl text-white justify-center mb-2 items-center"
             >
-              Choose Day
+              Day:
             </div>
             <div v-if="rentingForm.room_id" class="relative w-full flex items-center">
               <div class="flex items-center flex-col w-full">

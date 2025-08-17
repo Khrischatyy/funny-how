@@ -225,10 +225,15 @@ class StripeService implements PaymentServiceInterface
 
     private function createAccountLink(string $stripeAccountId): AccountLink
     {
+        // Ensure HTTPS URLs for live mode
+        $baseUrl = str_starts_with(env('STRIPE_KEY', ''), 'pk_live')
+            ? 'https://funny-how.com'
+            : env('APP_URL');
+
         return AccountLink::create([
             'account' => $stripeAccountId,
-            'refresh_url' => env('APP_URL') . '/stripe/refresh',
-            'return_url' => env('APP_URL') . '/stripe/complete',
+            'refresh_url' => $baseUrl . '/stripe/refresh',
+            'return_url' => $baseUrl . '/stripe/complete',
             'type' => 'account_onboarding',
         ]);
     }
